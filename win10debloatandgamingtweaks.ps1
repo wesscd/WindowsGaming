@@ -2,20 +2,13 @@
 # Master Branch : https://github.com/ChrisTitusTech/win10script
 # Current Author : Daddy Madu 
 # Current Author Source: https://github.com/DaddyMadu/Windows10GamingFocus
-#
-#    Note from author: Never run scripts without reading them & understanding what they do.
-#
-#	Addition: One command to rule them all, One command to find it, and One command to Run it! 
-#
-#     > powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('http://madu.gg/ps')"
-#
-#     Changelogs Moved to ReadMe File for better mangement. 
+# Current Modifier Source: https://github.com/wesscd/WindowsGaming
 #
 ##########
-$host.ui.RawUI.WindowTitle = "DaddyMadu Ultimate Windows Debloater and Gaming Focus Tweaker"
-cmd /c 'title [DaddyMadu Ultimate Windows Debloater and Gaming Focus Tweaker]'
-Write-Host 'Welcome to DaddyMadu Ultimate Windows Debloater and Gaming Focus Tweaker';
-Write-Host "Please DISABLE your ANTIVIRUS to prevent any issues and PRESS any KEY to Continue!" -ForegroundColor Red -BackgroundColor Black
+$host.ui.RawUI.WindowTitle = "TechRemote Ultimate Windows Debloater Gaming"
+cmd /c 'title [TechRemote Ultimate Windows Debloater Gaming]'
+Write-Host 'Bem vindo ao TechRemote Ultimate Windows Debloater Gaming';
+Write-Host "DESATIVE seu ANTIVÍRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" -ForegroundColor Red -BackgroundColor Black
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null
 New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
@@ -35,11 +28,11 @@ $tweaks = @(
 	"SlowUpdatesTweaks",
 	"Write-ColorOutput", #Utilizing Colors for better Warning messages!
 	"InstallTitusProgs", #REQUIRED FOR OTHER PROGRAM INSTALLS!
-	"InstallMVC", #DaddyMadu install Microsoft Visualstudio required for HPET service!
+	"InstallMVC", #install Microsoft Visualstudio required for HPET service!
 	"Install7Zip",
 	"InstallChocoUpdates",
-	"EnableUlimatePower",    # DaddyMadu don't change order it will break other functions! just disable if you want with #
-	### DaddyMadu Windows Defender Settings! Don't Change Order Just Disable with # If You Don't want it ###
+	"EnableUlimatePower",    # don't change order it will break other functions! just disable if you want with #
+	### Windows Defender Settings! Don't Change Order Just Disable with # If You Don't want it ###
 	"MSIMode",                       #Enable Or Disable MSI Mode For Supported Cards, WARNING ENABLING MSI MODE MIGHT CRUSH YOUR SYSTEM! IF IT HAPPENS PLEASE RESTORE LAST WORKING SYSTEM RESTORE POINT AND DON'T ENABLE MSI MODE ON THIS SYSTEM AGAIN!
 	"askDefender",
 	"DorEOneDrive",                  #Option to Install Or Uninstall Microsoft One Drive!
@@ -166,9 +159,9 @@ $tweaks = @(
 	"SVCHostTweak",
 	### Unpinning ###
 	"UnpinStartMenuTiles",
-        ### DaddyMadu Quality Of Life Tweaks ###
+        ### Quality Of Life Tweaks ###
 	"QOL",
-        ### DaddyMadu Gaming Tweaks ###
+        ### Gaming Tweaks ###
 	"FullscreenOptimizationFIX",
 	"GameOptimizationFIX",
 	"ApplyPCOptimizations",
@@ -206,11 +199,11 @@ $mobiletweaks = @(
 	"SlowUpdatesTweaks",
 	"Write-ColorOutput", #Utilizing Colors for better Warning messages!
 	"InstallTitusProgs", #REQUIRED FOR OTHER PROGRAM INSTALLS!
-	"InstallMVC", #DaddyMadu install Microsoft Visualstudio required for HPET service!
+	"InstallMVC", #install Microsoft Visualstudio required for HPET service!
 	"Install7Zip",
 	"InstallChocoUpdates",
-	"EnableUlimatePower",    # DaddyMadu don't change order it will break other functions! just disable if you want with #
-	### DaddyMadu Windows Defender Settings! Don't Change Order Just Disable with # If You Don't want it ###
+	"EnableUlimatePower",    # don't change order it will break other functions! just disable if you want with #
+	### Windows Defender Settings! Don't Change Order Just Disable with # If You Don't want it ###
 	"MSIMode",                       #Enable Or Disable MSI Mode For Supported Cards, WARNING ENABLING MSI MODE MIGHT CRUSH YOUR SYSTEM! IF IT HAPPENS PLEASE RESTORE LAST WORKING SYSTEM RESTORE POINT AND DON'T ENABLE MSI MODE ON THIS SYSTEM AGAIN!
 	"askDefender",
 	"DorEOneDrive",                  #Option to Install Or Uninstall Microsoft One Drive!
@@ -337,9 +330,9 @@ $mobiletweaks = @(
 	"SVCHostTweak",
 	### Unpinning ###
 	"UnpinStartMenuTiles",
-        ### DaddyMadu Quality Of Life Tweaks ###
+        ### Quality Of Life Tweaks ###
 	"QOL",
-        ### DaddyMadu Gaming Tweaks ###
+        ### Gaming Tweaks ###
 	"FullscreenOptimizationFIX",
 	"GameOptimizationFIX",
 	"ApplyPCOptimizations",
@@ -503,12 +496,12 @@ Function askXBOX {
 	do
  {
     Clear-Host
-    Write-Host "================ Do You Want To Disable XBOX features and all related APPS? ================"
-	Write-ColorOutput "WARNING: REMOVING XBOX APPS will make Win+G do nothing!" Red
-    Write-Host "Y: Press 'Y' to Disable XBOX features."
-    Write-Host "N: Press 'N' to Enable XBOX features."
-    Write-Host "Q: Press 'Q' to Skip this."
-    $selection = Read-Host "Please make a selection"
+    Write-Host "================ Voce deseja desabilitar os recursos do XBOX e todos os APLICATIVOS relacionados? ================"
+	Write-ColorOutput "AVISO: REMOVER OS APLICATIVOS DO XBOX fara com que o Win+G nao faca nada!" Red
+    Write-Host "Y: Pressione 'Y' para desabilitar os recursos do XBOX."
+    Write-Host "N: Pressione 'N' para habilitar os recursos do XBOX."
+    Write-Host "Q: Pressione 'Q' para pular isso."
+    $selection = Read-Host "Por favor, escolha"
     switch ($selection)
     {
     'y' { 
@@ -1065,11 +1058,11 @@ Function askDefender {
 	do
  {
     Clear-Host
-    Write-Host "================ Do you want to Disable Microsoft Windows Defender? ================"
-    Write-Host "Y: Press 'Y' to Disable Microsoft Windows Defender."
-    Write-Host "N: Press 'N' to Enable Microsoft Windows Defender."
-	Write-Host "Q: Press 'Q' to Skip this."
-    $selection = Read-Host "Please make a selection"
+    Write-Host "================ Voce quer desabilitar o Microsoft Windows Defender? ================"
+    Write-Host "Y: Pressione 'Y' para desabilitar o Microsoft Windows Defender."
+    Write-Host "N: Pressione 'N' para habilitar o Microsoft Windows Defender."
+	Write-Host "Q: Pressione 'Q' para pular isso."
+    $selection = Read-Host "Por favor, escolha."
     switch ($selection)
     {
     'y' { 
@@ -2218,11 +2211,11 @@ Function DorEOneDrive {
 	do
  {
     Clear-Host
-    Write-Host "================ Do you want to Disable Microsoft OneDrive? ================"
-    Write-Host "Y: Press 'Y' to Disable OneDrive."
-    Write-Host "N: Press 'N' to Enable OneDrive."
-	Write-Host "Q: Press 'Q' to Skip this."
-    $selection = Read-Host "Please make a selection"
+    Write-Host "================ Você deseja desabilitar o Microsoft OneDrive? ================"
+    Write-Host "Y: Pressione 'Y' para desabilitar o OneDrive."
+    Write-Host "N: Pressione 'N' para habilitar o OneDrive."
+	Write-Host "Q: Pressione 'Q' para pular isso."
+    $selection = Read-Host "Por favor, escolha"
     switch ($selection)
     {
     'y' { 
@@ -2493,7 +2486,7 @@ Stop-Process -name explorer | Out-Null
 }
 
 ##########
-# DaddyMadu Quality Of Life Tweaks
+# Quality Of Life Tweaks
 ##########
 # Windows 11 Extra Tweaks
 function Windows11Extra {
@@ -2513,7 +2506,7 @@ function Windows11Extra {
 }
 # Enable Quality Of Life Tweaks
 Function QOL {
-       	Write-Output "Enabling DaddyMadu Quality of Life Tweaks..."
+       	Write-Output "Enabling Quality of Life Tweaks..."
 	$errpref = $ErrorActionPreference #save actual preference
         $ErrorActionPreference = "silentlycontinue"
 	New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -ErrorAction SilentlyContinue | Out-Null
@@ -3323,9 +3316,9 @@ Function FixURLext {
     choco uninstall -y setuserfta | Out-Null
 }
     
-#DaddyMadu Ultimate CLeaner
+# Ultimate CLeaner
 Function UltimateCleaner {
-    Write-Host "Running DaddyMadu Ultimate Cleaner => Temp folders & Flush DNS + Reset IP...."
+    Write-Host "Running Ultimate Cleaner => Temp folders & Flush DNS + Reset IP...."
 cmd /c 'netsh winsock reset 2>nul' >$null
 cmd /c 'netsh int ip reset 2>nul' >$null
 cmd /c 'ipconfig /release 2>nul' >$null
