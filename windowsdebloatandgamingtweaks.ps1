@@ -5,7 +5,7 @@
 # Current Modifier Source: https://github.com/wesscd/WindowsGaming
 #
 ##########
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.3 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.4 --"
 cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Write-Host 'Bem vindo ao TechRemote Ultimate Windows Debloater Gaming';
 Write-Host "DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" -ForegroundColor Red -BackgroundColor Black
@@ -2615,6 +2615,13 @@ Function FullscreenOptimizationFIX {
 			}
 	}
 
+	# Verifica o serviço MMAgent e tenta iniciá-lo, caso esteja desativado
+	$magentService = Get-Service -Name MMAgent -ErrorAction SilentlyContinue
+	if ($magentService.Status -ne 'Running') {
+			Write-Output "O serviço MMAgent não está em execução. Tentando iniciar..."
+			Start-Service -Name MMAgent -ErrorAction SilentlyContinue
+	}
+
 	# Desativando a compressão de memória
 	if ($Simular) {
 			Write-Output "Simulação: Executaria Disable-MMAgent -MemoryCompression"
@@ -2627,6 +2634,7 @@ Function FullscreenOptimizationFIX {
 
 	Write-Output "Otimizações de tela cheia concluídas!"
 }
+
 
 #Game Optimizations Priority Tweaks -Type String -Value "Deny"
 Function GameOptimizationFIX {
