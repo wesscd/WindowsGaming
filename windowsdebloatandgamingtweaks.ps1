@@ -5,7 +5,7 @@
 # Current Modifier Source: https://github.com/wesscd/WindowsGaming
 #
 ##########
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.2 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.3 --"
 cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Write-Host 'Bem vindo ao TechRemote Ultimate Windows Debloater Gaming';
 Write-Host "DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" -ForegroundColor Red -BackgroundColor Black
@@ -2575,22 +2575,57 @@ Function QOL {
 
 #Disable Fullscreen Optimizations
 Function FullscreenOptimizationFIX {
-	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
-	Write-Output "Disabling Full ScreenOptimization..."
-	Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehaviorMode" -Type DWord -Value 2
-	Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_HonorUserFSEBehaviorMode" -Type DWord -Value 1
-	Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehavior" -Type DWord -Value 2
-	Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DXGIHonorFSEWindowsCompatible" -Type DWord -Value 1
-	Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_EFSEFeatureFlags" -Type DWord -Value 0
-	Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DSEBehavior" -Type DWord -Value 2
-	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Type DWord -Value 0
- 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\DirectX\GraphicsSettings" -Name "SwapEffectUpgradeCache" -Type DWord -Value 1
-  	Set-ItemProperty -Path "HKCU:\Software\Microsoft\DirectX\UserGpuPreferences" -Name "DirectXUserGlobalSettings" -Type String -Value 'SwapEffectUpgradeEnable=1;'
-   	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform" -Name "InactivityShutdownDelay" -Type DWord -Value 4294967295
-    	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Dwm" -Name "OverlayTestMode" -Type DWord -Value 5
-   	Disable-MMAgent -MemoryCompression | Out-Null
-    	$ErrorActionPreference = $errpref #restore previous preference
+	param(
+			[switch]$Simular  # Parâmetro para ativar o modo de simulação
+	)
+
+	$errpref = $ErrorActionPreference # Salva a preferência de erro atual
+	$ErrorActionPreference = "SilentlyContinue"
+	
+	Write-Output "Desabilitando otimizações de tela cheia..."
+	
+	$regPaths = @(
+			"HKCU:\System\GameConfigStore",
+			"HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR",
+			"HKCU:\Software\Microsoft\DirectX\GraphicsSettings",
+			"HKCU:\Software\Microsoft\DirectX\UserGpuPreferences",
+			"HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform",
+			"HKLM:\SOFTWARE\Microsoft\Windows\Dwm"
+	)
+
+	$properties = @(
+			@{"Path"="HKCU:\System\GameConfigStore"; "Name"="GameDVR_FSEBehaviorMode"; "Value"=2},
+			@{"Path"="HKCU:\System\GameConfigStore"; "Name"="GameDVR_HonorUserFSEBehaviorMode"; "Value"=1},
+			@{"Path"="HKCU:\System\GameConfigStore"; "Name"="GameDVR_FSEBehavior"; "Value"=2},
+			@{"Path"="HKCU:\System\GameConfigStore"; "Name"="GameDVR_DXGIHonorFSEWindowsCompatible"; "Value"=1},
+			@{"Path"="HKCU:\System\GameConfigStore"; "Name"="GameDVR_EFSEFeatureFlags"; "Value"=0},
+			@{"Path"="HKCU:\System\GameConfigStore"; "Name"="GameDVR_DSEBehavior"; "Value"=2},
+			@{"Path"="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR"; "Name"="AppCaptureEnabled"; "Value"=0},
+			@{"Path"="HKCU:\Software\Microsoft\DirectX\GraphicsSettings"; "Name"="SwapEffectUpgradeCache"; "Value"=1},
+			@{"Path"="HKCU:\Software\Microsoft\DirectX\UserGpuPreferences"; "Name"="DirectXUserGlobalSettings"; "Value"='SwapEffectUpgradeEnable=1;'},
+			@{"Path"="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform"; "Name"="InactivityShutdownDelay"; "Value"=4294967295},
+			@{"Path"="HKLM:\SOFTWARE\Microsoft\Windows\Dwm"; "Name"="OverlayTestMode"; "Value"=5}
+	)
+
+	foreach ($prop in $properties) {
+			if ($Simular) {
+					Write-Output "Simulação: Definiria $($prop.Name) em $($prop.Path) como $($prop.Value)"
+			} else {
+					Set-ItemProperty -Path $prop.Path -Name $prop.Name -Value $prop.Value -Type DWord -ErrorAction SilentlyContinue
+			}
+	}
+
+	# Desativando a compressão de memória
+	if ($Simular) {
+			Write-Output "Simulação: Executaria Disable-MMAgent -MemoryCompression"
+	} else {
+			Disable-MMAgent -MemoryCompression | Out-Null
+	}
+
+	# Restaurando a preferência de erro original
+	$ErrorActionPreference = $errpref
+
+	Write-Output "Otimizações de tela cheia concluídas!"
 }
 
 #Game Optimizations Priority Tweaks -Type String -Value "Deny"
