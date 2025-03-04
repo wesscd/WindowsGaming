@@ -6,7 +6,7 @@
 #
 ##########
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.5 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.6 --"
 cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Write-Host 'Bem vindo ao TechRemote Ultimate Windows Debloater Gaming';
 Write-Host "DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" -ForegroundColor Red -BackgroundColor Black
@@ -538,17 +538,21 @@ Function ApplyPCOptimizations {
 
 #Enable or Disable and remove xbox related apps
 Function askXBOX {
+	# Detectar versão do Windows
+	$winVer = [System.Environment]::OSVersion.Version
+	$isWin11 = $winVer.Major -eq 10 -and $winVer.Build -ge 22000  # Windows 11 começa no build 22000
+
 	do {
 		  Clear-Host
-			Write-Host "================ Voce deseja desabilitar os recursos do XBOX e todos os APLICATIVOS relacionados? ================"
-			Write-ColorOutput "AVISO: REMOVER OS APLICATIVOS DO XBOX fara com que o Win+G nao faca nada!" -ForegroundColor Red
+			Write-Host "================ Deseja desabilitar os recursos do XBOX e todos os aplicativos relacionados? ================"
+			Write-ColorOutput "AVISO: REMOVER OS APLICATIVOS DO XBOX fara com que o Win+G nao funcione!" -ForegroundColor Red
 			Write-Host "D: Pressione 'D' para desabilitar os recursos do XBOX."
 			Write-Host "H: Pressione 'H' para habilitar os recursos do XBOX."
 			Write-Host "P: Pressione 'P' para pular isso."
 			
 			$selection = Read-Host "Por favor, escolha"
 
-	} until ($selection -match "(?i)^(d|h|p)$") # Torna a entrada case-insensitive
+	} until ($selection -match "(?i)^(d|h|p)$") # Aceita letras maiúsculas ou minúsculas
 
 	if ($selection -match "(?i)^d$") {  # Desabilitar Xbox
 			try {
@@ -564,6 +568,11 @@ Function askXBOX {
 							"Microsoft.XboxGameOverlay",
 							"Microsoft.Xbox.TCUI"
 					)
+
+					# Windows 11 tem esse aplicativo adicional
+					if ($isWin11) {
+							$xboxApps += "Microsoft.XboxGamingOverlay"
+					}
 
 					foreach ($app in $xboxApps) {
 							$pkg = Get-AppxPackage $app
@@ -600,6 +609,10 @@ Function askXBOX {
 							"Microsoft.Xbox.TCUI"
 					)
 
+					if ($isWin11) {
+							$xboxApps += "Microsoft.XboxGamingOverlay"
+					}
+
 					foreach ($app in $xboxApps) {
 							$pkg = Get-AppxPackage -AllUsers $app
 							if ($pkg) {
@@ -615,7 +628,6 @@ Function askXBOX {
 			}
 	}
 }
-
 
 #Enable Or Disable MSI Mode For Supported Cards, WARNING ENABLING MSI MODE MIGHT CRUSH YOUR SYSTEM! IF IT HAPPENS PLEASE RESTORE LAST WORKING SYSTEM RESTORE POINT AND DON'T ENABLE MSI MODE ON THIS SYSTEM AGAIN!
 Function MSIMode {
@@ -1129,70 +1141,108 @@ Function EnableNetDevicesAutoInst {
 
 #Ask User If He Want to Enable Or Disable Windows Defender
 Function askDefender {
-	
-	do
- {
-    Clear-Host
-    Write-Host "================ Voce quer desabilitar o Microsoft Windows Defender? ================"
-    Write-Host "D: Pressione 'D' para desabilitar o Microsoft Windows Defender."
-    Write-Host "H: Pressione 'H' para habilitar o Microsoft Windows Defender."
-		Write-Host "P: Pressione 'P' para pular isso."
-    $selection = Read-Host "Por favor, escolha."
-    switch ($selection)
-    {
-    'd' { 
-	Write-Output "Disabling Microsoft Windows Defender and related Processes..."
-        If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile")) {
-		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Force | Out-Null
+	# Verifica a versão do Windows
+	$osVersion = [System.Environment]::OSVersion.Version
+	$isWindows11 = $osVersion.Build -ge 22000  # Windows 11 tem build 22000+
+
+	# Verifica se o script está rodando como administrador
+	function Test-Admin {
+			$currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
+			$principal = New-Object Security.Principal.WindowsPrincipal $currentUser
+			return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 	}
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Name "EnableFirewall" -Type DWord -Value 0
-	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender")) {
-		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Force | Out-Null
+
+	if (-not (Test-Admin)) {
+			Write-Host "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." -ForegroundColor Red
+			exit
 	}
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Type DWord -Value 1
-	If ([System.Environment]::OSVersion.Version.Build -eq 14393) {
-		Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -ErrorAction SilentlyContinue
-	} ElseIf ([System.Environment]::OSVersion.Version.Build -ge 15063) {
-		Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "SecurityHealth" -ErrorAction SilentlyContinue
+
+	do {
+		  Clear-Host
+			Write-Host "================ Você quer desabilitar o Microsoft Windows Defender? ================"
+			Write-Host "D: Pressione 'D' para desabilitar o Microsoft Windows Defender."
+			Write-Host "H: Pressione 'H' para habilitar o Microsoft Windows Defender."
+			Write-Host "P: Pressione 'P' para pular isso."
+			
+			$selection = Read-Host "Por favor, escolha."
+
+	} until ($selection -match "(?i)^(d|h|p)$") # Entrada case-insensitive
+
+	if ($selection -match "(?i)^d$") {  # Desativar Windows Defender
+			Write-Output "Desativando Microsoft Windows Defender e processos relacionados..."
+
+			# Desativa o Firewall
+			if (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile") {
+					Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Name "EnableFirewall" -Type DWord -Value 0
+			}
+
+			# Desativa o Windows Defender
+			if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender")) {
+					New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Force | Out-Null
+			}
+			Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Type DWord -Value 1
+
+			# Remove do registro o lançamento do Defender na inicialização
+			if ($osVersion.Build -eq 14393) {
+					Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -ErrorAction SilentlyContinue
+			} elseif ($osVersion.Build -ge 15063) {
+					Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "SecurityHealth" -ErrorAction SilentlyContinue
+			}
+
+			# Desativa envio de relatórios do Defender
+			if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet")) {
+					New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Force | Out-Null
+			}
+			Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SpynetReporting" -Type DWord -Value 0
+			Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SubmitSamplesConsent" -Type DWord -Value 2
+
+			# Desativa proteção potencialmente indesejada (PUA)
+			Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "PUAProtection" -ErrorAction SilentlyContinue
+
+			# Desativa pastas protegidas (Controlled Folder Access)
+			Set-MpPreference -EnableControlledFolderAccess Disabled -ErrorAction SilentlyContinue
+
+			# Desativa tarefas do Defender
+			$tasks = @(
+					"\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance",
+					"\Microsoft\Windows\Windows Defender\Windows Defender Cleanup",
+					"\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan",
+					"\Microsoft\Windows\Windows Defender\Windows Defender Verification"
+			)
+
+			foreach ($task in $tasks) {
+					Disable-ScheduledTask -TaskName $task -ErrorAction SilentlyContinue
+			}
 	}
-	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet")) {
-		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Force | Out-Null
+
+	elseif ($selection -match "(?i)^h$") {  # Habilitar Windows Defender
+			Write-Output "Ativando Microsoft Windows Defender e processos relacionados..."
+
+			# Reativa o Firewall
+			Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Name "EnableFirewall" -ErrorAction SilentlyContinue
+
+			# Reativa o Windows Defender
+			Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -ErrorAction SilentlyContinue
+
+			# Reativa inicialização do Defender
+			if ($osVersion.Build -eq 14393) {
+					Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -Type ExpandString -Value "`"%ProgramFiles%\Windows Defender\MSASCuiL.exe`""
+			} elseif ($osVersion.Build -ge 15063) {
+					Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "SecurityHealth" -Type ExpandString -Value "%windir%\system32\SecurityHealthSystray.exe"
+			}
+
+			# Remove restrições do Defender
+			Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SpynetReporting" -ErrorAction SilentlyContinue
+			Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SubmitSamplesConsent" -ErrorAction SilentlyContinue
+			Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "PUAProtection" -Type DWord -Value 1
+
+			# Reativa tarefas agendadas do Defender
+			foreach ($task in $tasks) {
+					Enable-ScheduledTask -TaskName $task -ErrorAction SilentlyContinue
+			}
 	}
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SpynetReporting" -Type DWord -Value 0
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SubmitSamplesConsent" -Type DWord -Value 2
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "PUAProtection" -ErrorAction SilentlyContinue
-	Set-MpPreference -EnableControlledFolderAccess Disabled -ErrorAction SilentlyContinue
-	Disable-ScheduledTask -TaskName "\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance" | Out-Null
-    Disable-ScheduledTask -TaskName "\Microsoft\Windows\Windows Defender\Windows Defender Cleanup" | Out-Null
-    Disable-ScheduledTask -TaskName "\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan" | Out-Null
-    Disable-ScheduledTask -TaskName "\Microsoft\Windows\Windows Defender\Windows Defender Verification" | Out-Null
-    Clear-Host
-	}
-    'h' {
-        Write-Output "Enabling Microsoft Windows Defender and related Processes..."
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Name "EnableFirewall" -ErrorAction SilentlyContinue
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -ErrorAction SilentlyContinue
-	If ([System.Environment]::OSVersion.Version.Build -eq 14393) {
-		Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -Type ExpandString -Value "`"%ProgramFiles%\Windows Defender\MSASCuiL.exe`""
-	} ElseIf ([System.Environment]::OSVersion.Version.Build -ge 15063) {
-		Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "SecurityHealth" -Type ExpandString -Value "%windir%\system32\SecurityHealthSystray.exe"
-	}
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SpynetReporting" -ErrorAction SilentlyContinue
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SubmitSamplesConsent" -ErrorAction SilentlyContinue
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "PUAProtection" -Type DWord -Value 1
-	Enable-ScheduledTask -TaskName "\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance" | Out-Null
-    Enable-ScheduledTask -TaskName "\Microsoft\Windows\Windows Defender\Windows Defender Cleanup" | Out-Null
-    Enable-ScheduledTask -TaskName "\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan" | Out-Null
-    Enable-ScheduledTask -TaskName "\Microsoft\Windows\Windows Defender\Windows Defender Verification" | Out-Null
-	Set-MpPreference -EnableControlledFolderAccess Disabled -ErrorAction SilentlyContinue
-	Clear-Host
-		}
-    'p' {  }
-    }
- }
- until ($selection -match "d" -or $selection -match "h" -or $selection -match "p")
-	
 }
+
 
 # Enable F8 boot menu options
 Function EnableF8BootMenu {
@@ -2282,76 +2332,118 @@ Function EnableThumbsDB {
 ##########
 # Option To Uninstall Or install OneDrive 
 Function DorEOneDrive {
-	
-	do
- {
-    Clear-Host
-    Write-Host "================ Voce deseja desabilitar o Microsoft OneDrive? ================"
-    Write-Host "D: Pressione 'D' para desabilitar o OneDrive."
-    Write-Host "H: Pressione 'H' para habilitar o OneDrive."
-		Write-Host "P: Pressione 'P' para pular isso."
-    $selection = Read-Host "Por favor, escolha"
-    switch ($selection)
-    {
-    'd' { 
-	Write-Output "Disabling Microsoft OneDrive and related Processes..."
-        # Disable OneDrive
-	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
-	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
-		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" | Out-Null
+	# Verifica a versão do Windows
+	$osVersion = [System.Environment]::OSVersion.Version
+	$isWindows11 = $osVersion.Build -ge 22000  # Windows 11 tem build 22000+
+
+	# Verifica se o script está rodando como administrador
+	function Test-Admin {
+			$currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
+			$principal = New-Object Security.Principal.WindowsPrincipal $currentUser
+			return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 	}
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1 -ErrorAction SilentlyContinue
-# Uninstall OneDrive - Not applicable to Server
-	Stop-Process -Name "OneDrive" -ErrorAction SilentlyContinue
-	Start-Sleep -s 2
-	$onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
-	If (!(Test-Path $onedrive)) {
-		$onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
+
+	if (-not (Test-Admin)) {
+			Write-Host "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." -ForegroundColor Red
+			exit
 	}
-	Start-Process $onedrive "/uninstall" -NoNewWindow -Wait
-	Start-Sleep -s 2
-	Stop-Process -Name "explorer" -ErrorAction SilentlyContinue
-	Start-Sleep -s 2
-	Remove-Item -Path "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-	Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-	Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-	Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
-	If (!(Test-Path "HKCR:")) {
-		New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null
+
+	do {
+		  Clear-Host
+			Write-Host "================ Você deseja desabilitar o Microsoft OneDrive? ================"
+			Write-Host "D: Pressione 'D' para desabilitar o OneDrive."
+			Write-Host "H: Pressione 'H' para habilitar o OneDrive."
+			Write-Host "P: Pressione 'P' para pular isso."
+			
+			$selection = Read-Host "Por favor, escolha"
+
+	} until ($selection -match "(?i)^(d|h|p)$") # Torna a entrada case-insensitive
+
+	if ($selection -match "(?i)^d$") {  # Desabilitar OneDrive
+			Write-Output "Desativando Microsoft OneDrive e processos relacionados..."
+
+			$errpref = $ErrorActionPreference
+			$ErrorActionPreference = "SilentlyContinue"
+
+			# Cria chave de política para bloquear o OneDrive
+			if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
+					New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Force | Out-Null
+			}
+			Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1
+
+			# Finaliza processos do OneDrive se estiverem em execução
+			$oneDriveProcess = Get-Process -Name "OneDrive" -ErrorAction SilentlyContinue
+			if ($oneDriveProcess) {
+					Stop-Process -Name "OneDrive" -Force
+			}
+			Start-Sleep -s 2
+
+			# Localiza e executa o desinstalador
+			$onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
+			if (!(Test-Path $onedrive)) {
+					$onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
+			}
+
+			if (Test-Path $onedrive) {
+					Start-Process $onedrive "/uninstall" -NoNewWindow -Wait
+					Start-Sleep -s 2
+			}
+
+			# Remove pastas e arquivos do OneDrive
+			Remove-Item -Path "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+			Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+			Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+			Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
+
+			# Remove OneDrive do Explorer
+			if (!(Test-Path "HKCR:")) {
+					New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null
+			}
+			Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
+			Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
+
+			# Remove OneDrive da inicialização automática
+			reg load "hku\Default" "C:\Users\Default\NTUSER.DAT"
+			reg delete "HKEY_USERS\Default\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "OneDriveSetup" /f
+			reg unload "hku\Default"
+
+			# Remove atalhos
+			Remove-Item -Force -ErrorAction SilentlyContinue "$env:userprofile\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk"
+
+			# Remove tarefas agendadas do OneDrive
+			Get-ScheduledTask -TaskPath '\' -TaskName 'OneDrive*' -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
+
+			$ErrorActionPreference = $errpref
 	}
-	Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
-	Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
-	reg load "hku\Default" "C:\Users\Default\NTUSER.DAT"
-        reg delete "HKEY_USERS\Default\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "OneDriveSetup" /f
-        reg unload "hku\Default"
-	Remove-Item -Force -ErrorAction SilentlyContinue "$env:userprofile\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk"
-	Get-ScheduledTask -TaskPath '\' -TaskName 'OneDrive*' -ea SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
-	$ErrorActionPreference = $errpref #restore previous preference
-	Clear-Host
+
+	elseif ($selection -match "(?i)^h$") {  # Habilitar OneDrive
+			Write-Output "Ativando Microsoft OneDrive e processos relacionados..."
+
+			$errpref = $ErrorActionPreference
+			$ErrorActionPreference = "SilentlyContinue"
+
+			# Remove restrição do OneDrive
+			if (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive") {
+					Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -ErrorAction SilentlyContinue
+			}
+
+			# Reinstala o OneDrive
+			$onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
+			if (!(Test-Path $onedrive)) {
+					$onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
+			}
+
+			if (Test-Path $onedrive) {
+					Start-Process $onedrive -NoNewWindow
+			} elseif ($isWindows11) {
+					# No Windows 11, OneDrive pode ser instalado como Feature Opcional
+					Start-Process "powershell" -ArgumentList "Add-WindowsFeature OneDrive" -NoNewWindow -Wait
+			}
+
+			$ErrorActionPreference = $errpref
 	}
-    'h' {
-        Write-Output "Enabling Microsoft OneDrive and related Processes..."
-	# Enable OneDrive
-	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -ErrorAction SilentlyContinue
-	
-    # Install OneDrive - Not applicable to Server
-	$onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
-	If (!(Test-Path $onedrive)) {
-		$onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
-	}
-	Start-Process $onedrive -NoNewWindow
-	$ErrorActionPreference = $errpref #restore previous preference
-	Clear-Host
-		}
-    'p' {  }
-    }
- }
- until ($selection -match "d" -or $selection -match "h" -or $selection -match "p")
-	
 }
+
 
 # Uninstall Windows Media Player
 Function UninstallMediaPlayer {
