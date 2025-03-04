@@ -5,13 +5,17 @@
 # Current Modifier Source: https://github.com/wesscd/WindowsGaming
 #
 ##########
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.4 --"
+
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.5 --"
 cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Write-Host 'Bem vindo ao TechRemote Ultimate Windows Debloater Gaming';
 Write-Host "DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" -ForegroundColor Red -BackgroundColor Black
+
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+
 New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null
 New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
+
 $currentexename = (([Diagnostics.Process]::GetCurrentProcess().ProcessName) + '.exe')
 	if ($currentexename -eq "pwsh.exe") {
 		Start-Process Powershell -Argumentlist '-ExecutionPolicy bypass -NoProfile -command "irm "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/windowsdebloatandgamingtweaks.ps1" | iex"' -Verb RunAs
@@ -534,54 +538,84 @@ Function ApplyPCOptimizations {
 
 #Enable or Disable and remove xbox related apps
 Function askXBOX {
-	do
- {
-    Clear-Host
-    Write-Host "================ Voce deseja desabilitar os recursos do XBOX e todos os APLICATIVOS relacionados? ================"
-	Write-ColorOutput "AVISO: REMOVER OS APLICATIVOS DO XBOX fara com que o Win+G nao faca nada!" Red
-    Write-Host "D: Pressione 'D' para desabilitar os recursos do XBOX."
-    Write-Host "H: Pressione 'H' para habilitar os recursos do XBOX."
-    Write-Host "P: Pressione 'P' para pular isso."
-    $selection = Read-Host "Por favor, escolha"
-    switch ($selection)
-    {
-    'd' { 
-	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
-        Write-Output "Disabling Xbox features..."
-	Get-AppxPackage "Microsoft.XboxApp" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.XboxIdentityProvider" | Remove-AppxPackage -ErrorAction SilentlyContinue
-	Get-AppxPackage "Microsoft.XboxSpeechToTextOverlay" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.XboxGameOverlay" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.Xbox.TCUI" | Remove-AppxPackage
-	Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 0
-	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR")) {
-		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" | Out-Null
+	do {
+		  Clear-Host
+			Write-Host "================ Voce deseja desabilitar os recursos do XBOX e todos os APLICATIVOS relacionados? ================"
+			Write-ColorOutput "AVISO: REMOVER OS APLICATIVOS DO XBOX fara com que o Win+G nao faca nada!" -ForegroundColor Red
+			Write-Host "D: Pressione 'D' para desabilitar os recursos do XBOX."
+			Write-Host "H: Pressione 'H' para habilitar os recursos do XBOX."
+			Write-Host "P: Pressione 'P' para pular isso."
+			
+			$selection = Read-Host "Por favor, escolha"
+
+	} until ($selection -match "(?i)^(d|h|p)$") # Torna a entrada case-insensitive
+
+	if ($selection -match "(?i)^d$") {  # Desabilitar Xbox
+			try {
+					$errpref = $ErrorActionPreference
+					$ErrorActionPreference = "SilentlyContinue"
+
+					Write-Output "Desativando recursos do Xbox..."
+
+					$xboxApps = @(
+							"Microsoft.XboxApp",
+							"Microsoft.XboxIdentityProvider",
+							"Microsoft.XboxSpeechToTextOverlay",
+							"Microsoft.XboxGameOverlay",
+							"Microsoft.Xbox.TCUI"
+					)
+
+					foreach ($app in $xboxApps) {
+							$pkg = Get-AppxPackage $app
+							if ($pkg) {
+									$pkg | Remove-AppxPackage
+							}
+					}
+
+					Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 0
+
+					if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR")) {
+							New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Force | Out-Null
+					}
+
+					Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
+			}
+			finally {
+					$ErrorActionPreference = $errpref  # Restaura a preferência de erro
+			}
 	}
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
-        $ErrorActionPreference = $errpref #restore previous preference
-	Clear-Host
+
+	elseif ($selection -match "(?i)^h$") {  # Habilitar Xbox
+			try {
+					$errpref = $ErrorActionPreference
+					$ErrorActionPreference = "SilentlyContinue"
+
+					Write-Output "Habilitando recursos do Xbox..."
+
+					$xboxApps = @(
+							"Microsoft.XboxApp",
+							"Microsoft.XboxIdentityProvider",
+							"Microsoft.XboxSpeechToTextOverlay",
+							"Microsoft.XboxGameOverlay",
+							"Microsoft.Xbox.TCUI"
+					)
+
+					foreach ($app in $xboxApps) {
+							$pkg = Get-AppxPackage -AllUsers $app
+							if ($pkg) {
+									$pkg | ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+							}
+					}
+
+					Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 1
+					Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -ErrorAction SilentlyContinue
+			}
+			finally {
+					$ErrorActionPreference = $errpref  # Restaura a preferência de erro
+			}
 	}
-    'h' {
-        $errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
-        Write-Output "Enabling Xbox features..."
-	Get-AppxPackage -AllUsers "Microsoft.XboxApp" | ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.XboxIdentityProvider" | ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.XboxSpeechToTextOverlay" | ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.XboxGameOverlay" | ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.Xbox.TCUI" | ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 1
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -ErrorAction SilentlyContinue
-        $ErrorActionPreference = $errpref #restore previous preference
-	Clear-Host
-		}
-    'p' { }
-    }
- }
- until ($selection -match "d" -or $selection -match "h" -or $selection -match "p")
-	
 }
+
 
 #Enable Or Disable MSI Mode For Supported Cards, WARNING ENABLING MSI MODE MIGHT CRUSH YOUR SYSTEM! IF IT HAPPENS PLEASE RESTORE LAST WORKING SYSTEM RESTORE POINT AND DON'T ENABLE MSI MODE ON THIS SYSTEM AGAIN!
 Function MSIMode {
