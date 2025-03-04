@@ -5,7 +5,7 @@
 # Current Modifier Source: https://github.com/wesscd/WindowsGaming
 #
 ##########
-$host.ui.RawUI.WindowTitle = "TechRemote Ultimate Windows Debloater Gaming v.0.6"
+$host.ui.RawUI.WindowTitle = "TechRemote Ultimate Windows Debloater Gaming v.0.6.1"
 cmd /c 'title [TechRemote Ultimate Windows Debloater Gaming]'
 Write-Host 'Bem vindo ao TechRemote Ultimate Windows Debloater Gaming';
 Write-Host "DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" -ForegroundColor Red -BackgroundColor Black
@@ -2492,9 +2492,10 @@ Function UnpinStartMenuTiles {
 		Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_Layout" -Type DWord -Value 1 | Out-Null -ErrorAction SilentlyContinue
 	} Else {
 	
-	$url_startlayout = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/StartLayout.xml
+	$url_startlayout = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/StartLayout.xml"
 
 	Invoke-WebRequest -Uri $url_startlayout -OutFile "$env:UserProfile\StartLayout.xml" -ErrorAction SilentlyContinue
+
 	Import-StartLayout -layoutpath "$env:UserProfile\StartLayout.xml" -MountPath "$env:SystemDrive\"
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "LockedStartLayout" -Type DWord -Value 1 | Out-Null -ErrorAction SilentlyContinue
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "StartLayoutFile" -Type ExpandString -Value "%USERPROFILE%\StartLayout.xml" | Out-Null -ErrorAction SilentlyContinue
