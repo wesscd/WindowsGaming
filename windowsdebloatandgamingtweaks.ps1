@@ -6,7 +6,7 @@
 #
 ##########
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.6 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.7 --"
 cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
 Write-Host 'Bem vindo ao TechRemote Ultimate Windows Debloater Gaming';
@@ -191,6 +191,7 @@ $tweaks = @(
 	"RemoveEdit3D",
 	"FixURLext",  # fix issue with games shortcut that created by games lunchers turned white!
 	"UltimateCleaner",
+	"Clear-PSHistory",
 	"Finished"
 	### Auxiliary Functions ###
 )
@@ -362,6 +363,7 @@ $mobiletweaks = @(
 	"RemoveEdit3D",
 	"FixURLext",  # fix issue with games shortcut that created by games lunchers turned white!
 	"UltimateCleaner",
+	"Clear-PSHistory",
 	"Finished"
 	### Auxiliary Functions ###
 )
@@ -545,7 +547,7 @@ Function askXBOX {
 
 	do {
 		  Clear-Host
-			Write-Host "================ Deseja desabilitar os recursos do XBOX e todos os aplicativos relacionados? ================"
+			Write-Host "================ Desabilitar os recursos do XBOX e todos os aplicativos relacionados? ================"
 			Write-ColorOutput "AVISO: REMOVER OS APLICATIVOS DO XBOX fara com que o Win+G nao funcione!" -ForegroundColor Red
 			Write-Host "D: Pressione 'D' para desabilitar os recursos do XBOX."
 			Write-Host "H: Pressione 'H' para habilitar os recursos do XBOX."
@@ -1160,7 +1162,7 @@ Function askDefender {
 
 	do {
 		  Clear-Host
-			Write-Host "================ Você quer desabilitar o Microsoft Windows Defender? ================"
+			Write-Host "================ Desabilitar o Microsoft Windows Defender? ================"
 			Write-Host "D: Pressione 'D' para desabilitar o Microsoft Windows Defender."
 			Write-Host "H: Pressione 'H' para habilitar o Microsoft Windows Defender."
 			Write-Host "P: Pressione 'P' para pular isso."
@@ -2351,7 +2353,7 @@ Function DorEOneDrive {
 
 	do {
 		  Clear-Host
-			Write-Host "================ Você deseja desabilitar o Microsoft OneDrive? ================"
+			Write-Host "================ Desabilitar o Microsoft OneDrive? ================"
 			Write-Host "D: Pressione 'D' para desabilitar o OneDrive."
 			Write-Host "H: Pressione 'H' para habilitar o OneDrive."
 			Write-Host "P: Pressione 'P' para pular isso."
@@ -3534,7 +3536,9 @@ Function FixURLext {
     
 # Ultimate CLeaner
 Function UltimateCleaner {
-    Write-Host "Running Ultimate Cleaner => Temp folders & Flush DNS + Reset IP...."
+
+	Clear-Host
+	Write-Host "Running Ultimate Cleaner => Temp folders & Flush DNS + Reset IP...."
 cmd /c 'netsh winsock reset 2>nul' >$null
 cmd /c 'netsh int ip reset 2>nul' >$null
 cmd /c 'ipconfig /release 2>nul' >$null
@@ -3569,27 +3573,69 @@ cmd /c 'echo Temp folders Cleared Successfully!'
 
 #Notifying user to reboot!
 Function Finished {
+	# Verifica se o script está rodando como administrador
+	function Test-Admin {
+			$currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
+			$principal = New-Object Security.Principal.WindowsPrincipal $currentUser
+			return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+	}
 
+	if (-not (Test-Admin)) {
+			Write-Host "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." -ForegroundColor Red
+			exit
+	}
+
+	# Define URL e destino do logo OEM
 	$url_logo = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/logo.bmp"
 	$destino_logo = "C:\Windows\oemlogo.bmp"
 
-	# Baixar a imagem
-	Invoke-WebRequest -Uri $url_logo -OutFile $destino_logo
+	# Verifica a conectividade antes de baixar a imagem
+	try {
+			$response = Test-Connection -ComputerName "raw.githubusercontent.com" -Count 1 -Quiet
+			if ($response) {
+					Invoke-WebRequest -Uri $url_logo -OutFile $destino_logo -ErrorAction Stop
+			} else {
+					Write-Host "Não foi possível baixar o logo. Verifique sua conexão." -ForegroundColor Red
+			}
+	} catch {
+			Write-Host "Erro ao baixar o logo OEM: $_" -ForegroundColor Red
+	}
 
-	New-Item -Path "HKCR:\Msi.Package\shell\runas\command" -Force | Out-Null
-	Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas" -Name "HasLUAShield" -Type String -Value "" | Out-Null -ErrorAction SilentlyContinue
-	Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas\command" -Name "(Default)" -Type ExpandString -Value '"%SystemRoot%\System32\msiexec.exe" /i "%1" %*' | Out-Null -ErrorAction SilentlyContinue
+	# Criar permissões MSI Installer (Rodar como Administrador)
+	if (!(Test-Path "HKCR:\Msi.Package\shell\runas")) {
+			New-Item -Path "HKCR:\Msi.Package\shell\runas" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas" -Name "HasLUAShield" -Type String -Value ""
+	Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas\command" -Name "(Default)" -Type ExpandString -Value '"%SystemRoot%\System32\msiexec.exe" /i "%1" %*"' 
+
+	# Ativa histórico da área de transferência
+	if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System")) {
+			New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Force | Out-Null
+	}
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "AllowClipboardHistory" -Type DWord -Value 1
-        cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "Manufacturer" /t REG_SZ /d "PC Otimizado por Cesar Marques (Barao)" /f 2>nul' >$null
-				cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "Model" /t REG_SZ /d "Otimizacao, Hardware, Infra & Redes" /f 2>nul' >$null
-        cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportURL" /t REG_SZ /d "http://techremote.com.br" /f 2>nul' >$null
-				cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportHours" /t REG_SZ /d "Seg-Sex: 08h-18h" /f 2>nul' >$null
-				cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportPhone" /t REG_SZ /d "+55 16 99263-6487" /f 2>nul' >$null
-				cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "Logo" /t REG_SZ /d "C:\Windows\oemlogo.bmp" /f 2>nul' >$null
+
+	# Criar informações OEM
+	$oemPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
+	if (!(Test-Path $oemPath)) {
+			New-Item -Path $oemPath -Force | Out-Null
+	}
+	
+	Set-ItemProperty -Path $oemPath -Name "Manufacturer" -Type String -Value "PC Otimizado por Cesar Marques (Barao)"
+	Set-ItemProperty -Path $oemPath -Name "Model" -Type String -Value "Otimizacao, Hardware, Infra & Redes"
+	Set-ItemProperty -Path $oemPath -Name "SupportURL" -Type String -Value "http://techremote.com.br"
+	Set-ItemProperty -Path $oemPath -Name "SupportHours" -Type String -Value "Seg-Sex: 08h-18h"
+	Set-ItemProperty -Path $oemPath -Name "SupportPhone" -Type String -Value "+55 16 99263-6487"
+	Set-ItemProperty -Path $oemPath -Name "Logo" -Type String -Value $destino_logo
+
 	Start-Sleep -s 5
-        Write-Output "Done! Please Reboot Your PC! Don't forget to follow me on Social Media."
-        Start-Process "http://techremote.com.br"
+
+	# Mensagem final
+	Write-Output "Configuração concluída! Reinicie o PC para aplicar todas as mudanças."
+	
+	# Abre o site sem problemas com navegadores modernos
+	Start-Process "http://techremote.com.br"
 }
+
 
 ##########
 # Auxiliary Functions
@@ -3681,6 +3727,39 @@ Function DebloatAll {
 
     $ErrorActionPreference = $errpref  # Restaura a configuração anterior
 }
+
+Function Clear-PSHistory {
+	# Remove o histórico atual da sessão
+	[System.Management.Automation.PSConsoleReadLine]::ClearHistory()
+
+	# Remove o histórico do perfil do usuário (caso o PowerShell use um arquivo de histórico)
+	$historyPath = "$env:APPDATA\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
+	if (Test-Path $historyPath) {
+			Remove-Item $historyPath -Force -ErrorAction SilentlyContinue
+	}
+
+	# Remove histórico do buffer de memória do PowerShell
+	$historyPathLegacy = "$env:USERPROFILE\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
+	if (Test-Path $historyPathLegacy) {
+			Remove-Item $historyPathLegacy -Force -ErrorAction SilentlyContinue
+	}
+
+	# Garante que o histórico também seja apagado no Windows PowerShell (caso o arquivo seja diferente)
+	$historyPathLegacyPS = "$env:USERPROFILE\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history"
+	if (Test-Path $historyPathLegacyPS) {
+			Remove-Item $historyPathLegacyPS -Force -ErrorAction SilentlyContinue
+	}
+
+	# Limpa a variável de histórico da sessão atual
+	$global:history = @()
+
+	# Se disponível, limpa histórico de comandos armazenado internamente
+	Get-History | ForEach-Object { Remove-History -Id $_.Id }
+
+	# Confirmação visual
+	Write-Host "Histórico do PowerShell completamente apagado!" -ForegroundColor Green
+}
+
 
 ##########
 # Parse parameters and apply tweaks
