@@ -3485,36 +3485,98 @@ Function CreateRestorePoint {
 # Remove-Item -Path C:\Mnt -Recurse
 
 Function DebloatAll {
-    Clear-Host
+Clear-Host
     $Bloatware = @(
-        # Aplicativos padrão do Windows 10 e 11
-        "*3DBuilder*", "*AppConnector*", "*BingFinance*", "*BingNews*", "*BingSports*", "*BingTranslator*", "*BingWeather*",
-        "*GetHelp*", "*Getstarted*", "*Messaging*", "*Microsoft3DViewer*", "*MicrosoftSolitaireCollection*",
-        "*MicrosoftPowerBIForWindows*", "*MicrosoftStickyNotes*", "*NetworkSpeedTest*", "*OneNote*", "*Lens*", "*Sway*",
-        "*OneConnect*", "*People*", "*Print3D*", "*RemoteDesktop*", "*SkypeApp*", "*Wallet*", "*Whiteboard*",
-        "*WindowsAlarms*", "*WindowsFeedbackHub*", "*WindowsMaps*", "*WindowsSoundRecorder*", "*MicrosoftOfficeHub*",
-        "*MixedReality.Portal*", "*ScreenSketch*", "*Microsoft.MSPaint*", "Microsoft.549981C3F5F10", "*Advertising.Xaml*",
-        "*SolitaireCollection*", "*Clipchamp*", "*MicrosoftTeams*", "*TikTok*",
-
-        # Aplicativos patrocinados ou pré-instalados
-        "*EclipseManager*", "*ActiproSoftwareLLC*", "*AdobePhotoshopExpress*", "*Duolingo-LearnLanguagesforFree*",
-        "*PandoraMediaInc*", "*CandyCrush*", "*BubbleWitch3Saga*", "*Wunderlist*", "*Flipboard*", "*Twitter*", "*Facebook*",
-        "*RoyalRevolt*", "*SpeedTest*", "*Viber*", "*ACGMediaPlayer*", "*Netflix*", "*OneCalendar*", "*LinkedInforWindows*",
-        "*HiddenCityMysteryofShadows*", "*Hulu*", "*AutodeskSketchBook*", "*DisneyMagicKingdoms*", "*MarchofEmpires*",
-        "*Plex*", "*FarmVille2CountryEscape*", "*CyberLinkMediaSuiteEssentials*", "*DrawboardPDF*", "*Asphalt8Airborne*",
-        "*Keeper*", "*SpotifyMusic*", "*WinZipUniversal*", "*XING*", "*Roblox*"
+    #Unnecessary Windows 10 AppX Apps
+    "*3DBuilder*"
+    "*AppConnector*"
+    "*BingFinance*"
+    "*BingNews*"
+    "*BingSports*"
+    "*BingTranslator*"
+    "*BingWeather*"
+    "*GetHelp*"
+    "*Getstarted*"
+    "*Messaging*"
+    "*Microsoft3DViewer*"
+    "*MicrosoftSolitaireCollection*"
+    "*MicrosoftPowerBIForWindows*"
+    "*MicrosoftStickyNotes*"
+    "*NetworkSpeedTest*"
+    "*OneNote*"
+    "*Lens*"
+    "*Sway*"
+    "*OneConnect*"
+    "*People*"
+    "*Print3D*"
+    "*RemoteDesktop*"
+    "*SkypeApp*"
+    "*Wallet*"
+    "*Whiteboard*"
+    "*WindowsAlarms*"
+    "*WindowsFeedbackHub*"
+    "*WindowsMaps*"
+    "*WindowsSoundRecorder*"
+    "*MicrosoftOfficeHub*"
+    "*MixedReality.Portal*"
+    "*ScreenSketch*"
+    "*MicrosoftOfficeHub*"
+    "*Microsoft.MSPaint*"
+    "Microsoft.549981C3F5F10"
+    "*Advertising.Xaml*"
+    "*SolitaireCollection*"
+		
+        #Sponsored Windows 10 AppX Apps
+        #Add sponsored/featured apps to remove in the "*AppName*" format
+		
+        "*EclipseManager*"
+        "*ActiproSoftwareLLC*"
+        "*AdobePhotoshopExpress*"
+        "*Duolingo-LearnLanguagesforFree*"
+        "*PandoraMediaInc*"
+        "*CandyCrush*"
+        "*BubbleWitch3Saga*"
+        "*Wunderlist*"
+        "*Flipboard*"
+        "*Twitter*"
+        "*Facebook*"
+        "*Royal Revolt*"
+        "*Sway*"
+        "*Speed Test*"
+        "*Viber*"
+        "*ACGMediaPlayer*"
+        "*Netflix*"
+        "*OneCalendar*"
+        "*LinkedInforWindows*"
+        "*HiddenCityMysteryofShadows*"
+        "*Hulu*"
+        "*HiddenCity*"
+        "*AdobePhotoshopExpress*"
+	"*RoyalRevolt2*"
+	"*AutodeskSketchBook*"
+	"*DisneyMagicKingdoms*"
+	"*MarchofEmpires*"
+	"*Plex*"
+	"*FarmVille2CountryEscape*"
+	"*CyberLinkMediaSuiteEssentials*"
+	"*DrawboardPDF*"
+	"*Asphalt8Airborne*"
+	"*Keeper*"
+	"*SpotifyMusic*"
+	"*WinZipUniversal*"
+	"*XING*"           
+        "*Advertising.Xaml*"
+        "*Advertising.Xaml*"
+    	"*Roblox*"
     )
-
-    $errpref = $ErrorActionPreference  # Salva a configuração atual
-    $ErrorActionPreference = "SilentlyContinue"
-
     foreach ($Bloat in $Bloatware) {
-        Get-AppxPackage -AllUsers -Name $Bloat | Remove-AppxPackage | Out-Null
-        Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online | Out-Null
-        Write-Output "Tentando remover: $Bloat"
+	$errpref = $ErrorActionPreference #save actual preference
+    $ErrorActionPreference = "silentlycontinue"
+        Get-AppxPackage -AllUsers -Name $Bloat| Remove-AppxPackage | Out-Null -ErrorAction SilentlyContinue
+        Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online | Out-Null -ErrorAction SilentlyContinue
+	$ErrorActionPreference = $errpref #restore previous preference
+        Write-Output "Trying to remove $Bloat."
     }
-
-    $ErrorActionPreference = $errpref  # Restaura a configuração anterior
 }
 
 ##########
