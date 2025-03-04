@@ -8,7 +8,7 @@
 $host.ui.RawUI.WindowTitle = "TechRemote Ultimate Windows Debloater Gaming"
 cmd /c 'title [TechRemote Ultimate Windows Debloater Gaming]'
 Write-Host 'Bem vindo ao TechRemote Ultimate Windows Debloater Gaming';
-Write-Host "DESATIVE seu ANTIVÍRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" -ForegroundColor Red -BackgroundColor Black
+Write-Host "DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" -ForegroundColor Red -BackgroundColor Black
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null
 New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
@@ -498,13 +498,13 @@ Function askXBOX {
     Clear-Host
     Write-Host "================ Voce deseja desabilitar os recursos do XBOX e todos os APLICATIVOS relacionados? ================"
 	Write-ColorOutput "AVISO: REMOVER OS APLICATIVOS DO XBOX fara com que o Win+G nao faca nada!" Red
-    Write-Host "Y: Pressione 'Y' para desabilitar os recursos do XBOX."
-    Write-Host "N: Pressione 'N' para habilitar os recursos do XBOX."
-    Write-Host "Q: Pressione 'Q' para pular isso."
+    Write-Host "D: Pressione 'D' para desabilitar os recursos do XBOX."
+    Write-Host "H: Pressione 'H' para habilitar os recursos do XBOX."
+    Write-Host "P: Pressione 'P' para pular isso."
     $selection = Read-Host "Por favor, escolha"
     switch ($selection)
     {
-    'y' { 
+    'd' { 
 	$errpref = $ErrorActionPreference #save actual preference
         $ErrorActionPreference = "silentlycontinue"
         Write-Output "Disabling Xbox features..."
@@ -521,7 +521,7 @@ Function askXBOX {
         $ErrorActionPreference = $errpref #restore previous preference
 	Clear-Host
 	}
-    'n' {
+    'h' {
         $errpref = $ErrorActionPreference #save actual preference
         $ErrorActionPreference = "silentlycontinue"
         Write-Output "Enabling Xbox features..."
@@ -535,10 +535,10 @@ Function askXBOX {
         $ErrorActionPreference = $errpref #restore previous preference
 	Clear-Host
 		}
-    'q' { }
+    'p' { }
     }
  }
- until ($selection -match "y" -or $selection -match "n" -or $selection -match "q")
+ until ($selection -match "d" -or $selection -match "h" -or $selection -match "p")
 	
 }
 
@@ -1059,13 +1059,13 @@ Function askDefender {
  {
     Clear-Host
     Write-Host "================ Voce quer desabilitar o Microsoft Windows Defender? ================"
-    Write-Host "Y: Pressione 'Y' para desabilitar o Microsoft Windows Defender."
-    Write-Host "N: Pressione 'N' para habilitar o Microsoft Windows Defender."
-	Write-Host "Q: Pressione 'Q' para pular isso."
+    Write-Host "D: Pressione 'D' para desabilitar o Microsoft Windows Defender."
+    Write-Host "H: Pressione 'H' para habilitar o Microsoft Windows Defender."
+		Write-Host "P: Pressione 'P' para pular isso."
     $selection = Read-Host "Por favor, escolha."
     switch ($selection)
     {
-    'y' { 
+    'd' { 
 	Write-Output "Disabling Microsoft Windows Defender and related Processes..."
         If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile")) {
 		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Force | Out-Null
@@ -1093,7 +1093,7 @@ Function askDefender {
     Disable-ScheduledTask -TaskName "\Microsoft\Windows\Windows Defender\Windows Defender Verification" | Out-Null
     Clear-Host
 	}
-    'n' {
+    'h' {
         Write-Output "Enabling Microsoft Windows Defender and related Processes..."
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Name "EnableFirewall" -ErrorAction SilentlyContinue
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -ErrorAction SilentlyContinue
@@ -1112,10 +1112,10 @@ Function askDefender {
 	Set-MpPreference -EnableControlledFolderAccess Disabled -ErrorAction SilentlyContinue
 	Clear-Host
 		}
-    'q' {  }
+    'p' {  }
     }
  }
- until ($selection -match "y" -or $selection -match "n" -or $selection -match "q")
+ until ($selection -match "d" -or $selection -match "h" -or $selection -match "p")
 	
 }
 
@@ -2211,14 +2211,14 @@ Function DorEOneDrive {
 	do
  {
     Clear-Host
-    Write-Host "================ Você deseja desabilitar o Microsoft OneDrive? ================"
-    Write-Host "Y: Pressione 'Y' para desabilitar o OneDrive."
-    Write-Host "N: Pressione 'N' para habilitar o OneDrive."
-	Write-Host "Q: Pressione 'Q' para pular isso."
+    Write-Host "================ Voce deseja desabilitar o Microsoft OneDrive? ================"
+    Write-Host "D: Pressione 'D' para desabilitar o OneDrive."
+    Write-Host "H: Pressione 'H' para habilitar o OneDrive."
+		Write-Host "P: Pressione 'P' para pular isso."
     $selection = Read-Host "Por favor, escolha"
     switch ($selection)
     {
-    'y' { 
+    'd' { 
 	Write-Output "Disabling Microsoft OneDrive and related Processes..."
         # Disable OneDrive
 	$errpref = $ErrorActionPreference #save actual preference
@@ -2255,7 +2255,7 @@ Function DorEOneDrive {
 	$ErrorActionPreference = $errpref #restore previous preference
 	Clear-Host
 	}
-    'n' {
+    'h' {
         Write-Output "Enabling Microsoft OneDrive and related Processes..."
 	# Enable OneDrive
 	$errpref = $ErrorActionPreference #save actual preference
@@ -2271,10 +2271,10 @@ Function DorEOneDrive {
 	$ErrorActionPreference = $errpref #restore previous preference
 	Clear-Host
 		}
-    'q' {  }
+    'p' {  }
     }
  }
- until ($selection -match "y" -or $selection -match "n" -or $selection -match "q")
+ until ($selection -match "d" -or $selection -match "h" -or $selection -match "p")
 	
 }
 
