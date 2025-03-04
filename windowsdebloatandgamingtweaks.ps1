@@ -6,7 +6,7 @@
 #
 ##########
 $host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.1 --"
-cmd /c 'title [TechRemote Ultimate Windows Debloater Gaming]'
+cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Write-Host 'Bem vindo ao TechRemote Ultimate Windows Debloater Gaming';
 Write-Host "DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" -ForegroundColor Red -BackgroundColor Black
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
