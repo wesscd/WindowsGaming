@@ -5,7 +5,7 @@
 # Current Modifier Source: https://github.com/wesscd/WindowsGaming
 #
 ##########
-$host.ui.RawUI.WindowTitle = "TechRemote Ultimate Windows Debloater Gaming v.0.3"
+$host.ui.RawUI.WindowTitle = "TechRemote Ultimate Windows Debloater Gaming v.0.4"
 cmd /c 'title [TechRemote Ultimate Windows Debloater Gaming]'
 Write-Host 'Bem vindo ao TechRemote Ultimate Windows Debloater Gaming';
 Write-Host "DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" -ForegroundColor Red -BackgroundColor Black
@@ -3394,6 +3394,13 @@ cmd /c 'echo Temp folders Cleared Successfully!'
 
 #Notifying user to reboot!
 Function Finished {
+
+	$url_logo = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/logo.bmp"
+	$destino_logo = "C:\Windows\oemlogo.bmp"
+
+	# Baixar a imagem
+	Invoke-WebRequest -Uri $url_logo -OutFile $destino_logo
+
 	New-Item -Path "HKCR:\Msi.Package\shell\runas\command" -Force | Out-Null
 	Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas" -Name "HasLUAShield" -Type String -Value "" | Out-Null -ErrorAction SilentlyContinue
 	Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas\command" -Name "(Default)" -Type ExpandString -Value '"%SystemRoot%\System32\msiexec.exe" /i "%1" %*' | Out-Null -ErrorAction SilentlyContinue
@@ -3403,6 +3410,7 @@ Function Finished {
         cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportURL" /t REG_SZ /d "http://techremote.com.br" /f 2>nul' >$null
 				cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportHours" /t REG_SZ /d "Seg-Sex: 08h-18h" /f 2>nul' >$null
 				cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportPhone" /t REG_SZ /d "+55 16 99263-6487" /f 2>nul' >$null
+				cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "Logo" /t REG_SZ /d "C:\Windows\oemlogo.bmp" /f 2>nul' >$null
 	Start-Sleep -s 5
         Write-Output "Done! Please Reboot Your PC! Don't forget to follow me on Social Media."
         Start-Process "http://techremote.com.br"
