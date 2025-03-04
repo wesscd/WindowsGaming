@@ -455,58 +455,17 @@ function Write-ColorOutput
 }
 
 Function InstallTitusProgs {
-    Write-Output "Verificando e instalando Chocolatey, se necessário..."
-    
-    # Verifica se o Chocolatey está instalado
-    if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-        try {
-            Set-ExecutionPolicy Bypass -Scope Process -Force
-            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-            Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-            Write-Output "Chocolatey instalado com sucesso."
-        } catch {
-            Write-Output "Erro ao instalar o Chocolatey: $_"
-            return
-        }
-    } else {
-        Write-Output "Chocolatey já está instalado."
-    }
-    
-    # Instala o pacote chocolatey-core.extension
-    try {
-        choco install chocolatey-core.extension -y
-    } catch {
-        Write-Output "Erro ao instalar chocolatey-core.extension: $_"
-    }
-    
-    Write-Output "Executando O&O ShutUp10 com as configurações recomendadas..."
-    
-    # Importa módulo para transferência de arquivos
-    Import-Module BitsTransfer
-    
-    try {
-        # Define URLs dos arquivos
-        $configUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/ooshutup10.cfg"
-        $exeUrl = "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"
-        
-        # Define caminhos locais
-        $configFile = "$env:TEMP\ooshutup10.cfg"
-        $exeFile = "$env:TEMP\OOSU10.exe"
-        
-        # Baixa os arquivos para o diretório temporário
-        Start-BitsTransfer -Source $configUrl -Destination $configFile
-        Start-BitsTransfer -Source $exeUrl -Destination $exeFile
-        
-        # Executa o O&O ShutUp10 com a configuração baixada
-        & $exeFile $configFile /quiet
-        Start-Sleep -Seconds 10
-        
-        # Remove os arquivos baixados
-        Remove-Item -Path $configFile, $exeFile -Force -ErrorAction Stop
-        Write-Output "O&O ShutUp10 executado e arquivos temporários removidos."
-    } catch {
-        Write-Output "Erro ao executar O&O ShutUp10: $_"
-    }
+	Write-Output "Installing Chocolatey"
+	Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+	choco install chocolatey-core.extension -y
+	Write-Output "Running O&O Shutup with Recommended Settings"
+	Import-Module BitsTransfer
+	Start-BitsTransfer -Source "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/ooshutup10.cfg" -Destination ooshutup10.cfg
+	Start-BitsTransfer -Source "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe" -Destination OOSU10.exe
+	./OOSU10.exe ooshutup10.cfg /quiet
+	Start-Sleep -Second 10
+	remove-item ooshutup10.cfg -force -Recurse -ErrorAction SilentlyContinue
+	remove-item OOSU10.exe -force -Recurse -ErrorAction SilentlyContinue
 }
 
 # Install the latest Microsoft Visual C++ 2010-2019 Redistributable Packages and Silverlight
