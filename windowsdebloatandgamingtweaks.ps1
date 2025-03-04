@@ -3146,115 +3146,109 @@ Function AMDGPUTweaks {
 
 #Optimizing Network and applying Tweaks for no throttle and maximum speed!
 Function NetworkOptimizations {
-       Write-Output "Optimizing Network and applying Tweaks for no throttle and maximum speed!..."
-       $errpref = $ErrorActionPreference #save actual preference
-       $ErrorActionPreference = "silentlycontinue"
-       New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -ErrorAction SilentlyContinue | Out-Null
-       New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS" -ErrorAction SilentlyContinue | Out-Null
-       New-Item -Path "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters" -ErrorAction SilentlyContinue | Out-Null
-       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPER1_0SERVER" -Name "explorer.exe" -Type DWord -Value 10
-       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPERSERVER" -Name "explorer.exe" -Type DWord -Value 10
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" -Name "LocalPriority" -Type DWord -Value 4
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" -Name "HostsPriority" -Type DWord -Value 5
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" -Name "DnsPriority" -Type DWord -Value 6
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" -Name "NetbtPriority" -Type DWord -Value 7
-       Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -Name "NonBestEffortlimit" -Type DWord -Value 0
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS" -Name "Do not use NLA" -Type String -Value "1"
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "Size" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "IRPStackSize" -Type DWord -Value 20
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "MaxUserPort" -Type DWord -Value 65534
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "TcpTimedWaitDelay" -Type DWord -Value 30
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "DefaultTTL" -Type DWord -Value 64
-       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters" -Name "TCPNoDelay" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\ControlSet001\Control\Lsa" -Name "LmCompatibilityLevel" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters" -Name "EnableAutoDoh" -Type DWord -Value 2
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "MaxNumRssCpus" -Type DWord -Value 4
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "DisableTaskOffload" -Type DWord -Value 0
-       Set-NetTCPSetting -SettingName internet -EcnCapability disabled | Out-Null
-       Set-NetOffloadGlobalSetting -Chimney disabled | Out-Null
-       Set-NetTCPSetting -SettingName internet -Timestamps disabled | Out-Null
-       Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2 | Out-Null
-       Set-NetTCPSetting -SettingName internet -NonSackRttResiliency disabled | Out-Null
-       Set-NetTCPSetting -SettingName internet -InitialRto 2000 | Out-Null
-       Set-NetTCPSetting -SettingName internet -MinRto 300 | Out-Null
-       Set-NetTCPSetting -SettingName Internet -AutoTuningLevelLocal normal | Out-Null
-       Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled | Out-Null
-       netsh int ip set global taskoffload=enabled | Out-Null
-	   netsh int tcp set global ecncapability=enabled | Out-Null
-	   netsh int tcp set global rss=enabled | Out-Null
-	   netsh int tcp set global rsc=enabled | Out-Null
-	   netsh int tcp set global dca=enabled | Out-Null
-	   netsh int tcp set global netdma=enabled | Out-Null
-	   netsh int tcp set global fastopen=enabled | Out-Null
-	   netsh int tcp set global fastopenfallback=enabled | Out-Null
-	   netsh int tcp set global prr=enabled | Out-Null
-	   netsh int tcp set global pacingprofile=always | Out-Null
-	   netsh int tcp set global hystart=enabled | Out-Null
-	   netsh int tcp set supplemental internet enablecwndrestart=enabled | Out-Null
-	   netsh int tcp set security mpp=enabled | Out-Null
-	   netsh int tcp set global autotuninglevel=normal | Out-Null
-	   netsh int tcp set supplemental internet congestionprovider=dctcp | Out-Null
-       Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing disabled | Out-Null
-       Set-NetOffloadGlobalSetting -ReceiveSideScaling enabled | Out-Null
-       Enable-NetAdapterChecksumOffload -Name * | Out-Null
-	   Enable-NetAdapterChecksumOffload -Name "*" | Out-Null
-	   Enable-NetAdapterIPsecOffload -Name "*" | Out-Null
-	   Enable-NetAdapterRsc -Name "*" | Out-Null
-	   Enable-NetAdapterRss -Name "*" | Out-Null
-	   Enable-NetAdapterQos -Name "*" | Out-Null
-	   Disable-NetAdapterLso -Name "*"  | Out-Null
-	   Enable-NetAdapterEncapsulatedPacketTaskOffload -Name "*" | Out-Null
-	   Enable-NetAdapterSriov -Name "*" | Out-Null
-	   Enable-NetAdapterVmq -Name "*" | Out-Null
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Energy-Efficient Ethernet" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Energy Efficient Ethernet" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Energy Efficient Ethernet" -DisplayValue "Off" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Ultra Low Power Mode" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "System Idle Power Saver" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Green Ethernet" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Power Saving Mode" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Gigabit Lite" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "EEE" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Advanced EEE" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "ARP Offload" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "NS Offload" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Large Send Offload v2 (IPv4)" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Large Send Offload v2 (IPv6)" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "TCP Checksum Offload (IPv4)" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "TCP Checksum Offload (IPv6)" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "UDP Checksum Offload (IPv4)" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "UDP Checksum Offload (IPv6)" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Idle Power Saving" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Flow Control" -DisplayValue "Enabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Flow Control" -DisplayValue "Rx & Tx Enabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Interrupt Moderation" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Reduce Speed On Power Down" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Interrupt Moderation Rate" -DisplayValue "Off" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Log Link State Event" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Packet Priority & VLAN" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Packet Priority & VLAN" -DisplayValue "Packet Priority & VLAN Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Priority & VLAN" -DisplayValue "Priority & VLAN Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "IPv4 Checksum Offload" -DisplayValue "Rx & Tx Enabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Jumbo Frame" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Maximum Number of RSS Queues" -DisplayValue "2 Queues" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Receive Side Scaling" -DisplayValue "Enabled" -ErrorAction SilentlyContinue
-	   Set-NetAdapterRdma -Name "*" -Enabled $True -ErrorAction SilentlyContinue
-	   Set-NetAdapterRsc -Name "*"-IPv4Enabled $True -IPv6Enabled $True -ErrorAction SilentlyContinue
-	   Set-NetAdapterRss -Name "*" -Profile Conservative -ErrorAction SilentlyContinue
-	   Set-NetAdapterIPsecOffload -Name "*" -Enabled $True -ErrorAction SilentlyContinue
-	   Set-NetAdapterChecksumOffload -Name "*" -TcpIPv6Enabled RxTxEnabled -ErrorAction SilentlyContinue
-	   Set-NetAdapterChecksumOffload -Name "*" -IpIPv4Enabled RxTxEnabled -TcpIpv4Enabled RxTxEnabled -UdpIpv4Enabled RxTxEnabled -ErrorAction SilentlyContinue
-       $ErrorActionPreference = $errpref #restore previous preference
-       if ((Get-CimInstance -ClassName Win32_ComputerSystem).PCSystemType -ne 2)
-{
-    $adapters = Get-NetAdapter -Physical | Get-NetAdapterPowerManagement | Where-Object -FilterScript {$_.AllowComputerToTurnOffDevice -ne "Unsupported"}
-    foreach ($adapter in $adapters)
-    {
-        $adapter.AllowComputerToTurnOffDevice = "Disabled"
-        $adapter | Set-NetAdapterPowerManagement
-    }
-}
-       Start-Sleep -s 5
+	Write-Output "Otimizando a rede e aplicando ajustes para máximo desempenho..."
+	
+	# Salvando a preferência de erro original
+	$errpref = $ErrorActionPreference 
+	$ErrorActionPreference = "SilentlyContinue"
+
+	# Criando chaves de registro se não existirem
+	New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -Force | Out-Null
+	New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS" -Force | Out-Null
+	New-Item -Path "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters" -Force | Out-Null
+
+	# Ajustes de Registro para otimização de rede
+	$regConfigs = @{
+			"HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPER1_0SERVER" = @("explorer.exe", 10)
+			"HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPERSERVER"    = @("explorer.exe", 10)
+			"HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider"                                    = @("LocalPriority", 4), @("HostsPriority", 5), @("DnsPriority", 6), @("NetbtPriority", 7)
+			"HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched"                                                 = @("NonBestEffortlimit", 0)
+			"HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS"                                                = @("Do not use NLA", "1")
+			"HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"                                  = @("Size", 1), @("IRPStackSize", 20)
+			"HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"                                         = @("MaxUserPort", 65534), @("TcpTimedWaitDelay", 30), @("DefaultTTL", 64), @("MaxNumRssCpus", 4), @("DisableTaskOffload", 0)
+			"HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters"                                                        = @("TCPNoDelay", 1)
+			"HKLM:\SYSTEM\ControlSet001\Control\Lsa"                                                          = @("LmCompatibilityLevel", 1)
+			"HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"                                     = @("EnableAutoDoh", 2)
+	}
+
+	foreach ($path in $regConfigs.Keys) {
+			foreach ($setting in $regConfigs[$path]) {
+					Set-ItemProperty -Path $path -Name $setting[0] -Type DWord -Value $setting[1] -ErrorAction SilentlyContinue
+			}
+	}
+
+	# Ajustes de TCP/IP
+	Set-NetTCPSetting -SettingName internet -EcnCapability disabled | Out-Null
+	Set-NetTCPSetting -SettingName internet -Timestamps disabled | Out-Null
+	Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2 | Out-Null
+	Set-NetTCPSetting -SettingName internet -NonSackRttResiliency disabled | Out-Null
+	Set-NetTCPSetting -SettingName internet -InitialRto 2000 | Out-Null
+	Set-NetTCPSetting -SettingName internet -MinRto 300 | Out-Null
+	Set-NetTCPSetting -SettingName Internet -AutoTuningLevelLocal normal | Out-Null
+	Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled | Out-Null
+
+	# Ajustes de Netsh
+	$netshCommands = @(
+			"int ip set global taskoffload=enabled",
+			"int tcp set global ecncapability=enabled",
+			"int tcp set global rss=enabled",
+			"int tcp set global rsc=enabled",
+			"int tcp set global dca=enabled",
+			"int tcp set global netdma=enabled",
+			"int tcp set global fastopen=enabled",
+			"int tcp set global fastopenfallback=enabled",
+			"int tcp set global prr=enabled",
+			"int tcp set global pacingprofile=always",
+			"int tcp set global hystart=enabled",
+			"int tcp set supplemental internet enablecwndrestart=enabled",
+			"int tcp set security mpp=enabled",
+			"int tcp set global autotuninglevel=normal",
+			"int tcp set supplemental internet congestionprovider=dctcp"
+	)
+	foreach ($cmd in $netshCommands) {
+			netsh $cmd | Out-Null
+	}
+
+	# Ajustes globais de offload
+	Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing disabled | Out-Null
+	Set-NetOffloadGlobalSetting -ReceiveSideScaling enabled | Out-Null
+
+	# Ativação e desativação de funcionalidades em adaptadores de rede
+	$netAdapterSettings = @(
+			"Enable-NetAdapterChecksumOffload",
+			"Enable-NetAdapterIPsecOffload",
+			"Enable-NetAdapterRsc",
+			"Enable-NetAdapterRss",
+			"Enable-NetAdapterQos",
+			"Enable-NetAdapterEncapsulatedPacketTaskOffload",
+			"Enable-NetAdapterSriov",
+			"Enable-NetAdapterVmq"
+	)
+	foreach ($setting in $netAdapterSettings) {
+			& $setting -Name "*" | Out-Null
+	}
+	Disable-NetAdapterLso -Name "*"  | Out-Null
+
+	# Ajustes avançados dos adaptadores de rede
+	$advancedProperties = @(
+			"Energy-Efficient Ethernet", "Energy Efficient Ethernet", "Ultra Low Power Mode",
+			"System Idle Power Saver", "Green Ethernet", "Power Saving Mode", "Gigabit Lite",
+			"EEE", "Advanced EEE", "ARP Offload", "NS Offload", "Large Send Offload v2 (IPv4)",
+			"Large Send Offload v2 (IPv6)", "TCP Checksum Offload (IPv4)", "TCP Checksum Offload (IPv6)",
+			"UDP Checksum Offload (IPv4)", "UDP Checksum Offload (IPv6)", "Idle Power Saving",
+			"Flow Control", "Interrupt Moderation", "Reduce Speed On Power Down", "Interrupt Moderation Rate",
+			"Log Link State Event", "Packet Priority & VLAN", "Priority & VLAN",
+			"IPv4 Checksum Offload", "Jumbo Frame", "Maximum Number of RSS Queues"
+	)
+
+	foreach ($prop in $advancedProperties) {
+			Set-NetAdapterAdvancedProperty -Name * -DisplayName $prop -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+	}
+
+	# Restaurando a preferência de erro original
+	$ErrorActionPreference = $errpref
+
+	Write-Output "Otimizações de rede concluídas com sucesso!"
 }
 
 # Disable Nagle's Algorithm
