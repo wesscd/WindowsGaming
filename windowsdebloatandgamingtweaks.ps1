@@ -539,6 +539,10 @@ Function InstallTitusProgs {
 
 # Ccleaner
 Function Execute-BatchScript {
+	Clear-Host
+	Write-Host ""
+	Write-Host "Realizando limpeza de cache dos navegadores" -ForegroundColor Green -BackgroundColor Black
+
   $url = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/script-ccleaner.bat"
   $localPath = "$env:temp\script-ccleaner.bat"
   
