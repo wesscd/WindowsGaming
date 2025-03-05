@@ -14,11 +14,11 @@ $host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.
 Clear-Host
 Write-Host ""
 Write-Host -ForegroundColor Cyan "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗" 
-Write-Host "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝" -ForegroundColor Cyan
-Write-Host "   ██║   █████╗  ██║     ███████║    ██████╔╝█████╗  ██╔████╔██║██║   ██║   ██║   █████╗  " -ForegroundColor Cyan
-Write-Host "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  " -ForegroundColor Cyan
-Write-Host "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗" -ForegroundColor Cyan
-Write-Host "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝" -ForegroundColor Cyan
+Write-Host -ForegroundColor Cyan "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝" 
+Write-Host -ForegroundColor Cyan "   ██║   █████╗  ██║     ███████║    ██████╔╝█████╗  ██╔████╔██║██║   ██║   ██║   █████╗  " 
+Write-Host -ForegroundColor Cyan "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  " 
+Write-Host -ForegroundColor Cyan "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗" 
+Write-Host -ForegroundColor Cyan "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝" 
 Write-Host "" -BackgroundColor Black
 Write-Host "Bem vindo ao TechRemote Ultimate Windows Debloater Gaming" -ForegroundColor Green -BackgroundColor Black
 Write-Host "" -BackgroundColor Black
