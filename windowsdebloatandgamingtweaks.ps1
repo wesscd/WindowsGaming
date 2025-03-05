@@ -6,10 +6,29 @@
 #
 ##########
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.7 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.8 --"
 cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
-Write-Host 'Bem vindo ao TechRemote Ultimate Windows Debloater Gaming';
+Write-Host ""
+Write-Host "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "   ██║   █████╗  ██║     ███████║    ██████╔╝█████╗  ██╔████╔██║██║   ██║   ██║   █████╗  " -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  " -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝" -ForegroundColor Cyan -BackgroundColor Black
+Write-Host "" -BackgroundColor Black
+Write-Host "Bem vindo ao TechRemote Ultimate Windows Debloater Gaming" -ForegroundColor Green -BackgroundColor Black
+Write-Host "" -BackgroundColor Black
+Write-Host "Este script irá otimizar o desempenho do seu sistema operacional Windows." -ForegroundColor Red -BackgroundColor Black
+Write-Host "Durante o processo, alguns serviços da Microsoft que rodam em segundo plano serão desinstalados." -ForegroundColor Red -BackgroundColor Black
+Write-Host "Um ponto de restauração será criado automaticamente antes de prosseguir." -ForegroundColor Red -BackgroundColor Black
+Write-Host ""  -BackgroundColor Black
+Write-Host "Idealizador: Christitus" -ForegroundColor Green -BackgroundColor Black
+Write-Host "Atualizador: Daddy Madu" -ForegroundColor Green -BackgroundColor Black
+Write-Host "Aperfeiçoado por: Barão (César Marques)" -ForegroundColor Green -BackgroundColor Black
+Write-Host "Script utilizado pela TechRemote para otimizações." -ForegroundColor Green -BackgroundColor Black
+Write-Host "" 
+Write-Host "" 
 Write-Host "DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" -ForegroundColor Red -BackgroundColor Black
 
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
