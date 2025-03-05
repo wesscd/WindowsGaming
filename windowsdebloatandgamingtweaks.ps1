@@ -52,6 +52,7 @@ $tweaks = @(
 	"SlowUpdatesTweaks",
 	"Write-ColorOutput", #Utilizing Colors for better Warning messages!
 	"InstallTitusProgs", #REQUIRED FOR OTHER PROGRAM INSTALLS!
+	"Execute-BatchScript", # Ccleaner
 	"InstallMVC", #install Microsoft Visualstudio required for HPET service!
 	"Install7Zip",
 	"InstallChocoUpdates",
@@ -224,6 +225,7 @@ $mobiletweaks = @(
 	"SlowUpdatesTweaks",
 	"Write-ColorOutput", #Utilizing Colors for better Warning messages!
 	"InstallTitusProgs", #REQUIRED FOR OTHER PROGRAM INSTALLS!
+	"Execute-BatchScript", # Ccleaner
 	"InstallMVC", #install Microsoft Visualstudio required for HPET service!
 	"Install7Zip",
 	"InstallChocoUpdates",
@@ -533,6 +535,22 @@ Function InstallTitusProgs {
     } catch {
         Write-Output "Erro ao executar O&O ShutUp10: $_"
     }
+}
+
+# Ccleaner
+Function Execute-BatchScript {
+  $url = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/script-ccleaner.bat"
+  $localPath = "$env:temp\script-ccleaner.bat"
+  
+  # Baixa o arquivo .bat
+  Invoke-WebRequest -Uri $url -OutFile $localPath
+  
+  # Executa o script .bat
+  Start-Process -FilePath $localPath -ArgumentList "/c $localPath" -Wait
+
+  # Opcional: Remove o arquivo .bat após execução
+  Remove-Item -Path $localPath -Force
+  Write-Output "Script .bat executado e removido com sucesso."
 }
 
 # Install the latest Microsoft Visual C++ 2010-2019 Redistributable Packages and Silverlight
@@ -3741,7 +3759,7 @@ Function DebloatAll {
     foreach ($Bloat in $Bloatware) {
         Get-AppxPackage -AllUsers -Name $Bloat | Remove-AppxPackage | Out-Null
         Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online | Out-Null
-        Write-Output "Tentando remover: $Bloat"
+        Write-Output "Removendo: $Bloat"
     }
 
     $ErrorActionPreference = $errpref  # Restaura a configuração anterior
@@ -3809,9 +3827,9 @@ If ($args) {
 # Call the desired tweak functions
 $PlatformCheck = (Get-Computerinfo).CsPCSystemType
      if ($PlatformCheck -eq "Mobile") {
-     Write-Output "Platform is $PlatformCheck applying Mobile Devices Tweaks..."
+     Write-Output "A plataforma $PlatformCheck aplicando ajustes ao dispositivo movel..."
 	 $mobiletweaks | ForEach-Object { Invoke-Expression $_ }
      } else {
-     Write-Output "Platform is $PlatformCheck applying Desktop Tweaks..."
+     Write-Output "A plataforma $PlatformCheck aplicando ajustes na área de trabalho..."
 	 $tweaks | ForEach-Object { Invoke-Expression $_ }
      }
