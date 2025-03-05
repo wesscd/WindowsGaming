@@ -6,6 +6,8 @@
 #
 ##########
 
+chcp 65001
+
 $host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.8 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
@@ -24,7 +26,7 @@ Write-Host "Durante o processo, alguns servicos Microsoft que rodam em segundo p
 Write-Host "Um ponto de restauracao sera criado automaticamente antes de prosseguir." -ForegroundColor Red -BackgroundColor Black
 Write-Host ""  -BackgroundColor Black
 Write-Host "Barao (Cesar Marques)" -ForegroundColor Green -BackgroundColor Black
-Write-Host "Script utilizado pela TechRemote para otimizações." -ForegroundColor Green -BackgroundColor Black
+Write-Host "Script utilizado pela TechRemote para otimizacoes." -ForegroundColor Green -BackgroundColor Black
 Write-Host "" 
 Write-Host "" 
 Write-Host "DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" -ForegroundColor Red -BackgroundColor Black
