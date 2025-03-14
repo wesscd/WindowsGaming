@@ -8,7 +8,7 @@
 
 chcp 860
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.8.4 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.8.5 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
 Write-Host ""
@@ -52,6 +52,7 @@ $tweaks = @(
 	"SlowUpdatesTweaks",
 	"Write-ColorOutput", #Utilizing Colors for better Warning messages!
 	"InstallTitusProgs", #REQUIRED FOR OTHER PROGRAM INSTALLS!
+	"check-Windows",
 	"Execute-BatchScript", # Ccleaner
 	"Install-Memreduct",
 	"InstallMVC", #install Microsoft Visualstudio required for HPET service!
@@ -226,6 +227,7 @@ $mobiletweaks = @(
 	"SlowUpdatesTweaks",
 	"Write-ColorOutput", #Utilizing Colors for better Warning messages!
 	"InstallTitusProgs", #REQUIRED FOR OTHER PROGRAM INSTALLS!
+	"check-Windows",
 	"Execute-BatchScript", # Ccleaner
 	"Install-Memreduct",
 	"InstallMVC", #install Microsoft Visualstudio required for HPET service!
@@ -590,6 +592,27 @@ Function Install-Memreduct{
 	}
 
 
+}
+
+function check-Windows {
+	# Verifica o status de ativação do Windows
+	$activationStatus = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object { $_.PartialProductKey }).LicenseStatus
+
+	if ($activationStatus -eq 1) {
+			Clear-Host
+			Write-Host ""
+    	Write-Output "O Windows está ativado." -ForegroundColor Green -BackgroundColor Black
+	} else {
+			Clear-Host
+			Write-Host "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" -ForegroundColor Red -BackgroundColor Black
+    	Write-Output "| O Windows NÃO está ativado. Executando o comando de ativação. |" -ForegroundColor Red -BackgroundColor Black
+			Write-Host "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" -ForegroundColor Red -BackgroundColor Black
+    	# Executa o comando de ativação
+    	irm https://get.activated.win | iex
+
+}
+
+	
 }
 
 # Install the latest Microsoft Visual C++ 2010-2019 Redistributable Packages and Silverlight
