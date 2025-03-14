@@ -8,7 +8,7 @@
 
 chcp 860
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.8.6 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.8.7 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
 Write-Host ""
@@ -576,46 +576,41 @@ Function Install-Memreduct{
 
 	# Verificar se o Mem Reduct já está instalado
 	if (Test-Path $executavel) {
-			Clear-Host
-			Write-Host ""
-  	  Write-Host "Mem Reduct já está instalado. Nenhuma ação necessária."  -ForegroundColor Green -BackgroundColor Black
-   	 exit
-	}
-
-	# Baixar o instalador
-	Clear-Host
-	Write-Host ""
-	Write-Host "Baixando Mem Reduct..."  -ForegroundColor Green -BackgroundColor Black
-	Invoke-WebRequest -Uri $url -OutFile $destino
-
-	# Verificar se o download foi concluído
-	if (!(Test-Path $destino)) {
-  	  Write-Host "Erro: Falha ao baixar o instalador."  -ForegroundColor Red -BackgroundColor Black
-  	  exit
-	}
-
-	# Executar a instalação de forma silenciosa
-	Write-Host "Instalando Mem Reduct..."
-	Start-Process -FilePath $destino -ArgumentList "/silent" -NoNewWindow -Wait
-
-	# Criar atalho na área de trabalho
-	if (Test-Path $executavel) {
-    Write-Host "Criando atalho na área de trabalho..."
-    $WScriptShell = New-Object -ComObject WScript.Shell
-    $Atalho = $WScriptShell.CreateShortcut($atalhoPath)
-    $Atalho.TargetPath = $executavel
-    $Atalho.WorkingDirectory = "C:\Program Files\Mem Reduct\memreduct.exe"
-    $Atalho.Save()
-    Write-Host "Atalho criado com sucesso."
+  	  Write-Host "Mem Reduct já está instalado. Continuando o script..."
 	} else {
-    Write-Host "Erro: O Mem Reduct não foi instalado corretamente."  -ForegroundColor Red -BackgroundColor Black
+    	# Baixar o instalador
+    	Write-Host "Baixando Mem Reduct..."
+    	Invoke-WebRequest -Uri $url -OutFile $destino
+
+    	# Verificar se o download foi concluído
+    	if (!(Test-Path $destino)) {
+        	Write-Host "Erro: Falha ao baixar o instalador."
+    	}
+
+    	# Executar a instalação de forma silenciosa
+    	Write-Host "Instalando Mem Reduct..."
+    	Start-Process -FilePath $destino -ArgumentList "/silent" -NoNewWindow -Wait
+}
+
+# Criar atalho na área de trabalho
+	if (Test-Path $executavel) {
+    	Write-Host "Criando atalho na área de trabalho..."
+    	$WScriptShell = New-Object -ComObject WScript.Shell
+    	$Atalho = $WScriptShell.CreateShortcut($atalhoPath)
+    	$Atalho.TargetPath = $executavel
+    	$Atalho.WorkingDirectory = "C:\Program Files\Mem Reduct"
+    	$Atalho.Save()
+    	Write-Host "Atalho criado com sucesso."
+	} else {
+    	Write-Host "Erro: O Mem Reduct não foi instalado corretamente."
 	}
 
-	# Remover o instalador após a instalação
-	Remove-Item -Path $destino -Force
+# Remover o instalador após a instalação
+	if (Test-Path $destino) {
+    	Remove-Item -Path $destino -Force
+	}
 
-	Write-Host "Memreduct instalado com sucesso!"  -ForegroundColor Green -BackgroundColor Black
-
+		Write-Host "Memreduct instalado com sucesso!"  -ForegroundColor Green -BackgroundColor Black
 }
 
 function check-Windows {
