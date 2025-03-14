@@ -8,7 +8,7 @@
 
 chcp 860
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.8.3 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.8.4 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
 Write-Host ""
@@ -53,6 +53,7 @@ $tweaks = @(
 	"Write-ColorOutput", #Utilizing Colors for better Warning messages!
 	"InstallTitusProgs", #REQUIRED FOR OTHER PROGRAM INSTALLS!
 	"Execute-BatchScript", # Ccleaner
+	"Install-Memreduct",
 	"InstallMVC", #install Microsoft Visualstudio required for HPET service!
 	"Install7Zip",
 	"InstallChocoUpdates",
@@ -226,6 +227,7 @@ $mobiletweaks = @(
 	"Write-ColorOutput", #Utilizing Colors for better Warning messages!
 	"InstallTitusProgs", #REQUIRED FOR OTHER PROGRAM INSTALLS!
 	"Execute-BatchScript", # Ccleaner
+	"Install-Memreduct",
 	"InstallMVC", #install Microsoft Visualstudio required for HPET service!
 	"Install7Zip",
 	"InstallChocoUpdates",
@@ -555,6 +557,39 @@ Function Execute-BatchScript {
   # Opcional: Remove o arquivo .bat após execução
   Remove-Item -Path $localPath -Force
   Write-Output "Script .bat executado e removido com sucesso."
+}
+
+## Memreduct
+Function Install-Memreduct{
+
+	Clear-Host
+	Write-Host ""
+	Write-Host "Instalando MemReduct" -ForegroundColor Green -BackgroundColor Black
+
+	# Definir a URL do instalador e o caminho de destino
+	$url = "https://github.com/henrypp/memreduct/releases/download/v.3.5.1/memreduct-3.5.1-setup.exe"
+	$destino = "$env:TEMP\memreduct-setup.exe"
+
+	# Baixar o instalador
+	Write-Host "Baixando Mem Reduct..."
+	Invoke-WebRequest -Uri $url -OutFile $destino
+
+	# Verificar se o arquivo foi baixado
+	if (Test-Path $destino) {
+  	  Write-Host "Download concluído. Iniciando a instalação..."
+    
+    	# Executar o instalador de forma silenciosa
+    	Start-Process -FilePath $destino -ArgumentList "/silent" -NoNewWindow -Wait
+    
+	    Write-Host "Instalação concluída."
+    
+  	  # Remover o instalador após a instalação
+	    Remove-Item -Path $destino -Force
+	} else {
+  	  Write-Host "Erro: O download falhou. Verifique a URL e tente novamente."
+	}
+
+
 }
 
 # Install the latest Microsoft Visual C++ 2010-2019 Redistributable Packages and Silverlight
