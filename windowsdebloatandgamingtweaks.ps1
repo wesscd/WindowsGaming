@@ -666,6 +666,18 @@ function DownloadAndExtractISLC {
 	Remove-Item -Path $downloadPath -Force
 	Write-Host "Excluindo $downloadPath"
 
+	$executavel = "C:\ISLC\Intelligent standby list cleaner ISLC.exe"
+	$nome = "ISLC"  # Dê um nome identificador para o programa
+
+	Write-Host "Adicionando ISLC na inicializacao."
+
+	# Caminho para a chave de inicialização no Registro
+	$chaveRegistro = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
+	
+	# Adicionando o executável à chave de inicialização
+	Set-ItemProperty -Path $chaveRegistro -Name $nome -Value $executavel
+
+
 }
 
 # Update ISLC Config
