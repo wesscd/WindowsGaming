@@ -659,6 +659,10 @@ function DownloadAndExtractISLC {
   } else {
       Write-Host "7-Zip não encontrado no caminho especificado."
   }
+
+	Remove-Item -File $downloadPath
+	Write-Host "Excluindo $downloadPath"
+
 }
 
 # Update ISLC Config
