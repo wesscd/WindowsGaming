@@ -8,7 +8,7 @@
 
 chcp 860
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.8.7 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.8.8 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
 Write-Host ""
@@ -54,6 +54,7 @@ $tweaks = @(
 	"InstallTitusProgs", #REQUIRED FOR OTHER PROGRAM INSTALLS!
 	"check-Windows",
 	"Execute-BatchScript", # Ccleaner
+	"Set-RamThreshold", # memory value
 	"Install-Memreduct",
 	"InstallMVC", #install Microsoft Visualstudio required for HPET service!
 	"Install7Zip",
@@ -229,6 +230,7 @@ $mobiletweaks = @(
 	"InstallTitusProgs", #REQUIRED FOR OTHER PROGRAM INSTALLS!
 	"check-Windows",
 	"Execute-BatchScript", # Ccleaner
+	"Set-RamThreshold", # memory value
 	"Install-Memreduct",
 	"InstallMVC", #install Microsoft Visualstudio required for HPET service!
 	"Install7Zip",
@@ -559,6 +561,50 @@ Function Execute-BatchScript {
   # Opcional: Remove o arquivo .bat após execução
   Remove-Item -Path $localPath -Force
   Write-Output "Script .bat executado e removido com sucesso."
+}
+
+function Set-RamThreshold {
+  # Obtém a quantidade de memória RAM instalada (em GB)
+  $ramGB = [math]::round((Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
+
+  # Define o valor correto do registro com base na quantidade de RAM
+  $value = switch ($ramGB) {
+      4   { 0x400000 }
+      6   { 0x600000 }
+      8   { 0x800000 }
+      12  { 0xC00000 }
+      16  { 0x1000000 }
+      24  { 0x1800000 }
+      32  { 0x2000000 }
+      64  { 0x4000000 }
+			128  { 0x8000000 }
+      default {
+          Write-Host "Memória RAM não suportada para esta configuração." -ForegroundColor Red -BackgroundColor Purple
+          exit
+      }
+  }
+
+  # Caminho do registro
+  $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control"
+  $regName = "SvcHostSplitThresholdInKB"
+
+  # Converte para decimal antes de gravar no registro
+  $value = [int]$value
+
+  # Verifica se a chave já existe
+  if (-not (Get-ItemProperty -Path "$regPath" -Name "$regName" -ErrorAction SilentlyContinue)) {
+      # Se não existir, cria a propriedade no registro
+      New-ItemProperty -Path "$regPath" -Name "$regName" -Value $value -PropertyType DWord | Out-Null
+      Write-Host "Registro criado com o valor correto: 0x$($value.ToString("X"))" -ForegroundColor Green -BackgroundColor Black
+  } else {
+      # Se já existir, apenas atualiza o valor
+      Set-ItemProperty -Path "$regPath" -Name "$regName" -Value $value
+      Write-Host "Registro atualizado com o valor correto: 0x$($value.ToString("X"))" -ForegroundColor Green -BackgroundColor Black
+  }
+
+  # Verifica o valor após a modificação
+  $newValue = Get-ItemProperty -Path "$regPath" -Name "$regName"
+  Write-Host "Novo valor do registro: 0x$($newValue.$regName.ToString("X"))"
 }
 
 ## Memreduct
