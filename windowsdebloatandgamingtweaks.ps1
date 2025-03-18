@@ -8,7 +8,7 @@
 
 chcp 860
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.9.2 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.9.3 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
 Write-Host ""
@@ -583,6 +583,8 @@ function Set-RamThreshold {
 
 # Set virtual memory on regedit
 function Set-MemoriaVirtual-Registry {
+	Clear-Host
+	Write-Host "================ Digite a letra do drive para armazenar memoria virtual ================"
 	# Solicita ao usuário o drive onde a memória virtual será configurada
 	$Drive = Read-Host "Informe a letra do drive (ex: C) para configurar a memória virtual"
 	$DrivePath = "${Drive}:"
@@ -3935,8 +3937,10 @@ Function DebloatAll {
 }
 
 Function Clear-PSHistory {
-	# Remove o histórico atual da sessão
-	[System.Management.Automation.PSConsoleReadLine]::ClearHistory()
+	# Remove o histórico atual da sessão (PowerShell 5.1 e versões superiores)
+	if (Get-Command -Name 'Clear-PSReadlineHistory' -ErrorAction SilentlyContinue) {
+			Clear-PSReadlineHistory
+	}
 
 	# Remove o histórico do perfil do usuário (caso o PowerShell use um arquivo de histórico)
 	$historyPath = "$env:APPDATA\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
@@ -3956,16 +3960,21 @@ Function Clear-PSHistory {
 			Remove-Item $historyPathLegacyPS -Force -ErrorAction SilentlyContinue
 	}
 
-	# Limpa a variável de histórico da sessão atual
+	# Limpa o histórico da sessão atual
 	$global:history = @()
 
-	# Se disponível, limpa histórico de comandos armazenado internamente
-	Get-History | ForEach-Object { Remove-History -Id $_.Id }
+	# Limpa os itens do histórico com um comando alternativo
+	if ($PSVersionTable.PSVersion -lt '5.0') {
+			# Para versões abaixo da 5.0, usamos o comando alternativo
+			Clear-History -ErrorAction SilentlyContinue
+	} else {
+			# Para versões 5.0 ou superiores, podemos usar o cmdlet `Clear-History`
+			Get-History | ForEach-Object { Remove-Item -Path "history:$($_.Id)" -ErrorAction SilentlyContinue }
+	}
 
 	# Confirmação visual
 	Write-Host "Histórico do PowerShell completamente apagado!" -ForegroundColor Green
 }
-
 
 ##########
 # Parse parameters and apply tweaks
