@@ -8,7 +8,7 @@
 
 chcp 860
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.8.8 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.8.9 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
 Write-Host ""
@@ -55,7 +55,9 @@ $tweaks = @(
 	"check-Windows",
 	"Execute-BatchScript", # Ccleaner
 	"Set-RamThreshold", # memory value
-	"Install-Memreduct",
+	"Set-MemoriaVirtual-Registry -Drive $DrivePath", # Virtual Memory
+	"DownloadAndExtractISLC", # ISLC
+	"UpdateISLCConfig", #ISLC Config
 	"InstallMVC", #install Microsoft Visualstudio required for HPET service!
 	"Install7Zip",
 	"InstallChocoUpdates",
@@ -231,7 +233,9 @@ $mobiletweaks = @(
 	"check-Windows",
 	"Execute-BatchScript", # Ccleaner
 	"Set-RamThreshold", # memory value
-	"Install-Memreduct",
+	"Set-MemoriaVirtual-Registry -Drive $DrivePath", # Virtual Memory
+	"DownloadAndExtractISLC", # ISLC
+	"UpdateISLCConfig", # ISLC Config
 	"InstallMVC", #install Microsoft Visualstudio required for HPET service!
 	"Install7Zip",
 	"InstallChocoUpdates",
@@ -563,6 +567,7 @@ Function Execute-BatchScript {
   Write-Output "Script .bat executado e removido com sucesso."
 }
 
+# Set ram value on Threshold no regedit
 function Set-RamThreshold {
   # Obtém a quantidade de memória RAM instalada (em GB)
   $ramGB = [math]::round((Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
@@ -607,56 +612,124 @@ function Set-RamThreshold {
   Write-Host "Novo valor do registro: 0x$($newValue.$regName.ToString("X"))"
 }
 
-## Memreduct
-Function Install-Memreduct{
+# Set virtual memory on regedit
+function Set-MemoriaVirtual-Registry {
+  param (
+      [string]$Drive
+  )
 
-	Clear-Host
-	Write-Host ""
-	Write-Host "Instalando MemReduct" -ForegroundColor Green -BackgroundColor Black
+  # Obtém a quantidade total de memória RAM instalada em MB
+  $TotalRAM = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1MB)
 
-	# Definir variáveis
-	$url = "https://github.com/henrypp/memreduct/releases/download/v.3.5.1/memreduct-3.5.1-setup.exe"
-	$destino = "$env:TEMP\memreduct-setup.exe"
-	$executavel = "$env:ProgramFiles\Mem Reduct\memreduct.exe"
-	$atalhoPath = "$env:Public\Desktop\MemReduct.lnk"
+  # Calcula o tamanho máximo da memória virtual (RAM * 1.5)
+  $MaxSize = [math]::Round($TotalRAM * 1.5)
 
-	# Verificar se o Mem Reduct já está instalado
-	if (Test-Path $executavel) {
-  	  Write-Host "Mem Reduct já está instalado. Continuando o script..."
-	} else {
-    	# Baixar o instalador
-    	Write-Host "Baixando Mem Reduct..."
-    	Invoke-WebRequest -Uri $url -OutFile $destino
+  # Define o tamanho inicial fixo da memória virtual
+  $InitialSize = 9081
 
-    	# Verificar se o download foi concluído
-    	if (!(Test-Path $destino)) {
-        	Write-Host "Erro: Falha ao baixar o instalador."
-    	}
+  # Caminho do Registro onde as configurações são armazenadas
+  $RegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
 
-    	# Executar a instalação de forma silenciosa
-    	Write-Host "Instalando Mem Reduct..."
-    	Start-Process -FilePath $destino -ArgumentList "/silent" -NoNewWindow -Wait
+  # Desativa o gerenciamento automático da memória virtual
+  Set-ItemProperty -Path $RegPath -Name "PagingFiles" -Value "$Drive\pagefile.sys $InitialSize $MaxSize"
+  Set-ItemProperty -Path $RegPath -Name "AutomaticManagedPagefile" -Value 0
+
+  Write-Output "Configuração de memória virtual aplicada no registro!"
+  Write-Output "Drive: $Drive | Inicial: $InitialSize MB | Máximo: $MaxSize MB"
+
+  # Reiniciar o PC para aplicar as mudanças
+  Write-Output "Reinicie o computador para que as alterações entrem em vigor."
 }
 
-# Criar atalho na área de trabalho
-	if (Test-Path $executavel) {
-    	Write-Host "Criando atalho na área de trabalho..."
-    	$WScriptShell = New-Object -ComObject WScript.Shell
-    	$Atalho = $WScriptShell.CreateShortcut($atalhoPath)
-    	$Atalho.TargetPath = $executavel
-    	$Atalho.WorkingDirectory = "C:\Program Files\Mem Reduct"
-    	$Atalho.Save()
-    	Write-Host "Atalho criado com sucesso."
-	} else {
-    	Write-Host "Erro: O Mem Reduct não foi instalado corretamente."
-	}
+# Menu para entrada do drive
+Write-Output "Selecione o drive onde deseja configurar a memória virtual:"
+$Drive = Read-Host "Informe a letra do drive (ex: C)"
+$DrivePath = "${Drive}:"
 
-# Remover o instalador após a instalação
-	if (Test-Path $destino) {
-    	Remove-Item -Path $destino -Force
-	}
+## Download and extract ISLC
+function DownloadAndExtractISLC {
+  # Definir o link de download e o caminho do arquivo
+  $downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
+  $downloadPath = "C:\ISLC_v1.0.3.4.exe"
+  $extractPath = "C:\"
+  $newFolderName = "ISLC"
 
-		Write-Host "Memreduct instalado com sucesso!"  -ForegroundColor Green -BackgroundColor Black
+  # Baixar o arquivo executável
+  Write-Host "Iniciando o download do arquivo..."
+  try {
+      Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath
+      Write-Host "Arquivo baixado com sucesso!"
+  } catch {
+      Write-Host "Erro ao baixar o arquivo: $_"
+      return
+  }
+
+  # Verificar se a pasta de extração existe, caso contrário, criar
+  if (-Not (Test-Path -Path $extractPath)) {
+      Write-Host "Criando a pasta de extração..."
+      New-Item -ItemType Directory -Path $extractPath
+  }
+
+  # Caminho do 7z.exe
+  $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"  # Altere conforme o local do seu 7z.exe
+
+  # Verificar se o 7z está instalado
+  if (Test-Path -Path $sevenZipPath) {
+      Write-Host "Extraindo o conteúdo do arquivo usando 7-Zip..."
+      try {
+          # Extrair diretamente na pasta ISLC
+          & $sevenZipPath x $downloadPath -o"$extractPath" -y
+          Write-Host "Arquivo extraído com sucesso para $extractPath"
+          
+          # Renomear a pasta extraída para MEM
+          $extractedFolderPath = "$extractPath\ISLC v1.0.3.4"
+          if (Test-Path -Path $extractedFolderPath) {
+              Rename-Item -Path $extractedFolderPath -NewName $newFolderName
+              Write-Host "Pasta renomeada para '$newFolderName'."
+          } else {
+              Write-Host "Pasta extraída não encontrada."
+          }
+      } catch {
+          Write-Host "Erro ao extrair o arquivo: $_"
+      }
+  } else {
+      Write-Host "7-Zip não encontrado no caminho especificado."
+  }
+}
+
+# Update ISLC Config
+function UpdateISLCConfig {
+  # Caminho para o arquivo de configuração (ajuste conforme necessário)
+  $configFilePath = "C:\ISLC\Intelligent standby list cleaner ISLC.exe.Config"
+
+  # Verificar se o arquivo de configuração existe
+  if (Test-Path -Path $configFilePath) {
+      Write-Host "Arquivo de configuração encontrado. Atualizando..."
+
+      try {
+          # Carregar o conteúdo do arquivo XML
+          [xml]$configXml = Get-Content -Path $configFilePath -Raw
+
+          # Obter a quantidade total de memória RAM do sistema (em MB)
+          $totalMemory = (Get-WmiObject Win32_ComputerSystem).TotalPhysicalMemory / 1MB
+          $freeMemory = [math]::Round($totalMemory / 2)  # Calcular metade da memória
+
+          # Alterar as configurações conforme solicitado
+          $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Free memory" } | ForEach-Object { $_.value = "$freeMemory" }
+          $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Start minimized" } | ForEach-Object { $_.value = "True" }
+          $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Wanted timer" } | ForEach-Object { $_.value = "0.50" }
+          $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Custom timer" } | ForEach-Object { $_.value = "True" }
+          $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "TaskScheduler" } | ForEach-Object { $_.value = "True" }
+
+          # Salvar as alterações de volta no arquivo XML
+          $configXml.Save($configFilePath)
+          Write-Host "Arquivo de configuração atualizado com sucesso!"
+      } catch {
+          Write-Host "Erro ao atualizar o arquivo de configuração: $_"
+      }
+  } else {
+      Write-Host "Arquivo de configuração não encontrado em $configFilePath"
+  }
 }
 
 function check-Windows {
