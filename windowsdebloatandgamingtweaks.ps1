@@ -8,7 +8,7 @@
 
 chcp 860
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.9.1 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.9.2 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
 Write-Host ""
@@ -647,6 +647,7 @@ function DownloadAndExtractISLC {
           
           # Renomear a pasta extraída para MEM
           $extractedFolderPath = "$extractPath\ISLC v1.0.3.4"
+
           if (Test-Path -Path $extractedFolderPath) {
               Rename-Item -Path $extractedFolderPath -NewName $newFolderName
               Write-Host "Pasta renomeada para '$newFolderName'."
@@ -660,7 +661,7 @@ function DownloadAndExtractISLC {
       Write-Host "7-Zip não encontrado no caminho especificado."
   }
 
-	Remove-Item -Path $downloadPath
+	Remove-Item -Path $downloadPath -Force
 	Write-Host "Excluindo $downloadPath"
 
 }
@@ -842,7 +843,7 @@ Function MSIMode {
 $errpref = $ErrorActionPreference #save actual preference
 $ErrorActionPreference = "silentlycontinue"
 $GPUIDS = @(
-(wmic path win32_VideoController get PNPDeviceID | Select-Object -Skip 2 | Format-List | Out-String).Trim()
+(Get-CimInstance -ClassName Win32_VideoController | Select-Object -ExpandProperty PNPDeviceID | Select-Object -Skip 2 | Format-List | Out-String).Trim()
     )
     foreach ($GPUID in $GPUIDS) {
 $CheckDeviceDes = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID").DeviceDesc
@@ -3137,7 +3138,7 @@ Function DisableHPET {
 	bcdedit /set {globalsettings} custom:16000067 true | Out-Null
 	bcdedit /set {globalsettings} custom:16000069 true | Out-Null
 	bcdedit /set {globalsettings} custom:16000068 true | Out-Null
-	wmic path Win32_PnPEntity where "name='High precision event timer'" call enable | Out-Null
+	Get-CimInstance -ClassName Win32_PnPEntity | Where-Object { $_.Name -eq 'High precision event timer' } | ForEach-Object { $_ | Invoke-CimMethod -MethodName Enable }
       if ($PlatformCheck -eq "Desktop") {
      	Write-Output "Platform is $PlatformCheck disabling dynamic tick..."
      	bcdedit /set disabledynamictick yes | Out-Null
@@ -3315,7 +3316,7 @@ Function DecreaseMKBuffer {
 
 #Applying Nvidia Tweaks if GTX/RTX Card Detected!
 Function NvidiaTweaks {
-       $CheckGPU = wmic path win32_VideoController get name
+       $CheckGPU = Get-CimInstance -ClassName Win32_VideoController | Select-Object -ExpandProperty Name
        if(($CheckGPU -like "*GTX*") -or ($CheckGPU -like "*RTX*")) {
        Write-Output "NVIDIA GTX/RTX Card Detected! Applying Nvidia Power Tweaks..."
 
