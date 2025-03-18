@@ -8,7 +8,7 @@
 
 chcp 860
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.9.0 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.9.1 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
 Write-Host ""
@@ -55,17 +55,7 @@ $tweaks = @(
     "check-Windows",
     "Execute-BatchScript", 
     "Set-RamThreshold", 
-
-    ### Função de Memória Virtual que pede o Drive no momento adequado ###
-    {
-				Clear-Host
-			  Write-Output ""
-        Write-Output "Por favor, selecione o drive onde deseja configurar a memória virtual:"
-        $Drive = Read-Host "Informe a letra do drive (ex: C)"
-        $DrivePath = "${Drive}:"  # Formata o caminho do drive, por exemplo, "C:"
-        Set-MemoriaVirtual-Registry -Drive $DrivePath
-    },
-
+		"Set-MemoriaVirtual-Registry",
     "DownloadAndExtractISLC",
     "UpdateISLCConfig",
     "InstallMVC",
@@ -212,7 +202,7 @@ $mobiletweaks = @(
 	"check-Windows",
 	"Execute-BatchScript", # Ccleaner
 	"Set-RamThreshold", # memory value
-	"Set-MemoriaVirtual-Registry -Drive $DrivePath", # Virtual Memory
+	"Set-MemoriaVirtual-Registry", # Virtual Memory
 	"DownloadAndExtractISLC", # ISLC
 	"UpdateISLCConfig", # ISLC Config
 	"InstallMVC", #install Microsoft Visualstudio required for HPET service!
@@ -593,37 +583,32 @@ function Set-RamThreshold {
 
 # Set virtual memory on regedit
 function Set-MemoriaVirtual-Registry {
-  param (
-      [string]$Drive
-  )
+	# Solicita ao usuário o drive onde a memória virtual será configurada
+	$Drive = Read-Host "Informe a letra do drive (ex: C) para configurar a memória virtual"
+	$DrivePath = "${Drive}:"
 
-  # Obtém a quantidade total de memória RAM instalada em MB
-  $TotalRAM = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1MB)
+	# Obtém a quantidade total de memória RAM instalada em MB
+	$TotalRAM = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1MB)
 
-  # Calcula o tamanho máximo da memória virtual (RAM * 1.5)
-  $MaxSize = [math]::Round($TotalRAM * 1.5)
+	# Calcula o tamanho máximo da memória virtual (RAM * 1.5)
+	$MaxSize = [math]::Round($TotalRAM * 1.5)
 
-  # Define o tamanho inicial fixo da memória virtual
-  $InitialSize = 9081
+	# Define o tamanho inicial fixo da memória virtual
+	$InitialSize = 9081
 
-  # Caminho do Registro onde as configurações são armazenadas
-  $RegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
+	# Caminho do Registro onde as configurações são armazenadas
+	$RegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
 
-  # Desativa o gerenciamento automático da memória virtual
-  Set-ItemProperty -Path $RegPath -Name "PagingFiles" -Value "$Drive\pagefile.sys $InitialSize $MaxSize"
-  Set-ItemProperty -Path $RegPath -Name "AutomaticManagedPagefile" -Value 0
+	# Desativa o gerenciamento automático da memória virtual
+	Set-ItemProperty -Path $RegPath -Name "PagingFiles" -Value "$DrivePath\pagefile.sys $InitialSize $MaxSize"
+	Set-ItemProperty -Path $RegPath -Name "AutomaticManagedPagefile" -Value 0
 
-  Write-Output "Configuração de memória virtual aplicada no registro!"
-  Write-Output "Drive: $Drive | Inicial: $InitialSize MB | Máximo: $MaxSize MB"
+	Write-Output "Configuração de memória virtual aplicada no registro!"
+	Write-Output "Drive: $DrivePath | Inicial: $InitialSize MB | Máximo: $MaxSize MB"
 
-  # Reiniciar o PC para aplicar as mudanças
-  Write-Output "Reinicie o computador para que as alterações entrem em vigor."
+	# Reiniciar o PC para aplicar as mudanças
+	Write-Output "Reinicie o computador para que as alterações entrem em vigor."
 }
-
-# Menu para entrada do drive
-Write-Output "Selecione o drive onde deseja configurar a memória virtual:"
-$Drive = Read-Host "Informe a letra do drive (ex: C)"
-$DrivePath = "${Drive}:"
 
 ## Download and extract ISLC
 function DownloadAndExtractISLC {
