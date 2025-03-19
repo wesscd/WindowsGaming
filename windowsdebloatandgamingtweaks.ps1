@@ -34,7 +34,7 @@ function Escrever-Colorido {
 	Write-Host $Texto -ForegroundColor $cores[$Cor]
 }
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.9.6 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.9.7 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
 Escrever-Colorido "" "Verde"
@@ -613,7 +613,7 @@ function Set-MemoriaVirtual-Registry {
 	Escrever-Colorido "================ Digite a letra do drive para armazenar memoria virtual ================" "Azul"
 	Escrever-Colorido "" "Azul"
 	# Solicita ao usuário o drive onde a memória virtual será configurada
-	$Drive = Read-Host "Informe a letra do drive (ex: C) para configurar a memória virtual"
+	$Drive = Read-Host "Informe a letra do drive (ex: C) para configurar a memoria virtual"
 	$DrivePath = "${Drive}:"
 
 	# Obtém a quantidade total de memória RAM instalada em MB
@@ -804,10 +804,11 @@ Function askXBOX {
 		  Clear-Host
 			Escrever-Colorido "" "Azul"
 			Escrever-Colorido "================ Desabilitar os recursos do XBOX e todos os aplicativos relacionados? ================" "Azul"
+			Escrever-Colorido "" "Azul"
 			Escrever-Colorido "AVISO: REMOVER OS APLICATIVOS DO XBOX fara com que o Win+G nao funcione!" "Vermelho"
 			Escrever-Colorido "Pressione 'D' para desabilitar os recursos do XBOX." "Azul"
 			Escrever-Colorido "Pressione 'H' para habilitar os recursos do XBOX." "Azul"
-			Escrever-Colorido "P: Pressione 'P' para pular isso." "Azul"
+			Escrever-Colorido "Pressione 'P' para pular isso." "Azul"
 			
 			$selection = Read-Host "Por favor, escolha"
 
@@ -1403,8 +1404,10 @@ Function askDefender {
 	}
 
 	do {
+			Clear-Host
 		  Escrever-Colorido "" "Azul"
 			Escrever-Colorido "================ Desabilitar o Microsoft Windows Defender? ================" "Azul"
+			Escrever-Colorido "" "Azul"
 			Escrever-Colorido "Pressione 'D' para desabilitar o Microsoft Windows Defender." "Azul"
 			Escrever-Colorido "Pressione 'H' para habilitar o Microsoft Windows Defender." "Azul"
 			Escrever-Colorido "Pressione 'P' para pular isso." "Azul"
@@ -2581,6 +2584,7 @@ Function DorEOneDrive {
 		  Clear-Host
 			Escrever-Colorido "" "Azul"
 			Escrever-Colorido "================ Desabilitar o Microsoft OneDrive? ================" "Azul"
+			Escrever-Colorido "" "Azul"
 			Escrever-Colorido "Pressione 'D' para desabilitar o OneDrive." "Azul"
 			Escrever-Colorido "Pressione 'H' para habilitar o OneDrive." "Azul"
 			Escrever-Colorido "Pressione 'P' para pular isso." "Azul"
@@ -3671,16 +3675,19 @@ function Ativar-Servicos {
 	)
 
 	# Exibir banner informativo
+	Clear-Host
+	Escrever-Colorido "" "Vermelho"
 	Escrever-Colorido "======================================================" "Vermelho"
 	Escrever-Colorido "===  Servicos Essenciais para Investigacao Forense ===" "Vermelho"
 	Escrever-Colorido "======================================================" "Vermelho"
 	Escrever-Colorido "" "Vermelho"
-	Escrever-Colorido "Este script auxilia na ativacao dos seguintes servicos:" "CinzaClaro"
-	Escrever-Colorido "- SysMain: " "CinzaClaro"; Escrever-Colorido "O SysMain, anteriormente conhecido como Superfetch, e um servico do Windows que preenche a memoria RAM com aplicativos frequentemente usados para acelerar o carregamento dos programas mais utilizados." "Branco"
-	Escrever-Colorido "- PcaSvc: " "CinzaClaro"; Escrever-Colorido "O PcaSvc (Program Compatibility Assistant Service) e um servico que detecta problemas de compatibilidade em programas legados e aplica correcao para melhorar a estabilidade do sistema." "Branco"
-	Escrever-Colorido "- DiagTrack: " "CinzaClaro"; Escrever-Colorido "O DiagTrack (Connected User Experiences and Telemetry) coleta e envia dados de diagnostico e uso para a Microsoft, auxiliando na melhoria dos servicos e na resolucao de problemas." "Branco"
+	Escrever-Colorido "Este menu auxilia na ativacao dos seguintes servicos:" "CinzaClaro"
+	Escrever-Colorido "- SysMain: " "Amarelo"; Escrever-Colorido "O SysMain, anteriormente conhecido como Superfetch, e um servico do Windows que preenche a memoria RAM com aplicativos frequentemente usados para acelerar o carregamento dos programas mais utilizados." "Branco"
+	Escrever-Colorido "- PcaSvc: " "Amarelo"; Escrever-Colorido "O PcaSvc (Program Compatibility Assistant Service) e um servico que detecta problemas de compatibilidade em programas legados e aplica correcao para melhorar a estabilidade do sistema." "Branco"
+	Escrever-Colorido "- DiagTrack: " "Amarelo"; Escrever-Colorido "O DiagTrack (Connected User Experiences and Telemetry) coleta e envia dados de diagnostico e uso para a Microsoft, auxiliando na melhoria dos servicos e na resolucao de problemas." "Branco"
 	Escrever-Colorido "" "CinzaClaro"
 	Escrever-Colorido "Estes servicos sao essenciais para a investigacao forense de cheats em servidores de Minecraft, DayZ e FIVEM GTA5 que utilizam o Echo AntiCheat." "Amarelo"
+	Escrever-Colorido "" "Amarelo"
 	Escrever-Colorido "===============================================" "AmareloClaro"
 
 	# Função interna para ativar um servico
@@ -3817,7 +3824,7 @@ Function UltimateCleaner {
 
 	Clear-Host
 	Escrever-Colorido "" "Verde"
-	Escrever-Colorido "Executando o Ultimate Cleaner => Pastas temporárias e limpar DNS + Redefinir IP...." "Verde"
+	Escrever-Colorido "Executando o Ultimate Cleaner => Pastas temporarias e limpar DNS + Redefinir IP...." "Verde"
 	Escrever-Colorido "" "Verde"
 cmd /c 'netsh winsock reset 2>nul' >$null
 cmd /c 'netsh int ip reset 2>nul' >$null
@@ -3961,7 +3968,7 @@ Function DisableDarkMode {
 
 #Create Restore Point
 Function CreateRestorePoint {
-  Write-Output "Creating Restore Point incase something bad happens"
+  Write-Output "Criando um ponto de restauracao caso algo ruim aconteca"
   Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore" -Name "SystemRestorePointCreationFrequency" -Value 0
   cmd /c 'vssadmin resize shadowstorage /on="%SystemDrive%" /For="%SystemDrive%" /MaxSize=5GB 2>nul' >$null
   Enable-ComputerRestore -Drive "$env:SystemDrive\"
