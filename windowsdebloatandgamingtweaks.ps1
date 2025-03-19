@@ -34,28 +34,28 @@ function Escrever-Colorido {
 	Write-Host $Texto -ForegroundColor $cores[$Cor]
 }
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.9.4 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.9.6 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
-Write-Host ""
-Write-Host -ForegroundColor Cyan "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗" 
-Write-Host -ForegroundColor Cyan "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝" 
-Write-Host -ForegroundColor Cyan "   ██║   █████╗  ██║     ███████║    ██████╔╝█████╗  ██╔████╔██║██║   ██║   ██║   █████╗  " 
-Write-Host -ForegroundColor Cyan "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  " 
-Write-Host -ForegroundColor Cyan "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗" 
-Write-Host -ForegroundColor Cyan "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝" 
-Write-Host "" -BackgroundColor Black
-Write-Host "Bem vindo ao TechRemote Ultimate Windows Debloater Gaming" -ForegroundColor Green -BackgroundColor Black
-Write-Host "" -BackgroundColor Black
-Write-Host "Este script ira otimizar o desempenho do seu sistema operacional Windows." -ForegroundColor Red -BackgroundColor Black
-Write-Host "Durante o processo, alguns servicos Microsoft que rodam em segundo plano serao desinstalados." -ForegroundColor Red -BackgroundColor Black
-Write-Host "Um ponto de restauracao sera criado automaticamente antes de prosseguir." -ForegroundColor Red -BackgroundColor Black
-Write-Host ""  -BackgroundColor Black
-Write-Host "Barao (Cesar Marques)" -ForegroundColor Green -BackgroundColor Black
-Write-Host "Script utilizado pela TechRemote para otimizações." -ForegroundColor Green -BackgroundColor Black
-Write-Host "" 
-Write-Host "" 
-Write-Host "DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" -ForegroundColor Red -BackgroundColor Black
+Escrever-Colorido "" "Verde"
+Escrever-Colorido "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗" "Verde"
+Escrever-Colorido "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝" "Verde"
+Escrever-Colorido "   ██║   █████╗  ██║     ███████║    ██████╔╝█████╗  ██╔████╔██║██║   ██║   ██║   █████╗  " "Verde"
+Escrever-Colorido "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  " "Verde"
+Escrever-Colorido "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗" "Verde"
+Escrever-Colorido "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝" "Verde"
+Escrever-Colorido "" "Verde"
+Escrever-Colorido "Bem vindo ao TechRemote Ultimate Windows Debloater Gaming" "Azul"
+Escrever-Colorido "" "Azul"
+Escrever-Colorido "Este script ira otimizar o desempenho do seu sistema operacional Windows." "Amarelo"
+Escrever-Colorido "Durante o processo, alguns servicos Microsoft que rodam em segundo plano serao desinstalados." "Amarelo"
+Escrever-Colorido "Um ponto de restauracao sera criado automaticamente antes de prosseguir." "Amarelo"
+Escrever-Colorido "" "Verde"
+Escrever-Colorido "Barao (Cesar Marques)" "Verde"
+Escrever-Colorido "Script utilizado pela TechRemote para otimizacoes." "AmareloClaro"
+Escrever-Colorido "" "AmareloClaro"
+Escrever-Colorido "" "AmareloClaro"
+Escrever-Colorido "DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" "Vermelho"
 
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 
@@ -207,6 +207,7 @@ $tweaks = @(
     "NetworkAdapterRSS",
     "NetworkOptimizations",
     "DisableNagle",
+		"Ativar-Servicos",
     "RemoveEdit3D",
     "FixURLext",
     "UltimateCleaner",
@@ -382,6 +383,7 @@ $mobiletweaks = @(
  	"NetworkAdapterRSS",
 	"NetworkOptimizations",
  	"DisableNagle",
+	"Ativar-Servicos",
 	"RemoveEdit3D",
 	"FixURLext",  # fix issue with games shortcut that created by games lunchers turned white!
 	"UltimateCleaner",
@@ -408,10 +410,10 @@ function Show-Choco-Menu {
  do
  {
     Clear-Host
-    Write-Host "================ $Title ================"
-    Write-Host "Y: Press 'Y' to do this."
-    Write-Host "2: Press 'N' to skip this."
-	Write-Host "Q: Press 'Q' to stop the entire script."
+   	Escrever-Colorido "================ $Title ================" "Azul"
+    Escrever-Colorido "Y: Press 'Y' to do this." "Azul"
+    Escrever-Colorido "2: Press 'N' to skip this." "Azul"
+		Escrever-Colorido "Q: Press 'Q' to stop the entire script." "Azul"
     $selection = Read-Host "Please make a selection"
     switch ($selection)
     {
@@ -484,7 +486,8 @@ function Write-ColorOutput
 }
 
 Function InstallTitusProgs {
-    Write-Output "Verificando e instalando Chocolatey, se necessário..."
+
+    Write-Output "Verificando e instalando Chocolatey, se necessario..."
     
     # Verifica se o Chocolatey está instalado
     if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
@@ -498,7 +501,7 @@ Function InstallTitusProgs {
             return
         }
     } else {
-        Write-Output "Chocolatey já está instalado."
+        Write-Output "Chocolatey ja esta instalado."
     }
     
     # Instala o pacote chocolatey-core.extension
@@ -508,7 +511,7 @@ Function InstallTitusProgs {
         Write-Output "Erro ao instalar chocolatey-core.extension: $_"
     }
     
-    Write-Output "Executando O&O ShutUp10 com as configurações recomendadas..."
+    Write-Output "Executando O&O ShutUp10 com as configuracoes recomendadas..."
     
     # Importa módulo para transferência de arquivos
     Import-Module BitsTransfer
@@ -532,7 +535,7 @@ Function InstallTitusProgs {
         
         # Remove os arquivos baixados
         Remove-Item -Path $configFile, $exeFile -Force -ErrorAction Stop
-        Write-Output "O&O ShutUp10 executado e arquivos temporários removidos."
+        Write-Output "O&O ShutUp10 executado e arquivos temporarios removidos."
     } catch {
         Write-Output "Erro ao executar O&O ShutUp10: $_"
     }
@@ -541,8 +544,8 @@ Function InstallTitusProgs {
 # Ccleaner
 Function Execute-BatchScript {
 	Clear-Host
-	Write-Host ""
-	Write-Host "Realizando limpeza de cache dos navegadores" -ForegroundColor Green -BackgroundColor Black
+	Escrever-Colorido "" "Azul"
+	Escrever-Colorido "Realizando limpeza de cache dos navegadores" "Verde"
 
   $url = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/script-ccleaner.bat"
   $localPath = "$env:temp\script-ccleaner.bat"
@@ -575,7 +578,7 @@ function Set-RamThreshold {
       64  { 0x4000000 }
 			128  { 0x8000000 }
       default {
-          Write-Host "Memória RAM não suportada para esta configuração." -ForegroundColor Red -BackgroundColor Purple
+          Escrever-Colorido "Memória RAM não suportada para esta configuração." "Vermelho"
           exit
       }
   }
@@ -591,22 +594,24 @@ function Set-RamThreshold {
   if (-not (Get-ItemProperty -Path "$regPath" -Name "$regName" -ErrorAction SilentlyContinue)) {
       # Se não existir, cria a propriedade no registro
       New-ItemProperty -Path "$regPath" -Name "$regName" -Value $value -PropertyType DWord | Out-Null
-      Write-Host "Registro criado com o valor correto: 0x$($value.ToString("X"))" -ForegroundColor Green -BackgroundColor Black
+      Escrever-Colorido "Registro criado com o valor correto: 0x$($value.ToString("X"))" "Verde"
   } else {
       # Se já existir, apenas atualiza o valor
       Set-ItemProperty -Path "$regPath" -Name "$regName" -Value $value
-      Write-Host "Registro atualizado com o valor correto: 0x$($value.ToString("X"))" -ForegroundColor Green -BackgroundColor Black
+      Escrever-Colorido "Registro atualizado com o valor correto: 0x$($value.ToString("X"))" "Verde"
   }
 
   # Verifica o valor após a modificação
   $newValue = Get-ItemProperty -Path "$regPath" -Name "$regName"
-  Write-Host "Novo valor do registro: 0x$($newValue.$regName.ToString("X"))"
+  Escrever-Colorido "Novo valor do registro: 0x$($newValue.$regName.ToString("X"))" "Verde"
 }
 
 # Set virtual memory on regedit
 function Set-MemoriaVirtual-Registry {
 	Clear-Host
-	Write-Host "================ Digite a letra do drive para armazenar memoria virtual ================"
+	Escrever-Colorido "" "Azul"
+	Escrever-Colorido "================ Digite a letra do drive para armazenar memoria virtual ================" "Azul"
+	Escrever-Colorido "" "Azul"
 	# Solicita ao usuário o drive onde a memória virtual será configurada
 	$Drive = Read-Host "Informe a letra do drive (ex: C) para configurar a memória virtual"
 	$DrivePath = "${Drive}:"
@@ -627,7 +632,7 @@ function Set-MemoriaVirtual-Registry {
 	Set-ItemProperty -Path $RegPath -Name "PagingFiles" -Value "$DrivePath\pagefile.sys $InitialSize $MaxSize"
 	Set-ItemProperty -Path $RegPath -Name "AutomaticManagedPagefile" -Value 0
 
-	Write-Output "Configuração de memória virtual aplicada no registro!"
+	Write-Output "Configuracao de memoria virtual aplicada no registro!"
 	Write-Output "Drive: $DrivePath | Inicial: $InitialSize MB | Máximo: $MaxSize MB"
 
 	# Reiniciar o PC para aplicar as mudanças
@@ -643,18 +648,18 @@ function DownloadAndExtractISLC {
   $newFolderName = "ISLC"
 
   # Baixar o arquivo executável
-  Write-Host "Iniciando o download do arquivo..."
+  Escrever-Colorido "Iniciando o download do arquivo..." "Verde"
   try {
       Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath
-      Write-Host "Arquivo baixado com sucesso!"
+      Escrever-Colorido "Arquivo baixado com sucesso!" "Verde"
   } catch {
-      Write-Host "Erro ao baixar o arquivo: $_"
+      Escrever-Colorido "Erro ao baixar o arquivo: $_" "Vermelho"
       return
   }
 
   # Verificar se a pasta de extração existe, caso contrário, criar
   if (-Not (Test-Path -Path $extractPath)) {
-      Write-Host "Criando a pasta de extração..."
+      Escrever-Colorido "Criando a pasta de extração..." "Verde"
       New-Item -ItemType Directory -Path $extractPath
   }
 
@@ -663,30 +668,30 @@ function DownloadAndExtractISLC {
 
   # Verificar se o 7z está instalado
   if (Test-Path -Path $sevenZipPath) {
-      Write-Host "Extraindo o conteúdo do arquivo usando 7-Zip..."
+      Escrever-Colorido "Extraindo o conteudo do arquivo usando 7-Zip..." "Verde"
       try {
           # Extrair diretamente na pasta ISLC
           & $sevenZipPath x $downloadPath -o"$extractPath" -y
-          Write-Host "Arquivo extraído com sucesso para $extractPath"
+          Escrever-Colorido "Arquivo extraido com sucesso para $extractPath" "Verde"
           
           # Renomear a pasta extraída para MEM
           $extractedFolderPath = "$extractPath\ISLC v1.0.3.4"
 
           if (Test-Path -Path $extractedFolderPath) {
               Rename-Item -Path $extractedFolderPath -NewName $newFolderName
-              Write-Host "Pasta renomeada para '$newFolderName'."
+              Escrever-Colorido "Pasta renomeada para '$newFolderName'." "Verde"
           } else {
-              Write-Host "Pasta extraída não encontrada."
+              Escrever-Colorido "Pasta extraída não encontrada." "Vermelho"
           }
       } catch {
-          Write-Host "Erro ao extrair o arquivo: $_"
+          Escrever-Colorido "Erro ao extrair o arquivo: $_" "Vermelho"
       }
   } else {
-      Write-Host "7-Zip não encontrado no caminho especificado."
+      Escrever-Colorido "7-Zip não encontrado no caminho especificado." "Amarelo"
   }
 
 	Remove-Item -Path $downloadPath -Force
-	Write-Host "Excluindo $downloadPath"
+	Escrever-Colorido "Excluindo $downloadPath" "Verde"
 
 	# Caminho completo do executável do programa
 	$origem = "C:\ISLC\Intelligent standby list cleaner ISLC.exe"
@@ -717,7 +722,7 @@ function UpdateISLCConfig {
 
   # Verificar se o arquivo de configuração existe
   if (Test-Path -Path $configFilePath) {
-      Write-Host "Arquivo de configuração encontrado. Atualizando..."
+      Escrever-Colorido "Arquivo de configuração encontrado. Atualizando..." "Verde"
 
       try {
           # Carregar o conteúdo do arquivo XML
@@ -736,12 +741,12 @@ function UpdateISLCConfig {
 
           # Salvar as alterações de volta no arquivo XML
           $configXml.Save($configFilePath)
-          Write-Host "Arquivo de configuração atualizado com sucesso!"
+          Escrever-Colorido "Arquivo de configuração atualizado com sucesso!" "Verde"
       } catch {
-          Write-Host "Erro ao atualizar o arquivo de configuração: $_"
+          Escrever-Colorido "Erro ao atualizar o arquivo de configuração: $_" "Vermelho"
       }
   } else {
-      Write-Host "Arquivo de configuração não encontrado em $configFilePath"
+      Escrever-Colorido "Arquivo de configuração não encontrado em $configFilePath" "Amarelo"
   }
 }
 
@@ -751,13 +756,13 @@ function check-Windows {
 
 	if ($activationStatus -eq 1) {
 			Clear-Host
-			Write-Host ""
-    	Write-Output "O Windows está ativado." -ForegroundColor Green -BackgroundColor Black
+			Escrever-Colorido "" "Azul"
+    	Escrever-Colorido "O Windows está ativado." "Azul"
 	} else {
 			Clear-Host
-			Write-Host "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" -ForegroundColor Red -BackgroundColor Black
-    	Write-Output "| O Windows NÃO está ativado. Executando o comando de ativação. |" -ForegroundColor Red -BackgroundColor Black
-			Write-Host "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" -ForegroundColor Red -BackgroundColor Black
+			Escrever-Colorido "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" "Vermelho"
+    	Escrever-Colorido "| O Windows NÃO está ativado. Executando o comando de ativação. |" "Vermelho"
+			Escrever-Colorido "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" "Vermelho"
     	# Executa o comando de ativação
     	irm https://get.activated.win | iex
 
@@ -781,7 +786,7 @@ Function InstallChocoUpdates {
 
 #Apply PC Optimizations
 Function ApplyPCOptimizations {
-        Write-Output "Applying PC Optimizations..."
+        Write-Output "Aplicando otimizacoes..."
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "SystemResponsiveness" -Type DWord -Value 0
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 10
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "AlwaysOn" -Type DWord -Value 1
@@ -797,11 +802,12 @@ Function askXBOX {
 
 	do {
 		  Clear-Host
-			Write-Host "================ Desabilitar os recursos do XBOX e todos os aplicativos relacionados? ================"
-			Write-ColorOutput "AVISO: REMOVER OS APLICATIVOS DO XBOX fara com que o Win+G nao funcione!" -ForegroundColor Red
-			Write-Host "D: Pressione 'D' para desabilitar os recursos do XBOX."
-			Write-Host "H: Pressione 'H' para habilitar os recursos do XBOX."
-			Write-Host "P: Pressione 'P' para pular isso."
+			Escrever-Colorido "" "Azul"
+			Escrever-Colorido "================ Desabilitar os recursos do XBOX e todos os aplicativos relacionados? ================" "Azul"
+			Escrever-Colorido "AVISO: REMOVER OS APLICATIVOS DO XBOX fara com que o Win+G nao funcione!" "Vermelho"
+			Escrever-Colorido "Pressione 'D' para desabilitar os recursos do XBOX." "Azul"
+			Escrever-Colorido "Pressione 'H' para habilitar os recursos do XBOX." "Azul"
+			Escrever-Colorido "P: Pressione 'P' para pular isso." "Azul"
 			
 			$selection = Read-Host "Por favor, escolha"
 
@@ -1392,16 +1398,16 @@ Function askDefender {
 	}
 
 	if (-not (Test-Admin)) {
-			Write-Host "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." -ForegroundColor Red
-			exit
+			Escrever-Colorido "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." "Vermelho"
+			break;
 	}
 
 	do {
-		  Clear-Host
-			Write-Host "================ Desabilitar o Microsoft Windows Defender? ================"
-			Write-Host "D: Pressione 'D' para desabilitar o Microsoft Windows Defender."
-			Write-Host "H: Pressione 'H' para habilitar o Microsoft Windows Defender."
-			Write-Host "P: Pressione 'P' para pular isso."
+		  Escrever-Colorido "" "Azul"
+			Escrever-Colorido "================ Desabilitar o Microsoft Windows Defender? ================" "Azul"
+			Escrever-Colorido "Pressione 'D' para desabilitar o Microsoft Windows Defender." "Azul"
+			Escrever-Colorido "Pressione 'H' para habilitar o Microsoft Windows Defender." "Azul"
+			Escrever-Colorido "Pressione 'P' para pular isso." "Azul"
 			
 			$selection = Read-Host "Por favor, escolha."
 
@@ -2567,16 +2573,17 @@ Function DorEOneDrive {
 	}
 
 	if (-not (Test-Admin)) {
-			Write-Host "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." -ForegroundColor Red
-			exit
+			Escrever-Colorido "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." "Vermelho"
+			Break;
 	}
 
 	do {
 		  Clear-Host
-			Write-Host "================ Desabilitar o Microsoft OneDrive? ================"
-			Write-Host "D: Pressione 'D' para desabilitar o OneDrive."
-			Write-Host "H: Pressione 'H' para habilitar o OneDrive."
-			Write-Host "P: Pressione 'P' para pular isso."
+			Escrever-Colorido "" "Azul"
+			Escrever-Colorido "================ Desabilitar o Microsoft OneDrive? ================" "Azul"
+			Escrever-Colorido "Pressione 'D' para desabilitar o OneDrive." "Azul"
+			Escrever-Colorido "Pressione 'H' para habilitar o OneDrive." "Azul"
+			Escrever-Colorido "Pressione 'P' para pular isso." "Azul"
 			
 			$selection = Read-Host "Por favor, escolha"
 
@@ -3770,7 +3777,7 @@ Write-Output "Setting network adapter RSS..."
 		}
 				Else
 		{
-			Write-Host "The path ($KeyPath) not found."
+			Escrever-Colorido "Caminho ($KeyPath) Nao encontrado." "Vermelho"
 		}
 	}
  $ErrorActionPreference = $errpref #restore previous preference
@@ -3794,7 +3801,7 @@ Function RemoveEdit3D {
 
 #fix issue with games shortcut that created by games lunchers turned white!
 Function FixURLext {
-    Write-Host "Fixing White Games Shortcuts created by game launchers...."
+    Escrever-Colorido "Corrigindo atalhos do White Games criados por inicializadores de jogos..." "Verde"
     choco install -y setuserfta | Out-Null
     Start-Sleep -s 5
     Push-Location
@@ -3809,7 +3816,9 @@ Function FixURLext {
 Function UltimateCleaner {
 
 	Clear-Host
-	Write-Host "Running Ultimate Cleaner => Temp folders & Flush DNS + Reset IP...."
+	Escrever-Colorido "" "Verde"
+	Escrever-Colorido "Executando o Ultimate Cleaner => Pastas temporárias e limpar DNS + Redefinir IP...." "Verde"
+	Escrever-Colorido "" "Verde"
 cmd /c 'netsh winsock reset 2>nul' >$null
 cmd /c 'netsh int ip reset 2>nul' >$null
 cmd /c 'ipconfig /release 2>nul' >$null
@@ -3852,7 +3861,7 @@ Function Finished {
 	}
 
 	if (-not (Test-Admin)) {
-			Write-Host "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." -ForegroundColor Red
+			Escrever-Colorido "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." "Vermelho"
 			exit
 	}
 
@@ -3866,10 +3875,10 @@ Function Finished {
 			if ($response) {
 					Invoke-WebRequest -Uri $url_logo -OutFile $destino_logo -ErrorAction Stop
 			} else {
-					Write-Host "Não foi possível baixar o logo. Verifique sua conexão." -ForegroundColor Red
+					Escrever-Colorido "Não foi possível baixar o logo. Verifique sua conexão." "Vermelho"
 			}
 	} catch {
-			Write-Host "Erro ao baixar o logo OEM: $_" -ForegroundColor Red
+			Escrever-Colorido "Erro ao baixar o logo OEM: $_" "Vermelho"
 	}
 
 	# Criar permissões MSI Installer (Rodar como Administrador)
@@ -3901,7 +3910,7 @@ Function Finished {
 	Start-Sleep -s 5
 
 	# Mensagem final
-	Write-Output "Configuração concluída! Reinicie o PC para aplicar todas as mudanças."
+	Escrever-Colorido "Configuração concluida! Reinicie o PC para aplicar todas as mudancas." "Verde"
 	
 	# Abre o site sem problemas com navegadores modernos
 	Start-Process "http://techremote.com.br"
@@ -4036,7 +4045,7 @@ Function Clear-PSHistory {
 	}
 
 	# Confirmação visual
-	Write-Host "Histórico do PowerShell completamente apagado!" -ForegroundColor Green
+	Escrever-Colorido "Histórico do PowerShell completamente apagado!" "Verde"
 }
 
 ##########
@@ -4071,6 +4080,6 @@ $PlatformCheck = (Get-Computerinfo).CsPCSystemType
      Write-Output "A plataforma $PlatformCheck aplicando ajustes ao dispositivo movel..."
 	 $mobiletweaks | ForEach-Object { Invoke-Expression $_ }
      } else {
-     Write-Output "A plataforma $PlatformCheck aplicando ajustes na área de trabalho..."
+     Write-Output "A plataforma $PlatformCheck aplicando ajustes na area de trabalho..."
 	 $tweaks | ForEach-Object { Invoke-Expression $_ }
      }
