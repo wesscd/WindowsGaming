@@ -34,7 +34,7 @@ function Escrever-Colorido {
 	Write-Host $Texto -ForegroundColor $cores[$Cor]
 }
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.9.8 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.9.9 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
 Escrever-Colorido "" "Verde"
@@ -573,12 +573,13 @@ function Set-RamThreshold {
       8   { 0x800000 }
       12  { 0xC00000 }
       16  { 0x1000000 }
+			20  { 0x1400000 }
       24  { 0x1800000 }
       32  { 0x2000000 }
       64  { 0x4000000 }
 			128  { 0x8000000 }
       default {
-          Escrever-Colorido "Memória RAM não suportada para esta configuração." "Vermelho"
+          Escrever-Colorido "Memoria RAM nao suportada para esta configuracao." "Vermelho"
           exit
       }
   }
