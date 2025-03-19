@@ -8,6 +8,32 @@
 
 chcp 860
 
+function Escrever-Colorido {
+	param (
+			[string]$Texto,
+			[string]$Cor
+	)
+	$cores = @{
+			'Preto'        = 'Black'
+			'Azul'         = 'DarkBlue'
+			'Verde'        = 'DarkGreen'
+			'Ciano'        = 'DarkCyan'
+			'Vermelho'     = 'DarkRed'
+			'Magenta'      = 'DarkMagenta'
+			'Amarelo'      = 'DarkYellow'
+			'CinzaClaro'   = 'Gray'
+			'CinzaEscuro'  = 'DarkGray'
+			'AzulClaro'    = 'Blue'
+			'VerdeClaro'   = 'Green'
+			'CianoClaro'   = 'Cyan'
+			'VermelhoClaro'= 'Red'
+			'MagentaClaro' = 'Magenta'
+			'AmareloClaro' = 'Yellow'
+			'Branco'       = 'White'
+	}
+	Write-Host $Texto -ForegroundColor $cores[$Cor]
+}
+
 $host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.9.4 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
@@ -83,7 +109,6 @@ $tweaks = @(
     "DisableCortana",
     "DisableErrorReporting",
     "SetP2PUpdateLocal",
-    "DisableDiagTrack",
     "DisableWAPPush",
     "DisableNewsFeed",
     "SetUACLow",
@@ -104,7 +129,6 @@ $tweaks = @(
     "DisableAutorun",
     "DisableStorageSense",
     "DisableDefragmentation",
-    "DisableSuperfetch",
     "EnableIndexing",
     "SetBIOSTimeUTC",
     "DisableHibernation",
@@ -233,7 +257,6 @@ $mobiletweaks = @(
 	"DisableCortana",               # "EnableCortana",
 	"DisableErrorReporting",        # "EnableErrorReporting",
 	"SetP2PUpdateLocal",          # "SetP2PUpdateInternet",
-	"DisableDiagTrack",             # "EnableDiagTrack",
 	"DisableWAPPush",               # "EnableWAPPush",
 	"DisableNewsFeed",
 	### Security Tweaks ###
@@ -264,7 +287,6 @@ $mobiletweaks = @(
 	"DisableAutorun",               # "EnableAutorun",
 	"DisableStorageSense",        # "EnableStorageSense",
 	"DisableDefragmentation",     # "EnableDefragmentation",
-	"DisableSuperfetch",          # "EnableSuperfetch",
 	"EnableIndexing",
 	"SetBIOSTimeUTC",         #"SetBIOSTimeUTC", #"SetBIOSTimeLocal",
 	"DisableHibernation",		# "EnableHibernation",
@@ -666,16 +688,24 @@ function DownloadAndExtractISLC {
 	Remove-Item -Path $downloadPath -Force
 	Write-Host "Excluindo $downloadPath"
 
-	$executavel = "C:\ISLC\Intelligent standby list cleaner ISLC.exe"
-	$nome = "ISLC"  # Dê um nome identificador para o programa
+	# Caminho completo do executável do programa
+	$origem = "C:\ISLC\Intelligent standby list cleaner ISLC.exe"
 
-	Write-Host "Adicionando ISLC na inicializacao."
+	# Nome do atalho que será criado
+	$atalhoNome = "Intelligent standby list cleaner ISLC.lnk"
 
-	# Caminho para a chave de inicialização no Registro
-	$chaveRegistro = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
-	
-	# Adicionando o executável à chave de inicialização
-	Set-ItemProperty -Path $chaveRegistro -Name $nome -Value $executavel
+	# Caminho para a pasta de Inicialização do usuário
+	$destino = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup", $atalhoNome)
+
+	# Criação do objeto Shell
+	$shell = New-Object -ComObject WScript.Shell
+
+	# Criação do atalho
+	$atalho = $shell.CreateShortcut($destino)
+	$atalho.TargetPath = $origem
+	$atalho.Save()
+
+	Write-Output "Atalho criado em: $destino"
 
 
 }
@@ -1199,20 +1229,6 @@ Function SetP2PUpdateInternet {
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -ErrorAction SilentlyContinue
 }
 
-# Stop and disable Diagnostics Tracking Service
-Function DisableDiagTrack {
-	Write-Output "Stopping and disabling Diagnostics Tracking Service..."
-	Stop-Service "DiagTrack" -WarningAction SilentlyContinue
-	Set-Service "DiagTrack" -StartupType Disabled
-}
-
-# Enable and start Diagnostics Tracking Service
-Function EnableDiagTrack {
-	Write-Output "Enabling and starting Diagnostics Tracking Service..."
-	Set-Service "DiagTrack" -StartupType Automatic
-	Start-Service "DiagTrack" -WarningAction SilentlyContinue
-}
-
 # Stop and disable WAP Push Service
 Function DisableWAPPush {
 	Write-Output "Stopping and disabling WAP Push Service..."
@@ -1571,8 +1587,6 @@ Function DISGaming {
 	Set-Service "TrkWks" -StartupType Disabled
 	Stop-Service "TermService" -WarningAction SilentlyContinue
 	Set-Service "TermService" -StartupType Disabled
-	Stop-Service "PcaSvc" -WarningAction SilentlyContinue
-	Set-Service "PcaSvc" -StartupType Disabled
 	$ErrorActionPreference = $errpref #restore previous preference
 }
 
@@ -1758,20 +1772,6 @@ Function DisableDefragmentation {
 Function EnableDefragmentation {
 	Write-Output "Enabling scheduled defragmentation..."
 	Enable-ScheduledTask -TaskName "Microsoft\Windows\Defrag\ScheduledDefrag" | Out-Null
-}
-
-# Stop and disable Superfetch service - Not applicable to Server
-Function DisableSuperfetch {
-	Write-Output "Stopping and disabling Superfetch service..."
-	Stop-Service "SysMain" -WarningAction SilentlyContinue
-	Set-Service "SysMain" -StartupType Disabled
-}
-
-# Start and enable Superfetch service - Not applicable to Server
-Function EnableSuperfetch {
-	Write-Output "Starting and enabling Superfetch service..."
-	Set-Service "SysMain" -StartupType Automatic
-	Start-Service "SysMain" -WarningAction SilentlyContinue
 }
 
 # Stop and disable Windows Search indexing service
@@ -3657,6 +3657,57 @@ Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
 }
 $ErrorActionPreference = $errpref #restore previous preference
 }
+
+function Ativar-Servicos {
+	param (
+			[string[]]$Servicos = @('SysMain', 'PcaSvc', 'DiagTrack')
+	)
+
+	# Exibir banner informativo
+	Escrever-Colorido "======================================================" "Vermelho"
+	Escrever-Colorido "===  Servicos Essenciais para Investigacao Forense ===" "Vermelho"
+	Escrever-Colorido "======================================================" "Vermelho"
+	Escrever-Colorido "" "Vermelho"
+	Escrever-Colorido "Este script auxilia na ativacao dos seguintes servicos:" "CinzaClaro"
+	Escrever-Colorido "- SysMain: " "CinzaClaro"; Escrever-Colorido "O SysMain, anteriormente conhecido como Superfetch, e um servico do Windows que preenche a memoria RAM com aplicativos frequentemente usados para acelerar o carregamento dos programas mais utilizados." "Branco"
+	Escrever-Colorido "- PcaSvc: " "CinzaClaro"; Escrever-Colorido "O PcaSvc (Program Compatibility Assistant Service) e um servico que detecta problemas de compatibilidade em programas legados e aplica correcao para melhorar a estabilidade do sistema." "Branco"
+	Escrever-Colorido "- DiagTrack: " "CinzaClaro"; Escrever-Colorido "O DiagTrack (Connected User Experiences and Telemetry) coleta e envia dados de diagnostico e uso para a Microsoft, auxiliando na melhoria dos servicos e na resolucao de problemas." "Branco"
+	Escrever-Colorido "" "CinzaClaro"
+	Escrever-Colorido "Estes servicos sao essenciais para a investigacao forense de cheats em servidores de Minecraft, DayZ e FIVEM GTA5 que utilizam o Echo AntiCheat." "Amarelo"
+	Escrever-Colorido "===============================================" "AmareloClaro"
+
+	# Função interna para ativar um servico
+	function Ativar-Servico {
+			param (
+					[string]$NomeServico
+			)
+			$servico = Get-Service -Name $NomeServico -ErrorAction SilentlyContinue
+			if ($null -eq $servico) {
+					Escrever-Colorido "Servico '$NomeServico' nao encontrado." "VermelhoClaro"
+					return
+			}
+			Escrever-Colorido "Servico encontrado: $($servico.DisplayName) ($($servico.Name))" "CinzaClaro"
+			if ($servico.Status -eq 'Running') {
+					Escrever-Colorido "Servico '$($servico.Name)' ja esta em execucao." "VerdeClaro"
+			} else {
+					Start-Service -Name $servico.Name
+					Set-Service -Name $servico.Name -StartupType Automatic
+					Escrever-Colorido "Servico '$($servico.Name)' ativado com sucesso." "VerdeClaro"
+			}
+	}
+
+	# Loop para cada servico
+	foreach ($nomeServico in $Servicos) {
+			$pergunta = "Deseja ativar o servico '$nomeServico'? (S/N): "
+			$resposta = Read-Host -Prompt $pergunta
+			if ($resposta.ToUpper() -eq 'S') {
+					Ativar-Servico -NomeServico $nomeServico
+			} else {
+					Escrever-Colorido "Servico '$nomeServico' nao foi ativado." "Amarelo"
+			}
+	}
+}
+
 
 #setting network adabter optimal rss
 Function NetworkAdapterRSS {
