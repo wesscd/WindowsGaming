@@ -722,7 +722,7 @@ function UpdateISLCConfig {
 
   # Verificar se o arquivo de configuração existe
   if (Test-Path -Path $configFilePath) {
-      Escrever-Colorido "Arquivo de configuração encontrado. Atualizando..." "Verde"
+      Escrever-Colorido "Arquivo de configuracao encontrado. Atualizando..." "Verde"
 
       try {
           # Carregar o conteúdo do arquivo XML
@@ -741,12 +741,12 @@ function UpdateISLCConfig {
 
           # Salvar as alterações de volta no arquivo XML
           $configXml.Save($configFilePath)
-          Escrever-Colorido "Arquivo de configuração atualizado com sucesso!" "Verde"
+          Escrever-Colorido "Arquivo de configuracao atualizado com sucesso!" "Verde"
       } catch {
-          Escrever-Colorido "Erro ao atualizar o arquivo de configuração: $_" "Vermelho"
+          Escrever-Colorido "Erro ao atualizar o arquivo de configuracao: $_" "Vermelho"
       }
   } else {
-      Escrever-Colorido "Arquivo de configuração não encontrado em $configFilePath" "Amarelo"
+      Escrever-Colorido "Arquivo de configuracao nao encontrado em $configFilePath" "Amarelo"
   }
 }
 
