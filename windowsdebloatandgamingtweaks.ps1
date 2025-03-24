@@ -34,7 +34,7 @@ function Escrever-Colorido {
 	Write-Host $Texto -ForegroundColor $cores[$Cor]
 }
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.0 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.1 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
 Escrever-Colorido "" "Verde"
@@ -68,13 +68,13 @@ $currentexename = (([Diagnostics.Process]::GetCurrentProcess().ProcessName) + '.
 		exit
 	}
 Clear-Host
-# Desktop presets
-# Definir a sequência de funções
-$tweaks = @(
 
-    ### Outras funções que não requerem o drive ### 
+#Desktop Devices presets.
+$tweaks = @(
     "RequireAdmin",
     "CreateRestorePoint",
+		"InstallMVC",
+		"Install7Zip",
     "SlowUpdatesTweaks",
     "Write-ColorOutput", 
     "InstallTitusProgs",
@@ -214,88 +214,71 @@ $tweaks = @(
     "Clear-PSHistory",
     "Finished"
 )
-
 #Mobile Devices presets.
-$mobiletweaks = @(
-	### Require administrator privileges ###
+$mobiletweaks = @( 
 	"RequireAdmin",
 	"CreateRestorePoint",
-	### Chris Titus Tech Additions
-	"SlowUpdatesTweaks",
-	"Write-ColorOutput", #Utilizing Colors for better Warning messages!
-	"InstallTitusProgs", #REQUIRED FOR OTHER PROGRAM INSTALLS!
-	"check-Windows",
-	"Execute-BatchScript", # Ccleaner
-	"Set-RamThreshold", # memory value
-	"Set-MemoriaVirtual-Registry", # Virtual Memory
-	"DownloadAndExtractISLC", # ISLC
-	"UpdateISLCConfig", # ISLC Config
-	"InstallMVC", #install Microsoft Visualstudio required for HPET service!
+	"InstallMVC",
 	"Install7Zip",
+	"SlowUpdatesTweaks",
+	"Write-ColorOutput",
+	"InstallTitusProgs",
+	"check-Windows",
+	"Execute-BatchScript",
+	"Set-RamThreshold",
+	"Set-MemoriaVirtual-Registry",
+	"DownloadAndExtractISLC",
+	"UpdateISLCConfig",
 	"InstallChocoUpdates",
-	"EnableUlimatePower",    # don't change order it will break other functions! just disable if you want with #
-	### Windows Defender Settings! Don't Change Order Just Disable with # If You Don't want it ###
-	"MSIMode",                       #Enable Or Disable MSI Mode For Supported Cards, WARNING ENABLING MSI MODE MIGHT CRUSH YOUR SYSTEM! IF IT HAPPENS PLEASE RESTORE LAST WORKING SYSTEM RESTORE POINT AND DON'T ENABLE MSI MODE ON THIS SYSTEM AGAIN!
+	"EnableUlimatePower",
+	"MSIMode",
 	"askDefender",
-	"DorEOneDrive",                  #Option to Install Or Uninstall Microsoft One Drive!
+	"DorEOneDrive",
 	"askXBOX",
 	"Windows11Extra",
-	### Windows Apps
 	"DebloatAll",
-	### Privacy Tweaks ###
-	"DisableTelemetry",             # "EnableTelemetry",
-	"DisableWiFiSense",             # "EnableWiFiSense",
-	"DisableSmartScreen",         # "EnableSmartScreen",
-	"DisableWebSearch",             # "EnableWebSearch",
-	"DisableAppSuggestions",        # "EnableAppSuggestions",
-	"DisableActivityHistory",       # "EnableActivityHistory",
-	"EnableBackgroundApps",           #"DisableBackgroundApps",
-	"DisableLocationTracking",      # "EnableLocationTracking",
-	"DisableMapUpdates",            # "EnableMapUpdates",
-	"DisableFeedback",              # "EnableFeedback",
-	"DisableTailoredExperiences",   # "EnableTailoredExperiences",
-	"DisableAdvertisingID",         # "EnableAdvertisingID",
-	"DisableCortana",               # "EnableCortana",
-	"DisableErrorReporting",        # "EnableErrorReporting",
-	"SetP2PUpdateLocal",          # "SetP2PUpdateInternet",
-	"DisableWAPPush",               # "EnableWAPPush",
+	"DisableTelemetry",
+	"DisableWiFiSense",
+	"DisableSmartScreen",
+	"DisableWebSearch",
+	"DisableAppSuggestions",
+	"DisableActivityHistory",
+	"EnableBackgroundApps",
+	"DisableLocationTracking",
+	"DisableMapUpdates",
+	"DisableFeedback",
+	"DisableTailoredExperiences",
+	"DisableAdvertisingID",
+	"DisableCortana",
+	"DisableErrorReporting",
+	"SetP2PUpdateLocal",
+	"DisableWAPPush",
 	"DisableNewsFeed",
-	### Security Tweaks ###
-	"SetUACLow",                  # "SetUACHigh",
-	# "EnableSharingMappedDrives",  # "DisableSharingMappedDrives",
-	# "DisableAdminShares",           # "EnableAdminShares",
-	"DisableSMB1",                # "EnableSMB1",
-	# "DisableSMBServer",           # "EnableSMBServer",
-	# "DisableLLMNR",               # "EnableLLMNR",
-	"SetCurrentNetworkPrivate",     # "SetCurrentNetworkPublic",
-	"SetUnknownNetworksPrivate",  # "SetUnknownNetworksPublic",
-	"DisableNetDevicesAutoInst",  # "EnableNetDevicesAutoInst",
-	"EnableF8BootMenu",             # "DisableF8BootMenu",
-	#"SetDEPOptOut",                 # "SetDEPOptIn",
-	# "EnableCIMemoryIntegrity",    # "DisableCIMemoryIntegrity",
-	#"DisableScriptHost",            # "EnableScriptHost",
-	#"EnableDotNetStrongCrypto",     # "DisableDotNetStrongCrypto",
-	"DisableMeltdownCompatFlag", # "EnableMeltdownCompatFlag"    
-	### Service Tweaks ###
-	"EnableUpdateMSRT",          # "EnableUpdateMSRT",    #"DisableUpdateMSRT",
-	"EnableUpdateDriver",        # "EnableUpdateDriver",  #"DisableUpdateDriver",
-	"DisableUpdateRestart",         # "EnableUpdateRestart",
-	"DisableHomeGroups",          # "EnableHomeGroups",
-	"EnableSharedExperiences",     # "SharedExperiences",
-	"DisableRemoteAssistance",      # "EnableRemoteAssistance",
-	"EnableRemoteDesktop",          # "DisableRemoteDesktop",
-	"DisableAutoplay",              # "EnableAutoplay",
-	"DisableAutorun",               # "EnableAutorun",
-	"DisableStorageSense",        # "EnableStorageSense",
-	"DisableDefragmentation",     # "EnableDefragmentation",
+	"SetUACLow",
+	"DisableSMB1",
+	"SetCurrentNetworkPrivate",
+	"SetUnknownNetworksPrivate",
+	"DisableNetDevicesAutoInst",
+	"EnableF8BootMenu",
+	"DisableMeltdownCompatFlag",
+	"EnableUpdateMSRT",
+	"EnableUpdateDriver",
+	"DisableUpdateRestart",
+	"DisableHomeGroups",
+	"EnableSharedExperiences",
+	"DisableRemoteAssistance",
+	"EnableRemoteDesktop",
+	"DisableAutoplay",
+	"DisableAutorun",
+	"DisableStorageSense",
+	"DisableDefragmentation",
 	"EnableIndexing",
-	"SetBIOSTimeUTC",         #"SetBIOSTimeUTC", #"SetBIOSTimeLocal",
-	"DisableHibernation",		# "EnableHibernation",
-	"EnableSleepButton",		# "DisableSleepButton",         
-	"DisableSleepTimeout",        # "EnableSleepTimeout",
-	"DisableFastStartup",         # "EnableFastStartup",
+	"SetBIOSTimeUTC",
+	"DisableHibernation",
+	"EnableSleepButton",
+	"DisableSleepTimeout",
+	"DisableFastStartup",
 	"DISGaming",
-    ### Windows Tweaks ###
 	"PowerThrottlingOff",
 	"Win32PrioritySeparation",
 	"DisableAERO",
@@ -311,57 +294,41 @@ $mobiletweaks = @(
 	"DisableDeviceHistory",
 	"DisableSearchHistroy",
 	"RemoveMeet",
-	### UI Tweaks ###
-	"EnableActionCenter",          # "DisableActionCenter",
-	"EnableLockScreen",				# "DisableLockScreen",
-	"EnableLockScreenRS1",			# "DisableLockScreenRS1",
-	# "HideNetworkFromLockScreen",    # "ShowNetworkOnLockScreen",
-	# "HideShutdownFromLockScreen",   # "ShowShutdownOnLockScreen",
-	"DisableStickyKeys",            # "EnableStickyKeys",
-	"ShowTaskManagerDetails"        # "HideTaskManagerDetails",
-	"ShowFileOperationsDetails",    # "HideFileOperationsDetails",
-	"DisableFileDeleteConfirm",	# "EnableFileDeleteConfirm",    
+	"EnableActionCenter",
+	"EnableLockScreen",
+	"EnableLockScreenRS1",
+	"DisableStickyKeys",
+	"ShowTaskManagerDetails",
+	"ShowFileOperationsDetails",
+	"DisableFileDeleteConfirm",
 	"HideTaskbarSearch",
-	#"ShowTaskbarSearchIcon",      # "ShowTaskbarSearchBox",
-	"HideTaskView",                 # "ShowTaskView",
-	# "ShowSmallTaskbarIcons",        # "ShowLargeTaskbarIcons",
-	# "SetTaskbarCombineWhenFull",    # "SetTaskbarCombineNever",     # "SetTaskbarCombineAlways",
-	"HideTaskbarPeopleIcon",        # "ShowTaskbarPeopleIcon",
-	#"HideTrayIcons",                #"ShowTrayIcons",
-	"DisableSearchAppInStore",      # "EnableSearchAppInStore",
-	"DisableNewAppPrompt",          # "EnableNewAppPrompt",
-	# "SetControlPanelSmallIcons",  # "SetControlPanelLargeIcons",  # "SetControlPanelCategories",
-	"SetVisualFXPerformance",     # "SetVisualFXAppearance",
-	# "AddENKeyboard",              # "RemoveENKeyboard",
-	"EnableNumlock",             	# "DisableNumlock",
-	"EnableDarkMode",				# "DisableDarkMode",
-	### Explorer UI Tweaks ###
-	"ShowKnownExtensions",          # "HideKnownExtensions",
+	"HideTaskView",
+	"HideTaskbarPeopleIcon",
+	"DisableSearchAppInStore",
+	"DisableNewAppPrompt",
+	"SetVisualFXPerformance",
+	"EnableNumlock",
+	"EnableDarkMode",
+	"ShowKnownExtensions",
 	"HideHiddenFiles",
-	"HideSyncNotifications"         # "ShowSyncNotifications",
-	"HideRecentShortcuts",          # "ShowRecentShortcuts",
-	"SetExplorerThisPC",            # "SetExplorerQuickAccess",
-	"ShowThisPCOnDesktop",          # "HideThisPCFromDesktop",
-	"ShowUserFolderOnDesktop",    # "HideUserFolderFromDesktop",
-	"Hide3DObjectsFromThisPC",      # "Show3DObjectsInThisPC",
-	"Hide3DObjectsFromExplorer",  # "Show3DObjectsInExplorer",
-	"EnableThumbnails",          # "EnableThumbnails", # "DisableThumbnails",
-	"EnableThumbsDB",              # "EnableThumbsDB", # "DisableThumbsDB", 
-	### Application Tweaks ###
-	#"UninstallMediaPlayer",         #"InstallMediaPlayer",
-	"UninstallInternetExplorer",  # "InstallInternetExplorer",
-	"UninstallWorkFolders",       # "InstallWorkFolders",
-	"UninstallLinuxSubsystem",      # "UninstallLinuxSubsystem",     #"InstallLinuxSubsystem",
-	# "InstallHyperV",              # "UninstallHyperV",
-	"SetPhotoViewerAssociation",    # "UnsetPhotoViewerAssociation",
-	"AddPhotoViewerOpenWith",       # "RemovePhotoViewerOpenWith",
-	"InstallPDFPrinter",		# "UninstallPDFPrinter",
+	"HideSyncNotifications",
+	"HideRecentShortcuts",
+	"SetExplorerThisPC",
+	"ShowThisPCOnDesktop",
+	"ShowUserFolderOnDesktop",
+	"Hide3DObjectsFromThisPC",
+	"Hide3DObjectsFromExplorer",
+	"EnableThumbnails",
+	"EnableThumbsDB",
+	"UninstallInternetExplorer",
+	"UninstallWorkFolders",
+	"UninstallLinuxSubsystem",
+	"SetPhotoViewerAssociation",
+	"AddPhotoViewerOpenWith",
+	"InstallPDFPrinter",
 	"SVCHostTweak",
-	### Unpinning ###
 	"UnpinStartMenuTiles",
-        ### Quality Of Life Tweaks ###
 	"QOL",
-        ### Gaming Tweaks ###
 	"FullscreenOptimizationFIX",
 	"GameOptimizationFIX",
 	"ApplyPCOptimizations",
@@ -380,17 +347,17 @@ $mobiletweaks = @(
 	"StophighDPC",
 	"NvidiaTweaks",
 	"AMDGPUTweaks",
- 	"NetworkAdapterRSS",
+	"NetworkAdapterRSS",
 	"NetworkOptimizations",
- 	"DisableNagle",
+	"DisableNagle",
 	"Ativar-Servicos",
 	"RemoveEdit3D",
-	"FixURLext",  # fix issue with games shortcut that created by games lunchers turned white!
+	"FixURLext",
 	"UltimateCleaner",
 	"Clear-PSHistory",
 	"Finished"
-	### Auxiliary Functions ###
 )
+
 
 #########
 # Pre Customizations
