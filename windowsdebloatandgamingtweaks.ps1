@@ -84,8 +84,6 @@ $tweaks = @(
     "Set-MemoriaVirtual-Registry",
     "DownloadAndExtractISLC",
     "UpdateISLCConfig",
-    "InstallMVC",
-    "Install7Zip",
     "InstallChocoUpdates",
     "EnableUlimatePower",
     "MSIMode",
