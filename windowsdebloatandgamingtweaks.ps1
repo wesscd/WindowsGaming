@@ -34,7 +34,7 @@ function Escrever-Colorido {
 	Write-Host $Texto -ForegroundColor $cores[$Cor]
 }
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.6.9.9 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.0 --"
 # cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
 Clear-Host
 Escrever-Colorido "" "Verde"
@@ -80,8 +80,8 @@ $tweaks = @(
     "InstallTitusProgs",
     "check-Windows",
     "Execute-BatchScript", 
-    "Set-RamThreshold", 
-		"Set-MemoriaVirtual-Registry",
+    "Set-RamThreshold",
+    "Set-MemoriaVirtual-Registry",
     "DownloadAndExtractISLC",
     "UpdateISLCConfig",
     "InstallMVC",
@@ -573,11 +573,12 @@ function Set-RamThreshold {
       8   { 0x800000 }
       12  { 0xC00000 }
       16  { 0x1000000 }
-			20  { 0x1400000 }
+      19  { 0x1300000 }
+      20  { 0x1400000 }
       24  { 0x1800000 }
       32  { 0x2000000 }
       64  { 0x4000000 }
-			128  { 0x8000000 }
+      128  { 0x8000000 }
       default {
           Escrever-Colorido "Memoria RAM nao suportada para esta configuracao." "Vermelho"
           exit
