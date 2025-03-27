@@ -34,33 +34,30 @@ function Escrever-Colorido {
 	Write-Host $Texto -ForegroundColor $cores[$Cor]
 }
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.1 --"
-# cmd /c 'title [ -- TechRemote Ultimate Windows Debloater Gaming -- ]'
-Clear-Host
-Escrever-Colorido "" "Verde"
-Escrever-Colorido "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗" "Verde"
-Escrever-Colorido "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝" "Verde"
-Escrever-Colorido "   ██║   █████╗  ██║     ███████║    ██████╔╝█████╗  ██╔████╔██║██║   ██║   ██║   █████╗  " "Verde"
-Escrever-Colorido "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  " "Verde"
-Escrever-Colorido "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗" "Verde"
-Escrever-Colorido "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝" "Verde"
-Escrever-Colorido "" "Verde"
-Escrever-Colorido "Bem vindo ao TechRemote Ultimate Windows Debloater Gaming" "Azul"
-Escrever-Colorido "" "Azul"
-Escrever-Colorido "Este script ira otimizar o desempenho do seu sistema operacional Windows." "Amarelo"
-Escrever-Colorido "Durante o processo, alguns servicos Microsoft que rodam em segundo plano serao desinstalados." "Amarelo"
-Escrever-Colorido "Um ponto de restauracao sera criado automaticamente antes de prosseguir." "Amarelo"
-Escrever-Colorido "" "Verde"
-Escrever-Colorido "Barao (Cesar Marques)" "Verde"
-Escrever-Colorido "Script utilizado pela TechRemote para otimizacoes." "AmareloClaro"
-Escrever-Colorido "" "AmareloClaro"
-Escrever-Colorido "" "AmareloClaro"
-Escrever-Colorido "DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" "Vermelho"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.2 (V GROK) --"
+function Show-Intro {
+	Clear-Host
+	$intro = @(
+			"", "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗",
+			"╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝",
+			"   ██║   █████╗  ██║     ███████║    ██████╔╝████X╗  ██╔████╔██║██║   ██║   ██║   █████╗  ",
+			"   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
+			"   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
+			"   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
+			"", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
+			"Este script otimizará o desempenho do seu sistema Windows.",
+			"Um ponto de restauração será criado antes de prosseguir.",
+			"DESATIVE SEU ANTIVÍRUS e PRESSIONE QUALQUER TECLA para continuar!"
+	)
+	$colors = @("Green", "Green", "Green", "Green", "Green", "Green", "Green", "Blue", "Yellow", "Yellow", "Red")
+	for ($i = 0; $i -lt $intro.Length; $i++) {
+			Write-Colored $intro[$i] $colors[$i]
+	}
+	[Console]::ReadKey($true) | Out-Null
+}
 
-$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
-
-New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null
-New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
+New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT -ErrorAction SilentlyContinue | Out-Null
+New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS -ErrorAction SilentlyContinue | Out-Null
 
 $currentexename = (([Diagnostics.Process]::GetCurrentProcess().ProcessName) + '.exe')
 	if ($currentexename -eq "pwsh.exe") {
@@ -212,150 +209,6 @@ $tweaks = @(
     "Clear-PSHistory",
     "Finished"
 )
-#Mobile Devices presets.
-$mobiletweaks = @( 
-	"RequireAdmin",
-	"CreateRestorePoint",
-	"InstallMVC",
-	"Install7Zip",
-	"SlowUpdatesTweaks",
-	"Write-ColorOutput",
-	"InstallTitusProgs",
-	"check-Windows",
-	"Execute-BatchScript",
-	"Set-RamThreshold",
-	"Set-MemoriaVirtual-Registry",
-	"DownloadAndExtractISLC",
-	"UpdateISLCConfig",
-	"InstallChocoUpdates",
-	"EnableUlimatePower",
-	"MSIMode",
-	"askDefender",
-	"DorEOneDrive",
-	"askXBOX",
-	"Windows11Extra",
-	"DebloatAll",
-	"DisableTelemetry",
-	"DisableWiFiSense",
-	"DisableSmartScreen",
-	"DisableWebSearch",
-	"DisableAppSuggestions",
-	"DisableActivityHistory",
-	"EnableBackgroundApps",
-	"DisableLocationTracking",
-	"DisableMapUpdates",
-	"DisableFeedback",
-	"DisableTailoredExperiences",
-	"DisableAdvertisingID",
-	"DisableCortana",
-	"DisableErrorReporting",
-	"SetP2PUpdateLocal",
-	"DisableWAPPush",
-	"DisableNewsFeed",
-	"SetUACLow",
-	"DisableSMB1",
-	"SetCurrentNetworkPrivate",
-	"SetUnknownNetworksPrivate",
-	"DisableNetDevicesAutoInst",
-	"EnableF8BootMenu",
-	"DisableMeltdownCompatFlag",
-	"EnableUpdateMSRT",
-	"EnableUpdateDriver",
-	"DisableUpdateRestart",
-	"DisableHomeGroups",
-	"EnableSharedExperiences",
-	"DisableRemoteAssistance",
-	"EnableRemoteDesktop",
-	"DisableAutoplay",
-	"DisableAutorun",
-	"DisableStorageSense",
-	"DisableDefragmentation",
-	"EnableIndexing",
-	"SetBIOSTimeUTC",
-	"DisableHibernation",
-	"EnableSleepButton",
-	"DisableSleepTimeout",
-	"DisableFastStartup",
-	"DISGaming",
-	"PowerThrottlingOff",
-	"Win32PrioritySeparation",
-	"DisableAERO",
-	"BSODdetails",
-	"Disablelivetiles",
-	"wallpaperquality",
-	"DisableShistory",
-	"Disableshortcutword",
-	"DisableMouseKKS",
-	"DisableTransparency",
-	"TurnOffSafeSearch",
-	"DisableCloudSearch",
-	"DisableDeviceHistory",
-	"DisableSearchHistroy",
-	"RemoveMeet",
-	"EnableActionCenter",
-	"EnableLockScreen",
-	"EnableLockScreenRS1",
-	"DisableStickyKeys",
-	"ShowTaskManagerDetails",
-	"ShowFileOperationsDetails",
-	"DisableFileDeleteConfirm",
-	"HideTaskbarSearch",
-	"HideTaskView",
-	"HideTaskbarPeopleIcon",
-	"DisableSearchAppInStore",
-	"DisableNewAppPrompt",
-	"SetVisualFXPerformance",
-	"EnableNumlock",
-	"EnableDarkMode",
-	"ShowKnownExtensions",
-	"HideHiddenFiles",
-	"HideSyncNotifications",
-	"HideRecentShortcuts",
-	"SetExplorerThisPC",
-	"ShowThisPCOnDesktop",
-	"ShowUserFolderOnDesktop",
-	"Hide3DObjectsFromThisPC",
-	"Hide3DObjectsFromExplorer",
-	"EnableThumbnails",
-	"EnableThumbsDB",
-	"UninstallInternetExplorer",
-	"UninstallWorkFolders",
-	"UninstallLinuxSubsystem",
-	"SetPhotoViewerAssociation",
-	"AddPhotoViewerOpenWith",
-	"InstallPDFPrinter",
-	"SVCHostTweak",
-	"UnpinStartMenuTiles",
-	"QOL",
-	"FullscreenOptimizationFIX",
-	"GameOptimizationFIX",
-	"ApplyPCOptimizations",
-	"RawMouseInput",
-	"DetectnApplyMouseFIX",
-	"DisableHPET",
-	"EnableGameMode",
-	"EnableHAGS",
-	"DisableCoreParking",
-	"DisableDMA",
-	"DisablePKM",
-	"DisallowDIP",
-	"UseBigM",
-	"ForceContiguousM",
-	"DecreaseMKBuffer",
-	"StophighDPC",
-	"NvidiaTweaks",
-	"AMDGPUTweaks",
-	"NetworkAdapterRSS",
-	"NetworkOptimizations",
-	"DisableNagle",
-	"Ativar-Servicos",
-	"RemoveEdit3D",
-	"FixURLext",
-	"UltimateCleaner",
-	"Clear-PSHistory",
-	"Finished"
-)
-
 
 #########
 # Pre Customizations
@@ -4048,12 +3901,9 @@ If ($args) {
 	}
 }
 
-# Call the desired tweak functions
-$PlatformCheck = (Get-Computerinfo).CsPCSystemType
-     if ($PlatformCheck -eq "Mobile") {
-     Write-Output "A plataforma $PlatformCheck aplicando ajustes ao dispositivo movel..."
-	 $mobiletweaks | ForEach-Object { Invoke-Expression $_ }
-     } else {
-     Write-Output "A plataforma $PlatformCheck aplicando ajustes na area de trabalho..."
-	 $tweaks | ForEach-Object { Invoke-Expression $_ }
-     }
+
+Show-Intro
+New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT -ErrorAction SilentlyContinue | Out-Null
+New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS -ErrorAction SilentlyContinue | Out-Null
+
+foreach ($tweak in $tweaks) { Invoke-Expression $tweak }
