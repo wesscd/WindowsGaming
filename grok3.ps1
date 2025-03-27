@@ -6,58 +6,41 @@ function Escrever-Colorido {
         [string]$Cor
     )
     $cores = @{
-        'Preto'        = 'Black'
-        'Azul'         = 'DarkBlue'
-        'Verde'        = 'DarkGreen'
-        'Ciano'        = 'DarkCyan'
-        'Vermelho'     = 'DarkRed'
-        'Magenta'      = 'DarkMagenta'
-        'Amarelo'      = 'DarkYellow'
-        'CinzaClaro'   = 'Gray'
-        'CinzaEscuro'  = 'DarkGray'
-        'AzulClaro'    = 'Blue'
-        'VerdeClaro'   = 'Green'
-        'CianoClaro'   = 'Cyan'
-        'VermelhoClaro'= 'Red'
-        'MagentaClaro' = 'Magenta'
-        'AmareloClaro' = 'Yellow'
-        'Branco'       = 'White'
+        'Preto'         = 'Black'
+        'Azul'          = 'DarkBlue'
+        'Verde'         = 'DarkGreen'
+        'Ciano'         = 'DarkCyan'
+        'Vermelho'      = 'DarkRed'
+        'Magenta'       = 'DarkMagenta'
+        'Amarelo'       = 'DarkYellow'
+        'CinzaClaro'    = 'Gray'
+        'CinzaEscuro'   = 'DarkGray'
+        'AzulClaro'     = 'Blue'
+        'VerdeClaro'    = 'Green'
+        'CianoClaro'    = 'Cyan'
+        'VermelhoClaro' = 'Red'
+        'MagentaClaro'  = 'Magenta'
+        'AmareloClaro'  = 'Yellow'
+        'Branco'        = 'White'
     }
     Write-Host $Texto -ForegroundColor $cores[$Cor]
 }
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.1 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.3 (GROK) --"
 Clear-Host
-
-# Banner principal otimizado com array de linhas
-$banner = @(
-    "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗",
-    "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝",
-    "   ██║   █████╗  ██║     ███████║    ██████╔╝█████╗  ██╔████╔██║██║   ██║   ██║   █████╗  ",
-    "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
-    "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
-    "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝"
-)
-$banner | ForEach-Object { Escrever-Colorido $_ "Verde" }
-
-# Mensagens iniciais otimizadas com string multilinha
-$welcomeMsg = @"
-`nBem vindo ao TechRemote Ultimate Windows Debloater Gaming
-
-Este script ira otimizar o desempenho do seu sistema operacional Windows.
-Durante o processo, alguns servicos Microsoft que rodam em segundo plano serao desinstalados.
-Um ponto de restauracao sera criado automaticamente antes de prosseguir.
-
-Barao (Cesar Marques)
-Script utilizado pela TechRemote para otimizacoes.
-
-DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!
-"@
-Escrever-Colorido $welcomeMsg.Split("`n")[1] "Azul"
-$welcomeMsg.Split("`n")[3..5] | ForEach-Object { Escrever-Colorido $_ "Amarelo" }
-Escrever-Colorido $welcomeMsg.Split("`n")[7] "Verde"
-Escrever-Colorido $welcomeMsg.Split("`n")[8] "AmareloClaro"
-Escrever-Colorido $welcomeMsg.Split("`n")[10] "Vermelho"
+Escrever-Colorido "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗" "Verde"
+Escrever-Colorido "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝" "Verde"
+Escrever-Colorido "   ██║   █████╗  ██║     ███████║    ██████╔╝█████╗  ██╔████╔██║██║   ██║   ██║   █████╗  " "Verde"
+Escrever-Colorido "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  " "Verde"
+Escrever-Colorido "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗" "Verde"
+Escrever-Colorido "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝" "Verde"
+Escrever-Colorido "`nBem vindo ao TechRemote Ultimate Windows Debloater Gaming" "Azul"
+Escrever-Colorido "`nEste script ira otimizar o desempenho do seu sistema operacional Windows." "Amarelo"
+Escrever-Colorido "Durante o processo, alguns servicos Microsoft que rodam em segundo plano serao desinstalados." "Amarelo"
+Escrever-Colorido "Um ponto de restauracao sera criado automaticamente antes de prosseguir." "Amarelo"
+Escrever-Colorido "`nBarao (Cesar Marques)" "Verde"
+Escrever-Colorido "Script utilizado pela TechRemote para otimizacoes." "AmareloClaro"
+Escrever-Colorido "`nDESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" "Vermelho"
 
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 
@@ -119,8 +102,8 @@ function SlowUpdatesTweaks {
     $path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
     if (!(Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
     $updates = @{
-        "DeferFeatureUpdates" = 1
-        "DeferQualityUpdates" = 1
+        "DeferFeatureUpdates"             = 1
+        "DeferQualityUpdates"             = 1
         "DeferFeatureUpdatesPeriodInDays" = 30
         "DeferQualityUpdatesPeriodInDays" = 4
     }
@@ -133,7 +116,7 @@ function SlowUpdatesTweaks {
 }
 
 function Write-ColorOutput {
-    param([Object]$Object="", [ConsoleColor]$ForegroundColor, [ConsoleColor]$BackgroundColor, [switch]$NoNewline)
+    param([Object]$Object = "", [ConsoleColor]$ForegroundColor, [ConsoleColor]$BackgroundColor, [switch]$NoNewline)
     $prevFg = $host.UI.RawUI.ForegroundColor
     $prevBg = $host.UI.RawUI.BackgroundColor
     if ($ForegroundColor) { $host.UI.RawUI.ForegroundColor = $ForegroundColor }
@@ -152,7 +135,7 @@ function InstallTitusProgs {
     choco install chocolatey-core.extension -y
     $urls = @{
         config = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/ooshutup10.cfg"
-        exe = "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"
+        exe    = "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"
     }
     $tempFiles = @{}
     foreach ($key in $urls.Keys) {
@@ -177,10 +160,10 @@ function Execute-BatchScript {
 function Set-RamThreshold {
     $ramGB = [math]::Round((Get-WmiObject Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
     $value = switch ($ramGB) {
-        {$_ -in 4..8}  { $_ * 0x100000 }
-        {$_ -in 12..24}{ $_ * 0x100000 }
-        32  { 0x2000000 }
-        64  { 0x4000000 }
+        { $_ -in 4..8 } { $_ * 0x100000 }
+        { $_ -in 12..24 } { $_ * 0x100000 }
+        32 { 0x2000000 }
+        64 { 0x4000000 }
         128 { 0x8000000 }
         default { Escrever-Colorido "Memoria RAM nao suportada para esta configuracao." "Vermelho"; return }
     }
@@ -217,11 +200,11 @@ function UpdateISLCConfig {
     if (Test-Path $path) {
         [xml]$xml = Get-Content $path -Raw
         $settings = @{
-            "Free memory" = [math]::Round((Get-WmiObject Win32_ComputerSystem).TotalPhysicalMemory / 2MB)
+            "Free memory"     = [math]::Round((Get-WmiObject Win32_ComputerSystem).TotalPhysicalMemory / 2MB)
             "Start minimized" = "True"
-            "Wanted timer" = "0.50"
-            "Custom timer" = "True"
-            "TaskScheduler" = "True"
+            "Wanted timer"    = "0.50"
+            "Custom timer"    = "True"
+            "TaskScheduler"   = "True"
         }
         $xml.configuration.appSettings.add | ForEach-Object { if ($settings[$_.key]) { $_.value = $settings[$_.key] } }
         $xml.Save($path)
@@ -242,11 +225,11 @@ function InstallChocoUpdates { Clear-Host; choco upgrade all -y }
 function ApplyPCOptimizations {
     $path = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
     $settings = @{
-        "SystemResponsiveness" = 0
+        "SystemResponsiveness"   = 0
         "NetworkThrottlingIndex" = 10
-        "AlwaysOn" = 1
-        "LazyMode" = 1
-        "LazyModeTimeout" = 25000
+        "AlwaysOn"               = 1
+        "LazyMode"               = 1
+        "LazyModeTimeout"        = 25000
     }
     foreach ($key in $settings.Keys) {
         Set-ItemProperty -Path $path -Name $key -Type DWord -Value $settings[$key]
@@ -269,7 +252,8 @@ function askXBOX {
         $path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR"
         if (!(Test-Path $path)) { New-Item $path -Force | Out-Null }
         Set-ItemProperty -Path $path -Name "AllowGameDVR" -Type DWord -Value 0
-    } elseif ($selection -ieq 'h') {
+    }
+    elseif ($selection -ieq 'h') {
         $apps | ForEach-Object { Get-AppxPackage -AllUsers $_ -ErrorAction SilentlyContinue | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml" } }
         Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 1
         Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -ErrorAction SilentlyContinue
@@ -278,26 +262,26 @@ function askXBOX {
 
 function MSIMode {
     Get-CimInstance Win32_VideoController | 
-        Where-Object { $_.PNPDeviceID -and ($_.DeviceDesc -match "GTX|RTX|AMD") } | 
-        ForEach-Object {
-            $path = "HKLM:\SYSTEM\CurrentControlSet\Enum\$($_.PNPDeviceID)\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties"
-            if (!(Test-Path $path)) { New-Item $path -Force | Out-Null }
-            Set-ItemProperty -Path $path -Name "MSISupported" -Type DWord -Value 1
-        }
+    Where-Object { $_.PNPDeviceID -and ($_.DeviceDesc -match "GTX|RTX|AMD") } | 
+    ForEach-Object {
+        $path = "HKLM:\SYSTEM\CurrentControlSet\Enum\$($_.PNPDeviceID)\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties"
+        if (!(Test-Path $path)) { New-Item $path -Force | Out-Null }
+        Set-ItemProperty -Path $path -Name "MSISupported" -Type DWord -Value 1
+    }
 }
 
 function DisableTelemetry {
     "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection",
     "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Policies\DataCollection",
     "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" | 
-        ForEach-Object { Set-ItemProperty -Path $_ -Name "AllowTelemetry" -Type DWord -Value 0 -ErrorAction SilentlyContinue }
+    ForEach-Object { Set-ItemProperty -Path $_ -Name "AllowTelemetry" -Type DWord -Value 0 -ErrorAction SilentlyContinue }
     "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser",
     "Microsoft\Windows\Application Experience\ProgramDataUpdater",
     "Microsoft\Windows\Autochk\Proxy",
     "Microsoft\Windows\Customer Experience Improvement Program\Consolidator",
     "Microsoft\Windows\Customer Experience Improvement Program\UsbCeip",
     "Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" | 
-        ForEach-Object { Disable-ScheduledTask -TaskName $_ -ErrorAction SilentlyContinue | Out-Null }
+    ForEach-Object { Disable-ScheduledTask -TaskName $_ -ErrorAction SilentlyContinue | Out-Null }
 }
 
 function DisableWiFiSense {
@@ -329,7 +313,7 @@ function DisableAppSuggestions {
     "ContentDeliveryAllowed", "OemPreInstalledAppsEnabled", "PreInstalledAppsEnabled", "PreInstalledAppsEverEnabled", 
     "SilentInstalledAppsEnabled", "SubscribedContent-338387Enabled", "SubscribedContent-338388Enabled", 
     "SubscribedContent-338389Enabled", "SubscribedContent-353698Enabled", "SystemPaneSuggestionsEnabled" | 
-        ForEach-Object { Set-ItemProperty -Path $path -Name $_ -Type DWord -Value 0 }
+    ForEach-Object { Set-ItemProperty -Path $path -Name $_ -Type DWord -Value 0 }
     $cloudPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
     if (!(Test-Path $cloudPath)) { New-Item $cloudPath -Force | Out-Null }
     Set-ItemProperty -Path $cloudPath -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1
@@ -337,12 +321,12 @@ function DisableAppSuggestions {
 
 function DisableActivityHistory {
     "EnableActivityFeed", "PublishUserActivities", "UploadUserActivities" | 
-        ForEach-Object { Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name $_ -Type DWord -Value 0 }
+    ForEach-Object { Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name $_ -Type DWord -Value 0 }
 }
 
 function EnableBackgroundApps {
     Get-ChildItem "HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" -Exclude "Microsoft.Windows.Cortana*" | 
-        ForEach-Object { Remove-ItemProperty -Path $_.PsPath -Name "Disabled", "DisabledByUser" -ErrorAction SilentlyContinue }
+    ForEach-Object { Remove-ItemProperty -Path $_.PsPath -Name "Disabled", "DisabledByUser" -ErrorAction SilentlyContinue }
 }
 
 function DisableLocationTracking {
@@ -359,7 +343,7 @@ function DisableFeedback {
     if (!(Test-Path $path)) { New-Item $path -Force | Out-Null }
     Set-ItemProperty -Path $path -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0
     "Microsoft\Windows\Feedback\Siuf\DmClient", "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload" | 
-        ForEach-Object { Disable-ScheduledTask -TaskName $_ -ErrorAction SilentlyContinue | Out-Null }
+    ForEach-Object { Disable-ScheduledTask -TaskName $_ -ErrorAction SilentlyContinue | Out-Null }
 }
 
 function DisableTailoredExperiences {
@@ -379,10 +363,10 @@ function DisableCortana {
     if (!(Test-Path $searchPath)) { New-Item $searchPath -Force | Out-Null }
     Set-ItemProperty -Path $searchPath -Name "AllowCortana" -Type DWord -Value 0
     $paths = @{
-        "HKCU:\SOFTWARE\Microsoft\Personalization\Settings" = @{"AcceptedPrivacyPolicy"=0}
-        "HKCU:\SOFTWARE\Microsoft\InputPersonalization" = @{"RestrictImplicitTextCollection"=1;"RestrictImplicitInkCollection"=1}
-        "HKCU:\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore" = @{"HarvestContacts"=0}
-        "HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization" = @{"AllowInputPersonalization"=0}
+        "HKCU:\SOFTWARE\Microsoft\Personalization\Settings"              = @{"AcceptedPrivacyPolicy" = 0 }
+        "HKCU:\SOFTWARE\Microsoft\InputPersonalization"                  = @{"RestrictImplicitTextCollection" = 1; "RestrictImplicitInkCollection" = 1 }
+        "HKCU:\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore" = @{"HarvestContacts" = 0 }
+        "HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization"         = @{"AllowInputPersonalization" = 0 }
     }
     foreach ($path in $paths.Keys) {
         if (!(Test-Path $path)) { New-Item $path -Force | Out-Null }
@@ -416,7 +400,7 @@ function DisableNewsFeed {
 
 function SetUACLow {
     "ConsentPromptBehaviorAdmin", "PromptOnSecureDesktop" | 
-        ForEach-Object { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name $_ -Type DWord -Value 0 }
+    ForEach-Object { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name $_ -Type DWord -Value 0 }
 }
 
 function DisableSMB1 { Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force }
@@ -545,10 +529,10 @@ function BSODdetails {
     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl" -Name "DisplayParameters" -Type DWord -Value 1 
 }
 
-function Disablelivetiles { 
-    $path = "HKCU:\Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications"
-    if之心Path $path)) { New-Item $path -Force | Out-Null }
-    Set-ItemProperty -Path $path -Name "NoTileApplicationNotification" -Type DWord -Value 1 
+Function Disablelivetiles {
+    Write-Output "Disabling live tiles..."
+    New-Item -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" -ErrorAction SilentlyContinue | Out-Null
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "NoTileApplicationNotification" -Type DWord -Value 1
 }
 
 function wallpaperquality { 
@@ -560,7 +544,7 @@ function DisableShistory {
 }
 
 function Disableshortcutword { 
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "link" -Type Binary -Value ([byte[]](0,0,0,0)) 
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "link" -Type Binary -Value ([byte[]](0, 0, 0, 0)) 
 }
 
 function DisableMouseKKS { 
@@ -654,7 +638,7 @@ function DisableNewAppPrompt {
 }
 
 function SetVisualFXPerformance { 
-    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "UserPreferencesMask" -Type Binary -Value ([byte[]](0x90,0x12,0x03,0x80,0x10,0x00,0x00,0x00))
+    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "UserPreferencesMask" -Type Binary -Value ([byte[]](0x90, 0x12, 0x03, 0x80, 0x10, 0x00, 0x00, 0x00))
     Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "VisualFXSetting" -Type DWord -Value 3
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Type DWord -Value 3
 }
@@ -665,7 +649,7 @@ function EnableNumlock {
 
 function EnableDarkMode { 
     "AppsUseLightTheme", "SystemUsesLightTheme" | 
-        ForEach-Object { Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name $_ -Type DWord -Value 0 }
+    ForEach-Object { Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name $_ -Type DWord -Value 0 }
 }
 
 function ShowKnownExtensions { 
@@ -682,7 +666,7 @@ function HideSyncNotifications {
 
 function HideRecentShortcuts { 
     "ShowRecent", "ShowFrequent" | 
-        ForEach-Object { Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name $_ -Type DWord -Value 0 }
+    ForEach-Object { Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name $_ -Type DWord -Value 0 }
 }
 
 function SetExplorerThisPC { 
@@ -764,7 +748,7 @@ function QOL {
 
 function FullscreenOptimizationFIX { 
     "GameDVR_DXGIHonorFSEWindowsCompatible", "GameDVR_HonorUserFSEBehaviorMode" | 
-        ForEach-Object { Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name $_ -Type DWord -Value 1 }
+    ForEach-Object { Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name $_ -Type DWord -Value 1 }
     Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehavior" -Type DWord -Value 2
 }
 
@@ -782,7 +766,7 @@ function RawMouseInput {
 
 function DetectnApplyMouseFIX { 
     Get-WmiObject Win32_PnPEntity | Where-Object { $_.Name -like "*mouse*" -and $_.Status -eq "OK" } | 
-        ForEach-Object { Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$($_.DeviceID)" -Name "FlipFlopWheel" -Type DWord -Value 0 -ErrorAction SilentlyContinue }
+    ForEach-Object { Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$($_.DeviceID)" -Name "FlipFlopWheel" -Type DWord -Value 0 -ErrorAction SilentlyContinue }
 }
 
 function DisableHPET { 
@@ -792,7 +776,7 @@ function DisableHPET {
 
 function EnableGameMode { 
     "AllowAutoGameMode", "AutoGameModeEnabled" | 
-        ForEach-Object { Set-ItemProperty -Path "HKCU:\Software\Microsoft\GameBar" -Name $_ -Type DWord -Value 1 }
+    ForEach-Object { Set-ItemProperty -Path "HKCU:\Software\Microsoft\GameBar" -Name $_ -Type DWord -Value 1 }
 }
 
 function EnableHAGS { 
@@ -898,14 +882,9 @@ function Clear-PSHistory {
 }
 
 function Finished { 
-  Clear-Host
-  $finishMsg = @"
-Otimização concluída com sucesso!
-Reinicie o sistema para aplicar todas as alterações.
-"@
-  Escrever-Colorido $finishMsg.Split("`n")[0] "Verde"
-  Escrever-Colorido $finishMsg.Split("`n")[1] "Amarelo"
-  if ((Read-Host "Deseja reiniciar agora? (S/N)") -imatch '^s$') { Restart-Computer -Force }
+    Clear-Host
+    Escrever-Colorido "Otimização concluída com sucesso!`nReinicie o sistema para aplicar todas as alterações." "Verde"
+    if ((Read-Host "Deseja reiniciar agora? (S/N)") -imatch '^s$') { Restart-Computer -Force }
 }
 
 # Executar tweaks
