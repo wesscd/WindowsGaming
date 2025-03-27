@@ -26,21 +26,38 @@ function Escrever-Colorido {
     Write-Host $Texto -ForegroundColor $cores[$Cor]
 }
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.3 (GROK) --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.1 --"
 Clear-Host
-Escrever-Colorido "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗" "Verde"
-Escrever-Colorido "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝" "Verde"
-Escrever-Colorido "   ██║   █████╗  ██║     ███████║    ██████╔╝█████╗  ██╔████╔██║██║   ██║   ██║   █████╗  " "Verde"
-Escrever-Colorido "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  " "Verde"
-Escrever-Colorido "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗" "Verde"
-Escrever-Colorido "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝" "Verde"
-Escrever-Colorido "`nBem vindo ao TechRemote Ultimate Windows Debloater Gaming" "Azul"
-Escrever-Colorido "`nEste script ira otimizar o desempenho do seu sistema operacional Windows." "Amarelo"
-Escrever-Colorido "Durante o processo, alguns servicos Microsoft que rodam em segundo plano serao desinstalados." "Amarelo"
-Escrever-Colorido "Um ponto de restauracao sera criado automaticamente antes de prosseguir." "Amarelo"
-Escrever-Colorido "`nBarao (Cesar Marques)" "Verde"
-Escrever-Colorido "Script utilizado pela TechRemote para otimizacoes." "AmareloClaro"
-Escrever-Colorido "`nDESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" "Vermelho"
+
+# Banner principal otimizado com array de linhas
+$banner = @(
+    "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗",
+    "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝",
+    "   ██║   █████╗  ██║     ███████║    ██████╔╝█████╗  ██╔████╔██║██║   ██║   ██║   █████╗  ",
+    "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
+    "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
+    "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝"
+)
+$banner | ForEach-Object { Escrever-Colorido $_ "Verde" }
+
+# Mensagens iniciais otimizadas com string multilinha
+$welcomeMsg = @"
+`nBem vindo ao TechRemote Ultimate Windows Debloater Gaming
+
+Este script ira otimizar o desempenho do seu sistema operacional Windows.
+Durante o processo, alguns servicos Microsoft que rodam em segundo plano serao desinstalados.
+Um ponto de restauracao sera criado automaticamente antes de prosseguir.
+
+Barao (Cesar Marques)
+Script utilizado pela TechRemote para otimizacoes.
+
+DESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!
+"@
+Escrever-Colorido $welcomeMsg.Split("`n")[1] "Azul"
+$welcomeMsg.Split("`n")[3..5] | ForEach-Object { Escrever-Colorido $_ "Amarelo" }
+Escrever-Colorido $welcomeMsg.Split("`n")[7] "Verde"
+Escrever-Colorido $welcomeMsg.Split("`n")[8] "AmareloClaro"
+Escrever-Colorido $welcomeMsg.Split("`n")[10] "Vermelho"
 
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 
@@ -881,9 +898,14 @@ function Clear-PSHistory {
 }
 
 function Finished { 
-    Clear-Host
-    Escrever-Colorido "Otimização concluída com sucesso!`nReinicie o sistema para aplicar todas as alterações." "Verde"
-    if ((Read-Host "Deseja reiniciar agora? (S/N)") -imatch '^s$') { Restart-Computer -Force }
+  Clear-Host
+  $finishMsg = @"
+Otimização concluída com sucesso!
+Reinicie o sistema para aplicar todas as alterações.
+"@
+  Escrever-Colorido $finishMsg.Split("`n")[0] "Verde"
+  Escrever-Colorido $finishMsg.Split("`n")[1] "Amarelo"
+  if ((Read-Host "Deseja reiniciar agora? (S/N)") -imatch '^s$') { Restart-Computer -Force }
 }
 
 # Executar tweaks
