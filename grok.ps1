@@ -5,7 +5,7 @@
 # Configuração inicial
 [Console]::OutputEncoding = [System.Text.Encoding]::GetEncoding(860)
 $ErrorActionPreference = "SilentlyContinue"
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.2 (VIA GROK) --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.2 (GROK) --"
 
 # Função para escrita colorida
 function Write-Colored {
@@ -41,11 +41,11 @@ function Show-Intro {
     [Console]::ReadKey($true) | Out-Null
 }
 
-# Lista de tweaks atualizada
+# Lista de tweaks atualizada com SetVirtualMemory
 $tweaks = @(
     "RequireAdmin", "CreateRestorePoint", "InstallEssentialTools", "OptimizeUpdates",
-    "InstallOptimizationTools", "CleanSystem", "OptimizeMemory", "InstallISLC",
-    "ConfigureISLC", "CheckWindowsActivation", "OptimizePerformance",
+    "InstallOptimizationTools", "CleanSystem", "OptimizeMemory", "SetVirtualMemory",
+    "InstallISLC", "ConfigureISLC", "CheckWindowsActivation", "OptimizePerformance",
     "HandleXboxFeatures", "EnableMSIMode", "ApplyPrivacyTweaks", "OptimizeNetwork",
     "EnableEssentialServices", "OptimizePowerPlan", "DisableVisualEffects",
     "OptimizeStorage", "ReduceStartupLoad", "CleanRegistry", "FinalizeSetup"
@@ -123,6 +123,37 @@ function OptimizeMemory {
     if ($value) {
         Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Value $value -Type DWord
     }
+}
+
+# Nova função para configurar memória virtual
+function SetVirtualMemory {
+    Write-Colored "Configurando memória virtual..." "Yellow"
+    $ram = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
+    $pagefile = Get-WmiObject Win32_OperatingSystem
+    
+    # Cálculo da memória virtual baseado na RAM (inspirado no código original)
+    $initialSize = [math]::Round($ram * 1024 * 1.5)  # 1.5x RAM em MB
+    $maxSize = [math]::Round($ram * 1024 * 3)       # 3x RAM em MB
+    
+    if ($ram -lt 8) {
+        $initialSize = 4096  # Mínimo 4GB para sistemas com pouca RAM
+        $maxSize = 8192      # Máximo 8GB
+    }
+    elseif ($ram -ge 32) {
+        $initialSize = 16384 # 16GB para sistemas com muita RAM
+        $maxSize = 32768     # 32GB
+    }
+
+    # Desativar gerenciamento automático
+    $pagefile.AutomaticManagedPagefile = $false
+    $pagefile.put() | Out-Null
+
+    # Configurar tamanho da memória virtual no drive C:
+    $pagefilePath = "C:\pagefile.sys"
+    Set-CimInstance -Query "SELECT * FROM Win32_ComputerSystem" -Property @{AutomaticManagedPagefile=$false}
+    Set-WmiObject Win32_PageFileSetting -Arguments @{Name=$pagefilePath; InitialSize=$initialSize; MaximumSize=$maxSize} -ErrorAction SilentlyContinue
+    
+    Write-Colored "Memória virtual configurada: Inicial=${initialSize}MB, Máximo=${maxSize}MB" "Green"
 }
 
 function InstallISLC {
@@ -294,7 +325,6 @@ function EnableEssentialServices {
     }
 }
 
-# Novas funções para maior performance
 function OptimizePowerPlan {
     Write-Colored "Otimizando plano de energia..." "Yellow"
     $gamingPlan = powercfg /l | Select-String "High performance" -ErrorAction SilentlyContinue
@@ -335,12 +365,10 @@ function OptimizeStorage {
         $partitions = Get-Partition -DiskNumber $drive.Number -ErrorAction SilentlyContinue
         foreach ($partition in $partitions) {
             if ($partition.DriveLetter) {
-                # Desativar indexação em drives
                 $drivePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search"
                 if (-not (Test-Path $drivePath)) { New-Item -Path $drivePath -Force | Out-Null }
                 Set-ItemProperty -Path $drivePath -Name "DisableSearch" -Value 1 -Type DWord
                 
-                # Verificar se é SSD e desativar desfragmentação automática
                 if ((Get-PhysicalDisk | Where-Object {$_.DeviceId -eq $drive.Number}).MediaType -eq "SSD") {
                     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Dfrg\BootOptimizeFunction" -Name "Enable" -Value "N" -Type String
                     Write-Colored "Desfragmentação desativada para SSD em $($partition.DriveLetter):" "Green"
@@ -355,7 +383,6 @@ function ReduceStartupLoad {
     $path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
     if (-not (Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
     
-    # Desativar programas comuns desnecessários
     $startupItems = @("OneDrive", "CCleaner", "WindowsDefender")
     foreach ($item in $startupItems) {
         if (Get-ItemProperty -Path $path -Name $item -ErrorAction SilentlyContinue) {
@@ -363,7 +390,6 @@ function ReduceStartupLoad {
         }
     }
     
-    # Reduzir tempo de espera do menu de boot
     bcdedit /timeout 5 | Out-Null
     Write-Colored "Carga de inicialização otimizada." "Green"
 }
