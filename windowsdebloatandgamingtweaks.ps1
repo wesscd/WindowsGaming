@@ -10,48 +10,48 @@ chcp 860
 
 function Escrever-Colorido {
 	param (
-			[string]$Texto,
-			[string]$Cor
+		[string]$Texto,
+		[string]$Cor
 	)
 	$cores = @{
-			'Preto'        = 'Black'
-			'Azul'         = 'DarkBlue'
-			'Verde'        = 'DarkGreen'
-			'Ciano'        = 'DarkCyan'
-			'Vermelho'     = 'DarkRed'
-			'Magenta'      = 'DarkMagenta'
-			'Amarelo'      = 'DarkYellow'
-			'CinzaClaro'   = 'Gray'
-			'CinzaEscuro'  = 'DarkGray'
-			'AzulClaro'    = 'Blue'
-			'VerdeClaro'   = 'Green'
-			'CianoClaro'   = 'Cyan'
-			'VermelhoClaro'= 'Red'
-			'MagentaClaro' = 'Magenta'
-			'AmareloClaro' = 'Yellow'
-			'Branco'       = 'White'
+		'Preto'         = 'Black'
+		'Azul'          = 'DarkBlue'
+		'Verde'         = 'DarkGreen'
+		'Ciano'         = 'DarkCyan'
+		'Vermelho'      = 'DarkRed'
+		'Magenta'       = 'DarkMagenta'
+		'Amarelo'       = 'DarkYellow'
+		'CinzaClaro'    = 'Gray'
+		'CinzaEscuro'   = 'DarkGray'
+		'AzulClaro'     = 'Blue'
+		'VerdeClaro'    = 'Green'
+		'CianoClaro'    = 'Cyan'
+		'VermelhoClaro' = 'Red'
+		'MagentaClaro'  = 'Magenta'
+		'AmareloClaro'  = 'Yellow'
+		'Branco'        = 'White'
 	}
 	Write-Host $Texto -ForegroundColor $cores[$Cor]
 }
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.2 (V GROK) --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.3 (V GROK) --"
 function Show-Intro {
 	Clear-Host
 	$intro = @(
-			"", "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗",
-			"╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝",
-			"   ██║   █████╗  ██║     ███████║    ██████╔╝████X╗  ██╔████╔██║██║   ██║   ██║   █████╗  ",
-			"   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
-			"   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
-			"   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-			"", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
-			"Este script otimizará o desempenho do seu sistema Windows.",
-			"Um ponto de restauração será criado antes de prosseguir.",
-			"DESATIVE SEU ANTIVÍRUS e PRESSIONE QUALQUER TECLA para continuar!"
+		"", "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗",
+		"╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝",
+		"   ██║   █████╗  ██║     ███████║    ██████╔╝████X╗  ██╔████╔██║██║   ██║   ██║   █████╗  ",
+		"   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
+		"   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
+		"   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
+		"", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
+		"Este script otimizará o desempenho do seu sistema Windows.",
+		"Um ponto de restauração será criado antes de prosseguir.",
+		"DESATIVE SEU ANTIVÍRUS e PRESSIONE QUALQUER TECLA para continuar!"
 	)
 	$colors = @("Green", "Green", "Green", "Green", "Green", "Green", "Green", "Blue", "Yellow", "Yellow", "Red")
 	for ($i = 0; $i -lt $intro.Length; $i++) {
-			Write-Colored $intro[$i] $colors[$i]
+		Write-Colored $intro[$i] $colors[$i]
 	}
 	[Console]::ReadKey($true) | Out-Null
 }
@@ -60,154 +60,154 @@ New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT -ErrorAction
 New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS -ErrorAction SilentlyContinue | Out-Null
 
 $currentexename = (([Diagnostics.Process]::GetCurrentProcess().ProcessName) + '.exe')
-	if ($currentexename -eq "pwsh.exe") {
-		Start-Process Powershell -Argumentlist '-ExecutionPolicy bypass -NoProfile -command "irm "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/windowsdebloatandgamingtweaks.ps1" | iex"' -Verb RunAs
-		exit
-	}
+if ($currentexename -eq "pwsh.exe") {
+	Start-Process Powershell -Argumentlist '-ExecutionPolicy bypass -NoProfile -command "irm "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/windowsdebloatandgamingtweaks.ps1" | iex"' -Verb RunAs
+	exit
+}
 Clear-Host
 
 #Desktop Devices presets.
 $tweaks = @(
-    "RequireAdmin",
-    "CreateRestorePoint",
-		"InstallMVC",
-		"Install7Zip",
-    "SlowUpdatesTweaks",
-    "Write-ColorOutput", 
-    "InstallTitusProgs",
-    "check-Windows",
-    "Execute-BatchScript", 
-    "Set-RamThreshold",
-    "Set-MemoriaVirtual-Registry",
-    "DownloadAndExtractISLC",
-    "UpdateISLCConfig",
-    "InstallChocoUpdates",
-    "EnableUlimatePower",
-    "MSIMode",
-    "askDefender",
-    "DorEOneDrive",
-    "askXBOX",
-    "Windows11Extra",
-    "DebloatAll",
-    "DisableTelemetry",
-    "DisableWiFiSense",
-    "DisableSmartScreen",
-    "DisableWebSearch",
-    "DisableAppSuggestions",
-    "DisableActivityHistory",
-    "EnableBackgroundApps",
-    "DisableLocationTracking",
-    "DisableMapUpdates",
-    "DisableFeedback",
-    "DisableTailoredExperiences",
-    "DisableAdvertisingID",
-    "DisableCortana",
-    "DisableErrorReporting",
-    "SetP2PUpdateLocal",
-    "DisableWAPPush",
-    "DisableNewsFeed",
-    "SetUACLow",
-    "DisableSMB1",
-    "SetCurrentNetworkPrivate",
-    "SetUnknownNetworksPrivate",
-    "DisableNetDevicesAutoInst",
-    "EnableF8BootMenu",
-    "DisableMeltdownCompatFlag",
-    "EnableUpdateMSRT",
-    "EnableUpdateDriver",
-    "DisableUpdateRestart",
-    "DisableHomeGroups",
-    "EnableSharedExperiences",
-    "DisableRemoteAssistance",
-    "EnableRemoteDesktop",
-    "DisableAutoplay",
-    "DisableAutorun",
-    "DisableStorageSense",
-    "DisableDefragmentation",
-    "EnableIndexing",
-    "SetBIOSTimeUTC",
-    "DisableHibernation",
-    "EnableSleepButton",
-    "DisableSleepTimeout",
-    "DisableFastStartup",
-    "DISGaming",
-    "PowerThrottlingOff",
-    "Win32PrioritySeparation",
-    "DisableAERO",
-    "BSODdetails",
-    "Disablelivetiles",
-    "wallpaperquality",
-    "DisableShistory",
-    "Disableshortcutword",
-    "DisableMouseKKS",
-    "DisableTransparency",
-    "TurnOffSafeSearch",
-    "DisableCloudSearch",
-    "DisableDeviceHistory",
-    "DisableSearchHistroy",
-    "RemoveMeet",
-    "EnableActionCenter",
-    "EnableLockScreen",
-    "EnableLockScreenRS1",
-    "DisableStickyKeys",
-    "ShowTaskManagerDetails",
-    "ShowFileOperationsDetails",
-    "DisableFileDeleteConfirm",
-    "HideTaskbarSearch",
-    "HideTaskView",
-    "HideTaskbarPeopleIcon",
-    "DisableSearchAppInStore",
-    "DisableNewAppPrompt",
-    "SetVisualFXPerformance",
-    "EnableNumlock",
-    "EnableDarkMode",
-    "ShowKnownExtensions",
-    "HideHiddenFiles",
-    "HideSyncNotifications",
-    "HideRecentShortcuts",
-    "SetExplorerThisPC",
-    "ShowThisPCOnDesktop",
-    "ShowUserFolderOnDesktop",
-    "Hide3DObjectsFromThisPC",
-    "Hide3DObjectsFromExplorer",
-    "EnableThumbnails",
-    "EnableThumbsDB",
-    "UninstallInternetExplorer",
-    "UninstallWorkFolders",
-    "UninstallLinuxSubsystem",
-    "SetPhotoViewerAssociation",
-    "AddPhotoViewerOpenWith",
-    "InstallPDFPrinter",
-    "SVCHostTweak",
-    "UnpinStartMenuTiles",
-    "QOL",
-    "FullscreenOptimizationFIX",
-    "GameOptimizationFIX",
-    "ApplyPCOptimizations",
-    "RawMouseInput",
-    "DetectnApplyMouseFIX",
-    "DisableHPET",
-    "EnableGameMode",
-    "EnableHAGS",
-    "DisableCoreParking",
-    "DisableDMA",
-    "DisablePKM",
-    "DisallowDIP",
-    "UseBigM",
-    "ForceContiguousM",
-    "DecreaseMKBuffer",
-    "StophighDPC",
-    "NvidiaTweaks",
-    "AMDGPUTweaks",
-    "NetworkAdapterRSS",
-    "NetworkOptimizations",
-    "DisableNagle",
-		"Ativar-Servicos",
-    "RemoveEdit3D",
-    "FixURLext",
-    "UltimateCleaner",
-    "Clear-PSHistory",
-    "Finished"
+	"RequireAdmin",
+	"CreateRestorePoint",
+	"InstallMVC",
+	"Install7Zip",
+	"SlowUpdatesTweaks",
+	"Write-ColorOutput", 
+	"InstallTitusProgs",
+	"check-Windows",
+	"Execute-BatchScript", 
+	"Set-RamThreshold",
+	"Set-MemoriaVirtual-Registry",
+	"DownloadAndExtractISLC",
+	"UpdateISLCConfig",
+	"InstallChocoUpdates",
+	"EnableUlimatePower",
+	"MSIMode",
+	"askDefender",
+	"DorEOneDrive",
+	"askXBOX",
+	"Windows11Extra",
+	"DebloatAll",
+	"DisableTelemetry",
+	"DisableWiFiSense",
+	"DisableSmartScreen",
+	"DisableWebSearch",
+	"DisableAppSuggestions",
+	"DisableActivityHistory",
+	"EnableBackgroundApps",
+	"DisableLocationTracking",
+	"DisableMapUpdates",
+	"DisableFeedback",
+	"DisableTailoredExperiences",
+	"DisableAdvertisingID",
+	"DisableCortana",
+	"DisableErrorReporting",
+	"SetP2PUpdateLocal",
+	"DisableWAPPush",
+	"DisableNewsFeed",
+	"SetUACLow",
+	"DisableSMB1",
+	"SetCurrentNetworkPrivate",
+	"SetUnknownNetworksPrivate",
+	"DisableNetDevicesAutoInst",
+	"EnableF8BootMenu",
+	"DisableMeltdownCompatFlag",
+	"EnableUpdateMSRT",
+	"EnableUpdateDriver",
+	"DisableUpdateRestart",
+	"DisableHomeGroups",
+	"EnableSharedExperiences",
+	"DisableRemoteAssistance",
+	"EnableRemoteDesktop",
+	"DisableAutoplay",
+	"DisableAutorun",
+	"DisableStorageSense",
+	"DisableDefragmentation",
+	"EnableIndexing",
+	"SetBIOSTimeUTC",
+	"DisableHibernation",
+	"EnableSleepButton",
+	"DisableSleepTimeout",
+	"DisableFastStartup",
+	"DISGaming",
+	"PowerThrottlingOff",
+	"Win32PrioritySeparation",
+	"DisableAERO",
+	"BSODdetails",
+	"Disablelivetiles",
+	"wallpaperquality",
+	"DisableShistory",
+	"Disableshortcutword",
+	"DisableMouseKKS",
+	"DisableTransparency",
+	"TurnOffSafeSearch",
+	"DisableCloudSearch",
+	"DisableDeviceHistory",
+	"DisableSearchHistroy",
+	"RemoveMeet",
+	"EnableActionCenter",
+	"EnableLockScreen",
+	"EnableLockScreenRS1",
+	"DisableStickyKeys",
+	"ShowTaskManagerDetails",
+	"ShowFileOperationsDetails",
+	"DisableFileDeleteConfirm",
+	"HideTaskbarSearch",
+	"HideTaskView",
+	"HideTaskbarPeopleIcon",
+	"DisableSearchAppInStore",
+	"DisableNewAppPrompt",
+	"SetVisualFXPerformance",
+	"EnableNumlock",
+	"EnableDarkMode",
+	"ShowKnownExtensions",
+	"HideHiddenFiles",
+	"HideSyncNotifications",
+	"HideRecentShortcuts",
+	"SetExplorerThisPC",
+	"ShowThisPCOnDesktop",
+	"ShowUserFolderOnDesktop",
+	"Hide3DObjectsFromThisPC",
+	"Hide3DObjectsFromExplorer",
+	"EnableThumbnails",
+	"EnableThumbsDB",
+	"UninstallInternetExplorer",
+	"UninstallWorkFolders",
+	"UninstallLinuxSubsystem",
+	"SetPhotoViewerAssociation",
+	"AddPhotoViewerOpenWith",
+	"InstallPDFPrinter",
+	"SVCHostTweak",
+	"UnpinStartMenuTiles",
+	"QOL",
+	"FullscreenOptimizationFIX",
+	"GameOptimizationFIX",
+	"ApplyPCOptimizations",
+	"RawMouseInput",
+	"DetectnApplyMouseFIX",
+	"DisableHPET",
+	"EnableGameMode",
+	"EnableHAGS",
+	"DisableCoreParking",
+	"DisableDMA",
+	"DisablePKM",
+	"DisallowDIP",
+	"UseBigM",
+	"ForceContiguousM",
+	"DecreaseMKBuffer",
+	"StophighDPC",
+	"NvidiaTweaks",
+	"AMDGPUTweaks",
+	"NetworkAdapterRSS",
+	"NetworkOptimizations",
+	"DisableNagle",
+	"Ativar-Servicos",
+	"RemoveEdit3D",
+	"FixURLext",
+	"UltimateCleaner",
+	"Clear-PSHistory",
+	"Finished"
 )
 
 #########
@@ -215,30 +215,28 @@ $tweaks = @(
 #########
 
 function Show-Choco-Menu {
-    param(
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [string]$Title,
+	param(
+		[Parameter(Mandatory)]
+		[ValidateNotNullOrEmpty()]
+		[string]$Title,
     
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [string]$ChocoInstall
-    )
+		[Parameter(Mandatory)]
+		[ValidateNotNullOrEmpty()]
+		[string]$ChocoInstall
+	)
    
- do
- {
-    Clear-Host
-   	Escrever-Colorido "================ $Title ================" "Azul"
-    Escrever-Colorido "Y: Press 'Y' to do this." "Azul"
-    Escrever-Colorido "2: Press 'N' to skip this." "Azul"
+ do {
+		Clear-Host
+		Escrever-Colorido "================ $Title ================" "Azul"
+		Escrever-Colorido "Y: Press 'Y' to do this." "Azul"
+		Escrever-Colorido "2: Press 'N' to skip this." "Azul"
 		Escrever-Colorido "Q: Press 'Q' to stop the entire script." "Azul"
-    $selection = Read-Host "Please make a selection"
-    switch ($selection)
-    {
-    'y' { choco install $ChocoInstall -y }
-    'n' { Break }
-    'q' { Exit  }
-    }
+		$selection = Read-Host "Please make a selection"
+		switch ($selection) {
+			'y' { choco install $ChocoInstall -y }
+			'n' { Break }
+			'q' { Exit }
+		}
  }
  until ($selection -match "y" -or $selection -match "n" -or $selection -match "q")
 }
@@ -257,106 +255,104 @@ Function SlowUpdatesTweaks {
 }
 
 #Utilizing Clolors For Better Warning Messages!
-function Write-ColorOutput
-{
-    [CmdletBinding()]
-    Param(
-         [Parameter(Mandatory=$False,Position=1,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)][Object] $Object,
-         [Parameter(Mandatory=$False,Position=2,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)][ConsoleColor] $ForegroundColor,
-         [Parameter(Mandatory=$False,Position=3,ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)][ConsoleColor] $BackgroundColor,
-         [Switch]$NoNewline
-    )    
+function Write-ColorOutput {
+	[CmdletBinding()]
+	Param(
+		[Parameter(Mandatory = $False, Position = 1, ValueFromPipeline = $True, ValueFromPipelinebyPropertyName = $True)][Object] $Object,
+		[Parameter(Mandatory = $False, Position = 2, ValueFromPipeline = $True, ValueFromPipelinebyPropertyName = $True)][ConsoleColor] $ForegroundColor,
+		[Parameter(Mandatory = $False, Position = 3, ValueFromPipeline = $True, ValueFromPipelinebyPropertyName = $True)][ConsoleColor] $BackgroundColor,
+		[Switch]$NoNewline
+	)    
 
-    # Save previous colors
-    $previousForegroundColor = $host.UI.RawUI.ForegroundColor
-    $previousBackgroundColor = $host.UI.RawUI.BackgroundColor
+	# Save previous colors
+	$previousForegroundColor = $host.UI.RawUI.ForegroundColor
+	$previousBackgroundColor = $host.UI.RawUI.BackgroundColor
 
-    # Set BackgroundColor if available
-    if($BackgroundColor -ne $null)
-    { 
-       $host.UI.RawUI.BackgroundColor = $BackgroundColor
-    }
+	# Set BackgroundColor if available
+	if ($BackgroundColor -ne $null) { 
+		$host.UI.RawUI.BackgroundColor = $BackgroundColor
+	}
 
-    # Set $ForegroundColor if available
-    if($ForegroundColor -ne $null)
-    {
-        $host.UI.RawUI.ForegroundColor = $ForegroundColor
-    }
+	# Set $ForegroundColor if available
+	if ($ForegroundColor -ne $null) {
+		$host.UI.RawUI.ForegroundColor = $ForegroundColor
+	}
 
-    # Always write (if we want just a NewLine)
-    if($null -eq $Object)
-    {
-        $Object = ""
-    }
+	# Always write (if we want just a NewLine)
+	if ($null -eq $Object) {
+		$Object = ""
+	}
 
-    if($NoNewline)
-    {
-        [Console]::Write($Object)
-    }
-    else
-    {
-        Write-Output $Object
-    }
+	if ($NoNewline) {
+		[Console]::Write($Object)
+	}
+	else {
+		Write-Output $Object
+	}
 
-    # Restore previous colors
-    $host.UI.RawUI.ForegroundColor = $previousForegroundColor
-    $host.UI.RawUI.BackgroundColor = $previousBackgroundColor
+	# Restore previous colors
+	$host.UI.RawUI.ForegroundColor = $previousForegroundColor
+	$host.UI.RawUI.BackgroundColor = $previousBackgroundColor
 }
 
 Function InstallTitusProgs {
 
-    Write-Output "Verificando e instalando Chocolatey, se necessario..."
+	Write-Output "Verificando e instalando Chocolatey, se necessario..."
     
-    # Verifica se o Chocolatey está instalado
-    if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-        try {
-            Set-ExecutionPolicy Bypass -Scope Process -Force
-            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-            Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-            Write-Output "Chocolatey instalado com sucesso."
-        } catch {
-            Write-Output "Erro ao instalar o Chocolatey: $_"
-            return
-        }
-    } else {
-        Write-Output "Chocolatey ja esta instalado."
-    }
+	# Verifica se o Chocolatey está instalado
+	if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+		try {
+			Set-ExecutionPolicy Bypass -Scope Process -Force
+			[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+			Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+			Write-Output "Chocolatey instalado com sucesso."
+		}
+		catch {
+			Write-Output "Erro ao instalar o Chocolatey: $_"
+			return
+		}
+	}
+ else {
+		Write-Output "Chocolatey ja esta instalado."
+	}
     
-    # Instala o pacote chocolatey-core.extension
-    try {
-        choco install chocolatey-core.extension -y
-    } catch {
-        Write-Output "Erro ao instalar chocolatey-core.extension: $_"
-    }
+	# Instala o pacote chocolatey-core.extension
+	try {
+		choco install chocolatey-core.extension -y
+	}
+ catch {
+		Write-Output "Erro ao instalar chocolatey-core.extension: $_"
+	}
     
-    Write-Output "Executando O&O ShutUp10 com as configuracoes recomendadas..."
+	Write-Output "Executando O&O ShutUp10 com as configuracoes recomendadas..."
     
-    # Importa módulo para transferência de arquivos
-    Import-Module BitsTransfer
+	# Importa módulo para transferência de arquivos
+	Import-Module BitsTransfer
     
-    try {
-        # Define URLs dos arquivos
-        $configUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/ooshutup10.cfg"
-        $exeUrl = "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"
+	try {
+		# Define URLs dos arquivos
+		$configUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/ooshutup10.cfg"
+		$exeUrl = "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"
         
-        # Define caminhos locais
-        $configFile = "$env:TEMP\ooshutup10.cfg"
-        $exeFile = "$env:TEMP\OOSU10.exe"
+		# Define caminhos locais
+		$configFile = "$env:TEMP\ooshutup10.cfg"
+		$exeFile = "$env:TEMP\OOSU10.exe"
         
-        # Baixa os arquivos para o diretório temporário
-        Start-BitsTransfer -Source $configUrl -Destination $configFile
-        Start-BitsTransfer -Source $exeUrl -Destination $exeFile
+		# Baixa os arquivos para o diretório temporário
+		Start-BitsTransfer -Source $configUrl -Destination $configFile
+		Start-BitsTransfer -Source $exeUrl -Destination $exeFile
         
-        # Executa o O&O ShutUp10 com a configuração baixada
-        & $exeFile $configFile /quiet
-        Start-Sleep -Seconds 10
+		# Executa o O&O ShutUp10 com a configuração baixada
+		& $exeFile $configFile /quiet
+		Start-Sleep -Seconds 10
         
-        # Remove os arquivos baixados
-        Remove-Item -Path $configFile, $exeFile -Force -ErrorAction Stop
-        Write-Output "O&O ShutUp10 executado e arquivos temporarios removidos."
-    } catch {
-        Write-Output "Erro ao executar O&O ShutUp10: $_"
-    }
+		# Remove os arquivos baixados
+		Remove-Item -Path $configFile, $exeFile -Force -ErrorAction Stop
+		Write-Output "O&O ShutUp10 executado e arquivos temporarios removidos."
+	}
+ catch {
+		Write-Output "Erro ao executar O&O ShutUp10: $_"
+	}
 }
 
 # Ccleaner
@@ -365,65 +361,66 @@ Function Execute-BatchScript {
 	Escrever-Colorido "" "Azul"
 	Escrever-Colorido "Realizando limpeza de cache dos navegadores" "Verde"
 
-  $url = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/script-ccleaner.bat"
-  $localPath = "$env:temp\script-ccleaner.bat"
+	$url = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/script-ccleaner.bat"
+	$localPath = "$env:temp\script-ccleaner.bat"
   
-  # Baixa o arquivo .bat
-  Invoke-WebRequest -Uri $url -OutFile $localPath
+	# Baixa o arquivo .bat
+	Invoke-WebRequest -Uri $url -OutFile $localPath
   
-  # Executa o script .bat
-  Start-Process -FilePath $localPath -ArgumentList "/c $localPath" -Wait
+	# Executa o script .bat
+	Start-Process -FilePath $localPath -ArgumentList "/c $localPath" -Wait
 
-  # Opcional: Remove o arquivo .bat após execução
-  Remove-Item -Path $localPath -Force
-  Write-Output "Script .bat executado e removido com sucesso."
+	# Opcional: Remove o arquivo .bat após execução
+	Remove-Item -Path $localPath -Force
+	Write-Output "Script .bat executado e removido com sucesso."
 }
 
 # Set ram value on Threshold no regedit
 function Set-RamThreshold {
-  # Obtém a quantidade de memória RAM instalada (em GB)
-  $ramGB = [math]::round((Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
+	# Obtém a quantidade de memória RAM instalada (em GB)
+	$ramGB = [math]::round((Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
 
-  # Define o valor correto do registro com base na quantidade de RAM
-  $value = switch ($ramGB) {
-      4   { 0x400000 }
-      6   { 0x600000 }
-      8   { 0x800000 }
-      12  { 0xC00000 }
-      16  { 0x1000000 }
-      19  { 0x1300000 }
-      20  { 0x1400000 }
-      24  { 0x1800000 }
-      32  { 0x2000000 }
-      64  { 0x4000000 }
-      128  { 0x8000000 }
-      default {
-          Escrever-Colorido "Memoria RAM nao suportada para esta configuracao." "Vermelho"
-          exit
-      }
-  }
+	# Define o valor correto do registro com base na quantidade de RAM
+	$value = switch ($ramGB) {
+		4 { 0x400000 }
+		6 { 0x600000 }
+		8 { 0x800000 }
+		12 { 0xC00000 }
+		16 { 0x1000000 }
+		19 { 0x1300000 }
+		20 { 0x1400000 }
+		24 { 0x1800000 }
+		32 { 0x2000000 }
+		64 { 0x4000000 }
+		128 { 0x8000000 }
+		default {
+			Escrever-Colorido "Memoria RAM nao suportada para esta configuracao." "Vermelho"
+			exit
+		}
+	}
 
-  # Caminho do registro
-  $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control"
-  $regName = "SvcHostSplitThresholdInKB"
+	# Caminho do registro
+	$regPath = "HKLM:\SYSTEM\CurrentControlSet\Control"
+	$regName = "SvcHostSplitThresholdInKB"
 
-  # Converte para decimal antes de gravar no registro
-  $value = [int]$value
+	# Converte para decimal antes de gravar no registro
+	$value = [int]$value
 
-  # Verifica se a chave já existe
-  if (-not (Get-ItemProperty -Path "$regPath" -Name "$regName" -ErrorAction SilentlyContinue)) {
-      # Se não existir, cria a propriedade no registro
-      New-ItemProperty -Path "$regPath" -Name "$regName" -Value $value -PropertyType DWord | Out-Null
-      Escrever-Colorido "Registro criado com o valor correto: 0x$($value.ToString("X"))" "Verde"
-  } else {
-      # Se já existir, apenas atualiza o valor
-      Set-ItemProperty -Path "$regPath" -Name "$regName" -Value $value
-      Escrever-Colorido "Registro atualizado com o valor correto: 0x$($value.ToString("X"))" "Verde"
-  }
+	# Verifica se a chave já existe
+	if (-not (Get-ItemProperty -Path "$regPath" -Name "$regName" -ErrorAction SilentlyContinue)) {
+		# Se não existir, cria a propriedade no registro
+		New-ItemProperty -Path "$regPath" -Name "$regName" -Value $value -PropertyType DWord | Out-Null
+		Escrever-Colorido "Registro criado com o valor correto: 0x$($value.ToString("X"))" "Verde"
+	}
+ else {
+		# Se já existir, apenas atualiza o valor
+		Set-ItemProperty -Path "$regPath" -Name "$regName" -Value $value
+		Escrever-Colorido "Registro atualizado com o valor correto: 0x$($value.ToString("X"))" "Verde"
+	}
 
-  # Verifica o valor após a modificação
-  $newValue = Get-ItemProperty -Path "$regPath" -Name "$regName"
-  Escrever-Colorido "Novo valor do registro: 0x$($newValue.$regName.ToString("X"))" "Verde"
+	# Verifica o valor após a modificação
+	$newValue = Get-ItemProperty -Path "$regPath" -Name "$regName"
+	Escrever-Colorido "Novo valor do registro: 0x$($newValue.$regName.ToString("X"))" "Verde"
 }
 
 # Set virtual memory on regedit
@@ -461,54 +458,58 @@ function Set-MemoriaVirtual-Registry {
 
 ## Download and extract ISLC
 function DownloadAndExtractISLC {
-  # Definir o link de download e o caminho do arquivo
-  $downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
-  $downloadPath = "C:\ISLC_v1.0.3.4.exe"
-  $extractPath = "C:\"
-  $newFolderName = "ISLC"
+	# Definir o link de download e o caminho do arquivo
+	$downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
+	$downloadPath = "C:\ISLC_v1.0.3.4.exe"
+	$extractPath = "C:\"
+	$newFolderName = "ISLC"
 
-  # Baixar o arquivo executável
-  Escrever-Colorido "Iniciando o download do arquivo..." "Verde"
-  try {
-      Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath
-      Escrever-Colorido "Arquivo baixado com sucesso!" "Verde"
-  } catch {
-      Escrever-Colorido "Erro ao baixar o arquivo: $_" "Vermelho"
-      return
-  }
+	# Baixar o arquivo executável
+	Escrever-Colorido "Iniciando o download do arquivo..." "Verde"
+	try {
+		Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath
+		Escrever-Colorido "Arquivo baixado com sucesso!" "Verde"
+	}
+ catch {
+		Escrever-Colorido "Erro ao baixar o arquivo: $_" "Vermelho"
+		return
+	}
 
-  # Verificar se a pasta de extração existe, caso contrário, criar
-  if (-Not (Test-Path -Path $extractPath)) {
-      Escrever-Colorido "Criando a pasta de extração..." "Verde"
-      New-Item -ItemType Directory -Path $extractPath
-  }
+	# Verificar se a pasta de extração existe, caso contrário, criar
+	if (-Not (Test-Path -Path $extractPath)) {
+		Escrever-Colorido "Criando a pasta de extração..." "Verde"
+		New-Item -ItemType Directory -Path $extractPath
+	}
 
-  # Caminho do 7z.exe
-  $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"  # Altere conforme o local do seu 7z.exe
+	# Caminho do 7z.exe
+	$sevenZipPath = "C:\Program Files\7-Zip\7z.exe"  # Altere conforme o local do seu 7z.exe
 
-  # Verificar se o 7z está instalado
-  if (Test-Path -Path $sevenZipPath) {
-      Escrever-Colorido "Extraindo o conteudo do arquivo usando 7-Zip..." "Verde"
-      try {
-          # Extrair diretamente na pasta ISLC
-          & $sevenZipPath x $downloadPath -o"$extractPath" -y
-          Escrever-Colorido "Arquivo extraido com sucesso para $extractPath" "Verde"
+	# Verificar se o 7z está instalado
+	if (Test-Path -Path $sevenZipPath) {
+		Escrever-Colorido "Extraindo o conteudo do arquivo usando 7-Zip..." "Verde"
+		try {
+			# Extrair diretamente na pasta ISLC
+			& $sevenZipPath x $downloadPath -o"$extractPath" -y
+			Escrever-Colorido "Arquivo extraido com sucesso para $extractPath" "Verde"
           
-          # Renomear a pasta extraída para MEM
-          $extractedFolderPath = "$extractPath\ISLC v1.0.3.4"
+			# Renomear a pasta extraída para MEM
+			$extractedFolderPath = "$extractPath\ISLC v1.0.3.4"
 
-          if (Test-Path -Path $extractedFolderPath) {
-              Rename-Item -Path $extractedFolderPath -NewName $newFolderName
-              Escrever-Colorido "Pasta renomeada para '$newFolderName'." "Verde"
-          } else {
-              Escrever-Colorido "Pasta extraída não encontrada." "Vermelho"
-          }
-      } catch {
-          Escrever-Colorido "Erro ao extrair o arquivo: $_" "Vermelho"
-      }
-  } else {
-      Escrever-Colorido "7-Zip não encontrado no caminho especificado." "Amarelo"
-  }
+			if (Test-Path -Path $extractedFolderPath) {
+				Rename-Item -Path $extractedFolderPath -NewName $newFolderName
+				Escrever-Colorido "Pasta renomeada para '$newFolderName'." "Verde"
+			}
+			else {
+				Escrever-Colorido "Pasta extraída não encontrada." "Vermelho"
+			}
+		}
+		catch {
+			Escrever-Colorido "Erro ao extrair o arquivo: $_" "Vermelho"
+		}
+	}
+ else {
+		Escrever-Colorido "7-Zip não encontrado no caminho especificado." "Amarelo"
+	}
 
 	Remove-Item -Path $downloadPath -Force
 	Escrever-Colorido "Excluindo $downloadPath" "Verde"
@@ -537,37 +538,39 @@ function DownloadAndExtractISLC {
 
 # Update ISLC Config
 function UpdateISLCConfig {
-  # Caminho para o arquivo de configuração (ajuste conforme necessário)
-  $configFilePath = "C:\ISLC\Intelligent standby list cleaner ISLC.exe.Config"
+	# Caminho para o arquivo de configuração (ajuste conforme necessário)
+	$configFilePath = "C:\ISLC\Intelligent standby list cleaner ISLC.exe.Config"
 
-  # Verificar se o arquivo de configuração existe
-  if (Test-Path -Path $configFilePath) {
-      Escrever-Colorido "Arquivo de configuracao encontrado. Atualizando..." "Verde"
+	# Verificar se o arquivo de configuração existe
+	if (Test-Path -Path $configFilePath) {
+		Escrever-Colorido "Arquivo de configuracao encontrado. Atualizando..." "Verde"
 
-      try {
-          # Carregar o conteúdo do arquivo XML
-          [xml]$configXml = Get-Content -Path $configFilePath -Raw
+		try {
+			# Carregar o conteúdo do arquivo XML
+			[xml]$configXml = Get-Content -Path $configFilePath -Raw
 
-          # Obter a quantidade total de memória RAM do sistema (em MB)
-          $totalMemory = (Get-WmiObject Win32_ComputerSystem).TotalPhysicalMemory / 1MB
-          $freeMemory = [math]::Round($totalMemory / 2)  # Calcular metade da memória
+			# Obter a quantidade total de memória RAM do sistema (em MB)
+			$totalMemory = (Get-WmiObject Win32_ComputerSystem).TotalPhysicalMemory / 1MB
+			$freeMemory = [math]::Round($totalMemory / 2)  # Calcular metade da memória
 
-          # Alterar as configurações conforme solicitado
-          $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Free memory" } | ForEach-Object { $_.value = "$freeMemory" }
-          $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Start minimized" } | ForEach-Object { $_.value = "True" }
-          $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Wanted timer" } | ForEach-Object { $_.value = "0.50" }
-          $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Custom timer" } | ForEach-Object { $_.value = "True" }
-          $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "TaskScheduler" } | ForEach-Object { $_.value = "True" }
+			# Alterar as configurações conforme solicitado
+			$configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Free memory" } | ForEach-Object { $_.value = "$freeMemory" }
+			$configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Start minimized" } | ForEach-Object { $_.value = "True" }
+			$configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Wanted timer" } | ForEach-Object { $_.value = "0.50" }
+			$configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Custom timer" } | ForEach-Object { $_.value = "True" }
+			$configXml.configuration.appSettings.add | Where-Object { $_.key -eq "TaskScheduler" } | ForEach-Object { $_.value = "True" }
 
-          # Salvar as alterações de volta no arquivo XML
-          $configXml.Save($configFilePath)
-          Escrever-Colorido "Arquivo de configuracao atualizado com sucesso!" "Verde"
-      } catch {
-          Escrever-Colorido "Erro ao atualizar o arquivo de configuracao: $_" "Vermelho"
-      }
-  } else {
-      Escrever-Colorido "Arquivo de configuracao nao encontrado em $configFilePath" "Amarelo"
-  }
+			# Salvar as alterações de volta no arquivo XML
+			$configXml.Save($configFilePath)
+			Escrever-Colorido "Arquivo de configuracao atualizado com sucesso!" "Verde"
+		}
+		catch {
+			Escrever-Colorido "Erro ao atualizar o arquivo de configuracao: $_" "Vermelho"
+		}
+	}
+ else {
+		Escrever-Colorido "Arquivo de configuracao nao encontrado em $configFilePath" "Amarelo"
+	}
 }
 
 function check-Windows {
@@ -575,18 +578,19 @@ function check-Windows {
 	$activationStatus = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object { $_.PartialProductKey }).LicenseStatus
 
 	if ($activationStatus -eq 1) {
-			Clear-Host
-			Escrever-Colorido "" "Azul"
-    	Escrever-Colorido "O Windows está ativado." "Azul"
-	} else {
-			Clear-Host
-			Escrever-Colorido "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" "Vermelho"
-    	Escrever-Colorido "| O Windows NÃO está ativado. Executando o comando de ativação. |" "Vermelho"
-			Escrever-Colorido "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" "Vermelho"
-    	# Executa o comando de ativação
-    	irm https://get.activated.win | iex
+		Clear-Host
+		Escrever-Colorido "" "Azul"
+		Escrever-Colorido "O Windows está ativado." "Azul"
+	}
+ else {
+		Clear-Host
+		Escrever-Colorido "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" "Vermelho"
+		Escrever-Colorido "| O Windows NÃO está ativado. Executando o comando de ativação. |" "Vermelho"
+		Escrever-Colorido "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" "Vermelho"
+		# Executa o comando de ativação
+		irm https://get.activated.win | iex
 
-}
+	}
 
 	
 }
@@ -600,19 +604,19 @@ Function Install7Zip {
 }
 
 Function InstallChocoUpdates {
-        Clear-Host
+	Clear-Host
 	choco upgrade all -y
 }
 
 #Apply PC Optimizations
 Function ApplyPCOptimizations {
-        Write-Output "Aplicando otimizacoes..."
+	Write-Output "Aplicando otimizacoes..."
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "SystemResponsiveness" -Type DWord -Value 0
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 10
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "AlwaysOn" -Type DWord -Value 1
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "LazyMode" -Type DWord -Value 1
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "LazyModeTimeout" -Type DWord -Value 25000
- }
+}
 
 #Enable or Disable and remove xbox related apps
 Function askXBOX {
@@ -621,111 +625,114 @@ Function askXBOX {
 	$isWin11 = $winVer.Major -eq 10 -and $winVer.Build -ge 22000  # Windows 11 começa no build 22000
 
 	do {
-		  Clear-Host
-			Escrever-Colorido "" "Azul"
-			Escrever-Colorido "================ Desabilitar os recursos do XBOX e todos os aplicativos relacionados? ================" "Azul"
-			Escrever-Colorido "" "Azul"
-			Escrever-Colorido "AVISO: REMOVER OS APLICATIVOS DO XBOX fara com que o Win+G nao funcione!" "Vermelho"
-			Escrever-Colorido "Pressione 'D' para desabilitar os recursos do XBOX." "Azul"
-			Escrever-Colorido "Pressione 'H' para habilitar os recursos do XBOX." "Azul"
-			Escrever-Colorido "Pressione 'P' para pular isso." "Azul"
+		Clear-Host
+		Escrever-Colorido "" "Azul"
+		Escrever-Colorido "================ Desabilitar os recursos do XBOX e todos os aplicativos relacionados? ================" "Azul"
+		Escrever-Colorido "" "Azul"
+		Escrever-Colorido "AVISO: REMOVER OS APLICATIVOS DO XBOX fara com que o Win+G nao funcione!" "Vermelho"
+		Escrever-Colorido "Pressione 'D' para desabilitar os recursos do XBOX." "Azul"
+		Escrever-Colorido "Pressione 'H' para habilitar os recursos do XBOX." "Azul"
+		Escrever-Colorido "Pressione 'P' para pular isso." "Azul"
 			
-			$selection = Read-Host "Por favor, escolha"
+		$selection = Read-Host "Por favor, escolha"
 
 	} until ($selection -match "(?i)^(d|h|p)$") # Aceita letras maiúsculas ou minúsculas
 
-	if ($selection -match "(?i)^d$") {  # Desabilitar Xbox
-			try {
-					$errpref = $ErrorActionPreference
-					$ErrorActionPreference = "SilentlyContinue"
+	if ($selection -match "(?i)^d$") {
+  # Desabilitar Xbox
+		try {
+			$errpref = $ErrorActionPreference
+			$ErrorActionPreference = "SilentlyContinue"
 
-					Write-Output "Desativando recursos do Xbox..."
+			Write-Output "Desativando recursos do Xbox..."
 
-					$xboxApps = @(
-							"Microsoft.XboxApp",
-							"Microsoft.XboxIdentityProvider",
-							"Microsoft.XboxSpeechToTextOverlay",
-							"Microsoft.XboxGameOverlay",
-							"Microsoft.Xbox.TCUI"
-					)
+			$xboxApps = @(
+				"Microsoft.XboxApp",
+				"Microsoft.XboxIdentityProvider",
+				"Microsoft.XboxSpeechToTextOverlay",
+				"Microsoft.XboxGameOverlay",
+				"Microsoft.Xbox.TCUI"
+			)
 
-					# Windows 11 tem esse aplicativo adicional
-					if ($isWin11) {
-							$xboxApps += "Microsoft.XboxGamingOverlay"
-					}
-
-					foreach ($app in $xboxApps) {
-							$pkg = Get-AppxPackage $app
-							if ($pkg) {
-									$pkg | Remove-AppxPackage
-							}
-					}
-
-					Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 0
-
-					if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR")) {
-							New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Force | Out-Null
-					}
-
-					Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
+			# Windows 11 tem esse aplicativo adicional
+			if ($isWin11) {
+				$xboxApps += "Microsoft.XboxGamingOverlay"
 			}
-			finally {
-					$ErrorActionPreference = $errpref  # Restaura a preferência de erro
+
+			foreach ($app in $xboxApps) {
+				$pkg = Get-AppxPackage $app
+				if ($pkg) {
+					$pkg | Remove-AppxPackage
+				}
 			}
+
+			Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 0
+
+			if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR")) {
+				New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Force | Out-Null
+			}
+
+			Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
+		}
+		finally {
+			$ErrorActionPreference = $errpref  # Restaura a preferência de erro
+		}
 	}
 
-	elseif ($selection -match "(?i)^h$") {  # Habilitar Xbox
-			try {
-					$errpref = $ErrorActionPreference
-					$ErrorActionPreference = "SilentlyContinue"
+	elseif ($selection -match "(?i)^h$") {
+  # Habilitar Xbox
+		try {
+			$errpref = $ErrorActionPreference
+			$ErrorActionPreference = "SilentlyContinue"
 
-					Write-Output "Habilitando recursos do Xbox..."
+			Write-Output "Habilitando recursos do Xbox..."
 
-					$xboxApps = @(
-							"Microsoft.XboxApp",
-							"Microsoft.XboxIdentityProvider",
-							"Microsoft.XboxSpeechToTextOverlay",
-							"Microsoft.XboxGameOverlay",
-							"Microsoft.Xbox.TCUI"
-					)
+			$xboxApps = @(
+				"Microsoft.XboxApp",
+				"Microsoft.XboxIdentityProvider",
+				"Microsoft.XboxSpeechToTextOverlay",
+				"Microsoft.XboxGameOverlay",
+				"Microsoft.Xbox.TCUI"
+			)
 
-					if ($isWin11) {
-							$xboxApps += "Microsoft.XboxGamingOverlay"
-					}
-
-					foreach ($app in $xboxApps) {
-							$pkg = Get-AppxPackage -AllUsers $app
-							if ($pkg) {
-									$pkg | ForEach-Object {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-							}
-					}
-
-					Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 1
-					Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -ErrorAction SilentlyContinue
+			if ($isWin11) {
+				$xboxApps += "Microsoft.XboxGamingOverlay"
 			}
-			finally {
-					$ErrorActionPreference = $errpref  # Restaura a preferência de erro
+
+			foreach ($app in $xboxApps) {
+				$pkg = Get-AppxPackage -AllUsers $app
+				if ($pkg) {
+					$pkg | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml" }
+				}
 			}
+
+			Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 1
+			Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -ErrorAction SilentlyContinue
+		}
+		finally {
+			$ErrorActionPreference = $errpref  # Restaura a preferência de erro
+		}
 	}
 }
 
 #Enable Or Disable MSI Mode For Supported Cards, WARNING ENABLING MSI MODE MIGHT CRUSH YOUR SYSTEM! IF IT HAPPENS PLEASE RESTORE LAST WORKING SYSTEM RESTORE POINT AND DON'T ENABLE MSI MODE ON THIS SYSTEM AGAIN!
 Function MSIMode {
-$errpref = $ErrorActionPreference #save actual preference
-$ErrorActionPreference = "silentlycontinue"
-$GPUIDS = @(
+	$errpref = $ErrorActionPreference #save actual preference
+	$ErrorActionPreference = "silentlycontinue"
+	$GPUIDS = @(
 (Get-CimInstance -ClassName Win32_VideoController | Select-Object -ExpandProperty PNPDeviceID | Select-Object -Skip 2 | Format-List | Out-String).Trim()
-    )
-    foreach ($GPUID in $GPUIDS) {
-$CheckDeviceDes = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID").DeviceDesc
-    } if(($CheckDeviceDes -like "*GTX*") -or ($CheckDeviceDes -like "*RTX*") -or ($CheckDeviceDes -like "*AMD*")) {
+	)
+	foreach ($GPUID in $GPUIDS) {
+		$CheckDeviceDes = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID").DeviceDesc
+	} if (($CheckDeviceDes -like "*GTX*") -or ($CheckDeviceDes -like "*RTX*") -or ($CheckDeviceDes -like "*AMD*")) {
   'GTX/RTX/AMD Compatible Card Found! Enabling MSI Mode...'
   New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties\" -Force | Out-Null
   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties\" -Name "MSISupported" -Type DWord -Value 1
-} else {
+	}
+ else {
   'No GTX/RTX/AMD Compatible Card Found! Skiping...'
-}
-$ErrorActionPreference = $errpref #restore previous preference	
+	}
+	$ErrorActionPreference = $errpref #restore previous preference	
 }
 
 ##########
@@ -739,7 +746,7 @@ $ErrorActionPreference = $errpref #restore previous preference
 Function DisableTelemetry {
 	Write-Output "Disabling Telemetry..."
 	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
+	$ErrorActionPreference = "silentlycontinue"
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
@@ -749,23 +756,6 @@ Function DisableTelemetry {
 	Disable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\Consolidator" | Out-Null
 	Disable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" | Out-Null
 	Disable-ScheduledTask -TaskName "Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" | Out-Null
-	$ErrorActionPreference = $errpref #restore previous preference
-}
-
-# Enable Telemetry
-Function EnableTelemetry {
-	Write-Output "Enabling Telemetry..."
-	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 3
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 3
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -ErrorAction SilentlyContinue
-	Enable-ScheduledTask -TaskName "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" | Out-Null
-	Enable-ScheduledTask -TaskName "Microsoft\Windows\Application Experience\ProgramDataUpdater" | Out-Null
-	Enable-ScheduledTask -TaskName "Microsoft\Windows\Autochk\Proxy" | Out-Null
-	Enable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\Consolidator" | Out-Null
-	Enable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" | Out-Null
-	Enable-ScheduledTask -TaskName "Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" | Out-Null
 	$ErrorActionPreference = $errpref #restore previous preference
 }
 
@@ -784,18 +774,6 @@ Function DisableWiFiSense {
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config" -Name "WiFISenseAllowed" -Type Dword -Value 0
 }
 
-# Enable Wi-Fi Sense
-Function EnableWiFiSense {
-	Write-Output "Enabling Wi-Fi Sense..."
-	If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting")) {
-		New-Item -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Force | Out-Null
-	}
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Name "Value" -Type DWord -Value 1
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -Type DWord -Value 1
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config" -Name "AutoConnectAllowedOEM" -ErrorAction SilentlyContinue
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config" -Name "WiFISenseAllowed" -ErrorAction SilentlyContinue
-}
-
 # Disable SmartScreen Filter
 Function DisableSmartScreen {
 	Write-Output "Disabling SmartScreen Filter..."
@@ -804,13 +782,6 @@ Function DisableSmartScreen {
 		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter" -Force | Out-Null
 	}
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter" -Name "EnabledV9" -Type DWord -Value 0
-}
-
-# Enable SmartScreen Filter
-Function EnableSmartScreen {
-	Write-Output "Enabling SmartScreen Filter..."
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableSmartScreen" -ErrorAction SilentlyContinue
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter" -Name "EnabledV9" -ErrorAction SilentlyContinue
 }
 
 # Disable Web Search in Start Menu
@@ -822,14 +793,6 @@ Function DisableWebSearch {
 		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Force | Out-Null
 	}
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Name "DisableWebSearch" -Type DWord -Value 1
-}
-
-# Enable Web Search in Start Menu
-Function EnableWebSearch {
-	Write-Output "Enabling Bing Search in Start Menu..."
-	Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -ErrorAction SilentlyContinue
-	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "CortanaConsent" -Type DWord -Value 1
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Name "DisableWebSearch" -ErrorAction SilentlyContinue
 }
 
 # Disable Application suggestions and automatic installation
@@ -851,45 +814,12 @@ Function DisableAppSuggestions {
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1
 }
 
-# Enable Application suggestions and automatic installation
-Function EnableAppSuggestions {
-	Write-Output "Enabling Application suggestions..."
-	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "ContentDeliveryAllowed" -Type DWord -Value 1
-	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "OemPreInstalledAppsEnabled" -Type DWord -Value 1
-	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEnabled" -Type DWord -Value 1
-	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEverEnabled" -Type DWord -Value 1
-	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SilentInstalledAppsEnabled" -Type DWord -Value 1
-	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338388Enabled" -Type DWord -Value 1
-	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338389Enabled" -Type DWord -Value 1
-	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SystemPaneSuggestionsEnabled" -Type DWord -Value 1
-	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338387Enabled" -ErrorAction SilentlyContinue
-	Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353698Enabled" -ErrorAction SilentlyContinue
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -ErrorAction SilentlyContinue
-}
-
 # Disable Activity History feed in Task View - Note: The checkbox "Let Windows collect my activities from this PC" remains checked even when the function is disabled
 Function DisableActivityHistory {
 	Write-Output "Disabling Activity History..."
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 0
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0
-}
-
-# Enable Activity History feed in Task View
-Function EnableActivityHistory {
-	Write-Output "Enabling Activity History..."
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -ErrorAction SilentlyContinue
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -ErrorAction SilentlyContinue
-	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -ErrorAction SilentlyContinue
-}
-
-# Disable Background application access - ie. if apps can download or update when they aren't used - Cortana is excluded as its inclusion breaks start menu search
-Function DisableBackgroundApps {
-	Write-Output "Disabling Background application access..."
-	Get-ChildItem -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" -Exclude "Microsoft.Windows.Cortana*" | ForEach-Object {
-		Set-ItemProperty -Path $_.PsPath -Name "Disabled" -Type DWord -Value 1
-		Set-ItemProperty -Path $_.PsPath -Name "DisabledByUser" -Type DWord -Value 1
-	}
 }
 
 # Enable Background application access
@@ -913,27 +843,10 @@ Function DisableLocationTracking {
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration" -Name "Status" -Type DWord -Value 0
 }
 
-# Enable Location Tracking
-Function EnableLocationTracking {
-	Write-Output "Enabling Location Tracking..."
-	If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location")) {
-		New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Force | Out-Null
-	}
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Type String -Value "Allow"
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWord -Value 1
-	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration" -Name "Status" -Type DWord -Value 1
-}
-
 # Disable automatic Maps updates
 Function DisableMapUpdates {
 	Write-Output "Disabling automatic Maps updates..."
 	Set-ItemProperty -Path "HKLM:\SYSTEM\Maps" -Name "AutoUpdateEnabled" -Type DWord -Value 0
-}
-
-# Enable automatic Maps updates
-Function EnableMapUpdates {
-	Write-Output "Enable automatic Maps updates..."
-	Remove-ItemProperty -Path "HKLM:\SYSTEM\Maps" -Name "AutoUpdateEnabled" -ErrorAction SilentlyContinue
 }
 
 # Disable Feedback
@@ -1041,7 +954,7 @@ Function EnableErrorReporting {
 Function SetP2PUpdateLocal {
 	Write-Output "Restricting Windows Update P2P only to local network..."
 	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
+	$ErrorActionPreference = "silentlycontinue"
 	If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config")) {
 		New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" | Out-Null
 	}
@@ -1073,13 +986,13 @@ Function EnableWAPPush {
 
 # Disable New Windows 10 21h1 News Feed
 Function DisableNewsFeed {
-        Write-Output "Disabling Windows 10 News and Interests Feed..."
+	Write-Output "Disabling Windows 10 News and Interests Feed..."
 	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds")) {
 		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Force | Out-Null
 	}
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type DWord -Value 0
 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2
-	}
+}
 
 ##########
 # Security Tweaks
@@ -1213,101 +1126,105 @@ Function askDefender {
 
 	# Verifica se o script está rodando como administrador
 	function Test-Admin {
-			$currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-			$principal = New-Object Security.Principal.WindowsPrincipal $currentUser
-			return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+		$currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
+		$principal = New-Object Security.Principal.WindowsPrincipal $currentUser
+		return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 	}
 
 	if (-not (Test-Admin)) {
-			Escrever-Colorido "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." "Vermelho"
-			break;
+		Escrever-Colorido "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." "Vermelho"
+		break;
 	}
 
 	do {
-			Clear-Host
-		  Escrever-Colorido "" "Azul"
-			Escrever-Colorido "================ Desabilitar o Microsoft Windows Defender? ================" "Azul"
-			Escrever-Colorido "" "Azul"
-			Escrever-Colorido "Pressione 'D' para desabilitar o Microsoft Windows Defender." "Azul"
-			Escrever-Colorido "Pressione 'H' para habilitar o Microsoft Windows Defender." "Azul"
-			Escrever-Colorido "Pressione 'P' para pular isso." "Azul"
+		Clear-Host
+		Escrever-Colorido "" "Azul"
+		Escrever-Colorido "================ Desabilitar o Microsoft Windows Defender? ================" "Azul"
+		Escrever-Colorido "" "Azul"
+		Escrever-Colorido "Pressione 'D' para desabilitar o Microsoft Windows Defender." "Azul"
+		Escrever-Colorido "Pressione 'H' para habilitar o Microsoft Windows Defender." "Azul"
+		Escrever-Colorido "Pressione 'P' para pular isso." "Azul"
 			
-			$selection = Read-Host "Por favor, escolha."
+		$selection = Read-Host "Por favor, escolha."
 
 	} until ($selection -match "(?i)^(d|h|p)$") # Entrada case-insensitive
 
-	if ($selection -match "(?i)^d$") {  # Desativar Windows Defender
-			Write-Output "Desativando Microsoft Windows Defender e processos relacionados..."
+	if ($selection -match "(?i)^d$") {
+  # Desativar Windows Defender
+		Write-Output "Desativando Microsoft Windows Defender e processos relacionados..."
 
-			# Desativa o Firewall
-			if (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile") {
-					Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Name "EnableFirewall" -Type DWord -Value 0
-			}
+		# Desativa o Firewall
+		if (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile") {
+			Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Name "EnableFirewall" -Type DWord -Value 0
+		}
 
-			# Desativa o Windows Defender
-			if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender")) {
-					New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Force | Out-Null
-			}
-			Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Type DWord -Value 1
+		# Desativa o Windows Defender
+		if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender")) {
+			New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Force | Out-Null
+		}
+		Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Type DWord -Value 1
 
-			# Remove do registro o lançamento do Defender na inicialização
-			if ($osVersion.Build -eq 14393) {
-					Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -ErrorAction SilentlyContinue
-			} elseif ($osVersion.Build -ge 15063) {
-					Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "SecurityHealth" -ErrorAction SilentlyContinue
-			}
+		# Remove do registro o lançamento do Defender na inicialização
+		if ($osVersion.Build -eq 14393) {
+			Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -ErrorAction SilentlyContinue
+		}
+		elseif ($osVersion.Build -ge 15063) {
+			Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "SecurityHealth" -ErrorAction SilentlyContinue
+		}
 
-			# Desativa envio de relatórios do Defender
-			if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet")) {
-					New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Force | Out-Null
-			}
-			Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SpynetReporting" -Type DWord -Value 0
-			Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SubmitSamplesConsent" -Type DWord -Value 2
+		# Desativa envio de relatórios do Defender
+		if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet")) {
+			New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Force | Out-Null
+		}
+		Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SpynetReporting" -Type DWord -Value 0
+		Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SubmitSamplesConsent" -Type DWord -Value 2
 
-			# Desativa proteção potencialmente indesejada (PUA)
-			Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "PUAProtection" -ErrorAction SilentlyContinue
+		# Desativa proteção potencialmente indesejada (PUA)
+		Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "PUAProtection" -ErrorAction SilentlyContinue
 
-			# Desativa pastas protegidas (Controlled Folder Access)
-			Set-MpPreference -EnableControlledFolderAccess Disabled -ErrorAction SilentlyContinue
+		# Desativa pastas protegidas (Controlled Folder Access)
+		Set-MpPreference -EnableControlledFolderAccess Disabled -ErrorAction SilentlyContinue
 
-			# Desativa tarefas do Defender
-			$tasks = @(
-					"\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance",
-					"\Microsoft\Windows\Windows Defender\Windows Defender Cleanup",
-					"\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan",
-					"\Microsoft\Windows\Windows Defender\Windows Defender Verification"
-			)
+		# Desativa tarefas do Defender
+		$tasks = @(
+			"\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance",
+			"\Microsoft\Windows\Windows Defender\Windows Defender Cleanup",
+			"\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan",
+			"\Microsoft\Windows\Windows Defender\Windows Defender Verification"
+		)
 
-			foreach ($task in $tasks) {
-					Disable-ScheduledTask -TaskName $task -ErrorAction SilentlyContinue
-			}
+		foreach ($task in $tasks) {
+			Disable-ScheduledTask -TaskName $task -ErrorAction SilentlyContinue
+		}
 	}
 
-	elseif ($selection -match "(?i)^h$") {  # Habilitar Windows Defender
-			Write-Output "Ativando Microsoft Windows Defender e processos relacionados..."
+	elseif ($selection -match "(?i)^h$") {
+  # Habilitar Windows Defender
+		Write-Output "Ativando Microsoft Windows Defender e processos relacionados..."
 
-			# Reativa o Firewall
-			Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Name "EnableFirewall" -ErrorAction SilentlyContinue
+		# Reativa o Firewall
+		Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Name "EnableFirewall" -ErrorAction SilentlyContinue
 
-			# Reativa o Windows Defender
-			Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -ErrorAction SilentlyContinue
+		# Reativa o Windows Defender
+		Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -ErrorAction SilentlyContinue
 
-			# Reativa inicialização do Defender
-			if ($osVersion.Build -eq 14393) {
-					Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -Type ExpandString -Value "`"%ProgramFiles%\Windows Defender\MSASCuiL.exe`""
-			} elseif ($osVersion.Build -ge 15063) {
-					Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "SecurityHealth" -Type ExpandString -Value "%windir%\system32\SecurityHealthSystray.exe"
-			}
+		# Reativa inicialização do Defender
+		if ($osVersion.Build -eq 14393) {
+			Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -Type ExpandString -Value "`"%ProgramFiles%\Windows Defender\MSASCuiL.exe`""
+		}
+		elseif ($osVersion.Build -ge 15063) {
+			Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "SecurityHealth" -Type ExpandString -Value "%windir%\system32\SecurityHealthSystray.exe"
+		}
 
-			# Remove restrições do Defender
-			Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SpynetReporting" -ErrorAction SilentlyContinue
-			Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SubmitSamplesConsent" -ErrorAction SilentlyContinue
-			Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "PUAProtection" -Type DWord -Value 1
+		# Remove restrições do Defender
+		Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SpynetReporting" -ErrorAction SilentlyContinue
+		Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SubmitSamplesConsent" -ErrorAction SilentlyContinue
+		Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "PUAProtection" -Type DWord -Value 1
 
-			# Reativa tarefas agendadas do Defender
-			foreach ($task in $tasks) {
-					Enable-ScheduledTask -TaskName $task -ErrorAction SilentlyContinue
-			}
+		# Reativa tarefas agendadas do Defender
+		foreach ($task in $tasks) {
+			Enable-ScheduledTask -TaskName $task -ErrorAction SilentlyContinue
+		}
 	}
 }
 
@@ -1405,7 +1322,7 @@ Function DisableMeltdownCompatFlag {
 Function DISGaming {
 	Write-Output "Stopping and disabling Un nessessary Services For Gaming..."
 	$errpref = $ErrorActionPreference #save actual preference
-    $ErrorActionPreference = "silentlycontinue"
+	$ErrorActionPreference = "silentlycontinue"
 	Stop-Service "wisvc" -WarningAction SilentlyContinue
 	Set-Service "wisvc" -StartupType Disabled
 	Stop-Service "MapsBroker" -WarningAction SilentlyContinue
@@ -1487,7 +1404,7 @@ Function EnableUpdateRestart {
 Function DisableHomeGroups {
 	Write-Output "Stopping and disabling Home Groups services..."
 	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
+	$ErrorActionPreference = "silentlycontinue"
 	Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue
 	Set-Service "HomeGroupListener" -StartupType Disabled
 	Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue
@@ -1499,11 +1416,11 @@ Function DisableHomeGroups {
 Function EnableHomeGroups {
 	Write-Output "Starting and enabling Home Groups services..."
 	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
+	$ErrorActionPreference = "silentlycontinue"
 	Set-Service "HomeGroupListener" -StartupType Manual
 	Set-Service "HomeGroupProvider" -StartupType Manual
 	Start-Service "HomeGroupProvider" -WarningAction SilentlyContinue
-		$ErrorActionPreference = $errpref #restore previous preference
+	$ErrorActionPreference = $errpref #restore previous preference
 }
 
 # Disable Shared Experiences - Not applicable to Server
@@ -1530,7 +1447,7 @@ Function EnableRemoteAssistance {
 Function EnableRemoteDesktop {
 	Write-Output "Enabling Remote Desktop w/o Network Level Authentication..."
 	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
+	$ErrorActionPreference = "silentlycontinue"
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Type DWord -Value 0
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Type DWord -Value 0
 	Enable-NetFirewallRule -Name "RemoteDesktop*" | Out-Null
@@ -1623,15 +1540,15 @@ Function SetBIOSTimeUTC {
 	Write-Output "Setting BIOS time to UTC..."
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "RealTimeIsUniversal" -Type DWord -Value 1
 	Push-Location
-        Set-Location HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DateTime\Servers
-        Set-ItemProperty . 0 "time.google.com"
-        Set-ItemProperty . "(Default)" "0"
-        Set-Location HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters
-        Set-ItemProperty . NtpServer "time.google.com"
-        Pop-Location
-        Stop-Service w32time
+	Set-Location HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DateTime\Servers
+	Set-ItemProperty . 0 "time.google.com"
+	Set-ItemProperty . "(Default)" "0"
+	Set-Location HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters
+	Set-ItemProperty . NtpServer "time.google.com"
+	Pop-Location
+	Stop-Service w32time
 	sc.exe config w32time start= auto
-        Start-Service w32time
+	Start-Service w32time
 	W32tm /resync /force /nowait
 }
 
@@ -1640,15 +1557,15 @@ Function SetBIOSTimeLocal {
 	Write-Output "Setting BIOS time to Local time..."
 	Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "RealTimeIsUniversal" -ErrorAction SilentlyContinue
 	Push-Location
-        Set-Location HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DateTime\Servers
-        Set-ItemProperty . 0 "time.google.com"
-        Set-ItemProperty . "(Default)" "0"
-        Set-Location HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters
-        Set-ItemProperty . NtpServer "time.google.com"
-        Pop-Location
-        Stop-Service w32time
+	Set-Location HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DateTime\Servers
+	Set-ItemProperty . 0 "time.google.com"
+	Set-ItemProperty . "(Default)" "0"
+	Set-Location HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters
+	Set-ItemProperty . NtpServer "time.google.com"
+	Pop-Location
+	Stop-Service w32time
 	sc.exe config w32time start= auto
-        Start-Service w32time
+	Start-Service w32time
 	W32tm /resync /force /nowait
 }
 
@@ -1776,7 +1693,7 @@ Function DisableShistory {
 #Disabling "- Shortcut" Word.
 Function Disableshortcutword {
 	Write-Output "Disabling - Shortcut Word..."
-	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "link" -Type Binary -Value ([byte[]](0,0,0,0))
+	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "link" -Type Binary -Value ([byte[]](0, 0, 0, 0))
 }
 
 #Disabling Mouse Keys Keyboard Shortcut.
@@ -1826,9 +1743,9 @@ Function DisableSearchHistroy {
 
 #Removing Microsoft MeetNow
 Function RemoveMeet {
-        Write-Output "Disabling Microsoft MeetNow..."
+	Write-Output "Disabling Microsoft MeetNow..."
 	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
+	$ErrorActionPreference = "silentlycontinue"
 	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -ErrorAction SilentlyContinue
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -ErrorAction SilentlyContinue
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -Type DWord -Value 1
@@ -1931,18 +1848,19 @@ Function EnableStickyKeys {
 
 # Show Task Manager details - Applicable to 1607 and later - Although this functionality exist even in earlier versions, the Task Manager's behavior is different there and is not compatible with this tweak
 Function ShowTaskManagerDetails {
-If ([System.Environment]::OSVersion.Version.Build -ge 22000) {
-} Else {
-	Write-Output "Showing task manager details..."
-	$taskmgr = Start-Process -WindowStyle Hidden -FilePath taskmgr.exe -PassThru
-	Do {
-		Start-Sleep -Milliseconds 100
-		$preferences = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name "Preferences" -ErrorAction SilentlyContinue
-	} Until ($preferences)
-	Stop-Process $taskmgr
-	$preferences.Preferences[28] = 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name "Preferences" -Type Binary -Value $preferences.Preferences
-  }
+	If ([System.Environment]::OSVersion.Version.Build -ge 22000) {
+	}
+ Else {
+		Write-Output "Showing task manager details..."
+		$taskmgr = Start-Process -WindowStyle Hidden -FilePath taskmgr.exe -PassThru
+		Do {
+			Start-Sleep -Milliseconds 100
+			$preferences = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name "Preferences" -ErrorAction SilentlyContinue
+		} Until ($preferences)
+		Stop-Process $taskmgr
+		$preferences.Preferences[28] = 0
+		Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name "Preferences" -Type Binary -Value $preferences.Preferences
+	}
 }
 
 # Hide Task Manager details
@@ -2134,7 +2052,7 @@ Function SetVisualFXPerformance {
 	Write-Output "Adjusting visual effects for performance..."
 	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "DragFullWindows" -Type String -Value 0
 	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "MenuShowDelay" -Type String -Value 200
-	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "UserPreferencesMask" -Type Binary -Value ([byte[]](144,18,3,128,16,0,0,0))
+	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "UserPreferencesMask" -Type Binary -Value ([byte[]](144, 18, 3, 128, 16, 0, 0, 0))
 	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop\WindowMetrics" -Name "MinAnimate" -Type String -Value 0
 	Set-ItemProperty -Path "HKCU:\Control Panel\Keyboard" -Name "KeyboardDelay" -Type DWord -Value 0
 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ListviewAlphaSelect" -Type DWord -Value 0
@@ -2150,7 +2068,7 @@ Function SetVisualFXAppearance {
 	Write-Output "Adjusting visual effects for appearance..."
 	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "DragFullWindows" -Type String -Value 1
 	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "MenuShowDelay" -Type String -Value 200
-	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "UserPreferencesMask" -Type Binary -Value ([byte[]](158,30,7,128,18,0,0,0))
+	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "UserPreferencesMask" -Type Binary -Value ([byte[]](158, 30, 7, 128, 18, 0, 0, 0))
 	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop\WindowMetrics" -Name "MinAnimate" -Type String -Value 1
 	Set-ItemProperty -Path "HKCU:\Control Panel\Keyboard" -Name "KeyboardDelay" -Type DWord -Value 1
 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ListviewAlphaSelect" -Type DWord -Value 1
@@ -2172,7 +2090,7 @@ Function AddENKeyboard {
 Function RemoveENKeyboard {
 	Write-Output "Removing secondary en-US keyboard..."
 	$langs = Get-WinUserLanguageList
-	Set-WinUserLanguageList ($langs | Where-Object {$_.LanguageTag -ne "en-US"}) -Force
+	Set-WinUserLanguageList ($langs | Where-Object { $_.LanguageTag -ne "en-US" }) -Force
 }
 
 # Enable NumLock after startup
@@ -2329,7 +2247,7 @@ Function Show3DObjectsInThisPC {
 Function Hide3DObjectsFromExplorer {
 	Write-Output "Hiding 3D Objects icon from Explorer namespace..."
 	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
+	$ErrorActionPreference = "silentlycontinue"
 	If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{31C0DD25-9439-4F12-BF41-7FF4EDA38722}\PropertyBag")) {
 		New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{31C0DD25-9439-4F12-BF41-7FF4EDA38722}\PropertyBag" -Force | Out-Null
 	}
@@ -2390,111 +2308,114 @@ Function DorEOneDrive {
 
 	# Verifica se o script está rodando como administrador
 	function Test-Admin {
-			$currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-			$principal = New-Object Security.Principal.WindowsPrincipal $currentUser
-			return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+		$currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
+		$principal = New-Object Security.Principal.WindowsPrincipal $currentUser
+		return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 	}
 
 	if (-not (Test-Admin)) {
-			Escrever-Colorido "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." "Vermelho"
-			Break;
+		Escrever-Colorido "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." "Vermelho"
+		Break;
 	}
 
 	do {
-		  Clear-Host
-			Escrever-Colorido "" "Azul"
-			Escrever-Colorido "================ Desabilitar o Microsoft OneDrive? ================" "Azul"
-			Escrever-Colorido "" "Azul"
-			Escrever-Colorido "Pressione 'D' para desabilitar o OneDrive." "Azul"
-			Escrever-Colorido "Pressione 'H' para habilitar o OneDrive." "Azul"
-			Escrever-Colorido "Pressione 'P' para pular isso." "Azul"
+		Clear-Host
+		Escrever-Colorido "" "Azul"
+		Escrever-Colorido "================ Desabilitar o Microsoft OneDrive? ================" "Azul"
+		Escrever-Colorido "" "Azul"
+		Escrever-Colorido "Pressione 'D' para desabilitar o OneDrive." "Azul"
+		Escrever-Colorido "Pressione 'H' para habilitar o OneDrive." "Azul"
+		Escrever-Colorido "Pressione 'P' para pular isso." "Azul"
 			
-			$selection = Read-Host "Por favor, escolha"
+		$selection = Read-Host "Por favor, escolha"
 
 	} until ($selection -match "(?i)^(d|h|p)$") # Torna a entrada case-insensitive
 
-	if ($selection -match "(?i)^d$") {  # Desabilitar OneDrive
-			Write-Output "Desativando Microsoft OneDrive e processos relacionados..."
+	if ($selection -match "(?i)^d$") {
+  # Desabilitar OneDrive
+		Write-Output "Desativando Microsoft OneDrive e processos relacionados..."
 
-			$errpref = $ErrorActionPreference
-			$ErrorActionPreference = "SilentlyContinue"
+		$errpref = $ErrorActionPreference
+		$ErrorActionPreference = "SilentlyContinue"
 
-			# Cria chave de política para bloquear o OneDrive
-			if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
-					New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Force | Out-Null
-			}
-			Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1
+		# Cria chave de política para bloquear o OneDrive
+		if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive")) {
+			New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Force | Out-Null
+		}
+		Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -Type DWord -Value 1
 
-			# Finaliza processos do OneDrive se estiverem em execução
-			$oneDriveProcess = Get-Process -Name "OneDrive" -ErrorAction SilentlyContinue
-			if ($oneDriveProcess) {
-					Stop-Process -Name "OneDrive" -Force
-			}
+		# Finaliza processos do OneDrive se estiverem em execução
+		$oneDriveProcess = Get-Process -Name "OneDrive" -ErrorAction SilentlyContinue
+		if ($oneDriveProcess) {
+			Stop-Process -Name "OneDrive" -Force
+		}
+		Start-Sleep -s 2
+
+		# Localiza e executa o desinstalador
+		$onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
+		if (!(Test-Path $onedrive)) {
+			$onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
+		}
+
+		if (Test-Path $onedrive) {
+			Start-Process $onedrive "/uninstall" -NoNewWindow -Wait
 			Start-Sleep -s 2
+		}
 
-			# Localiza e executa o desinstalador
-			$onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
-			if (!(Test-Path $onedrive)) {
-					$onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
-			}
+		# Remove pastas e arquivos do OneDrive
+		Remove-Item -Path "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+		Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+		Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+		Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
 
-			if (Test-Path $onedrive) {
-					Start-Process $onedrive "/uninstall" -NoNewWindow -Wait
-					Start-Sleep -s 2
-			}
+		# Remove OneDrive do Explorer
+		if (!(Test-Path "HKCR:")) {
+			New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null
+		}
+		Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
+		Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
 
-			# Remove pastas e arquivos do OneDrive
-			Remove-Item -Path "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-			Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-			Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-			Remove-Item -Path "$env:SYSTEMDRIVE\OneDriveTemp" -Force -Recurse -ErrorAction SilentlyContinue
+		# Remove OneDrive da inicialização automática
+		reg load "hku\Default" "C:\Users\Default\NTUSER.DAT"
+		reg delete "HKEY_USERS\Default\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "OneDriveSetup" /f
+		reg unload "hku\Default"
 
-			# Remove OneDrive do Explorer
-			if (!(Test-Path "HKCR:")) {
-					New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null
-			}
-			Remove-Item -Path "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
-			Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
+		# Remove atalhos
+		Remove-Item -Force -ErrorAction SilentlyContinue "$env:userprofile\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk"
 
-			# Remove OneDrive da inicialização automática
-			reg load "hku\Default" "C:\Users\Default\NTUSER.DAT"
-			reg delete "HKEY_USERS\Default\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "OneDriveSetup" /f
-			reg unload "hku\Default"
+		# Remove tarefas agendadas do OneDrive
+		Get-ScheduledTask -TaskPath '\' -TaskName 'OneDrive*' -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
 
-			# Remove atalhos
-			Remove-Item -Force -ErrorAction SilentlyContinue "$env:userprofile\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk"
-
-			# Remove tarefas agendadas do OneDrive
-			Get-ScheduledTask -TaskPath '\' -TaskName 'OneDrive*' -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false
-
-			$ErrorActionPreference = $errpref
+		$ErrorActionPreference = $errpref
 	}
 
-	elseif ($selection -match "(?i)^h$") {  # Habilitar OneDrive
-			Write-Output "Ativando Microsoft OneDrive e processos relacionados..."
+	elseif ($selection -match "(?i)^h$") {
+  # Habilitar OneDrive
+		Write-Output "Ativando Microsoft OneDrive e processos relacionados..."
 
-			$errpref = $ErrorActionPreference
-			$ErrorActionPreference = "SilentlyContinue"
+		$errpref = $ErrorActionPreference
+		$ErrorActionPreference = "SilentlyContinue"
 
-			# Remove restrição do OneDrive
-			if (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive") {
-					Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -ErrorAction SilentlyContinue
-			}
+		# Remove restrição do OneDrive
+		if (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive") {
+			Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -ErrorAction SilentlyContinue
+		}
 
-			# Reinstala o OneDrive
-			$onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
-			if (!(Test-Path $onedrive)) {
-					$onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
-			}
+		# Reinstala o OneDrive
+		$onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
+		if (!(Test-Path $onedrive)) {
+			$onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
+		}
 
-			if (Test-Path $onedrive) {
-					Start-Process $onedrive -NoNewWindow
-			} elseif ($isWindows11) {
-					# No Windows 11, OneDrive pode ser instalado como Feature Opcional
-					Start-Process "powershell" -ArgumentList "Add-WindowsFeature OneDrive" -NoNewWindow -Wait
-			}
+		if (Test-Path $onedrive) {
+			Start-Process $onedrive -NoNewWindow
+		}
+		elseif ($isWindows11) {
+			# No Windows 11, OneDrive pode ser instalado como Feature Opcional
+			Start-Process "powershell" -ArgumentList "Add-WindowsFeature OneDrive" -NoNewWindow -Wait
+		}
 
-			$ErrorActionPreference = $errpref
+		$ErrorActionPreference = $errpref
 	}
 }
 
@@ -2515,8 +2436,9 @@ Function InstallMediaPlayer {
 Function UninstallInternetExplorer {
 	Write-Output "Uninstalling Internet Explorer..."
 	If ([System.Environment]::OSVersion.Version.Build -ge 22000) {
-	} Else {
-	Disable-WindowsOptionalFeature -Online -FeatureName "Internet-Explorer-Optional-$env:PROCESSOR_ARCHITECTURE" -NoRestart -WarningAction SilentlyContinue | Out-Null
+	}
+ Else {
+		Disable-WindowsOptionalFeature -Online -FeatureName "Internet-Explorer-Optional-$env:PROCESSOR_ARCHITECTURE" -NoRestart -WarningAction SilentlyContinue | Out-Null
 	}
 }
 
@@ -2553,7 +2475,7 @@ Function InstallLinuxSubsystem {
 Function UninstallLinuxSubsystem {
 	Write-Output "Uninstalling Linux Subsystem..."
 	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
+	$ErrorActionPreference = "silentlycontinue"
 	If ([System.Environment]::OSVersion.Version.Build -eq 14393) {
 		Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowDevelopmentWithoutDevLicense" -Type DWord -Value 0
 		Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowAllTrustedApps" -Type DWord -Value 0
@@ -2567,7 +2489,8 @@ Function InstallHyperV {
 	Write-Output "Installing Hyper-V..."
 	If ((Get-WmiObject -Class "Win32_OperatingSystem").Caption -like "*Server*") {
 		Install-WindowsFeature -Name "Hyper-V" -IncludeManagementTools -WarningAction SilentlyContinue | Out-Null
-	} Else {
+	}
+ Else {
 		Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Hyper-V-All" -NoRestart -WarningAction SilentlyContinue | Out-Null
 	}
 }
@@ -2577,7 +2500,8 @@ Function UninstallHyperV {
 	Write-Output "Uninstalling Hyper-V..."
 	If ((Get-WmiObject -Class "Win32_OperatingSystem").Caption -like "*Server*") {
 		Uninstall-WindowsFeature -Name "Hyper-V" -IncludeManagementTools -WarningAction SilentlyContinue | Out-Null
-	} Else {
+	}
+ Else {
 		Disable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Hyper-V-All" -NoRestart -WarningAction SilentlyContinue | Out-Null
 	}
 }
@@ -2647,9 +2571,9 @@ Function InstallPDFPrinter {
 
 # Add SVCHost Tweak
 Function SVCHostTweak {
-        Write-Output "Adding SVCHost Tweak..."
-        Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Type DWord -Value 4194304
-	}
+	Write-Output "Adding SVCHost Tweak..."
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Type DWord -Value 4194304
+}
 
 ##########
 # Unpinning
@@ -2659,8 +2583,8 @@ Function SVCHostTweak {
 Function UnpinStartMenuTiles {
 	Write-Output "Unpinning all Start Menu tiles..."
 	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
-		If ([System.Environment]::OSVersion.Version.Build -ge 22000) {
+	$ErrorActionPreference = "silentlycontinue"
+	If ([System.Environment]::OSVersion.Version.Build -ge 22000) {
 		Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoRecentDocsHistory" -Type DWord -Value 0 | Out-Null -ErrorAction SilentlyContinue
 		Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackDocs" -Type DWord -Value 0 | Out-Null -ErrorAction SilentlyContinue
 		Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoStartMenuMorePrograms" | Out-Null -ErrorAction SilentlyContinue
@@ -2670,43 +2594,44 @@ Function UnpinStartMenuTiles {
 		Remove-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "LockedStartLayout" | Out-Null -ErrorAction SilentlyContinue
 		Remove-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "StartLayoutFile" | Out-Null -ErrorAction SilentlyContinue
 		Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_Layout" -Type DWord -Value 1 | Out-Null -ErrorAction SilentlyContinue
-	} Else {
+	}
+ Else {
 	
-	$url_startlayout = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/StartLayout.xml"
+		$url_startlayout = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/StartLayout.xml"
 
-	Invoke-WebRequest -Uri $url_startlayout -OutFile "$env:UserProfile\StartLayout.xml" -ErrorAction SilentlyContinue
+		Invoke-WebRequest -Uri $url_startlayout -OutFile "$env:UserProfile\StartLayout.xml" -ErrorAction SilentlyContinue
 
-	Import-StartLayout -layoutpath "$env:UserProfile\StartLayout.xml" -MountPath "$env:SystemDrive\"
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "LockedStartLayout" -Type DWord -Value 1 | Out-Null -ErrorAction SilentlyContinue
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "StartLayoutFile" -Type ExpandString -Value "%USERPROFILE%\StartLayout.xml" | Out-Null -ErrorAction SilentlyContinue
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoStartMenuMorePrograms" -Type DWord -Value 0 | Out-Null -ErrorAction SilentlyContinue
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoStartMenuMorePrograms" -Type DWord -Value 0 | Out-Null -ErrorAction SilentlyContinue
-        Start-Sleep -s 3
-        $wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
-        Start-Sleep -s 3
-	function get-itemproperty2 {
-  # get-childitem skips top level key, use get-item for that
-  # set-alias gp2 get-itemproperty2
-  param([parameter(ValueFromPipeline)]$key)
-  process {
+		Import-StartLayout -layoutpath "$env:UserProfile\StartLayout.xml" -MountPath "$env:SystemDrive\"
+		Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "LockedStartLayout" -Type DWord -Value 1 | Out-Null -ErrorAction SilentlyContinue
+		Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "StartLayoutFile" -Type ExpandString -Value "%USERPROFILE%\StartLayout.xml" | Out-Null -ErrorAction SilentlyContinue
+		Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoStartMenuMorePrograms" -Type DWord -Value 0 | Out-Null -ErrorAction SilentlyContinue
+		Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoStartMenuMorePrograms" -Type DWord -Value 0 | Out-Null -ErrorAction SilentlyContinue
+		Start-Sleep -s 3
+		$wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys('^{ESCAPE}')
+		Start-Sleep -s 3
+		function get-itemproperty2 {
+			# get-childitem skips top level key, use get-item for that
+			# set-alias gp2 get-itemproperty2
+			param([parameter(ValueFromPipeline)]$key)
+			process {
     $key.getvaluenames() | foreach-object {
-      $value = $_
-      [pscustomobject] @{
-        Path = $Key -replace 'HKEY_CURRENT_USER',
-          'HKCU:' -replace 'HKEY_LOCAL_MACHINE','HKLM:'
-        Name = $Value
-        Value = $Key.GetValue($Value)
-        Type = $Key.GetValueKind($Value)
-		}
-      }
-    }
+					$value = $_
+					[pscustomobject] @{
+						Path  = $Key -replace 'HKEY_CURRENT_USER',
+						'HKCU:' -replace 'HKEY_LOCAL_MACHINE', 'HKLM:'
+						Name  = $Value
+						Value = $Key.GetValue($Value)
+						Type  = $Key.GetValueKind($Value)
+					}
+				}
+			}
   }
-}
+	}
 
-$YourInputStart = "02,00,00,00,e6,d9,21,ac,f8,e0,d6,01,00,00,00,00,43,42,01,00,c2,14,01,cb,32,0a,03,05,ce,ab,d3,e9,02,24,da,f4,03,44,c3,8a,01,66,82,e5,8b,b1,ae,fd,fd,bb,3c,00,05,a0,8f,fc,c1,03,24,8a,d0,03,44,80,99,01,66,b0,b5,99,dc,cd,b0,97,de,4d,00,05,86,91,cc,93,05,24,aa,a3,01,44,c3,84,01,66,9f,f7,9d,b1,87,cb,d1,ac,d4,01,00,c2,3c,01,c5,5a,01,00"
-$hexifiedStart = $YourInputStart.Split(',') | ForEach-Object { "0x$_"}
-Get-ChildItem -r "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" | get-itemproperty2 | Where-Object { $_ -like '*windows.data.unifiedtile.startglobalproperties*' } | set-itemproperty -value (([byte[]]$hexifiedStart))
-Stop-Process -name explorer | Out-Null
+	$YourInputStart = "02,00,00,00,e6,d9,21,ac,f8,e0,d6,01,00,00,00,00,43,42,01,00,c2,14,01,cb,32,0a,03,05,ce,ab,d3,e9,02,24,da,f4,03,44,c3,8a,01,66,82,e5,8b,b1,ae,fd,fd,bb,3c,00,05,a0,8f,fc,c1,03,24,8a,d0,03,44,80,99,01,66,b0,b5,99,dc,cd,b0,97,de,4d,00,05,86,91,cc,93,05,24,aa,a3,01,44,c3,84,01,66,9f,f7,9d,b1,87,cb,d1,ac,d4,01,00,c2,3c,01,c5,5a,01,00"
+	$hexifiedStart = $YourInputStart.Split(',') | ForEach-Object { "0x$_" }
+	Get-ChildItem -r "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" | get-itemproperty2 | Where-Object { $_ -like '*windows.data.unifiedtile.startglobalproperties*' } | set-itemproperty -value (([byte[]]$hexifiedStart))
+	Stop-Process -name explorer | Out-Null
 	$ErrorActionPreference = $errpref #restore previous preference
 }
 
@@ -2716,32 +2641,33 @@ Stop-Process -name explorer | Out-Null
 # Windows 11 Extra Tweaks
 function Windows11Extra {
 	If ([System.Environment]::OSVersion.Version.Build -ge 22000) {
-	        Write-Output "Restoring windows 10 context menu and disabling start menu recommended section..."
+		Write-Output "Restoring windows 10 context menu and disabling start menu recommended section..."
 		New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -ErrorAction SilentlyContinue | Out-Null #context menu setup
 		reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /f /ve
 		Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type DWord -Value 0 #set taskbar icons to the left
-		Get-appxpackage -all *shellexperience* -packagetype bundle |ForEach-Object {add-appxpackage -register -disabledevelopmentmode ($_.installlocation + '\appxmetadata\appxbundlemanifest.xml')}
+		Get-appxpackage -all *shellexperience* -packagetype bundle | ForEach-Object { add-appxpackage -register -disabledevelopmentmode ($_.installlocation + '\appxmetadata\appxbundlemanifest.xml') }
 		Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Type DWord -Value 0 #disable widget icon from taskbar
 		Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarMn" -Type DWord -Value 0 #disable chat icon from taskbar
 		Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "HideRecentlyAddedApps" -Type DWord -Value 1 #Disable start menu RecentlyAddedApps
-    		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "ThreadDpcEnable" -Type DWord -Value 0 | Out-Null -ErrorAction SilentlyContinue
-      		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "GlobalTimerResolutionRequests" -Type DWord -Value 1 | Out-Null -ErrorAction SilentlyContinue
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "ThreadDpcEnable" -Type DWord -Value 0 | Out-Null -ErrorAction SilentlyContinue
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "GlobalTimerResolutionRequests" -Type DWord -Value 1 | Out-Null -ErrorAction SilentlyContinue
 		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "UnlimitDpcQueue" -Type DWord -Value 1 | Out-Null -ErrorAction SilentlyContinue
 	}
 }
 # Enable Quality Of Life Tweaks
 Function QOL {
-       	Write-Output "Enabling Quality of Life Tweaks..."
+	Write-Output "Enabling Quality of Life Tweaks..."
 	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
+	$ErrorActionPreference = "silentlycontinue"
 	New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -ErrorAction SilentlyContinue | Out-Null
 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Type DWord -Value 0 | Out-Null -ErrorAction SilentlyContinue #disable annoying Get even more out of Windows
 	Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility" -Name "DynamicScrollbars" -Type DWord -Value 0 #disable Hide Scroll bars
 	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "SmoothScroll" -Type DWord -Value 0 #disable smooth scrolling 
 	If ([System.Environment]::OSVersion.Version.Build -ge 22000) {
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Type DWord -Value 1 #disable microsoft usertracking
-	} Else {
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Type DWord -Value 1 #disable microsoft usertracking
+		Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Type DWord -Value 1 #disable microsoft usertracking
+	}
+ Else {
+		Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Type DWord -Value 1 #disable microsoft usertracking
 	}
 	Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Name "TaskbarNoMultimon" -ErrorAction SilentlyContinue
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "TaskbarNoMultimon" -ErrorAction SilentlyContinue
@@ -2756,7 +2682,7 @@ Function QOL {
 #Disable Fullscreen Optimizations
 Function FullscreenOptimizationFIX {
 	param(
-			[switch]$Simular  # Parâmetro para ativar o modo de simulação
+		[switch]$Simular  # Parâmetro para ativar o modo de simulação
 	)
 
 	$errpref = $ErrorActionPreference # Salva a preferência de erro atual
@@ -2765,48 +2691,50 @@ Function FullscreenOptimizationFIX {
 	Write-Output "Desabilitando otimizações de tela cheia..."
 	
 	$regPaths = @(
-			"HKCU:\System\GameConfigStore",
-			"HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR",
-			"HKCU:\Software\Microsoft\DirectX\GraphicsSettings",
-			"HKCU:\Software\Microsoft\DirectX\UserGpuPreferences",
-			"HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform",
-			"HKLM:\SOFTWARE\Microsoft\Windows\Dwm"
+		"HKCU:\System\GameConfigStore",
+		"HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR",
+		"HKCU:\Software\Microsoft\DirectX\GraphicsSettings",
+		"HKCU:\Software\Microsoft\DirectX\UserGpuPreferences",
+		"HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform",
+		"HKLM:\SOFTWARE\Microsoft\Windows\Dwm"
 	)
 
 	$properties = @(
-			@{"Path"="HKCU:\System\GameConfigStore"; "Name"="GameDVR_FSEBehaviorMode"; "Value"=2},
-			@{"Path"="HKCU:\System\GameConfigStore"; "Name"="GameDVR_HonorUserFSEBehaviorMode"; "Value"=1},
-			@{"Path"="HKCU:\System\GameConfigStore"; "Name"="GameDVR_FSEBehavior"; "Value"=2},
-			@{"Path"="HKCU:\System\GameConfigStore"; "Name"="GameDVR_DXGIHonorFSEWindowsCompatible"; "Value"=1},
-			@{"Path"="HKCU:\System\GameConfigStore"; "Name"="GameDVR_EFSEFeatureFlags"; "Value"=0},
-			@{"Path"="HKCU:\System\GameConfigStore"; "Name"="GameDVR_DSEBehavior"; "Value"=2},
-			@{"Path"="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR"; "Name"="AppCaptureEnabled"; "Value"=0},
-			@{"Path"="HKCU:\Software\Microsoft\DirectX\GraphicsSettings"; "Name"="SwapEffectUpgradeCache"; "Value"=1},
-			@{"Path"="HKCU:\Software\Microsoft\DirectX\UserGpuPreferences"; "Name"="DirectXUserGlobalSettings"; "Value"='SwapEffectUpgradeEnable=1;'},
-			@{"Path"="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform"; "Name"="InactivityShutdownDelay"; "Value"=4294967295},
-			@{"Path"="HKLM:\SOFTWARE\Microsoft\Windows\Dwm"; "Name"="OverlayTestMode"; "Value"=5}
+		@{"Path" = "HKCU:\System\GameConfigStore"; "Name" = "GameDVR_FSEBehaviorMode"; "Value" = 2 },
+		@{"Path" = "HKCU:\System\GameConfigStore"; "Name" = "GameDVR_HonorUserFSEBehaviorMode"; "Value" = 1 },
+		@{"Path" = "HKCU:\System\GameConfigStore"; "Name" = "GameDVR_FSEBehavior"; "Value" = 2 },
+		@{"Path" = "HKCU:\System\GameConfigStore"; "Name" = "GameDVR_DXGIHonorFSEWindowsCompatible"; "Value" = 1 },
+		@{"Path" = "HKCU:\System\GameConfigStore"; "Name" = "GameDVR_EFSEFeatureFlags"; "Value" = 0 },
+		@{"Path" = "HKCU:\System\GameConfigStore"; "Name" = "GameDVR_DSEBehavior"; "Value" = 2 },
+		@{"Path" = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR"; "Name" = "AppCaptureEnabled"; "Value" = 0 },
+		@{"Path" = "HKCU:\Software\Microsoft\DirectX\GraphicsSettings"; "Name" = "SwapEffectUpgradeCache"; "Value" = 1 },
+		@{"Path" = "HKCU:\Software\Microsoft\DirectX\UserGpuPreferences"; "Name" = "DirectXUserGlobalSettings"; "Value" = 'SwapEffectUpgradeEnable=1;' },
+		@{"Path" = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform"; "Name" = "InactivityShutdownDelay"; "Value" = 4294967295 },
+		@{"Path" = "HKLM:\SOFTWARE\Microsoft\Windows\Dwm"; "Name" = "OverlayTestMode"; "Value" = 5 }
 	)
 
 	foreach ($prop in $properties) {
-			if ($Simular) {
-					Write-Output "Simulação: Definiria $($prop.Name) em $($prop.Path) como $($prop.Value)"
-			} else {
-					Set-ItemProperty -Path $prop.Path -Name $prop.Name -Value $prop.Value -Type DWord -ErrorAction SilentlyContinue
-			}
+		if ($Simular) {
+			Write-Output "Simulação: Definiria $($prop.Name) em $($prop.Path) como $($prop.Value)"
+		}
+		else {
+			Set-ItemProperty -Path $prop.Path -Name $prop.Name -Value $prop.Value -Type DWord -ErrorAction SilentlyContinue
+		}
 	}
 
 	# Verifica o serviço MMAgent e tenta iniciá-lo, caso esteja desativado
 	$magentService = Get-Service -Name MMAgent -ErrorAction SilentlyContinue
 	if ($magentService.Status -ne 'Running') {
-			Write-Output "O serviço MMAgent não está em execução. Tentando iniciar..."
-			Start-Service -Name MMAgent -ErrorAction SilentlyContinue
+		Write-Output "O serviço MMAgent não está em execução. Tentando iniciar..."
+		Start-Service -Name MMAgent -ErrorAction SilentlyContinue
 	}
 
 	# Desativando a compressão de memória
 	if ($Simular) {
-			Write-Output "Simulação: Executaria Disable-MMAgent -MemoryCompression"
-	} else {
-			Disable-MMAgent -MemoryCompression | Out-Null
+		Write-Output "Simulação: Executaria Disable-MMAgent -MemoryCompression"
+	}
+ else {
+		Disable-MMAgent -MemoryCompression | Out-Null
 	}
 
 	# Restaurando a preferência de erro original
@@ -2824,23 +2752,24 @@ Function GameOptimizationFIX {
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Scheduling Category" -Type String -Value "High"
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "SFIO Priority" -Type String -Value "High"
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "IRQ8Priority" -Type DWord -Value 1
-  	reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions" /v CpuPriorityClass /t REG_DWORD /d 4 /f | Out-Null
-   	reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions" /v IoPriority /t REG_DWORD /d 3 /f | Out-Null
-    	fsutil behavior set disable8dot3 1
-     	fsutil behavior set disablelastaccess 1
-    	$PlatformCheck = (Get-Computerinfo).CsPCSystemType
-     if ($PlatformCheck -eq "Desktop") {
-     Write-Output "Platform is $PlatformCheck Disabling power saving options on all connected devices..."
-     Get-WmiObject MSPower_DeviceEnable -Namespace root\wmi | ForEach-Object { $_.enable = $false; $_.psbase.put(); } | Out-Null
-     } else {
-     Write-Output "Platform is $PlatformCheck No power saving edits has been made."
-     }
+	reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions" /v CpuPriorityClass /t REG_DWORD /d 4 /f | Out-Null
+	reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions" /v IoPriority /t REG_DWORD /d 3 /f | Out-Null
+	fsutil behavior set disable8dot3 1
+	fsutil behavior set disablelastaccess 1
+	$PlatformCheck = (Get-Computerinfo).CsPCSystemType
+	if ($PlatformCheck -eq "Desktop") {
+		Write-Output "Platform is $PlatformCheck Disabling power saving options on all connected devices..."
+		Get-WmiObject MSPower_DeviceEnable -Namespace root\wmi | ForEach-Object { $_.enable = $false; $_.psbase.put(); } | Out-Null
+	}
+ else {
+		Write-Output "Platform is $PlatformCheck No power saving edits has been made."
+	}
 }
 
 #Forcing Raw Mouse Input
 Function RawMouseInput {
-    Write-Output "Forcing RAW Mouse Input and Disabling Enhance Pointer Precision..."
-    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Type String -Value "0"
+	Write-Output "Forcing RAW Mouse Input and Disabling Enhance Pointer Precision..."
+	Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Type String -Value "0"
 	Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Type String -Value "0"
 	Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Type String -Value "0"
 	Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSensitivity" -Type String -Value "10"
@@ -2850,7 +2779,7 @@ Function RawMouseInput {
 
 #Detecting Windows Scale Layout Automatically and applying mouse fix according to it!
 Function DetectnApplyMouseFIX {
-Add-Type @'
+	Add-Type @'
   using System; 
   using System.Runtime.InteropServices;
   using System.Drawing;
@@ -2875,103 +2804,112 @@ Add-Type @'
   }
 '@ -ReferencedAssemblies 'System.Drawing.dll'
 
-$checkscreenscale = [Math]::round([DPI]::scaling(), 2) * 100
-if($checkscreenscale -eq "100") {
-Write-Output "Windows screen scale is Detected as 100%, Applying Mouse Fix for it..."
-$YourInputX = "00,00,00,00,00,00,00,00,C0,CC,0C,00,00,00,00,00,80,99,19,00,00,00,00,00,40,66,26,00,00,00,00,00,00,33,33,00,00,00,00,00"
-$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-$RegPath   = 'HKCU:\Control Panel\Mouse'
-$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_"}
-$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_"}
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-} elseif($checkscreenscale -eq "125") {
-Write-Output "Windows screen scale is Detected as 125%, Applying Mouse Fix for it..."
-$YourInputX = "00,00,00,00,00,00,00,00,00,00,10,00,00,00,00,00,00,00,20,00,00,00,00,00,00,00,30,00,00,00,00,00,00,00,40,00,00,00,00,00"
-$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-$RegPath   = 'HKCU:\Control Panel\Mouse'
-$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_"}
-$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_"}
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-} elseif($checkscreenscale -eq "150") {
-Write-Output "Windows screen scale is Detected as 150%, Applying Mouse Fix for it..."
-$YourInputX = "00,00,00,00,00,00,00,00,30,33,13,00,00,00,00,00,60,66,26,00,00,00,00,00,90,99,39,00,00,00,00,00,C0,CC,4C,00,00,00,00,00"
-$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-$RegPath   = 'HKCU:\Control Panel\Mouse'
-$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_"}
-$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_"}
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-} elseif($checkscreenscale -eq "175") {
-Write-Output "Windows screen scale is Detected as 175%, Applying Mouse Fix for it..."
-$YourInputX = "00,00,00,00,00,00,00,00,60,66,16,00,00,00,00,00,C0,CC,2C,00,00,00,00,00,20,33,43,00,00,00,00,00,80,99,59,00,00,00,00,00"
-$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-$RegPath   = 'HKCU:\Control Panel\Mouse'
-$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_"}
-$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_"}
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-} elseif($checkscreenscale -eq "200") {
-Write-Output "Windows screen scale is Detected as 200%, Applying Mouse Fix for it..."
-$YourInputX = "00,00,00,00,00,00,00,00,90,99,19,00,00,00,00,00,20,33,33,00,00,00,00,00,B0,CC,4C,00,00,00,00,00,40,66,66,00,00,00,00,00"
-$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-$RegPath   = 'HKCU:\Control Panel\Mouse'
-$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_"}
-$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_"}
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-} elseif($checkscreenscale -eq "225") {
-Write-Output "Windows screen scale is Detected as 225%, Applying Mouse Fix for it..."
-$YourInputX = "00,00,00,00,00,00,00,00,C0,CC,1C,00,00,00,00,00,80,99,39,00,00,00,00,00,40,66,56,00,00,00,00,00,00,33,73,00,00,00,00,00"
-$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-$RegPath   = 'HKCU:\Control Panel\Mouse'
-$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_"}
-$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_"}
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-} elseif($checkscreenscale -eq "250") {
-Write-Output "Windows screen scale is Detected as 250%, Applying Mouse Fix for it..."
-$YourInputX = "00,00,00,00,00,00,00,00,00,00,20,00,00,00,00,00,00,00,40,00,00,00,00,00,00,00,60,00,00,00,00,00,00,00,80,00,00,00,00,00"
-$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-$RegPath   = 'HKCU:\Control Panel\Mouse'
-$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_"}
-$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_"}
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-} elseif($checkscreenscale -eq "300") {
-Write-Output "Windows screen scale is Detected as 300%, Applying Mouse Fix for it..."
-$YourInputX = "00,00,00,00,00,00,00,00,60,66,26,00,00,00,00,00,C0,CC,4C,00,00,00,00,00,20,33,73,00,00,00,00,00,80,99,99,00,00,00,00,00"
-$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-$RegPath   = 'HKCU:\Control Panel\Mouse'
-$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_"}
-$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_"}
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-} elseif($checkscreenscale -eq "350") {
-Write-Output "Windows screen scale is Detected as 350%, Applying Mouse Fix for it..."
-$YourInputX = "00,00,00,00,00,00,00,00,C0,CC,2C,00,00,00,00,00,80,99,59,00,00,00,00,00,40,66,86,00,00,00,00,00,00,33,B3,00,00,00,00,00"
-$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-$RegPath   = 'HKCU:\Control Panel\Mouse'
-$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_"}
-$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_"}
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-} else {
-Write-Output "HOUSTON WE HAVE A PROBLEM! screen scale is not set to traditional value, nothing has been set!"
-}
+	$checkscreenscale = [Math]::round([DPI]::scaling(), 2) * 100
+	if ($checkscreenscale -eq "100") {
+		Write-Output "Windows screen scale is Detected as 100%, Applying Mouse Fix for it..."
+		$YourInputX = "00,00,00,00,00,00,00,00,C0,CC,0C,00,00,00,00,00,80,99,19,00,00,00,00,00,40,66,26,00,00,00,00,00,00,33,33,00,00,00,00,00"
+		$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+		$RegPath = 'HKCU:\Control Panel\Mouse'
+		$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+		$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+	}
+ elseif ($checkscreenscale -eq "125") {
+		Write-Output "Windows screen scale is Detected as 125%, Applying Mouse Fix for it..."
+		$YourInputX = "00,00,00,00,00,00,00,00,00,00,10,00,00,00,00,00,00,00,20,00,00,00,00,00,00,00,30,00,00,00,00,00,00,00,40,00,00,00,00,00"
+		$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+		$RegPath = 'HKCU:\Control Panel\Mouse'
+		$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+		$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+	}
+ elseif ($checkscreenscale -eq "150") {
+		Write-Output "Windows screen scale is Detected as 150%, Applying Mouse Fix for it..."
+		$YourInputX = "00,00,00,00,00,00,00,00,30,33,13,00,00,00,00,00,60,66,26,00,00,00,00,00,90,99,39,00,00,00,00,00,C0,CC,4C,00,00,00,00,00"
+		$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+		$RegPath = 'HKCU:\Control Panel\Mouse'
+		$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+		$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+	}
+ elseif ($checkscreenscale -eq "175") {
+		Write-Output "Windows screen scale is Detected as 175%, Applying Mouse Fix for it..."
+		$YourInputX = "00,00,00,00,00,00,00,00,60,66,16,00,00,00,00,00,C0,CC,2C,00,00,00,00,00,20,33,43,00,00,00,00,00,80,99,59,00,00,00,00,00"
+		$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+		$RegPath = 'HKCU:\Control Panel\Mouse'
+		$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+		$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+	}
+ elseif ($checkscreenscale -eq "200") {
+		Write-Output "Windows screen scale is Detected as 200%, Applying Mouse Fix for it..."
+		$YourInputX = "00,00,00,00,00,00,00,00,90,99,19,00,00,00,00,00,20,33,33,00,00,00,00,00,B0,CC,4C,00,00,00,00,00,40,66,66,00,00,00,00,00"
+		$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+		$RegPath = 'HKCU:\Control Panel\Mouse'
+		$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+		$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+	}
+ elseif ($checkscreenscale -eq "225") {
+		Write-Output "Windows screen scale is Detected as 225%, Applying Mouse Fix for it..."
+		$YourInputX = "00,00,00,00,00,00,00,00,C0,CC,1C,00,00,00,00,00,80,99,39,00,00,00,00,00,40,66,56,00,00,00,00,00,00,33,73,00,00,00,00,00"
+		$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+		$RegPath = 'HKCU:\Control Panel\Mouse'
+		$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+		$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+	}
+ elseif ($checkscreenscale -eq "250") {
+		Write-Output "Windows screen scale is Detected as 250%, Applying Mouse Fix for it..."
+		$YourInputX = "00,00,00,00,00,00,00,00,00,00,20,00,00,00,00,00,00,00,40,00,00,00,00,00,00,00,60,00,00,00,00,00,00,00,80,00,00,00,00,00"
+		$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+		$RegPath = 'HKCU:\Control Panel\Mouse'
+		$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+		$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+	}
+ elseif ($checkscreenscale -eq "300") {
+		Write-Output "Windows screen scale is Detected as 300%, Applying Mouse Fix for it..."
+		$YourInputX = "00,00,00,00,00,00,00,00,60,66,26,00,00,00,00,00,C0,CC,4C,00,00,00,00,00,20,33,73,00,00,00,00,00,80,99,99,00,00,00,00,00"
+		$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+		$RegPath = 'HKCU:\Control Panel\Mouse'
+		$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+		$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+	}
+ elseif ($checkscreenscale -eq "350") {
+		Write-Output "Windows screen scale is Detected as 350%, Applying Mouse Fix for it..."
+		$YourInputX = "00,00,00,00,00,00,00,00,C0,CC,2C,00,00,00,00,00,80,99,59,00,00,00,00,00,40,66,86,00,00,00,00,00,00,33,B3,00,00,00,00,00"
+		$YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+		$RegPath = 'HKCU:\Control Panel\Mouse'
+		$hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+		$hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+		Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+	}
+ else {
+		Write-Output "HOUSTON WE HAVE A PROBLEM! screen scale is not set to traditional value, nothing has been set!"
+	}
 }
 
 ### Disable HPET ###
 Function DisableHPET {
-        Write-Output "Disabling High Precision Event Timer..."
+	Write-Output "Disabling High Precision Event Timer..."
 	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
-        bcdedit /set x2apicpolicy Enable | Out-Null
-        bcdedit /set configaccesspolicy Default | Out-Null
-        bcdedit /set MSI Default | Out-Null
-        bcdedit /set usephysicaldestination No | Out-Null
-        bcdedit /set usefirmwarepcisettings No | Out-Null
+	$ErrorActionPreference = "silentlycontinue"
+	bcdedit /set x2apicpolicy Enable | Out-Null
+	bcdedit /set configaccesspolicy Default | Out-Null
+	bcdedit /set MSI Default | Out-Null
+	bcdedit /set usephysicaldestination No | Out-Null
+	bcdedit /set usefirmwarepcisettings No | Out-Null
 	bcdedit /deletevalue useplatformclock | Out-Null
 	bcdedit /deletevalue useplatformtick | Out-Null
 	bcdedit /deletevalue disabledynamictick | Out-Null
@@ -2980,23 +2918,24 @@ Function DisableHPET {
 	bcdedit /set nx optout | Out-Null
 	bcdedit /set bootux disabled | Out-Null
 	bcdedit /set quietboot yes | Out-Null
-	bcdedit /set {globalsettings} custom:16000067 true | Out-Null
-	bcdedit /set {globalsettings} custom:16000069 true | Out-Null
-	bcdedit /set {globalsettings} custom:16000068 true | Out-Null
+	bcdedit /set { globalsettings } custom:16000067 true | Out-Null
+	bcdedit /set { globalsettings } custom:16000069 true | Out-Null
+	bcdedit /set { globalsettings } custom:16000068 true | Out-Null
 	Get-CimInstance -ClassName Win32_PnPEntity | Where-Object { $_.Name -eq 'High precision event timer' } | ForEach-Object { $_ | Invoke-CimMethod -MethodName Enable }
-      if ($PlatformCheck -eq "Desktop") {
-     	Write-Output "Platform is $PlatformCheck disabling dynamic tick..."
-     	bcdedit /set disabledynamictick yes | Out-Null
-     } else {
-     	Write-Output "Platform is $PlatformCheck enabling dynamic tick..."
-     	bcdedit /set disabledynamictick no
-     }
+	if ($PlatformCheck -eq "Desktop") {
+		Write-Output "Platform is $PlatformCheck disabling dynamic tick..."
+		bcdedit /set disabledynamictick yes | Out-Null
+	}
+ else {
+		Write-Output "Platform is $PlatformCheck enabling dynamic tick..."
+		bcdedit /set disabledynamictick no
+	}
 	$ErrorActionPreference = $errpref #restore previous preference
 }
 
 #Enable Windows 10 Gaming Mode
 Function EnableGameMode {
-        Write-Output "Enabling Gaming Mode..."
+	Write-Output "Enabling Gaming Mode..."
 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\GameBar" -Name "AllowAutoGameMode" -Type DWord -Value 1
 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\GameBar" -Name "AutoGameModeEnabled" -Type DWord -Value 1
 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\GameBar" -Name "ShowStartupPanel" -Type DWord -Value 0
@@ -3006,7 +2945,7 @@ Function EnableGameMode {
 
 #Enable Hardware-accelerated GPU scheduling
 Function EnableHAGS {
-        Write-Output "Enabling HAGS..."
+	Write-Output "Enabling HAGS..."
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" -Name "HwSchMode" -Type DWord -Value 2
 }
 
@@ -3014,357 +2953,367 @@ Function EnableHAGS {
 Function EnableUlimatePower {
 	Write-Output "Enabling and Activating Bitsum Highest Performance Power Plan..."
 	$powerSchemes = powercfg /l | ForEach-Object {
-    if ($_ -match '^Power Scheme GUID:\s*([-0-9a-f]+)\s*\(([^)]+)\)\s*(\*)?') {
-        [PsCustomObject]@{
-            GUID       = $matches[1]
-            SchemeName = $matches[2]
-            Active     = $matches[3] -eq '*'
-        }
-    }
-}
+		if ($_ -match '^Power Scheme GUID:\s*([-0-9a-f]+)\s*\(([^)]+)\)\s*(\*)?') {
+			[PsCustomObject]@{
+				GUID       = $matches[1]
+				SchemeName = $matches[2]
+				Active     = $matches[3] -eq '*'
+			}
+		}
+	}
 	$customScheme = ($powerSchemes | Where-Object { $_.SchemeName -eq 'Bitsum Highest Performance' }).GUID
- 	if ($customScheme -eq 'e6a66b66-d6df-666d-aa66-66f66666eb66') {
-  	Write-Output "Power Plan already exist! setting it as active..."
-   	powercfg -setactive e6a66b66-d6df-666d-aa66-66f66666eb66 | Out-Null
-    } else {
-	Write-Output "Enabling and Activating Bitsum Highest Performance Power Plan..."
+	if ($customScheme -eq 'e6a66b66-d6df-666d-aa66-66f66666eb66') {
+		Write-Output "Power Plan already exist! setting it as active..."
+		powercfg -setactive e6a66b66-d6df-666d-aa66-66f66666eb66 | Out-Null
+	}
+ else {
+		Write-Output "Enabling and Activating Bitsum Highest Performance Power Plan..."
 
-	$url_bhp ="https://raw.githubusercontent.com/wesscd/WindowsGaming/main/Bitsum-Highest-Performance.pow"
+		$url_bhp = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/Bitsum-Highest-Performance.pow"
 
-	Invoke-WebRequest -Uri $url_bhp -OutFile "$Env:windir\system32\Bitsum-Highest-Performance.pow" -ErrorAction SilentlyContinue
-	powercfg -import "$Env:windir\system32\Bitsum-Highest-Performance.pow" e6a66b66-d6df-666d-aa66-66f66666eb66 | Out-Null
-	powercfg -setactive e6a66b66-d6df-666d-aa66-66f66666eb66 | Out-Null
+		Invoke-WebRequest -Uri $url_bhp -OutFile "$Env:windir\system32\Bitsum-Highest-Performance.pow" -ErrorAction SilentlyContinue
+		powercfg -import "$Env:windir\system32\Bitsum-Highest-Performance.pow" e6a66b66-d6df-666d-aa66-66f66666eb66 | Out-Null
+		powercfg -setactive e6a66b66-d6df-666d-aa66-66f66666eb66 | Out-Null
  }
 }
 
 #Disable Core Parking on current PowerPlan Ultimate Performance
 Function DisableCoreParking {
-        Write-Output "Disabling Core Parking on current PowerPlan Ultimate Performance..."
+	Write-Output "Disabling Core Parking on current PowerPlan Ultimate Performance..."
 	powercfg -attributes SUB_PROCESSOR CPMINCORES -ATTRIB_HIDE | Out-Null
 	Powercfg -setacvalueindex scheme_current sub_processor CPMINCORES 100 | Out-Null
- 	powercfg /setacvalueindex scheme_current 2a737441-1930-4402-8d77-b2bebba308a3 d4e98f31-5ffe-4ce1-be31-1b38b384c009 0 | Out-Null
-  	powercfg /setacvalueindex scheme_current 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 0 | Out-Null
-   	powercfg /setacvalueindex scheme_current 7516b95f-f776-4464-8c53-06167f40cc99 3c0bc021-c8a8-4e07-a973-6b14cbcb2b7e 0 | Out-Null
-    	powercfg /setacvalueindex scheme_current 54533251-82be-4824-96c1-47b60b740d00 4d2b0152-7d5c-498b-88e2-34345392a2c5 5000 | Out-Null
+	powercfg /setacvalueindex scheme_current 2a737441-1930-4402-8d77-b2bebba308a3 d4e98f31-5ffe-4ce1-be31-1b38b384c009 0 | Out-Null
+	powercfg /setacvalueindex scheme_current 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 0 | Out-Null
+	powercfg /setacvalueindex scheme_current 7516b95f-f776-4464-8c53-06167f40cc99 3c0bc021-c8a8-4e07-a973-6b14cbcb2b7e 0 | Out-Null
+	powercfg /setacvalueindex scheme_current 54533251-82be-4824-96c1-47b60b740d00 4d2b0152-7d5c-498b-88e2-34345392a2c5 5000 | Out-Null
 	Powercfg -setactive scheme_current | Out-Null
 }
 
 #Disable DMA memory protection and cores isolation ("virtualization-based protection").
 Function DisableDMA {
-        Write-Output "Disabling DMA memory protection and cores isolation..."
+	Write-Output "Disabling DMA memory protection and cores isolation..."
 	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
-        #bcdedit /set vsmlaunchtype Off | Out-Null
-        #bcdedit /set vm No | Out-Null
-		bcdedit /deletevalue hypervisorlaunchtype | Out-Null
-		bcdedit /deletevalue vsmlaunchtype | Out-Null
-		bcdedit /deletevalue vm | Out-Null
-		bcdedit /set loadoptions DISABLE-LSA-ISO,DISABLE-VBS | Out-Null
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\FVE" | Out-Null -ErrorAction SilentlyContinue
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\FVE" -Name "DisableExternalDMAUnderLock" -Type DWord -Value 0
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" | Out-Null -ErrorAction SilentlyContinue
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 0
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name "HVCIMATRequired" -Type DWord -Value 0
+	$ErrorActionPreference = "silentlycontinue"
+	#bcdedit /set vsmlaunchtype Off | Out-Null
+	#bcdedit /set vm No | Out-Null
+	bcdedit /deletevalue hypervisorlaunchtype | Out-Null
+	bcdedit /deletevalue vsmlaunchtype | Out-Null
+	bcdedit /deletevalue vm | Out-Null
+	bcdedit /set loadoptions DISABLE-LSA-ISO, DISABLE-VBS | Out-Null
+	New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\FVE" | Out-Null -ErrorAction SilentlyContinue
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\FVE" -Name "DisableExternalDMAUnderLock" -Type DWord -Value 0
+	New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" | Out-Null -ErrorAction SilentlyContinue
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name "HVCIMATRequired" -Type DWord -Value 0
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name "RequirePlatformSecurityFeatures" -Type DWord -Value 0
- 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name "LsaCfgFlags" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name "LsaCfgFlags" -Type DWord -Value 0
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" -Name "LsaCfgFlags" -Type DWord -Value 0
- 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 0
-  	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "HVCIMATRequired" -Type DWord -Value 0
-   	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "RequirePlatformSecurityFeatures" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "EnableVirtualizationBasedSecurity" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "HVCIMATRequired" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name "RequirePlatformSecurityFeatures" -Type DWord -Value 0
 	$ErrorActionPreference = $errpref #restore previous preference
 }
 
 #Disable Process and Kernel Mitigations
 Function DisablePKM {
-       Write-Output "Disabling Process and Kernel Mitigations..."
-       $errpref = $ErrorActionPreference #save actual preference
-       $ErrorActionPreference = "silentlycontinue"
-       ForEach($v in (Get-Command -Name "Set-ProcessMitigation").Parameters["Disable"].Attributes.ValidValues){Set-ProcessMitigation -System -Disable $v.ToString() -ErrorAction SilentlyContinue}
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "DisableExceptionChainValidation" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "KernelSEHOPEnabled" -Type DWord -Value 0
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "EnableCfg" -Type DWord -Value 0
-       $ErrorActionPreference = $errpref #restore previous preference
+	Write-Output "Disabling Process and Kernel Mitigations..."
+	$errpref = $ErrorActionPreference #save actual preference
+	$ErrorActionPreference = "silentlycontinue"
+	ForEach ($v in (Get-Command -Name "Set-ProcessMitigation").Parameters["Disable"].Attributes.ValidValues) { Set-ProcessMitigation -System -Disable $v.ToString() -ErrorAction SilentlyContinue }
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "DisableExceptionChainValidation" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "KernelSEHOPEnabled" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "EnableCfg" -Type DWord -Value 0
+	$ErrorActionPreference = $errpref #restore previous preference
 }
 
 #Disallow drivers to get paged into virtual memory.
 Function DisallowDIP {
-       Write-Output "Disabling drivers get paged into virtual memory..."
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "DisablePagingExecutive" -Type DWord -Value 1
+	Write-Output "Disabling drivers get paged into virtual memory..."
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "DisablePagingExecutive" -Type DWord -Value 1
 }
 
 #Use big system memory caching to improve microstuttering.
 Function UseBigM {
-       Write-Output "Enabling big system memory caching to improve microstuttering..."
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "LargeSystemCache" -Type DWord -Value 0
+	Write-Output "Enabling big system memory caching to improve microstuttering..."
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "LargeSystemCache" -Type DWord -Value 0
 }
 
 #Force contiguous memory allocation in the DirectX Graphics Kernel.
 Function ForceContiguousM {
-       Write-Output "Forcing contiguous memory allocation in the DirectX Graphics Kernel..."
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" -Name "DpiMapIommuContiguous" -Type DWord -Value 1
+	Write-Output "Forcing contiguous memory allocation in the DirectX Graphics Kernel..."
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" -Name "DpiMapIommuContiguous" -Type DWord -Value 1
 }
 
 #Tell Windows to stop tolerating high DPC/ISR latencies.
 Function StophighDPC {
-       Write-Output "Forcing Windows to stop tolerating high DPC/ISR latencies..."
-       $errpref = $ErrorActionPreference #save actual preference
-       $ErrorActionPreference = "silentlycontinue"
-       New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" | Out-Null -ErrorAction SilentlyContinue
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "ExitLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "ExitLatencyCheckEnabled" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "LatencyToleranceDefault" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "LatencyToleranceFSVP" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "LatencyTolerancePerfOverride" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "LatencyToleranceScreenOffIR" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "LatencyToleranceVSyncEnabled" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "RtlCapabilityCheckLatency" -Type DWord -Value 1
-       New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" | Out-Null -ErrorAction SilentlyContinue
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultD3TransitionLatencyActivelyUsed" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultD3TransitionLatencyIdleLongTime" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultD3TransitionLatencyIdleMonitorOff" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultD3TransitionLatencyIdleNoContext" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultD3TransitionLatencyIdleShortTime" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultD3TransitionLatencyIdleVeryLongTime" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceIdle0" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceIdle0MonitorOff" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceIdle1" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceIdle1MonitorOff" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceMemory" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceNoContext" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceNoContextMonitorOff" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceOther" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceTimerPeriod" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultMemoryRefreshLatencyToleranceActivelyUsed" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultMemoryRefreshLatencyToleranceMonitorOff" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultMemoryRefreshLatencyToleranceNoContext" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "MaxIAverageGraphicsLatencyInOneBucket" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "MiracastPerfTrackGraphicsLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "MonitorLatencyTolerance" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "MonitorRefreshLatencyTolerance" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "TransitionLatency" -Type DWord -Value 1
-       $ErrorActionPreference = $errpref #restore previous preference
+	Write-Output "Forcing Windows to stop tolerating high DPC/ISR latencies..."
+	$errpref = $ErrorActionPreference #save actual preference
+	$ErrorActionPreference = "silentlycontinue"
+	New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" | Out-Null -ErrorAction SilentlyContinue
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "ExitLatency" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "ExitLatencyCheckEnabled" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "Latency" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "LatencyToleranceDefault" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "LatencyToleranceFSVP" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "LatencyTolerancePerfOverride" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "LatencyToleranceScreenOffIR" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "LatencyToleranceVSyncEnabled" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "RtlCapabilityCheckLatency" -Type DWord -Value 1
+	New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" | Out-Null -ErrorAction SilentlyContinue
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultD3TransitionLatencyActivelyUsed" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultD3TransitionLatencyIdleLongTime" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultD3TransitionLatencyIdleMonitorOff" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultD3TransitionLatencyIdleNoContext" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultD3TransitionLatencyIdleShortTime" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultD3TransitionLatencyIdleVeryLongTime" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceIdle0" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceIdle0MonitorOff" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceIdle1" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceIdle1MonitorOff" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceMemory" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceNoContext" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceNoContextMonitorOff" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceOther" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultLatencyToleranceTimerPeriod" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultMemoryRefreshLatencyToleranceActivelyUsed" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultMemoryRefreshLatencyToleranceMonitorOff" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "DefaultMemoryRefreshLatencyToleranceNoContext" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "Latency" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "MaxIAverageGraphicsLatencyInOneBucket" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "MiracastPerfTrackGraphicsLatency" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "MonitorLatencyTolerance" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "MonitorRefreshLatencyTolerance" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Power" -Name "TransitionLatency" -Type DWord -Value 1
+	$ErrorActionPreference = $errpref #restore previous preference
 }
 
 #Decrease mouse and keyboard buffer sizes.
 Function DecreaseMKBuffer {
-       Write-Output "Decreasing mouse and keyboard buffer sizes..."
-       $errpref = $ErrorActionPreference #save actual preference
-       $ErrorActionPreference = "silentlycontinue"
-       New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" | Out-Null -ErrorAction SilentlyContinue
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" -Name "MouseDataQueueSize" -Type DWord -Value 0x00000020
-       New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" | Out-Null -ErrorAction SilentlyContinue
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" -Name "KeyboardDataQueueSize" -Type DWord -Value 0x00000020
-       $ErrorActionPreference = $errpref #restore previous preference
+	Write-Output "Decreasing mouse and keyboard buffer sizes..."
+	$errpref = $ErrorActionPreference #save actual preference
+	$ErrorActionPreference = "silentlycontinue"
+	New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" | Out-Null -ErrorAction SilentlyContinue
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" -Name "MouseDataQueueSize" -Type DWord -Value 0x00000020
+	New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" | Out-Null -ErrorAction SilentlyContinue
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" -Name "KeyboardDataQueueSize" -Type DWord -Value 0x00000020
+	$ErrorActionPreference = $errpref #restore previous preference
 }
 
 #Applying Nvidia Tweaks if GTX/RTX Card Detected!
 Function NvidiaTweaks {
-       $CheckGPU = Get-CimInstance -ClassName Win32_VideoController | Select-Object -ExpandProperty Name
-       if(($CheckGPU -like "*GTX*") -or ($CheckGPU -like "*RTX*")) {
-       Write-Output "NVIDIA GTX/RTX Card Detected! Applying Nvidia Power Tweaks..."
+	$CheckGPU = Get-CimInstance -ClassName Win32_VideoController | Select-Object -ExpandProperty Name
+	if (($CheckGPU -like "*GTX*") -or ($CheckGPU -like "*RTX*")) {
+		Write-Output "NVIDIA GTX/RTX Card Detected! Applying Nvidia Power Tweaks..."
 
-			 $url_base = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/BaseProfile.nip"
-			 $url_nvidiaprofile = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/nvidiaProfileInspector.exe"
+		$url_base = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/BaseProfile.nip"
+		$url_nvidiaprofile = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/nvidiaProfileInspector.exe"
 
-       Invoke-WebRequest -Uri $url_base -OutFile "$Env:windir\system32\BaseProfile.nip" -ErrorAction SilentlyContinue
-       Invoke-WebRequest -Uri $url_nvidiaprofile -OutFile "$Env:windir\system32\nvidiaProfileInspector.exe" -ErrorAction SilentlyContinue
-       Push-Location
-       set-location "$Env:windir\system32\"
-       nvidiaProfileInspector.exe /s -load "BaseProfile.nip"
-       Pop-Location
-       } else {
-       Write-Output "Nvidia GTX/RTX Card Not Detected! Skipping..."
-       } 
-       $errpref = $ErrorActionPreference #save actual preference
-       $ErrorActionPreference = "silentlycontinue"	   
-       $CheckGPURegistryKey0 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000").DriverDesc
-	   $CheckGPURegistryKey1 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001").DriverDesc
-	   $CheckGPURegistryKey2 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002").DriverDesc
-	   $CheckGPURegistryKey3 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003").DriverDesc
-	   $ErrorActionPreference = $errpref #restore previous preference
-       if(($CheckGPURegistryKey0 -like "*GTX*") -or ($CheckGPURegistryKey0 -like "*RTX*")) {
-	   Write-Output "Nvidia GTX/RTX Card Registry Path 0000 Detected! Applying Nvidia Latency Tweaks..."
-	   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "D3PCLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "F1TransitionLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LOWLATENCY" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "Node3DLowLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020"
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RmGspcMaxFtuS" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RmGspcMinFtuS" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RmGspcPerioduS" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "vrrCursorMarginUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "vrrDeflickerMarginUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "vrrDeflickerMaxUs" -Type DWord -Value 1
-	   } elseif(($CheckGPURegistryKey1 -like "*GTX*") -or ($CheckGPURegistryKey1 -like "*RTX*")) {
-	   Write-Output "Nvidia GTX/RTX Card Registry Path 0001 Detected! Applying Nvidia Latency Tweaks..."
-	   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "D3PCLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "F1TransitionLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LOWLATENCY" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "Node3DLowLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020"
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RmGspcMaxFtuS" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RmGspcMinFtuS" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RmGspcPerioduS" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "vrrCursorMarginUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "vrrDeflickerMarginUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "vrrDeflickerMaxUs" -Type DWord -Value 1
-	   } elseif(($CheckGPURegistryKey2 -like "*GTX*") -or ($CheckGPURegistryKey2 -like "*RTX*")) {
-	   Write-Output "Nvidia GTX/RTX Card Registry Path 0002 Detected! Applying Nvidia Latency Tweaks..."
-	   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "D3PCLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "F1TransitionLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LOWLATENCY" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "Node3DLowLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020"
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RmGspcMaxFtuS" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RmGspcMinFtuS" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RmGspcPerioduS" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "vrrCursorMarginUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "vrrDeflickerMarginUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "vrrDeflickerMaxUs" -Type DWord -Value 1
-	   } elseif(($CheckGPURegistryKey3 -like "*GTX*") -or ($CheckGPURegistryKey3 -like "*RTX*")) {
-	   Write-Output "Nvidia GTX/RTX Card Registry Path 0003 Detected! Applying Nvidia Latency Tweaks..."
-	   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "D3PCLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "F1TransitionLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LOWLATENCY" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "Node3DLowLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020"
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RmGspcMaxFtuS" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RmGspcMinFtuS" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RmGspcPerioduS" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "vrrCursorMarginUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "vrrDeflickerMarginUs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "vrrDeflickerMaxUs" -Type DWord -Value 1
-	   } else {
-	   Write-Output "No NVIDIA GTX/RTX Card Registry entry Found! Skipping..."
-	   }
+		Invoke-WebRequest -Uri $url_base -OutFile "$Env:windir\system32\BaseProfile.nip" -ErrorAction SilentlyContinue
+		Invoke-WebRequest -Uri $url_nvidiaprofile -OutFile "$Env:windir\system32\nvidiaProfileInspector.exe" -ErrorAction SilentlyContinue
+		Push-Location
+		set-location "$Env:windir\system32\"
+		nvidiaProfileInspector.exe /s -load "BaseProfile.nip"
+		Pop-Location
+	}
+ else {
+		Write-Output "Nvidia GTX/RTX Card Not Detected! Skipping..."
+	} 
+	$errpref = $ErrorActionPreference #save actual preference
+	$ErrorActionPreference = "silentlycontinue"	   
+	$CheckGPURegistryKey0 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000").DriverDesc
+	$CheckGPURegistryKey1 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001").DriverDesc
+	$CheckGPURegistryKey2 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002").DriverDesc
+	$CheckGPURegistryKey3 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003").DriverDesc
+	$ErrorActionPreference = $errpref #restore previous preference
+	if (($CheckGPURegistryKey0 -like "*GTX*") -or ($CheckGPURegistryKey0 -like "*RTX*")) {
+		Write-Output "Nvidia GTX/RTX Card Registry Path 0000 Detected! Applying Nvidia Latency Tweaks..."
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "D3PCLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "F1TransitionLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LOWLATENCY" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "Node3DLowLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020"
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RmGspcMaxFtuS" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RmGspcMinFtuS" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RmGspcPerioduS" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "vrrCursorMarginUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "vrrDeflickerMarginUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "vrrDeflickerMaxUs" -Type DWord -Value 1
+	}
+ elseif (($CheckGPURegistryKey1 -like "*GTX*") -or ($CheckGPURegistryKey1 -like "*RTX*")) {
+		Write-Output "Nvidia GTX/RTX Card Registry Path 0001 Detected! Applying Nvidia Latency Tweaks..."
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "D3PCLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "F1TransitionLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LOWLATENCY" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "Node3DLowLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020"
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RmGspcMaxFtuS" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RmGspcMinFtuS" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RmGspcPerioduS" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "vrrCursorMarginUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "vrrDeflickerMarginUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "vrrDeflickerMaxUs" -Type DWord -Value 1
+	}
+ elseif (($CheckGPURegistryKey2 -like "*GTX*") -or ($CheckGPURegistryKey2 -like "*RTX*")) {
+		Write-Output "Nvidia GTX/RTX Card Registry Path 0002 Detected! Applying Nvidia Latency Tweaks..."
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "D3PCLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "F1TransitionLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LOWLATENCY" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "Node3DLowLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020"
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RmGspcMaxFtuS" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RmGspcMinFtuS" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RmGspcPerioduS" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "vrrCursorMarginUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "vrrDeflickerMarginUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "vrrDeflickerMaxUs" -Type DWord -Value 1
+	}
+ elseif (($CheckGPURegistryKey3 -like "*GTX*") -or ($CheckGPURegistryKey3 -like "*RTX*")) {
+		Write-Output "Nvidia GTX/RTX Card Registry Path 0003 Detected! Applying Nvidia Latency Tweaks..."
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "D3PCLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "F1TransitionLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LOWLATENCY" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "Node3DLowLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020"
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RmGspcMaxFtuS" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RmGspcMinFtuS" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RmGspcPerioduS" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "vrrCursorMarginUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "vrrDeflickerMarginUs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "vrrDeflickerMaxUs" -Type DWord -Value 1
+	}
+ else {
+		Write-Output "No NVIDIA GTX/RTX Card Registry entry Found! Skipping..."
+	}
 }
 
 #Applying AMD Tweaks If Detected!
 Function AMDGPUTweaks {
-	   $errpref = $ErrorActionPreference #save actual preference
-       $ErrorActionPreference = "silentlycontinue"
-	   $CheckGPURegistryKey0 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000").DriverDesc
-	   $CheckGPURegistryKey1 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001").DriverDesc
-	   $CheckGPURegistryKey2 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002").DriverDesc
-	   $CheckGPURegistryKey3 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003").DriverDesc
-	   $ErrorActionPreference = $errpref #restore previous preference
-	   if($CheckGPURegistryKey0 -like "*amd*") {
-	   Write-Output "AMD GPU Registry Path 0000 Detected! Applying AMD Latency Tweaks..."
-	   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LTRSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LTRSnoopL0Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "KMD_RpmComputeLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "DalUrgentLatencyNs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "memClockSwitchLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1
-	   } elseif($CheckGPURegistryKey1 -like "*amd*") {
-	   Write-Output "AMD GPU Registry Path 0001 Detected! Applying AMD Latency Tweaks..."
-	   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LTRSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LTRSnoopL0Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "KMD_RpmComputeLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "DalUrgentLatencyNs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "memClockSwitchLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1
-	   } elseif($CheckGPURegistryKey2 -like "*amd*") {
-	   Write-Output "AMD GPU Registry Path 0002 Detected! Applying AMD Latency Tweaks..."
-	   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LTRSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LTRSnoopL0Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "KMD_RpmComputeLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "DalUrgentLatencyNs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "memClockSwitchLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1
-	   } elseif($CheckGPURegistryKey3 -like "*amd*") {
-	   Write-Output "AMD GPU Registry Path 0003 Detected! Applying AMD Latency Tweaks..."
-	   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LTRSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LTRSnoopL0Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "KMD_RpmComputeLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "DalUrgentLatencyNs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "memClockSwitchLatency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1
-	   } else {
-	   Write-Output "No AMD GPU Registry entry Found! Skipping..."
-	   }
+	$errpref = $ErrorActionPreference #save actual preference
+	$ErrorActionPreference = "silentlycontinue"
+	$CheckGPURegistryKey0 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000").DriverDesc
+	$CheckGPURegistryKey1 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001").DriverDesc
+	$CheckGPURegistryKey2 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002").DriverDesc
+	$CheckGPURegistryKey3 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003").DriverDesc
+	$ErrorActionPreference = $errpref #restore previous preference
+	if ($CheckGPURegistryKey0 -like "*amd*") {
+		Write-Output "AMD GPU Registry Path 0000 Detected! Applying AMD Latency Tweaks..."
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LTRSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LTRSnoopL0Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "KMD_RpmComputeLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "DalUrgentLatencyNs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "memClockSwitchLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1
+	}
+ elseif ($CheckGPURegistryKey1 -like "*amd*") {
+		Write-Output "AMD GPU Registry Path 0001 Detected! Applying AMD Latency Tweaks..."
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LTRSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LTRSnoopL0Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "KMD_RpmComputeLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "DalUrgentLatencyNs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "memClockSwitchLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1
+	}
+ elseif ($CheckGPURegistryKey2 -like "*amd*") {
+		Write-Output "AMD GPU Registry Path 0002 Detected! Applying AMD Latency Tweaks..."
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LTRSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LTRSnoopL0Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "KMD_RpmComputeLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "DalUrgentLatencyNs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "memClockSwitchLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1
+	}
+ elseif ($CheckGPURegistryKey3 -like "*amd*") {
+		Write-Output "AMD GPU Registry Path 0003 Detected! Applying AMD Latency Tweaks..."
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LTRSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LTRSnoopL0Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "KMD_RpmComputeLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "DalUrgentLatencyNs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "memClockSwitchLatency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1
+	}
+ else {
+		Write-Output "No AMD GPU Registry entry Found! Skipping..."
+	}
 }
 
 #Optimizing Network and applying Tweaks for no throttle and maximum speed!
@@ -3382,22 +3331,22 @@ Function NetworkOptimizations {
 
 	# Ajustes de Registro para otimização de rede
 	$regConfigs = @{
-			"HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPER1_0SERVER" = @("explorer.exe", 10)
-			"HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPERSERVER"    = @("explorer.exe", 10)
-			"HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider"                                    = @("LocalPriority", 4), @("HostsPriority", 5), @("DnsPriority", 6), @("NetbtPriority", 7)
-			"HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched"                                                 = @("NonBestEffortlimit", 0)
-			"HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS"                                                = @("Do not use NLA", "1")
-			"HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"                                  = @("Size", 1), @("IRPStackSize", 20)
-			"HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"                                         = @("MaxUserPort", 65534), @("TcpTimedWaitDelay", 30), @("DefaultTTL", 64), @("MaxNumRssCpus", 4), @("DisableTaskOffload", 0)
-			"HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters"                                                        = @("TCPNoDelay", 1)
-			"HKLM:\SYSTEM\ControlSet001\Control\Lsa"                                                          = @("LmCompatibilityLevel", 1)
-			"HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"                                     = @("EnableAutoDoh", 2)
+		"HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPER1_0SERVER" = @("explorer.exe", 10)
+		"HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPERSERVER"    = @("explorer.exe", 10)
+		"HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider"                                     = @("LocalPriority", 4), @("HostsPriority", 5), @("DnsPriority", 6), @("NetbtPriority", 7)
+		"HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched"                                                  = @("NonBestEffortlimit", 0)
+		"HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS"                                                 = @("Do not use NLA", "1")
+		"HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"                                   = @("Size", 1), @("IRPStackSize", 20)
+		"HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"                                          = @("MaxUserPort", 65534), @("TcpTimedWaitDelay", 30), @("DefaultTTL", 64), @("MaxNumRssCpus", 4), @("DisableTaskOffload", 0)
+		"HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters"                                                          = @("TCPNoDelay", 1)
+		"HKLM:\SYSTEM\ControlSet001\Control\Lsa"                                                            = @("LmCompatibilityLevel", 1)
+		"HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"                                       = @("EnableAutoDoh", 2)
 	}
 
 	foreach ($path in $regConfigs.Keys) {
-			foreach ($setting in $regConfigs[$path]) {
-					Set-ItemProperty -Path $path -Name $setting[0] -Type DWord -Value $setting[1] -ErrorAction SilentlyContinue
-			}
+		foreach ($setting in $regConfigs[$path]) {
+			Set-ItemProperty -Path $path -Name $setting[0] -Type DWord -Value $setting[1] -ErrorAction SilentlyContinue
+		}
 	}
 
 	# Ajustes de TCP/IP
@@ -3412,24 +3361,24 @@ Function NetworkOptimizations {
 
 	# Ajustes de Netsh
 	$netshCommands = @(
-			"int ip set global taskoffload=enabled",
-			"int tcp set global ecncapability=enabled",
-			"int tcp set global rss=enabled",
-			"int tcp set global rsc=enabled",
-			"int tcp set global dca=enabled",
-			"int tcp set global netdma=enabled",
-			"int tcp set global fastopen=enabled",
-			"int tcp set global fastopenfallback=enabled",
-			"int tcp set global prr=enabled",
-			"int tcp set global pacingprofile=always",
-			"int tcp set global hystart=enabled",
-			"int tcp set supplemental internet enablecwndrestart=enabled",
-			"int tcp set security mpp=enabled",
-			"int tcp set global autotuninglevel=normal",
-			"int tcp set supplemental internet congestionprovider=dctcp"
+		"int ip set global taskoffload=enabled",
+		"int tcp set global ecncapability=enabled",
+		"int tcp set global rss=enabled",
+		"int tcp set global rsc=enabled",
+		"int tcp set global dca=enabled",
+		"int tcp set global netdma=enabled",
+		"int tcp set global fastopen=enabled",
+		"int tcp set global fastopenfallback=enabled",
+		"int tcp set global prr=enabled",
+		"int tcp set global pacingprofile=always",
+		"int tcp set global hystart=enabled",
+		"int tcp set supplemental internet enablecwndrestart=enabled",
+		"int tcp set security mpp=enabled",
+		"int tcp set global autotuninglevel=normal",
+		"int tcp set supplemental internet congestionprovider=dctcp"
 	)
 	foreach ($cmd in $netshCommands) {
-			netsh $cmd | Out-Null
+		netsh $cmd | Out-Null
 	}
 
 	# Ajustes globais de offload
@@ -3438,34 +3387,34 @@ Function NetworkOptimizations {
 
 	# Ativação e desativação de funcionalidades em adaptadores de rede
 	$netAdapterSettings = @(
-			"Enable-NetAdapterChecksumOffload",
-			"Enable-NetAdapterIPsecOffload",
-			"Enable-NetAdapterRsc",
-			"Enable-NetAdapterRss",
-			"Enable-NetAdapterQos",
-			"Enable-NetAdapterEncapsulatedPacketTaskOffload",
-			"Enable-NetAdapterSriov",
-			"Enable-NetAdapterVmq"
+		"Enable-NetAdapterChecksumOffload",
+		"Enable-NetAdapterIPsecOffload",
+		"Enable-NetAdapterRsc",
+		"Enable-NetAdapterRss",
+		"Enable-NetAdapterQos",
+		"Enable-NetAdapterEncapsulatedPacketTaskOffload",
+		"Enable-NetAdapterSriov",
+		"Enable-NetAdapterVmq"
 	)
 	foreach ($setting in $netAdapterSettings) {
-			& $setting -Name "*" | Out-Null
+		& $setting -Name "*" | Out-Null
 	}
 	Disable-NetAdapterLso -Name "*"  | Out-Null
 
 	# Ajustes avançados dos adaptadores de rede
 	$advancedProperties = @(
-			"Energy-Efficient Ethernet", "Energy Efficient Ethernet", "Ultra Low Power Mode",
-			"System Idle Power Saver", "Green Ethernet", "Power Saving Mode", "Gigabit Lite",
-			"EEE", "Advanced EEE", "ARP Offload", "NS Offload", "Large Send Offload v2 (IPv4)",
-			"Large Send Offload v2 (IPv6)", "TCP Checksum Offload (IPv4)", "TCP Checksum Offload (IPv6)",
-			"UDP Checksum Offload (IPv4)", "UDP Checksum Offload (IPv6)", "Idle Power Saving",
-			"Flow Control", "Interrupt Moderation", "Reduce Speed On Power Down", "Interrupt Moderation Rate",
-			"Log Link State Event", "Packet Priority & VLAN", "Priority & VLAN",
-			"IPv4 Checksum Offload", "Jumbo Frame", "Maximum Number of RSS Queues"
+		"Energy-Efficient Ethernet", "Energy Efficient Ethernet", "Ultra Low Power Mode",
+		"System Idle Power Saver", "Green Ethernet", "Power Saving Mode", "Gigabit Lite",
+		"EEE", "Advanced EEE", "ARP Offload", "NS Offload", "Large Send Offload v2 (IPv4)",
+		"Large Send Offload v2 (IPv6)", "TCP Checksum Offload (IPv4)", "TCP Checksum Offload (IPv6)",
+		"UDP Checksum Offload (IPv4)", "UDP Checksum Offload (IPv6)", "Idle Power Saving",
+		"Flow Control", "Interrupt Moderation", "Reduce Speed On Power Down", "Interrupt Moderation Rate",
+		"Log Link State Event", "Packet Priority & VLAN", "Priority & VLAN",
+		"IPv4 Checksum Offload", "Jumbo Frame", "Maximum Number of RSS Queues"
 	)
 
 	foreach ($prop in $advancedProperties) {
-			Set-NetAdapterAdvancedProperty -Name * -DisplayName $prop -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+		Set-NetAdapterAdvancedProperty -Name * -DisplayName $prop -DisplayValue "Disabled" -ErrorAction SilentlyContinue
 	}
 
 	# Restaurando a preferência de erro original
@@ -3476,22 +3425,22 @@ Function NetworkOptimizations {
 
 # Disable Nagle's Algorithm
 Function DisableNagle {
-$errpref = $ErrorActionPreference #save actual preference
-$ErrorActionPreference = "silentlycontinue"
-$NetworkIDS = @(
+	$errpref = $ErrorActionPreference #save actual preference
+	$ErrorActionPreference = "silentlycontinue"
+	$NetworkIDS = @(
 (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\*").PSChildName
-)
-    foreach ($NetworkID in $NetworkIDS) {
-	Write-Output "Disabling Nagles Algorithm..."
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$NetworkID" -Name "TcpAckFrequency" -Type DWord -Value 1
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$NetworkID" -Name "TCPNoDelay" -Type DWord -Value 1
-}
-$ErrorActionPreference = $errpref #restore previous preference
+	)
+	foreach ($NetworkID in $NetworkIDS) {
+		Write-Output "Disabling Nagles Algorithm..."
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$NetworkID" -Name "TcpAckFrequency" -Type DWord -Value 1
+		Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$NetworkID" -Name "TCPNoDelay" -Type DWord -Value 1
+	}
+	$ErrorActionPreference = $errpref #restore previous preference
 }
 
 function Ativar-Servicos {
 	param (
-			[string[]]$Servicos = @('SysMain', 'PcaSvc', 'DiagTrack')
+		[string[]]$Servicos = @('SysMain', 'PcaSvc', 'DiagTrack')
 	)
 
 	# Exibir banner informativo
@@ -3512,55 +3461,54 @@ function Ativar-Servicos {
 
 	# Função interna para ativar um servico
 	function Ativar-Servico {
-			param (
-					[string]$NomeServico
-			)
-			$servico = Get-Service -Name $NomeServico -ErrorAction SilentlyContinue
-			if ($null -eq $servico) {
-					Escrever-Colorido "Servico '$NomeServico' nao encontrado." "VermelhoClaro"
-					return
-			}
-			Escrever-Colorido "Servico encontrado: $($servico.DisplayName) ($($servico.Name))" "CinzaClaro"
-			if ($servico.Status -eq 'Running') {
-					Escrever-Colorido "Servico '$($servico.Name)' ja esta em execucao." "VerdeClaro"
-			} else {
-					Start-Service -Name $servico.Name
-					Set-Service -Name $servico.Name -StartupType Automatic
-					Escrever-Colorido "Servico '$($servico.Name)' ativado com sucesso." "VerdeClaro"
-			}
+		param (
+			[string]$NomeServico
+		)
+		$servico = Get-Service -Name $NomeServico -ErrorAction SilentlyContinue
+		if ($null -eq $servico) {
+			Escrever-Colorido "Servico '$NomeServico' nao encontrado." "VermelhoClaro"
+			return
+		}
+		Escrever-Colorido "Servico encontrado: $($servico.DisplayName) ($($servico.Name))" "CinzaClaro"
+		if ($servico.Status -eq 'Running') {
+			Escrever-Colorido "Servico '$($servico.Name)' ja esta em execucao." "VerdeClaro"
+		}
+		else {
+			Start-Service -Name $servico.Name
+			Set-Service -Name $servico.Name -StartupType Automatic
+			Escrever-Colorido "Servico '$($servico.Name)' ativado com sucesso." "VerdeClaro"
+		}
 	}
 
 	# Loop para cada servico
 	foreach ($nomeServico in $Servicos) {
-			$pergunta = "Deseja ativar o servico '$nomeServico'? (S/N): "
-			$resposta = Read-Host -Prompt $pergunta
-			if ($resposta.ToUpper() -eq 'S') {
-					Ativar-Servico -NomeServico $nomeServico
-			} else {
-					Escrever-Colorido "Servico '$nomeServico' nao foi ativado." "Amarelo"
-			}
+		$pergunta = "Deseja ativar o servico '$nomeServico'? (S/N): "
+		$resposta = Read-Host -Prompt $pergunta
+		if ($resposta.ToUpper() -eq 'S') {
+			Ativar-Servico -NomeServico $nomeServico
+		}
+		else {
+			Escrever-Colorido "Servico '$nomeServico' nao foi ativado." "Amarelo"
+		}
 	}
 }
 
 
 #setting network adabter optimal rss
 Function NetworkAdapterRSS {
-$errpref = $ErrorActionPreference #save actual preference
-$ErrorActionPreference = "silentlycontinue"
-Write-Output "Setting network adapter RSS..."
-	$PhysicalAdapters = Get-WmiObject -Class Win32_NetworkAdapter|Where-Object{$_.PNPDeviceID -notlike "ROOT\*" -and $_.Manufacturer -ne "Microsoft" -and $_.ConfigManagerErrorCode -eq 0 -and $_.ConfigManagerErrorCode -ne 22}
+	$errpref = $ErrorActionPreference #save actual preference
+	$ErrorActionPreference = "silentlycontinue"
+	Write-Output "Setting network adapter RSS..."
+	$PhysicalAdapters = Get-WmiObject -Class Win32_NetworkAdapter | Where-Object { $_.PNPDeviceID -notlike "ROOT\*" -and $_.Manufacturer -ne "Microsoft" -and $_.ConfigManagerErrorCode -eq 0 -and $_.ConfigManagerErrorCode -ne 22 }
 	
-	Foreach($PhysicalAdapter in $PhysicalAdapters)
-	{
+	Foreach ($PhysicalAdapter in $PhysicalAdapters) {
 		# $PhysicalAdapterName = $PhysicalAdapter.Name
 		$DeviceID = $PhysicalAdapter.DeviceID
-		If([Int32]$DeviceID -lt 10)
-		{
-			$AdapterDeviceNumber = "000"+$DeviceID
+		If ([Int32]$DeviceID -lt 10) {
+			$AdapterDeviceNumber = "000" + $DeviceID
 		}
-		Else
-		{
-			$AdapterDeviceNumber = "00"+$DeviceID
+		Else {
+			$AdapterDeviceNumber = "00" + $DeviceID
 		}
 		$KeyPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber"
 		$KeyPath2 = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber\Ndi\params\*RSS\Enum"
@@ -3570,40 +3518,38 @@ Write-Output "Setting network adapter RSS..."
 		$KeyPath6 = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber\Ndi\params\*ReceiveBuffers"
 		$KeyPath7 = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber\Ndi\params\*TransmitBuffers"
 		
-		If(Test-Path -Path $KeyPath)
-			{
-					new-Item -Path $KeyPath2 -Force | Out-Null
-					new-Item -Path $KeyPath4 -Force | Out-Null
-					Set-ItemProperty -Path $KeyPath -Name "*NumRssQueues" -Type String -Value 2 | Out-Null
-					Set-ItemProperty -Path $KeyPath -Name "*RSS" -Type String -Value 1 | Out-Null
-					Set-ItemProperty -Path $KeyPath -Name "*RSSProfile" -Type String -Value 4 | Out-Null
-					Set-ItemProperty -Path $KeyPath -Name "*RssBaseProcNumber" -Type String -Value 2 | Out-Null
-					Set-ItemProperty -Path $KeyPath -Name "*MaxRssProcessors" -Type String -Value 4 | Out-Null
-					Set-ItemProperty -Path $KeyPath -Name "*NumaNodeId" -Type String -Value 0 | Out-Null
-					Set-ItemProperty -Path $KeyPath -Name "*RssBaseProcGroup" -Type String -Value 0 | Out-Null
-					Set-ItemProperty -Path $KeyPath -Name "*RssMaxProcNumber" -Type String -Value 4 | Out-Null
-					Set-ItemProperty -Path $KeyPath -Name "*RssMaxProcGroup" -Type String -Value 0 | Out-Null
-					Set-ItemProperty -Path $KeyPath -Name "*ReceiveBuffers" -Type String -Value 2048 | Out-Null
-					Set-ItemProperty -Path $KeyPath -Name "*TransmitBuffers" -Type String -Value 4096 | Out-Null
-					New-ItemProperty -Path $KeyPath3 -Name "default" -Type String -Value 1 | Out-Null
-					New-ItemProperty -Path $KeyPath3 -Name "ParamDesc" -Type String -Value "Receive Side Scaling" | Out-Null
-					New-ItemProperty -Path $KeyPath3 -Name "type" -Type String -Value "enum" | Out-Null
-					New-ItemProperty -Path $KeyPath2 -Name "0" -Type String -Value "Disabled" | Out-Null
-					New-ItemProperty -Path $KeyPath2 -Name "1" -Type String -Value "Enabled" | Out-Null
-					New-ItemProperty -Path $KeyPath4 -Name "1" -Type String -Value "1 Queue" | Out-Null
-					New-ItemProperty -Path $KeyPath4 -Name "2" -Type String -Value "2 Queue" | Out-Null
-					New-ItemProperty -Path $KeyPath4 -Name "3" -Type String -Value "3 Queue" | Out-Null
-					New-ItemProperty -Path $KeyPath4 -Name "4" -Type String -Value "4 Queue" | Out-Null
-					New-ItemProperty -Path $KeyPath5 -Name "default" -Type String -Value "2" | Out-Null
-					New-ItemProperty -Path $KeyPath5 -Name "ParamDesc" -Type String -Value "Maximum Number of RSS Queues" | Out-Null
-					New-ItemProperty -Path $KeyPath5 -Name "type" -Type String -Value "enum" | Out-Null
-					Set-ItemProperty -Path $KeyPath6 -Name "Max" -Type String -Value 6144 | Out-Null
-					Set-ItemProperty -Path $KeyPath6 -Name "Default" -Type String -Value 2048 | Out-Null
-					Set-ItemProperty -Path $KeyPath7 -Name "Max" -Type String -Value 6144 | Out-Null
-					Set-ItemProperty -Path $KeyPath7 -Name "Default" -Type String -Value 4096 | Out-Null
+		If (Test-Path -Path $KeyPath) {
+			new-Item -Path $KeyPath2 -Force | Out-Null
+			new-Item -Path $KeyPath4 -Force | Out-Null
+			Set-ItemProperty -Path $KeyPath -Name "*NumRssQueues" -Type String -Value 2 | Out-Null
+			Set-ItemProperty -Path $KeyPath -Name "*RSS" -Type String -Value 1 | Out-Null
+			Set-ItemProperty -Path $KeyPath -Name "*RSSProfile" -Type String -Value 4 | Out-Null
+			Set-ItemProperty -Path $KeyPath -Name "*RssBaseProcNumber" -Type String -Value 2 | Out-Null
+			Set-ItemProperty -Path $KeyPath -Name "*MaxRssProcessors" -Type String -Value 4 | Out-Null
+			Set-ItemProperty -Path $KeyPath -Name "*NumaNodeId" -Type String -Value 0 | Out-Null
+			Set-ItemProperty -Path $KeyPath -Name "*RssBaseProcGroup" -Type String -Value 0 | Out-Null
+			Set-ItemProperty -Path $KeyPath -Name "*RssMaxProcNumber" -Type String -Value 4 | Out-Null
+			Set-ItemProperty -Path $KeyPath -Name "*RssMaxProcGroup" -Type String -Value 0 | Out-Null
+			Set-ItemProperty -Path $KeyPath -Name "*ReceiveBuffers" -Type String -Value 2048 | Out-Null
+			Set-ItemProperty -Path $KeyPath -Name "*TransmitBuffers" -Type String -Value 4096 | Out-Null
+			New-ItemProperty -Path $KeyPath3 -Name "default" -Type String -Value 1 | Out-Null
+			New-ItemProperty -Path $KeyPath3 -Name "ParamDesc" -Type String -Value "Receive Side Scaling" | Out-Null
+			New-ItemProperty -Path $KeyPath3 -Name "type" -Type String -Value "enum" | Out-Null
+			New-ItemProperty -Path $KeyPath2 -Name "0" -Type String -Value "Disabled" | Out-Null
+			New-ItemProperty -Path $KeyPath2 -Name "1" -Type String -Value "Enabled" | Out-Null
+			New-ItemProperty -Path $KeyPath4 -Name "1" -Type String -Value "1 Queue" | Out-Null
+			New-ItemProperty -Path $KeyPath4 -Name "2" -Type String -Value "2 Queue" | Out-Null
+			New-ItemProperty -Path $KeyPath4 -Name "3" -Type String -Value "3 Queue" | Out-Null
+			New-ItemProperty -Path $KeyPath4 -Name "4" -Type String -Value "4 Queue" | Out-Null
+			New-ItemProperty -Path $KeyPath5 -Name "default" -Type String -Value "2" | Out-Null
+			New-ItemProperty -Path $KeyPath5 -Name "ParamDesc" -Type String -Value "Maximum Number of RSS Queues" | Out-Null
+			New-ItemProperty -Path $KeyPath5 -Name "type" -Type String -Value "enum" | Out-Null
+			Set-ItemProperty -Path $KeyPath6 -Name "Max" -Type String -Value 6144 | Out-Null
+			Set-ItemProperty -Path $KeyPath6 -Name "Default" -Type String -Value 2048 | Out-Null
+			Set-ItemProperty -Path $KeyPath7 -Name "Max" -Type String -Value 6144 | Out-Null
+			Set-ItemProperty -Path $KeyPath7 -Name "Default" -Type String -Value 4096 | Out-Null
 		}
-				Else
-		{
+		Else {
 			Escrever-Colorido "Caminho ($KeyPath) Nao encontrado." "Vermelho"
 		}
 	}
@@ -3612,31 +3558,31 @@ Write-Output "Setting network adapter RSS..."
 
 #Remove Edit with 3D Paint
 Function RemoveEdit3D {
-       Write-Output "Removing Edit with Paint 3D from context menu..."
-       Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.3mf\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
-       Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.bmp\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
-       Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.fbx\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
-       Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.gif\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
-       Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.jfif\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
-       Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.jpe\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
-       Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.jpeg\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
-       Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.jpg\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
-       Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.png\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
-       Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.tif\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
-       Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.tiff\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
+	Write-Output "Removing Edit with Paint 3D from context menu..."
+	Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.3mf\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.bmp\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.fbx\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.gif\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.jfif\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.jpe\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.jpeg\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.jpg\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.png\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.tif\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCR:\SystemFileAssociations\.tiff\Shell\" -Name "3D Edit" -ErrorAction SilentlyContinue
 }
 
 #fix issue with games shortcut that created by games lunchers turned white!
 Function FixURLext {
-    Escrever-Colorido "Corrigindo atalhos do White Games criados por inicializadores de jogos..." "Verde"
-    choco install -y setuserfta | Out-Null
-    Start-Sleep -s 5
-    Push-Location
-    set-location "$env:ProgramData\chocolatey\lib\setuserfta\tools\SetUserFTA\"
-    SetUserFTA.exe del .url | Out-Null
-    SetUserFTA.exe .url, InternetShortcut | Out-Null
-    Pop-Location
-    choco uninstall -y setuserfta | Out-Null
+	Escrever-Colorido "Corrigindo atalhos do White Games criados por inicializadores de jogos..." "Verde"
+	choco install -y setuserfta | Out-Null
+	Start-Sleep -s 5
+	Push-Location
+	set-location "$env:ProgramData\chocolatey\lib\setuserfta\tools\SetUserFTA\"
+	SetUserFTA.exe del .url | Out-Null
+	SetUserFTA.exe .url, InternetShortcut | Out-Null
+	Pop-Location
+	choco uninstall -y setuserfta | Out-Null
 }
     
 # Ultimate CLeaner
@@ -3646,50 +3592,50 @@ Function UltimateCleaner {
 	Escrever-Colorido "" "Verde"
 	Escrever-Colorido "Executando o Ultimate Cleaner => Pastas temporarias e limpar DNS + Redefinir IP...." "Verde"
 	Escrever-Colorido "" "Verde"
-cmd /c 'netsh winsock reset 2>nul' >$null
-cmd /c 'netsh int ip reset 2>nul' >$null
-cmd /c 'ipconfig /release 2>nul' >$null
-cmd /c 'ipconfig /renew 2>nul' >$null
-cmd /c 'ipconfig /flushdns 2>nul' >$null
-cmd /c 'echo Flush DNS + IP Reset Completed Successfully!'
-cmd /c 'echo Clearing Temp folders....'
-cmd /c 'del /f /s /q %systemdrive%\*.tmp 2>nul' >$null
-cmd /c 'del /f /s /q %systemdrive%\*._mp 2>nul' >$null
-cmd /c 'del /f /s /q %systemdrive%\*.log 2>nul' >$null
-cmd /c 'del /f /s /q %systemdrive%\*.gid 2>nul' >$null
-cmd /c 'del /f /s /q %systemdrive%\*.chk 2>nul' >$null
-cmd /c 'del /f /s /q %systemdrive%\*.old 2>nul' >$null
-cmd /c 'del /f /s /q %systemdrive%\recycled\*.* 2>nul' >$null
-cmd /c 'del /f /s /q %windir%\*.bak 2>nul' >$null
-cmd /c 'del /f /s /q %windir%\prefetch\*.* 2>nul' >$null
-cmd /c 'del /f /q %userprofile%\cookies\*.* 2>nul' >$null
-cmd /c 'del /f /q %userprofile%\recent\*.* 2>nul' >$null
-cmd /c 'del /f /s /q %userprofile%\Local Settings\Temporary Internet Files\*.* 2>nul' >$null
-$errpref = $ErrorActionPreference #save actual preference
-$ErrorActionPreference = "silentlycontinue"
-Get-ChildItem -Path "$env:temp" -Exclude "dmtmp" | ForEach-Object ($_) {
-       "CLEANING :" + $_.fullname
-       Remove-Item $_.fullname -Force -Recurse
-       "CLEANED... :" + $_.fullname
-   }
-$ErrorActionPreference = $errpref #restore previous preference
-cmd /c 'del /f /s /q %userprofile%\recent\*.* 2>nul' >$null
-cmd /c 'del /f /s /q %windir%\Temp\*.* 2>nul' >$null
-cmd /c 'echo Temp folders Cleared Successfully!'
+	cmd /c 'netsh winsock reset 2>nul' >$null
+	cmd /c 'netsh int ip reset 2>nul' >$null
+	cmd /c 'ipconfig /release 2>nul' >$null
+	cmd /c 'ipconfig /renew 2>nul' >$null
+	cmd /c 'ipconfig /flushdns 2>nul' >$null
+	cmd /c 'echo Flush DNS + IP Reset Completed Successfully!'
+	cmd /c 'echo Clearing Temp folders....'
+	cmd /c 'del /f /s /q %systemdrive%\*.tmp 2>nul' >$null
+	cmd /c 'del /f /s /q %systemdrive%\*._mp 2>nul' >$null
+	cmd /c 'del /f /s /q %systemdrive%\*.log 2>nul' >$null
+	cmd /c 'del /f /s /q %systemdrive%\*.gid 2>nul' >$null
+	cmd /c 'del /f /s /q %systemdrive%\*.chk 2>nul' >$null
+	cmd /c 'del /f /s /q %systemdrive%\*.old 2>nul' >$null
+	cmd /c 'del /f /s /q %systemdrive%\recycled\*.* 2>nul' >$null
+	cmd /c 'del /f /s /q %windir%\*.bak 2>nul' >$null
+	cmd /c 'del /f /s /q %windir%\prefetch\*.* 2>nul' >$null
+	cmd /c 'del /f /q %userprofile%\cookies\*.* 2>nul' >$null
+	cmd /c 'del /f /q %userprofile%\recent\*.* 2>nul' >$null
+	cmd /c 'del /f /s /q %userprofile%\Local Settings\Temporary Internet Files\*.* 2>nul' >$null
+	$errpref = $ErrorActionPreference #save actual preference
+	$ErrorActionPreference = "silentlycontinue"
+	Get-ChildItem -Path "$env:temp" -Exclude "dmtmp" | ForEach-Object ($_) {
+		"CLEANING :" + $_.fullname
+		Remove-Item $_.fullname -Force -Recurse
+		"CLEANED... :" + $_.fullname
+	}
+	$ErrorActionPreference = $errpref #restore previous preference
+	cmd /c 'del /f /s /q %userprofile%\recent\*.* 2>nul' >$null
+	cmd /c 'del /f /s /q %windir%\Temp\*.* 2>nul' >$null
+	cmd /c 'echo Temp folders Cleared Successfully!'
 }
 
 #Notifying user to reboot!
 Function Finished {
 	# Verifica se o script está rodando como administrador
 	function Test-Admin {
-			$currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-			$principal = New-Object Security.Principal.WindowsPrincipal $currentUser
-			return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+		$currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
+		$principal = New-Object Security.Principal.WindowsPrincipal $currentUser
+		return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 	}
 
 	if (-not (Test-Admin)) {
-			Escrever-Colorido "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." "Vermelho"
-			exit
+		Escrever-Colorido "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." "Vermelho"
+		exit
 	}
 
 	# Define URL e destino do logo OEM
@@ -3698,33 +3644,35 @@ Function Finished {
 
 	# Verifica a conectividade antes de baixar a imagem
 	try {
-			$response = Test-Connection -ComputerName "raw.githubusercontent.com" -Count 1 -Quiet
-			if ($response) {
-					Invoke-WebRequest -Uri $url_logo -OutFile $destino_logo -ErrorAction Stop
-			} else {
-					Escrever-Colorido "Não foi possível baixar o logo. Verifique sua conexão." "Vermelho"
-			}
-	} catch {
-			Escrever-Colorido "Erro ao baixar o logo OEM: $_" "Vermelho"
+		$response = Test-Connection -ComputerName "raw.githubusercontent.com" -Count 1 -Quiet
+		if ($response) {
+			Invoke-WebRequest -Uri $url_logo -OutFile $destino_logo -ErrorAction Stop
+		}
+		else {
+			Escrever-Colorido "Não foi possível baixar o logo. Verifique sua conexão." "Vermelho"
+		}
+	}
+ catch {
+		Escrever-Colorido "Erro ao baixar o logo OEM: $_" "Vermelho"
 	}
 
 	# Criar permissões MSI Installer (Rodar como Administrador)
 	if (!(Test-Path "HKCR:\Msi.Package\shell\runas")) {
-			New-Item -Path "HKCR:\Msi.Package\shell\runas" -Force | Out-Null
+		New-Item -Path "HKCR:\Msi.Package\shell\runas" -Force | Out-Null
 	}
 	Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas" -Name "HasLUAShield" -Type String -Value ""
 	Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas\command" -Name "(Default)" -Type ExpandString -Value '"%SystemRoot%\System32\msiexec.exe" /i "%1" %*"' 
 
 	# Ativa histórico da área de transferência
 	if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System")) {
-			New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Force | Out-Null
+		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Force | Out-Null
 	}
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "AllowClipboardHistory" -Type DWord -Value 1
 
 	# Criar informações OEM
 	$oemPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
 	if (!(Test-Path $oemPath)) {
-			New-Item -Path $oemPath -Force | Out-Null
+		New-Item -Path $oemPath -Force | Out-Null
 	}
 	
 	Set-ItemProperty -Path $oemPath -Name "Manufacturer" -Type String -Value "PC Otimizado por Cesar Marques (Barao)"
@@ -3741,6 +3689,11 @@ Function Finished {
 	
 	# Abre o site sem problemas com navegadores modernos
 	Start-Process "http://techremote.com.br"
+
+	Clear-Host
+	Send-Color-Text "Otimização concluída com sucesso!`nReinicie o sistema para aplicar todas as alterações." "Verde"
+	if ((Read-Host "Deseja reiniciar agora? (S/N)") -imatch '^s$') { Restart-Computer -Force }
+	
 }
 
 
@@ -3756,30 +3709,13 @@ Function RequireAdmin {
 	}
 }
 
-# Wait for key press
-Function WaitForKey {
-	Write-Output "Press any key to continue..."
-	[Console]::ReadKey($true) | Out-Null
-}
-
-# Restart computer
-Function Restart {
-	Write-Output "Restarting..."
-	Restart-Computer
-}
-
 ###########
 # Titus Additions
 ###########
 
 Function EnableDarkMode {
-  Write-Output "Enabling Dark Mode"
+	Write-Output "Enabling Dark Mode"
 	Set-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme -Value 0
-}
-
-Function DisableDarkMode {
-    Write-Output "Disabling Dark Mode"
-	Remove-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme
 }
 
 ##########
@@ -3788,11 +3724,11 @@ Function DisableDarkMode {
 
 #Create Restore Point
 Function CreateRestorePoint {
-  Write-Output "Criando um ponto de restauracao caso algo ruim aconteca"
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore" -Name "SystemRestorePointCreationFrequency" -Value 0
-  cmd /c 'vssadmin resize shadowstorage /on="%SystemDrive%" /For="%SystemDrive%" /MaxSize=5GB 2>nul' >$null
-  Enable-ComputerRestore -Drive "$env:SystemDrive\"
-  Checkpoint-Computer -Description "Script Otimizacao TechRemote" -RestorePointType "MODIFY_SETTINGS"
+	Write-Output "Criando um ponto de restauracao caso algo ruim aconteca"
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore" -Name "SystemRestorePointCreationFrequency" -Value 0
+	cmd /c 'vssadmin resize shadowstorage /on="%SystemDrive%" /For="%SystemDrive%" /MaxSize=5GB 2>nul' >$null
+	Enable-ComputerRestore -Drive "$env:SystemDrive\"
+	Checkpoint-Computer -Description "Script Otimizacao TechRemote" -RestorePointType "MODIFY_SETTINGS"
 }
 
 # In case you have removed them for good, you can try to restore the files using installation medium as follows
@@ -3803,60 +3739,60 @@ Function CreateRestorePoint {
 # Remove-Item -Path C:\Mnt -Recurse
 
 Function DebloatAll {
-    Clear-Host
-    $Bloatware = @(
-        # Aplicativos padrão do Windows 10 e 11
-        "*3DBuilder*", "*AppConnector*", "*BingFinance*", "*BingNews*", "*BingSports*", "*BingTranslator*", "*BingWeather*",
-        "*GetHelp*", "*Getstarted*", "*Messaging*", "*Microsoft3DViewer*", "*MicrosoftSolitaireCollection*",
-        "*MicrosoftPowerBIForWindows*", "*MicrosoftStickyNotes*", "*NetworkSpeedTest*", "*OneNote*", "*Lens*", "*Sway*",
-        "*OneConnect*", "*People*", "*Print3D*", "*RemoteDesktop*", "*SkypeApp*", "*Wallet*", "*Whiteboard*",
-        "*WindowsAlarms*", "*WindowsFeedbackHub*", "*WindowsMaps*", "*WindowsSoundRecorder*", "*MicrosoftOfficeHub*",
-        "*MixedReality.Portal*", "*ScreenSketch*", "*Microsoft.MSPaint*", "Microsoft.549981C3F5F10", "*Advertising.Xaml*",
-        "*SolitaireCollection*", "*Clipchamp*", "*MicrosoftTeams*", "*TikTok*",
+	Clear-Host
+	$Bloatware = @(
+		# Aplicativos padrão do Windows 10 e 11
+		"*3DBuilder*", "*AppConnector*", "*BingFinance*", "*BingNews*", "*BingSports*", "*BingTranslator*", "*BingWeather*",
+		"*GetHelp*", "*Getstarted*", "*Messaging*", "*Microsoft3DViewer*", "*MicrosoftSolitaireCollection*",
+		"*MicrosoftPowerBIForWindows*", "*MicrosoftStickyNotes*", "*NetworkSpeedTest*", "*OneNote*", "*Lens*", "*Sway*",
+		"*OneConnect*", "*People*", "*Print3D*", "*RemoteDesktop*", "*SkypeApp*", "*Wallet*", "*Whiteboard*",
+		"*WindowsAlarms*", "*WindowsFeedbackHub*", "*WindowsMaps*", "*WindowsSoundRecorder*", "*MicrosoftOfficeHub*",
+		"*MixedReality.Portal*", "*ScreenSketch*", "*Microsoft.MSPaint*", "Microsoft.549981C3F5F10", "*Advertising.Xaml*",
+		"*SolitaireCollection*", "*Clipchamp*", "*MicrosoftTeams*", "*TikTok*",
 
-        # Aplicativos patrocinados ou pré-instalados
-        "*EclipseManager*", "*ActiproSoftwareLLC*", "*AdobePhotoshopExpress*", "*Duolingo-LearnLanguagesforFree*",
-        "*PandoraMediaInc*", "*CandyCrush*", "*BubbleWitch3Saga*", "*Wunderlist*", "*Flipboard*", "*Twitter*", "*Facebook*",
-        "*RoyalRevolt*", "*SpeedTest*", "*Viber*", "*ACGMediaPlayer*", "*Netflix*", "*OneCalendar*", "*LinkedInforWindows*",
-        "*HiddenCityMysteryofShadows*", "*Hulu*", "*AutodeskSketchBook*", "*DisneyMagicKingdoms*", "*MarchofEmpires*",
-        "*Plex*", "*FarmVille2CountryEscape*", "*CyberLinkMediaSuiteEssentials*", "*DrawboardPDF*", "*Asphalt8Airborne*",
-        "*Keeper*", "*SpotifyMusic*", "*WinZipUniversal*", "*XING*", "*Roblox*"
-    )
+		# Aplicativos patrocinados ou pré-instalados
+		"*EclipseManager*", "*ActiproSoftwareLLC*", "*AdobePhotoshopExpress*", "*Duolingo-LearnLanguagesforFree*",
+		"*PandoraMediaInc*", "*CandyCrush*", "*BubbleWitch3Saga*", "*Wunderlist*", "*Flipboard*", "*Twitter*", "*Facebook*",
+		"*RoyalRevolt*", "*SpeedTest*", "*Viber*", "*ACGMediaPlayer*", "*Netflix*", "*OneCalendar*", "*LinkedInforWindows*",
+		"*HiddenCityMysteryofShadows*", "*Hulu*", "*AutodeskSketchBook*", "*DisneyMagicKingdoms*", "*MarchofEmpires*",
+		"*Plex*", "*FarmVille2CountryEscape*", "*CyberLinkMediaSuiteEssentials*", "*DrawboardPDF*", "*Asphalt8Airborne*",
+		"*Keeper*", "*SpotifyMusic*", "*WinZipUniversal*", "*XING*", "*Roblox*"
+	)
 
-    $errpref = $ErrorActionPreference  # Salva a configuração atual
-    $ErrorActionPreference = "SilentlyContinue"
+	$errpref = $ErrorActionPreference  # Salva a configuração atual
+	$ErrorActionPreference = "SilentlyContinue"
 
-    foreach ($Bloat in $Bloatware) {
-        Get-AppxPackage -AllUsers -Name $Bloat | Remove-AppxPackage | Out-Null
-        Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online | Out-Null
-        Write-Output "Removendo: $Bloat"
-    }
+	foreach ($Bloat in $Bloatware) {
+		Get-AppxPackage -AllUsers -Name $Bloat | Remove-AppxPackage | Out-Null
+		Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $Bloat | Remove-AppxProvisionedPackage -Online | Out-Null
+		Write-Output "Removendo: $Bloat"
+	}
 
-    $ErrorActionPreference = $errpref  # Restaura a configuração anterior
+	$ErrorActionPreference = $errpref  # Restaura a configuração anterior
 }
 
 Function Clear-PSHistory {
 	# Remove o histórico atual da sessão (PowerShell 5.1 e versões superiores)
 	if (Get-Command -Name 'Clear-PSReadlineHistory' -ErrorAction SilentlyContinue) {
-			Clear-PSReadlineHistory
+		Clear-PSReadlineHistory
 	}
 
 	# Remove o histórico do perfil do usuário (caso o PowerShell use um arquivo de histórico)
 	$historyPath = "$env:APPDATA\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
 	if (Test-Path $historyPath) {
-			Remove-Item $historyPath -Force -ErrorAction SilentlyContinue
+		Remove-Item $historyPath -Force -ErrorAction SilentlyContinue
 	}
 
 	# Remove histórico do buffer de memória do PowerShell
 	$historyPathLegacy = "$env:USERPROFILE\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
 	if (Test-Path $historyPathLegacy) {
-			Remove-Item $historyPathLegacy -Force -ErrorAction SilentlyContinue
+		Remove-Item $historyPathLegacy -Force -ErrorAction SilentlyContinue
 	}
 
 	# Garante que o histórico também seja apagado no Windows PowerShell (caso o arquivo seja diferente)
 	$historyPathLegacyPS = "$env:USERPROFILE\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history"
 	if (Test-Path $historyPathLegacyPS) {
-			Remove-Item $historyPathLegacyPS -Force -ErrorAction SilentlyContinue
+		Remove-Item $historyPathLegacyPS -Force -ErrorAction SilentlyContinue
 	}
 
 	# Limpa o histórico da sessão atual
@@ -3864,11 +3800,12 @@ Function Clear-PSHistory {
 
 	# Limpa os itens do histórico com um comando alternativo
 	if ($PSVersionTable.PSVersion -lt '5.0') {
-			# Para versões abaixo da 5.0, usamos o comando alternativo
-			Clear-History -ErrorAction SilentlyContinue
-	} else {
-			# Para versões 5.0 ou superiores, podemos usar o cmdlet `Clear-History`
-			Get-History | ForEach-Object { Remove-Item -Path "history:$($_.Id)" -ErrorAction SilentlyContinue }
+		# Para versões abaixo da 5.0, usamos o comando alternativo
+		Clear-History -ErrorAction SilentlyContinue
+	}
+ else {
+		# Para versões 5.0 ou superiores, podemos usar o cmdlet `Clear-History`
+		Get-History | ForEach-Object { Remove-Item -Path "history:$($_.Id)" -ErrorAction SilentlyContinue }
 	}
 
 	# Confirmação visual
