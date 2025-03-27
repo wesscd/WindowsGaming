@@ -1,4 +1,4 @@
-# TechRemote Ultimate Windows Debloater Gaming v.0.7.0.1
+# TechRemote Ultimate Windows Debloater Gaming v.0.7.0.2
 # Otimizado por Grok 3 em 27/03/2025
 # Fonte Original: https://github.com/wesscd/WindowsGaming
 
@@ -41,16 +41,17 @@ function Show-Intro {
     [Console]::ReadKey($true) | Out-Null
 }
 
-# Lista de tweaks
+# Lista de tweaks atualizada
 $tweaks = @(
     "RequireAdmin", "CreateRestorePoint", "InstallEssentialTools", "OptimizeUpdates",
     "InstallOptimizationTools", "CleanSystem", "OptimizeMemory", "InstallISLC",
     "ConfigureISLC", "CheckWindowsActivation", "OptimizePerformance",
-    "HandleXboxFeatures", "EnableMSIMode", "ApplyPrivacyTweaks",
-    "OptimizeNetwork", "EnableEssentialServices", "CleanRegistry", "FinalizeSetup"
+    "HandleXboxFeatures", "EnableMSIMode", "ApplyPrivacyTweaks", "OptimizeNetwork",
+    "EnableEssentialServices", "OptimizePowerPlan", "DisableVisualEffects",
+    "OptimizeStorage", "ReduceStartupLoad", "CleanRegistry", "FinalizeSetup"
 )
 
-# Funções otimizadas
+# Funções existentes (mantidas)
 function RequireAdmin {
     if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
         Start-Process Powershell -ArgumentList "-ExecutionPolicy bypass -NoProfile -File `"$PSCommandPath`"" -Verb RunAs
@@ -111,6 +112,7 @@ function CleanSystem {
     )
     foreach ($cmd in $commands) { cmd /c "$cmd 2>nul" | Out-Null }
     Get-ChildItem -Path $env:TEMP -Exclude "dmtmp" -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse
+    Dism /Online /Cleanup-Image /StartComponentCleanup | Out-Null
 }
 
 function OptimizeMemory {
@@ -228,7 +230,8 @@ function ApplyPrivacyTweaks {
     Write-Colored "Aplicando ajustes de privacidade..." "Yellow"
     $privacy = @(
         @{"Path"="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection"; "Name"="AllowTelemetry"; "Value"=0},
-        @{"Path"="HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"; "Name"="EnableSmartScreen"; "Value"=0}
+        @{"Path"="HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"; "Name"="EnableSmartScreen"; "Value"=0},
+        @{"Path"="HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo"; "Name"="DisabledByGroupPolicy"; "Value"=1}
     )
     foreach ($item in $privacy) {
         if (-not (Test-Path $item.Path)) { New-Item -Path $item.Path -Force | Out-Null }
@@ -238,12 +241,16 @@ function ApplyPrivacyTweaks {
 
 function OptimizeNetwork {
     Write-Colored "Otimizando rede..." "Yellow"
-    $tcpSettings = @("EcnCapability=disabled", "Timestamps=disabled", "MaxSynRetransmissions=2")
+    $tcpSettings = @(
+        "EcnCapability=disabled", "Timestamps=disabled", "MaxSynRetransmissions=2",
+        "InitialRto=2000", "MinRto=300", "CongestionProvider=CTCP"
+    )
     foreach ($setting in $tcpSettings) { 
         $key, $value = $setting.Split('=')
         Set-NetTCPSetting -SettingName "internet" -$key $value -ErrorAction SilentlyContinue
     }
     netsh int tcp set global rss=enabled | Out-Null
+    netsh int tcp set global autotuninglevel=normal | Out-Null
 }
 
 function EnableEssentialServices {
@@ -251,7 +258,7 @@ function EnableEssentialServices {
     $services = @(
         @{Name="SysMain"; Desc="Acelera o carregamento de programas frequentes"},
         @{Name="PcaSvc"; Desc="Assistente de compatibilidade de programas"},
-        @{Name="DiagTrack"; Desc="Diagnósticos e telemetria"}
+        @{Name="WSearch"; Desc="Indexação para busca rápida"}
     )
     
     foreach ($service in $services) {
@@ -285,6 +292,80 @@ function EnableEssentialServices {
         }
         Start-Sleep -Seconds 1
     }
+}
+
+# Novas funções para maior performance
+function OptimizePowerPlan {
+    Write-Colored "Otimizando plano de energia..." "Yellow"
+    $gamingPlan = powercfg /l | Select-String "High performance" -ErrorAction SilentlyContinue
+    if ($gamingPlan) {
+        $guid = $gamingPlan -replace ".*GUID: ([a-z0-9-]+).*", '$1'
+        powercfg /setactive $guid
+    }
+    else {
+        powercfg /duplicatescheme 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+        $newPlan = powercfg /l | Select-String "High performance" | Select-Object -First 1
+        $guid = $newPlan -replace ".*GUID: ([a-z0-9-]+).*", '$1'
+        powercfg /setactive $guid
+    }
+    powercfg /change monitor-timeout-ac 0
+    powercfg /change standby-timeout-ac 0
+    powercfg /change hibernate-timeout-ac 0
+    Write-Colored "Plano de energia configurado para Alto Desempenho." "Green"
+}
+
+function DisableVisualEffects {
+    Write-Colored "Desativando efeitos visuais desnecessários..." "Yellow"
+    $path = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects"
+    if (-not (Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
+    Set-ItemProperty -Path $path -Name "VisualFXSetting" -Value 2 -Type DWord
+    $settings = @(
+        @{"Path"="HKCU:\Control Panel\Desktop"; "Name"="UserPreferencesMask"; "Value"=([byte[]](0x90,0x12,0x03,0x80,0x10,0x00,0x00,0x00))}
+    )
+    foreach ($item in $settings) {
+        Set-ItemProperty -Path $item.Path -Name $item.Name -Value $item.Value -Type Binary
+    }
+    Write-Colored "Efeitos visuais ajustados para melhor desempenho." "Green"
+}
+
+function OptimizeStorage {
+    Write-Colored "Otimizando armazenamento..." "Yellow"
+    $drives = Get-Disk | Where-Object {$_.PartitionStyle -eq "GPT" -or $_.PartitionStyle -eq "MBR"}
+    foreach ($drive in $drives) {
+        $partitions = Get-Partition -DiskNumber $drive.Number -ErrorAction SilentlyContinue
+        foreach ($partition in $partitions) {
+            if ($partition.DriveLetter) {
+                # Desativar indexação em drives
+                $drivePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search"
+                if (-not (Test-Path $drivePath)) { New-Item -Path $drivePath -Force | Out-Null }
+                Set-ItemProperty -Path $drivePath -Name "DisableSearch" -Value 1 -Type DWord
+                
+                # Verificar se é SSD e desativar desfragmentação automática
+                if ((Get-PhysicalDisk | Where-Object {$_.DeviceId -eq $drive.Number}).MediaType -eq "SSD") {
+                    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Dfrg\BootOptimizeFunction" -Name "Enable" -Value "N" -Type String
+                    Write-Colored "Desfragmentação desativada para SSD em $($partition.DriveLetter):" "Green"
+                }
+            }
+        }
+    }
+}
+
+function ReduceStartupLoad {
+    Write-Colored "Reduzindo carga de inicialização..." "Yellow"
+    $path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
+    if (-not (Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
+    
+    # Desativar programas comuns desnecessários
+    $startupItems = @("OneDrive", "CCleaner", "WindowsDefender")
+    foreach ($item in $startupItems) {
+        if (Get-ItemProperty -Path $path -Name $item -ErrorAction SilentlyContinue) {
+            Set-ItemProperty -Path $path -Name $item -Value ([byte[]](0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00)) -Type Binary
+        }
+    }
+    
+    # Reduzir tempo de espera do menu de boot
+    bcdedit /timeout 5 | Out-Null
+    Write-Colored "Carga de inicialização otimizada." "Green"
 }
 
 function CleanRegistry {
