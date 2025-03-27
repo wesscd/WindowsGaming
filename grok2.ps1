@@ -3,11 +3,29 @@ $ErrorActionPreference = "SilentlyContinue"
 $host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.1 --"
 
 function Escrever-Colorido {
-    param ([string]$Texto, [ConsoleColor]$Cor)
-    $corAnterior = $host.UI.RawUI.ForegroundColor
-    $host.UI.RawUI.ForegroundColor = $Cor
-    Write-Host $Texto
-    $host.UI.RawUI.ForegroundColor = $corAnterior
+    param (
+        [string]$Texto,
+        [string]$Cor
+    )
+    $cores = @{
+        'Preto'         = 'Black'
+        'Azul'          = 'DarkBlue'
+        'Verde'         = 'DarkGreen'
+        'Ciano'         = 'DarkCyan'
+        'Vermelho'      = 'DarkRed'
+        'Magenta'       = 'DarkMagenta'
+        'Amarelo'       = 'DarkYellow'
+        'CinzaClaro'    = 'Gray'
+        'CinzaEscuro'   = 'DarkGray'
+        'AzulClaro'     = 'Blue'
+        'VerdeClaro'    = 'Green'
+        'CianoClaro'    = 'Cyan'
+        'VermelhoClaro' = 'Red'
+        'MagentaClaro'  = 'Magenta'
+        'AmareloClaro'  = 'Yellow'
+        'Branco'        = 'White'
+    }
+    Write-Host $Texto -ForegroundColor $cores[$Cor]
 }
 
 Clear-Host
@@ -85,7 +103,7 @@ function Setar-MemoriaVirtual {
     $minSize = [math]::Round($ram * 1024 * 1.5)
     $maxSize = [math]::Round($ram * 1024 * 3)
     wmic computersystem where name="%computername%" set AutomaticManagedPagefile=False
-    wmic pagefileset where name="C:\\pagefile.sys" set InitialSize=$minSize,MaximumSize=$maxSize
+    wmic pagefileset where name="C:\\pagefile.sys" set InitialSize=$minSize, MaximumSize=$maxSize
 }
 
 function InstallISLC {
@@ -104,17 +122,17 @@ function ConfigureISLC {
     Escrever-Colorido "Configurando ISLC..." "Yellow"
     $config = [xml](Get-Content "C:\ISLC\Intelligent standby list cleaner ISLC.exe.Config")
     $ram = (Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1MB / 2
-    ($config.configuration.appSettings.add | Where-Object {$_.key -eq "Free memory"}).value = $ram
-    ($config.configuration.appSettings.add | Where-Object {$_.key -eq "Start minimized"}).value = "True"
-    ($config.configuration.appSettings.add | Where-Object {$_.key -eq "Wanted timer"}).value = "0.50"
-    ($config.configuration.appSettings.add | Where-Object {$_.key -eq "Custom timer"}).value = "True"
-    ($config.configuration.appSettings.add | Where-Object {$_.key -eq "TaskScheduler"}).value = "True"
+    ($config.configuration.appSettings.add | Where-Object { $_.key -eq "Free memory" }).value = $ram
+    ($config.configuration.appSettings.add | Where-Object { $_.key -eq "Start minimized" }).value = "True"
+    ($config.configuration.appSettings.add | Where-Object { $_.key -eq "Wanted timer" }).value = "0.50"
+    ($config.configuration.appSettings.add | Where-Object { $_.key -eq "Custom timer" }).value = "True"
+    ($config.configuration.appSettings.add | Where-Object { $_.key -eq "TaskScheduler" }).value = "True"
     $config.Save("C:\ISLC\Intelligent standby list cleaner ISLC.exe.Config")
 }
 
 function CheckWindowsActivation {
     Escrever-Colorido "Verificando ativação do Windows..." "Yellow"
-    if ((Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object {$_.PartialProductKey}).LicenseStatus -ne 1) {
+    if ((Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object { $_.PartialProductKey }).LicenseStatus -ne 1) {
         Escrever-Colorido "Windows não ativado. Tentando ativar..." "Red"
         irm https://get.activated.win | iex
     }
@@ -163,7 +181,7 @@ function askXBOX {
 
 function EnableMSIMode {
     Escrever-Colorido "Habilitando MSI Mode (cuidado: pode causar instabilidade)..." "Yellow"
-    $gpu = Get-CimInstance -ClassName Win32_VideoController | Where-Object {$_.PNPDeviceID -notlike "ROOT\*"}
+    $gpu = Get-CimInstance -ClassName Win32_VideoController | Where-Object { $_.PNPDeviceID -notlike "ROOT\*" }
     if ($gpu.PNPDeviceID -and ($gpu.Name -like "*GTX*" -or $gpu.Name -like "*RTX*" -or $gpu.Name -like "*AMD*")) {
         $path = "HKLM:\SYSTEM\CurrentControlSet\Enum\$($gpu.PNPDeviceID)\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties"
         if (-not (Test-Path $path)) { New-Item -Path $path -Force }
