@@ -26,7 +26,7 @@ function Send-Color-Text {
     Write-Host $Texto -ForegroundColor $cores[$Cor]
 }
 
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.3 (GROK) --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.4 (GROK) --"
 Clear-Host
 Send-Color-Text "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗" "Verde"
 Send-Color-Text "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝" "Verde"
@@ -49,7 +49,7 @@ New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
 
 $currentexename = ([Diagnostics.Process]::GetCurrentProcess().ProcessName + '.exe')
 if ($currentexename -eq "pwsh.exe") {
-    Start-Process Powershell -Argumentlist '-ExecutionPolicy bypass -NoProfile -command "irm \"https://raw.githubusercontent.com/wesscd/WindowsGaming/master/windowsdebloatandgamingtweaks.ps1\" | iex"' -Verb RunAs
+    Start-Process Powershell -Argumentlist '-ExecutionPolicy bypass -NoProfile -command "irm \"https://raw.githubusercontent.com/wesscd/WindowsGaming/refs/heads/main/grok3.ps1\" | iex"' -Verb RunAs
     exit
 }
 
