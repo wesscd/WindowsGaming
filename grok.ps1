@@ -1,12 +1,11 @@
 # TechRemote Ultimate Windows Debloater Gaming v.0.7.0.1
 # Otimizado por Grok 3 em 27/03/2025
 # Fonte Original: https://github.com/wesscd/WindowsGaming
-# Autores Originais: ChrisTitusTech, DaddyMadu, wesscd
 
 # Configuração inicial
 [Console]::OutputEncoding = [System.Text.Encoding]::GetEncoding(860)
 $ErrorActionPreference = "SilentlyContinue"
-$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.1 --"
+$host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.2 (VIA GROK) --"
 
 # Função para escrita colorida
 function Write-Colored {
@@ -48,7 +47,7 @@ $tweaks = @(
     "InstallOptimizationTools", "CleanSystem", "OptimizeMemory", "InstallISLC",
     "ConfigureISLC", "CheckWindowsActivation", "OptimizePerformance",
     "HandleXboxFeatures", "EnableMSIMode", "ApplyPrivacyTweaks",
-    "OptimizeNetwork", "CleanRegistry", "FinalizeSetup"
+    "OptimizeNetwork", "EnableEssentialServices", "CleanRegistry", "FinalizeSetup"
 )
 
 # Funções otimizadas
@@ -176,12 +175,39 @@ function OptimizePerformance {
 
 function HandleXboxFeatures {
     Write-Colored "Configurando recursos do Xbox..." "Yellow"
-    $choice = Read-Host "Desabilitar recursos do Xbox? (D para desabilitar, H para habilitar, P para pular)"
+    do {
+        Clear-Host
+        Write-Colored "================ Configurar Recursos do Xbox ================" "Blue"
+        Write-Colored "AVISO: Remover aplicativos do Xbox desativará o Win+G!" "Red"
+        Write-Colored "D: Desabilitar recursos do Xbox" "Blue"
+        Write-Colored "H: Habilitar recursos do Xbox" "Blue"
+        Write-Colored "P: Pular esta configuração" "Blue"
+        $choice = Read-Host "Escolha uma opção (D/H/P)"
+    } until ($choice -match "^[dDhHpP]$")
+    
     if ($choice -eq "D" -or $choice -eq "d") {
         $xboxApps = @("Microsoft.XboxApp", "Microsoft.XboxIdentityProvider", "Microsoft.XboxSpeechToTextOverlay", "Microsoft.XboxGameOverlay", "Microsoft.Xbox.TCUI")
-        foreach ($app in $xboxApps) { Get-AppxPackage $app | Remove-AppxPackage }
+        foreach ($app in $xboxApps) { Get-AppxPackage $app | Remove-AppxPackage -ErrorAction SilentlyContinue }
         Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Value 0 -Type DWord
+        $path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR"
+        if (-not (Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
+        Set-ItemProperty -Path $path -Name "AllowGameDVR" -Value 0 -Type DWord
+        Write-Colored "Recursos do Xbox desabilitados." "Green"
     }
+    elseif ($choice -eq "H" -or $choice -eq "h") {
+        $xboxApps = @("Microsoft.XboxApp", "Microsoft.XboxIdentityProvider", "Microsoft.XboxSpeechToTextOverlay", "Microsoft.XboxGameOverlay", "Microsoft.Xbox.TCUI")
+        foreach ($app in $xboxApps) {
+            $pkg = Get-AppxPackage -AllUsers $app
+            if ($pkg) { Add-AppxPackage -DisableDevelopmentMode -Register "$($pkg.InstallLocation)\AppXManifest.xml" -ErrorAction SilentlyContinue }
+        }
+        Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Value 1 -Type DWord
+        Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -ErrorAction SilentlyContinue
+        Write-Colored "Recursos do Xbox habilitados." "Green"
+    }
+    else {
+        Write-Colored "Configuração do Xbox pulada." "Yellow"
+    }
+    Start-Sleep -Seconds 2
 }
 
 function EnableMSIMode {
@@ -191,6 +217,10 @@ function EnableMSIMode {
         $path = "HKLM:\SYSTEM\CurrentControlSet\Enum\$($gpu.PNPDeviceID)\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties"
         if (-not (Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
         Set-ItemProperty -Path $path -Name "MSISupported" -Value 1 -Type DWord
+        Write-Colored "MSI Mode habilitado para $($gpu.Name)." "Green"
+    }
+    else {
+        Write-Colored "Nenhuma GPU compatível encontrada para MSI Mode." "Yellow"
     }
 }
 
@@ -211,9 +241,50 @@ function OptimizeNetwork {
     $tcpSettings = @("EcnCapability=disabled", "Timestamps=disabled", "MaxSynRetransmissions=2")
     foreach ($setting in $tcpSettings) { 
         $key, $value = $setting.Split('=')
-        Set-NetTCPSetting -SettingName "internet" -$key $value 
+        Set-NetTCPSetting -SettingName "internet" -$key $value -ErrorAction SilentlyContinue
     }
     netsh int tcp set global rss=enabled | Out-Null
+}
+
+function EnableEssentialServices {
+    Write-Colored "Configurando serviços essenciais..." "Yellow"
+    $services = @(
+        @{Name="SysMain"; Desc="Acelera o carregamento de programas frequentes"},
+        @{Name="PcaSvc"; Desc="Assistente de compatibilidade de programas"},
+        @{Name="DiagTrack"; Desc="Diagnósticos e telemetria"}
+    )
+    
+    foreach ($service in $services) {
+        do {
+            Clear-Host
+            Write-Colored "================ Configurar Serviço: $($service.Name) ================" "Blue"
+            Write-Colored "Descrição: $($service.Desc)" "White"
+            Write-Colored "S: Ativar o serviço $($service.Name)" "Blue"
+            Write-Colored "N: Pular este serviço" "Blue"
+            $choice = Read-Host "Deseja ativar $($service.Name)? (S/N)"
+        } until ($choice -match "^[sSnN]$")
+        
+        if ($choice -eq "S" -or $choice -eq "s") {
+            $svc = Get-Service -Name $service.Name -ErrorAction SilentlyContinue
+            if ($svc) {
+                if ($svc.Status -ne "Running") {
+                    Start-Service -Name $service.Name -ErrorAction SilentlyContinue
+                    Set-Service -Name $service.Name -StartupType Automatic -ErrorAction SilentlyContinue
+                    Write-Colored "Serviço $($service.Name) ativado." "Green"
+                }
+                else {
+                    Write-Colored "Serviço $($service.Name) já está em execução." "Green"
+                }
+            }
+            else {
+                Write-Colored "Serviço $($service.Name) não encontrado." "Red"
+            }
+        }
+        else {
+            Write-Colored "Serviço $($service.Name) pulado." "Yellow"
+        }
+        Start-Sleep -Seconds 1
+    }
 }
 
 function CleanRegistry {
