@@ -1,6 +1,6 @@
 chcp 860
 
-function Escrever-Colorido {
+function Send-Color-Text {
     param (
         [string]$Texto,
         [string]$Cor
@@ -28,19 +28,19 @@ function Escrever-Colorido {
 
 $host.ui.RawUI.WindowTitle = "-- TechRemote Ultimate Windows Debloater Gaming v.0.7.0.3 (GROK) --"
 Clear-Host
-Escrever-Colorido "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗" "Verde"
-Escrever-Colorido "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝" "Verde"
-Escrever-Colorido "   ██║   █████╗  ██║     ███████║    ██████╔╝█████╗  ██╔████╔██║██║   ██║   ██║   █████╗  " "Verde"
-Escrever-Colorido "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  " "Verde"
-Escrever-Colorido "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗" "Verde"
-Escrever-Colorido "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝" "Verde"
-Escrever-Colorido "`nBem vindo ao TechRemote Ultimate Windows Debloater Gaming" "Azul"
-Escrever-Colorido "`nEste script ira otimizar o desempenho do seu sistema operacional Windows." "Amarelo"
-Escrever-Colorido "Durante o processo, alguns servicos Microsoft que rodam em segundo plano serao desinstalados." "Amarelo"
-Escrever-Colorido "Um ponto de restauracao sera criado automaticamente antes de prosseguir." "Amarelo"
-Escrever-Colorido "`nBarao (Cesar Marques)" "Verde"
-Escrever-Colorido "Script utilizado pela TechRemote para otimizacoes." "AmareloClaro"
-Escrever-Colorido "`nDESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" "Vermelho"
+Send-Color-Text "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗" "Verde"
+Send-Color-Text "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝" "Verde"
+Send-Color-Text "   ██║   █████╗  ██║     ███████║    ██████╔╝█████╗  ██╔████╔██║██║   ██║   ██║   █████╗  " "Verde"
+Send-Color-Text "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  " "Verde"
+Send-Color-Text "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗" "Verde"
+Send-Color-Text "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝" "Verde"
+Send-Color-Text "`nBem vindo ao TechRemote Ultimate Windows Debloater Gaming" "Azul"
+Send-Color-Text "`nEste script ira otimizar o desempenho do seu sistema operacional Windows." "Amarelo"
+Send-Color-Text "Durante o processo, alguns servicos Microsoft que rodam em segundo plano serao desinstalados." "Amarelo"
+Send-Color-Text "Um ponto de restauracao sera criado automaticamente antes de prosseguir." "Amarelo"
+Send-Color-Text "`nBarao (Cesar Marques)" "Verde"
+Send-Color-Text "Script utilizado pela TechRemote para otimizacoes." "AmareloClaro"
+Send-Color-Text "`nDESATIVE seu ANTIVIRUS para evitar problemas e PRESSIONE QUALQUER TECLA para continuar!" "Vermelho"
 
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 
@@ -56,7 +56,7 @@ if ($currentexename -eq "pwsh.exe") {
 # Lista única de tweaks (removida a duplicata $mobiletweaks)
 $tweaks = @(
     "RequireAdmin", "CreateRestorePoint", "InstallMVC", "Install7Zip", "SlowUpdatesTweaks", "Write-ColorOutput", 
-    "InstallTitusProgs", "check-Windows", "Execute-BatchScript", "Set-RamThreshold", "Set-MemoriaVirtual-Registry",
+    "InstallTitusProgs", "Get-Windows-Ativation", "Start-Script", "Set-RamThreshold", "Set-MemoriaVirtual-Registry",
     "DownloadAndExtractISLC", "UpdateISLCConfig", "InstallChocoUpdates", "EnableUlimatePower", "MSIMode",
     "askDefender", "DorEOneDrive", "askXBOX", "Windows11Extra", "DebloatAll", "DisableTelemetry", "DisableWiFiSense",
     "DisableSmartScreen", "DisableWebSearch", "DisableAppSuggestions", "DisableActivityHistory", "EnableBackgroundApps",
@@ -79,7 +79,7 @@ $tweaks = @(
     "QOL", "FullscreenOptimizationFIX", "GameOptimizationFIX", "ApplyPCOptimizations", "RawMouseInput", "DetectnApplyMouseFIX",
     "DisableHPET", "EnableGameMode", "EnableHAGS", "DisableCoreParking", "DisableDMA", "DisablePKM", "DisallowDIP",
     "UseBigM", "ForceContiguousM", "DecreaseMKBuffer", "StophighDPC", "NvidiaTweaks", "AMDGPUTweaks", "NetworkAdapterRSS",
-    "NetworkOptimizations", "DisableNagle", "Ativar-Servicos", "RemoveEdit3D", "FixURLext", "UltimateCleaner",
+    "NetworkOptimizations", "DisableNagle", "Set-Services", "RemoveEdit3D", "FixURLext", "UltimateCleaner",
     "Clear-PSHistory", "Finished"
 )
 
@@ -88,8 +88,8 @@ function Show-Choco-Menu {
     param([string]$Title, [string]$ChocoInstall)
     do {
         Clear-Host
-        Escrever-Colorido "================ $Title ================" "Azul"
-        Escrever-Colorido "Y: Press 'Y' to do this.`nN: Press 'N' to skip this.`nQ: Press 'Q' to stop the entire script." "Azul"
+        Send-Color-Text "================ $Title ================" "Azul"
+        Send-Color-Text "Y: Press 'Y' to do this.`nN: Press 'N' to skip this.`nQ: Press 'Q' to stop the entire script." "Azul"
         $selection = Read-Host "Please make a selection"
     } until ($selection -match '^[ynq]$')
     switch ($selection) {
@@ -147,9 +147,9 @@ function InstallTitusProgs {
     $tempFiles.Values | Remove-Item -Force -ErrorAction SilentlyContinue
 }
 
-function Execute-BatchScript {
+function Start-Script {
     Clear-Host
-    Escrever-Colorido "`nRealizando limpeza de cache dos navegadores" "Verde"
+    Send-Color-Text "`nRealizando limpeza de cache dos navegadores" "Verde"
     $url = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/script-ccleaner.bat"
     $path = "$env:temp\script-ccleaner.bat"
     Invoke-WebRequest -Uri $url -OutFile $path
@@ -165,14 +165,14 @@ function Set-RamThreshold {
         32 { 0x2000000 }
         64 { 0x4000000 }
         128 { 0x8000000 }
-        default { Escrever-Colorido "Memoria RAM nao suportada para esta configuracao." "Vermelho"; return }
+        default { Send-Color-Text "Memoria RAM nao suportada para esta configuracao." "Vermelho"; return }
     }
     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Type DWord -Value $value -ErrorAction SilentlyContinue
 }
 
 function Set-MemoriaVirtual-Registry {
     Clear-Host
-    Escrever-Colorido "`n================ Digite a letra do drive para armazenar memoria virtual ================" "Azul"
+    Send-Color-Text "`n================ Digite a letra do drive para armazenar memoria virtual ================" "Azul"
     $drive = Read-Host "Informe a letra do drive (ex: C)"
     $totalRAM = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1MB)
     $path = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
@@ -211,10 +211,10 @@ function UpdateISLCConfig {
     }
 }
 
-function check-Windows {
+function Get-Windows-Ativation {
     Clear-Host
     $status = (Get-CimInstance SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object { $_.PartialProductKey }).LicenseStatus
-    Escrever-Colorido "`n$(if ($status -eq 1) { "O Windows está ativado." } else { "O Windows NÃO está ativado. Executando o comando de ativação." })" "$($status -eq 1 ? 'Azul' : 'Vermelho')"
+    Send-Color-Text "`n$(if ($status -eq 1) { "O Windows está ativado." } else { "O Windows NÃO está ativado. Executando o comando de ativação." })" "$($status -eq 1 ? 'Azul' : 'Vermelho')"
     if ($status -ne 1) { irm https://get.activated.win | iex }
 }
 
@@ -241,8 +241,8 @@ function askXBOX {
     $isWin11 = $winVer.Major -eq 10 -and $winVer.Build -ge 22000
     do {
         Clear-Host
-        Escrever-Colorido "`n================ Desabilitar os recursos do XBOX e todos os aplicativos relacionados? ================" "Azul"
-        Escrever-Colorido "AVISO: REMOVER OS APLICATIVOS DO XBOX fara com que o Win+G nao funcione!`nD: Desabilitar`nH: Habilitar`nP: Pular" "Vermelho"
+        Send-Color-Text "`n================ Desabilitar os recursos do XBOX e todos os aplicativos relacionados? ================" "Azul"
+        Send-Color-Text "AVISO: REMOVER OS APLICATIVOS DO XBOX fara com que o Win+G nao funcione!`nD: Desabilitar`nH: Habilitar`nP: Pular" "Vermelho"
         $selection = Read-Host "Escolha"
     } until ($selection -match '(?i)^[dhp]$')
     $apps = @("Microsoft.XboxApp", "Microsoft.XboxIdentityProvider", "Microsoft.XboxSpeechToTextOverlay", "Microsoft.XboxGameOverlay", "Microsoft.Xbox.TCUI") + $(if ($isWin11) { "Microsoft.XboxGamingOverlay" })
@@ -855,7 +855,7 @@ function DisableNagle {
     }
 }
 
-function Ativar-Servicos { 
+function Set-Services { 
     "wuauserv", "bits", "cryptsvc" | ForEach-Object { 
         Set-Service $_ -StartupType Automatic
         Start-Service $_ -ErrorAction SilentlyContinue 
@@ -883,7 +883,7 @@ function Clear-PSHistory {
 
 function Finished { 
     Clear-Host
-    Escrever-Colorido "Otimização concluída com sucesso!`nReinicie o sistema para aplicar todas as alterações." "Verde"
+    Send-Color-Text "Otimização concluída com sucesso!`nReinicie o sistema para aplicar todas as alterações." "Verde"
     if ((Read-Host "Deseja reiniciar agora? (S/N)") -imatch '^s$') { Restart-Computer -Force }
 }
 
