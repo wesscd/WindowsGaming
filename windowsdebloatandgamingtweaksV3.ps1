@@ -128,7 +128,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.1.0",
+    "                                                                                  V0.7.1.1",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1809,11 +1809,11 @@ function Set-RamThreshold {
 function Set-MemoriaVirtual-Registry {
   Clear-Host
   # Banner
-  Write-Colored -Text "verde" # Linha em branco para espaçamento
+  Write-Colored -Text "" -Color "verde" # Linha em branco para espaçamento
   Write-Colored -Text "================================" -Color "Cyan"
   Write-Colored -Text " Configurando Memória Virtual " -Color "Cyan"
   Write-Colored -Text "================================" -Color "Cyan"
-  Write-Colored -Text "verde" # Linha em branco para espaçamento
+  Write-Colored -Text "" -Color "verde" # Linha em branco para espaçamento
 
   Write-Colored -Text "Informe a letra do drive (ex: C) para configurar a memória virtual:" -Color "Cyan"
   $Drive = Read-Host
