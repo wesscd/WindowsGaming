@@ -1656,7 +1656,7 @@ function Ativar-Servicos {
       Write-Output "Serviço $service ativado com sucesso."
     }
     catch {
-      Write-Output "Erro ao ativar o serviço $service: $($_)"
+      Write-Output "Erro ao ativar o serviço $service: $($_.Exception.Message)"
     }
   }
 }
