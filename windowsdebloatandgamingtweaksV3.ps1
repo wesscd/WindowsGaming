@@ -1799,7 +1799,7 @@ function UninstallMsftBloat {
 }
 
 function DisableXboxFeatures {
-  Write-Output "Disabling Xbox features..."
+  Write-Output "Disabling Xbox features...(tudo porcaria)"
   $xboxApps = @(
     "Microsoft.XboxApp",
     "Microsoft.XboxIdentityProvider",
