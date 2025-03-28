@@ -530,7 +530,7 @@ function Execute-BatchScript {
   Write-Output "Baixando e executando o script em batch..."
   $remoteUrl = "https://raw.githubusercontent.com/TitusConsultingBR/techremote/main/techremote.bat"
   $localPath = "$env:TEMP\techremote.bat"
-  
+
   try {
     Invoke-WebRequest -Uri $remoteUrl -OutFile $localPath -ErrorAction Stop
     if (Test-Path $localPath) {
@@ -2319,19 +2319,25 @@ Function NetworkOptimizations {
 }
 
 function Disable-LSO {
-  $adapters = Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
-  
+  $adapters = Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.InterfaceDescription -notmatch "Loopback" }
+
   foreach ($adapter in $adapters) {
     Write-Output "Desativando Large Send Offload (LSO) para: $($adapter.Name)"
-      
-    try {
-      # Desativa LSO para IPv4 e, se suportado, para IPv6
-      Disable-NetAdapterLso -Name $adapter.Name -IPv4 -ErrorAction Stop
-      Disable-NetAdapterLso -Name $adapter.Name -IPv6 -ErrorAction Stop
-      Write-Output "LSO desativado para: $($adapter.Name)"
+
+    # Verifica se há suporte ao LSO antes de tentar desativar
+    $lsoSupport = Get-NetAdapterAdvancedProperty -Name $adapter.Name -RegistryKeyword "*LsoV2IPv4" -ErrorAction SilentlyContinue
+    if ($lsoSupport) {
+      try {
+        Disable-NetAdapterLso -Name $adapter.Name -IPv4 -ErrorAction Stop
+        Disable-NetAdapterLso -Name $adapter.Name -IPv6 -ErrorAction Stop
+        Write-Output "LSO desativado para: $($adapter.Name)"
+      }
+      catch {
+        Write-Warning "Falha ao desativar LSO para: $($adapter.Name). Motivo: $($_.Exception.Message)"
+      }
     }
-    catch {
-      Write-Warning "Falha ao desativar LSO para: $($adapter.Name). Motivo: $($_.Exception.Message)"
+    else {
+      Write-Warning "LSO não suportado para: $($adapter.Name), ignorando."
     }
   }
 }
@@ -2359,7 +2365,6 @@ function Finished {
     [Console]::ReadKey($true) | Out-Null
   }
 }
-
 
 # Executar introdução
 Show-Intro
