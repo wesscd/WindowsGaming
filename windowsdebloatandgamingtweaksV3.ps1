@@ -128,7 +128,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.1.4",
+    "                                                                                  V0.7.1.5",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1082,11 +1082,11 @@ function EnableRemoteDesktop {
   $ErrorActionPreference = $errpref
 }
 
-function DisableRemoteDesktop {
-  Write-Output "Disabling Remote Desktop..."
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Type DWord -Value 1
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Type DWord -Value 1
-  Disable-NetFirewallRule -Name "RemoteDesktop*" | Out-Null
+#Disabling Windows Remote Assistance.
+Function DisableRemoteAssistance {
+  Write-Output "Disabling Windows Remote Assistance..."
+  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowFullControl" -Type DWord -Value 0
+  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 0
 }
 
 function DisableAutoplay {
@@ -1437,8 +1437,22 @@ function EnableThumbsDB {
 }
 
 function UninstallInternetExplorer {
-  Write-Output "Uninstalling Internet Explorer..."
-  Disable-WindowsOptionalFeature -Online -FeatureName "Internet-Explorer-Optional-amd64" -NoRestart -ErrorAction SilentlyContinue
+  Write-Output "Verificando se o Internet Explorer está instalado..."
+  
+  # Obtém a lista de recursos opcionais
+  $features = Get-WindowsOptionalFeature -Online | Where-Object { $_.FeatureName -like "*Internet*" }
+
+  # Verifica se o Internet Explorer está na lista
+  $ieFeature = $features | Where-Object { $_.FeatureName -match "Internet-Explorer" }
+
+  if ($ieFeature) {
+    Write-Output "Desinstalando Internet Explorer ($($ieFeature.FeatureName))..."
+    Disable-WindowsOptionalFeature -Online -FeatureName $ieFeature.FeatureName -NoRestart -ErrorAction Stop
+    Write-Output "Internet Explorer desativado com sucesso."
+  }
+  else {
+    Write-Output "Internet Explorer não encontrado ou já removido."
+  }
 }
 
 function UninstallWorkFolders {
