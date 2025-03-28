@@ -2293,8 +2293,7 @@ Function NetworkOptimizations {
     & $setting -Name "*" | Out-Null
   }
 
-  Disable-NetAdapterLso -Name "*" -IPv4  | Out-Null
-  Disable-NetAdapterLso -Name "*" -IPv6  | Out-Null
+  Disable-LSO # Desativar LSO (Large Send Offload) para todos os adaptadores de rede
 
   # Ajustes avançados dos adaptadores de rede
   $advancedProperties = @(
@@ -2317,6 +2316,25 @@ Function NetworkOptimizations {
 
   Write-Output "Otimizações de rede concluídas com sucesso!"
 }
+
+function Disable-LSO {
+  $adapters = Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
+  
+  foreach ($adapter in $adapters) {
+    Write-Output "Desativando Large Send Offload (LSO) para: $($adapter.Name)"
+      
+    try {
+      # Desativa LSO para IPv4 e, se suportado, para IPv6
+      Disable-NetAdapterLso -Name $adapter.Name -IPv4 -ErrorAction Stop
+      Disable-NetAdapterLso -Name $adapter.Name -IPv6 -ErrorAction Stop
+      Write-Output "LSO desativado para: $($adapter.Name)"
+    }
+    catch {
+      Write-Warning "Falha ao desativar LSO para: $($adapter.Name). Motivo: $($_.Exception.Message)"
+    }
+  }
+}
+
 
 function Finished {
   Clear-Host
