@@ -6,7 +6,7 @@
 
 # Definir página de código para suportar caracteres especiais
 
-chcp 860 | Out-Null
+chcp 1252 | Out-Null
 
 # Função para texto colorido
 function Write-Colored {
@@ -62,7 +62,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.0.4",
+    "                                                                                  V0.7.0.5",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -73,7 +73,7 @@ function Show-Intro {
     $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
     Write-Colored $intro[$i] $color
   }
-  [Console]::ReadKey($true) | Out-Null
+  [Console]::ReadKey($true)
 }
 
 # (O restante do script continua como antes)
@@ -94,7 +94,8 @@ function RequireAdmin {
 # Carregar módulos
 $modules = @(
   ".\Modules\PerformanceTweaks.ps1",
-  ".\Modules\PrivacyTweaks.ps1"
+  ".\Modules\PrivacyTweaks.ps1",
+  ".\Modules\Debloat.ps1"
 )
 foreach ($module in $modules) {
   if (Test-Path $module) {
@@ -1678,6 +1679,7 @@ function CreateRestorePoint {
 }
 
 function Finished {
+  Clear-Host
   Clear-Host
   Write-Colored "" "Azul"
   Write-Colored "================ Otimização Concluída ================" "Verde"
