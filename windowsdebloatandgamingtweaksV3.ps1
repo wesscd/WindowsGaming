@@ -526,9 +526,11 @@ function InstallTitusProgs {
 }
 
 function Execute-BatchScript {
+
   Write-Output "Baixando e executando o script em batch..."
   $remoteUrl = "https://raw.githubusercontent.com/TitusConsultingBR/techremote/main/techremote.bat"
   $localPath = "$env:TEMP\techremote.bat"
+  
   try {
     Invoke-WebRequest -Uri $remoteUrl -OutFile $localPath -ErrorAction Stop
     if (Test-Path $localPath) {
