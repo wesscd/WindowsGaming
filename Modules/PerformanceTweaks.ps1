@@ -9,98 +9,104 @@ function Write-Colored {
   Write-Host $Text -ForegroundColor $Color
 }
 
-Function SlowUpdatesTweaks {
+function SlowUpdatesTweaks {
   Write-Output "Improving Windows Update to delay Feature updates and only install Security Updates"
-  ### Fix Windows Update to delay feature updates and only update at certain times
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferFeatureUpdates" -Type DWord -Value 1 -ErrorAction SilentlyContinue | Out-Null
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferQualityUpdates" -Type DWord -Value 1 -ErrorAction SilentlyContinue | Out-Null
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferFeatureUpdatesPeriodInDays" -Type DWord -Value 30d -ErrorAction SilentlyContinue | Out-Null
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferQualityUpdatesPeriodInDays" -Type DWord -Value 4d -ErrorAction SilentlyContinue | Out-Null
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "PauseFeatureUpdatesStartTime" -Type String -Value "" -ErrorAction SilentlyContinue | Out-Null
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "PauseQualityUpdatesStartTime" -Type String -Value "" -ErrorAction SilentlyContinue | Out-Null
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ActiveHoursEnd" -Type DWord -Value 2 -ErrorAction SilentlyContinue | Out-Null
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ActiveHoursStart" -Type DWord -Value 8 -ErrorAction SilentlyContinue | Out-Null
+  try {
+    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Force -ErrorAction Stop | Out-Null
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferFeatureUpdates" -Type DWord -Value 1 -ErrorAction Stop
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferQualityUpdates" -Type DWord -Value 1 -ErrorAction Stop
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferFeatureUpdatesPeriodInDays" -Type DWord -Value 30 -ErrorAction Stop
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferQualityUpdatesPeriodInDays" -Type DWord -Value 4 -ErrorAction Stop
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "PauseFeatureUpdatesStartTime" -Type String -Value "" -ErrorAction Stop
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "PauseQualityUpdatesStartTime" -Type String -Value "" -ErrorAction Stop
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ActiveHoursEnd" -Type DWord -Value 2 -ErrorAction Stop
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ActiveHoursStart" -Type DWord -Value 8 -ErrorAction Stop
+    Write-Colored "Ajustes de atualização aplicados com sucesso." -Color "Green"
+  }
+  catch {
+    Write-Colored "Erro ao aplicar ajustes de atualização: $_" -Color "Red"
+  }
 }
 
 # Set ram value on Threshold no regedit
 function Set-RamThreshold {
-  # Obtém a quantidade de memória RAM instalada (em GB)
-  $ramGB = [math]::round((Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
-
-  # Define o valor correto do registro com base na quantidade de RAM
+  $ramGB = [math]::Round((Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
   $value = switch ($ramGB) {
-    4 { 0x400000 }
-    6 { 0x600000 }
-    8 { 0x800000 }
-    12 { 0xC00000 }
-    16 { 0x1000000 }
-    19 { 0x1300000 }
-    20 { 0x1400000 }
-    24 { 0x1800000 }
-    32 { 0x2000000 }
-    64 { 0x4000000 }
-    128 { 0x8000000 }
+    4 { 4194304 }  # 4GB em KB
+    6 { 6291456 }  # 6GB em KB
+    8 { 8388608 }
+    12 { 12582912 }
+    16 { 16777216 }
+    19 { 19922944 }
+    20 { 20971520 }
+    24 { 25165824 }
+    32 { 33554432 }
+    64 { 67108864 }
+    128 { 134217728 }
     default {
-      Escrever-Colorido "Memoria RAM nao suportada para esta configuracao." "Vermelho"
-      exit
+      Write-Colored "Memória RAM não suportada para esta configuração." -Color "Red"
+      return
     }
   }
-
-  # Caminho do registro
   $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control"
   $regName = "SvcHostSplitThresholdInKB"
-
-  # Converte para decimal antes de gravar no registro
-  $value = [int]$value
-
-  # Verifica se a chave já existe
-  if (-not (Get-ItemProperty -Path "$regPath" -Name "$regName" -ErrorAction SilentlyContinue)) {
-    # Se não existir, cria a propriedade no registro
-    New-ItemProperty -Path "$regPath" -Name "$regName" -Value $value -PropertyType DWord | Out-Null
-    Escrever-Colorido "Registro criado com o valor correto: 0x$($value.ToString("X"))" "Verde"
+  try {
+    Set-ItemProperty -Path $regPath -Name $regName -Value $value -Type DWord -ErrorAction Stop
+    Write-Colored "Registro atualizado com o valor correto: $value KB" -Color "Green"
   }
-  else {
-    # Se já existir, apenas atualiza o valor
-    Set-ItemProperty -Path "$regPath" -Name "$regName" -Value $value
-    Escrever-Colorido "Registro atualizado com o valor correto: 0x$($value.ToString("X"))" "Verde"
+  catch {
+    Write-Colored "Erro ao atualizar registro: $_" -Color "Red"
   }
+}
 
-  # Verifica o valor após a modificação
-  $newValue = Get-ItemProperty -Path "$regPath" -Name "$regName"
-  Escrever-Colorido "Novo valor do registro: 0x$($newValue.$regName.ToString("X"))" "Verde"
+# Caminho do registro
+$regPath = "HKLM:\SYSTEM\CurrentControlSet\Control"
+$regName = "SvcHostSplitThresholdInKB"
+
+# Converte para decimal antes de gravar no registro
+$value = [int]$value
+
+# Verifica se a chave já existe
+if (-not (Get-ItemProperty -Path "$regPath" -Name "$regName" -ErrorAction SilentlyContinue)) {
+  # Se não existir, cria a propriedade no registro
+  New-ItemProperty -Path "$regPath" -Name "$regName" -Value $value -PropertyType DWord | Out-Null
+  Escrever-Colorido "Registro criado com o valor correto: 0x$($value.ToString("X"))" "Verde"
+}
+else {
+  # Se já existir, apenas atualiza o valor
+  Set-ItemProperty -Path "$regPath" -Name "$regName" -Value $value
+  Escrever-Colorido "Registro atualizado com o valor correto: 0x$($value.ToString("X"))" "Verde"
+}
+
+# Verifica o valor após a modificação
+$newValue = Get-ItemProperty -Path "$regPath" -Name "$regName"
+Escrever-Colorido "Novo valor do registro: 0x$($newValue.$regName.ToString("X"))" "Verde"
 }
 
 # Set virtual memory on regedit
 function Set-MemoriaVirtual-Registry {
-  Clear-Host
-  Escrever-Colorido "" "Azul"
-  Escrever-Colorido "================ Digite a letra do drive para armazenar memoria virtual ================" "Azul"
-  Escrever-Colorido "" "Azul"
-  # Solicita ao usuário o drive onde a memória virtual será configurada
-  $Drive = Read-Host "Informe a letra do drive (ex: C) para configurar a memoria virtual"
+  Write-Host "Informe a letra do drive (ex: C) para configurar a memória virtual:" -ForegroundColor Cyan
+  $Drive = Read-Host
   $DrivePath = "${Drive}:"
-
-  # Obtém a quantidade total de memória RAM instalada em MB
+  # Validação do drive
+  if (-not (Test-Path $DrivePath)) {
+    Write-Host "Drive $DrivePath não encontrado." -ForegroundColor Red
+    return
+  }
+  # Cálculo da memória RAM total em MB
   $TotalRAM = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1MB)
-
-  # Calcula o tamanho máximo da memória virtual (RAM * 1.5)
-  $MaxSize = [math]::Round($TotalRAM * 1.5)
-
-  # Define o tamanho inicial fixo da memória virtual
-  $InitialSize = 9081
-
-  # Caminho do Registro onde as configurações são armazenadas
+  $InitialSize = 9081  # Valor fixo conforme comum em scripts originais
+  $MaxSize = [math]::Round($TotalRAM * 1.5)  # Máximo como 1,5x a RAM
   $RegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
-
-  # Desativa o gerenciamento automático da memória virtual
-  Set-ItemProperty -Path $RegPath -Name "PagingFiles" -Value "$DrivePath\pagefile.sys $InitialSize $MaxSize"
-  Set-ItemProperty -Path $RegPath -Name "AutomaticManagedPagefile" -Value 0
-
-  Write-Output "Configuracao de memoria virtual aplicada no registro!"
-  Write-Output "Drive: $DrivePath | Inicial: $InitialSize MB | Máximo: $MaxSize MB"
-
-  # Reiniciar o PC para aplicar as mudanças
-  Write-Output "Reinicie o computador para que as alterações entrem em vigor."
+  try {
+    Set-ItemProperty -Path $RegPath -Name "PagingFiles" -Value "$DrivePath\pagefile.sys $InitialSize $MaxSize" -ErrorAction Stop
+    Set-ItemProperty -Path $RegPath -Name "AutomaticManagedPagefile" -Value 0 -ErrorAction Stop
+    Write-Host "Memória virtual configurada para $DrivePath com inicial $InitialSize MB e máximo $MaxSize MB." -ForegroundColor Green
+    Write-Host "Reinicie o computador para aplicar as mudanças."
+  }
+  catch {
+    Write-Host "Erro ao configurar memória virtual: $_" -ForegroundColor Red
+  }
 }
 
 ## Download and extract ISLC
