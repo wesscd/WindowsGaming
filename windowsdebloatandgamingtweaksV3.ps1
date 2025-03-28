@@ -62,6 +62,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
+    "                                                                                  V0.7.0.4",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -225,7 +226,7 @@ $tweakFunctions = @{
   "Finished"                    = { Finished }
 
   # Funções de Performance (assumidas em PerformanceTweaks.ps1)
-  #"SlowUpdatesTweaks"           = { SlowUpdatesTweaks }
+  "SlowUpdatesTweaks"           = { SlowUpdatesTweaks }
   "Set-RamThreshold"            = { Set-RamThreshold }
   "Set-MemoriaVirtual-Registry" = { Set-MemoriaVirtual-Registry }
   "DownloadAndExtractISLC"      = { DownloadAndExtractISLC }
