@@ -68,7 +68,7 @@ function Show-Intro {
     "Um ponto de restauração será criado antes de prosseguir.",
     "DESATIVE SEU ANTIVÍRUS e PRESSIONE QUALQUER TECLA para continuar!"
   )
-  $colors = @("VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "AzulClaro", "AmareloClaro", "AmareloClaro", "VermelhoClaro")
+  $colors = @("VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "AzulClaro", "AmareloClaro", "AmareloClaro", "VermelhoClaro")
   for ($i = 0; $i -lt $intro.Length; $i++) {
     $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
     Write-Colored $intro[$i] $color
@@ -467,33 +467,71 @@ function Execute-BatchScript {
 function Check-Windows {
   Write-Output "Verificando ativação do Windows..."
   try {
+    # Verifica o status de ativação com slmgr.vbs
     $slmgrOutput = cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /dli | Out-String
     if ($slmgrOutput -match "Licensed" -or $slmgrOutput -match "Ativado") {
       Write-Colored "O Windows já está ativado." -Color "VerdeClaro"
     }
     else {
       Write-Colored "O Windows não está ativado." -Color "AmareloClaro"
-      $choice = Read-Host "Deseja inserir uma chave de produto para ativar? (S/N)"
-      if ($choice -match "(?i)^s$") {
-        $productKey = Read-Host "Digite a chave de produto (ex.: XXXXX-XXXXX-XXXXX-XXXXX-XXXXX)"
-        cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /ipk $productKey | Out-Null
-        $activationResult = cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /ato | Out-String
-        if ($activationResult -match "successfully" -or $activationResult -match "ativado com sucesso") {
-          Write-Colored "Windows ativado com sucesso." -Color "VerdeClaro"
+      do {
+        Clear-Host
+        Write-Colored "" "Azul"
+        Write-Colored "================ Ativar o Windows ================" "Azul"
+        Write-Colored "" "Azul"
+        Write-Colored "Pressione 'C' para inserir uma nova chave de produto." "Azul"
+        Write-Colored "Pressione 'K' para ativar via KMS." "Azul"
+        Write-Colored "Pressione 'P' para pular a ativação." "Azul"
+        $selection = Read-Host "Por favor, escolha."
+      } until ($selection -match "(?i)^(c|k|p)$")
+
+      switch ($selection.ToLower()) {
+        "c" {
+          Write-Output "Opção escolhida: Inserir nova chave de produto."
+          $productKey = Read-Host "Digite a chave de produto (ex.: XXXXX-XXXXX-XXXXX-XXXXX-XXXXX)"
+          try {
+            cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /ipk $productKey | Out-Null
+            $activationResult = cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /ato | Out-String
+            if ($activationResult -match "successfully" -or $activationResult -match "ativado com sucesso") {
+              Write-Colored "Windows ativado com sucesso usando a chave fornecida." -Color "VerdeClaro"
+            }
+            else {
+              Write-Colored "Falha ao ativar o Windows com a chave fornecida." -Color "VermelhoClaro"
+              Write-Output $activationResult
+            }
+          }
+          catch {
+            Write-Colored "Erro ao aplicar a chave de produto: $_" -Color "VermelhoClaro"
+          }
         }
-        else {
-          Write-Colored "Falha ao ativar o Windows com a chave fornecida." -Color "VermelhoClaro"
-          Write-Output $activationResult
+        "k" {
+          Write-Output "Opção escolhida: Ativar via KMS."
+          try {
+            Write-Colored "Conectando ao servidor KMS para ativação..." -Color "AmareloClaro"
+            Invoke-Expression (Invoke-RestMethod -Uri "https://get.activated.win" -ErrorAction Stop)
+            # Verifica novamente após tentativa de ativação
+            $postActivation = cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /dli | Out-String
+            if ($postActivation -match "Licensed" -or $postActivation -match "Ativado") {
+              Write-Colored "Windows ativado com sucesso via KMS." -Color "VerdeClaro"
+            }
+            else {
+              Write-Colored "Falha ao ativar o Windows via KMS. Verifique sua conexão ou o servidor KMS." -Color "VermelhoClaro"
+            }
+          }
+          catch {
+            Write-Colored "Erro ao executar a ativação KMS: $_" -Color "VermelhoClaro"
+            Write-Output "Certifique-se de ter conexão com a internet."
+          }
         }
-      }
-      else {
-        Write-Colored "Ativação ignorada. O Windows permanece não ativado." -Color "AmareloClaro"
+        "p" {
+          Write-Colored "Ativação ignorada. O Windows permanece não ativado." -Color "AmareloClaro"
+        }
       }
     }
   }
   catch {
-    Write-Colored "Erro ao verificar ou ativar o Windows: $_" -Color "VermelhoClaro"
-    Write-Output "Certifique-se de ter permissões administrativas e uma conexão com a internet (se necessário)."
+    Write-Colored "Erro ao verificar o status de ativação do Windows: $_" -Color "VermelhoClaro"
+    Write-Output "Certifique-se de ter permissões administrativas."
   }
 }
 
