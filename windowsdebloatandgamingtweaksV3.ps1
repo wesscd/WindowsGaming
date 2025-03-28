@@ -128,7 +128,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.0.8",
+    "                                                                                  V0.7.0.9",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1833,42 +1833,83 @@ function Set-MemoriaVirtual-Registry {
   }
 }
 
+## Download and extract ISLC
 function DownloadAndExtractISLC {
-  $url = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
-  $downloadPath = "$env:TEMP\ISLC.exe"
-  $extractPath = "C:\ISLC"
-  $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"
+  # Definir o link de download e o caminho do arquivo
+  $downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
+  $downloadPath = "C:\ISLC_v1.0.3.4.exe"
+  $extractPath = "C:\"
+  $newFolderName = "ISLC"
+
+  # Baixar o arquivo executável
+  Write-Colored "Iniciando o download do arquivo..." "Verde"
   try {
-    # Download do arquivo
-    Invoke-WebRequest -Uri $url -OutFile $downloadPath -ErrorAction Stop
-    # Verifica se o 7-Zip está instalado
-    if (Test-Path $sevenZipPath) {
-      & $sevenZipPath x $downloadPath -o"$extractPath" -y
-      Write-Host "ISLC extraído com sucesso para $extractPath." -ForegroundColor Green
-      Remove-Item $downloadPath -Force
-      # Cria atalho na inicialização
-      $origem = "$extractPath\Intelligent standby list cleaner ISLC.exe"
-      $destino = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\Intelligent standby list cleaner ISLC.lnk"
-      $shell = New-Object -ComObject WScript.Shell
-      $atalho = $shell.CreateShortcut($destino)
-      $atalho.TargetPath = $origem
-      $atalho.Save()
-      Write-Host "Atalho criado na inicialização." -ForegroundColor Green
-    }
-    else {
-      Write-Host "7-Zip não encontrado. Certifique-se de que está instalado." -ForegroundColor Red
-    }
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath
+    Write-Colored "Arquivo baixado com sucesso!" "Verde"
   }
   catch {
-    Write-Host "Erro ao baixar ou extrair ISLC: $_" -ForegroundColor Red
+    Write-Colored "Erro ao baixar o arquivo: $_" "Vermelho"
+    return
+  }
+
+  # Verificar se a pasta de extração existe, caso contrário, criar
+  if (-Not (Test-Path -Path $extractPath)) {
+    Write-Colored "Criando a pasta de extração..." "Verde"
+    New-Item -ItemType Directory -Path $extractPath
+  }
+
+  # Caminho do 7z.exe
+  $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"  # Altere conforme o local do seu 7z.exe
+
+  # Verificar se o 7z está instalado
+  if (Test-Path -Path $sevenZipPath) {
+    Write-Colored "Extraindo o conteudo do arquivo usando 7-Zip..." "Verde"
+    try {
+      # Extrair diretamente na pasta ISLC
+      & $sevenZipPath x $downloadPath -o"$extractPath" -y
+      Write-Colored "Arquivo extraido com sucesso para $extractPath" "Verde"
+          
+      # Renomear a pasta extraída para MEM
+      $extractedFolderPath = "$extractPath\ISLC v1.0.3.4"
+
+      if (Test-Path -Path $extractedFolderPath) {
+        Rename-Item -Path $extractedFolderPath -NewName $newFolderName
+        Write-Colored "Pasta renomeada para '$newFolderName'." "Verde"
+      }
+      else {
+        Write-Colored "Pasta extraída não encontrada." "Vermelho"
+      }
+    }
+    catch {
+      Write-Colored "Erro ao extrair o arquivo: $_" "Vermelho"
+    }
+  }
+  else {
+    Write-Colored "7-Zip não encontrado no caminho especificado." "Amarelo"
   }
 
   Remove-Item -Path $downloadPath -Force
   Write-Colored "Excluindo $downloadPath" "Verde"
 
+  # Caminho completo do executável do programa
+  $origem = "C:\ISLC\Intelligent standby list cleaner ISLC.exe"
+
+  # Nome do atalho que será criado
+  $atalhoNome = "Intelligent standby list cleaner ISLC.lnk"
+
+  # Caminho para a pasta de Inicialização do usuário
+  $destino = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup", $atalhoNome)
+
+  # Criação do objeto Shell
+  $shell = New-Object -ComObject WScript.Shell
+
+  # Criação do atalho
+  $atalho = $shell.CreateShortcut($destino)
+  $atalho.TargetPath = $origem
+  $atalho.Save()
+
   Write-Output "Atalho criado em: $destino"
 
-  Start-Process "$origem"
 
 }
 
@@ -1879,7 +1920,7 @@ function UpdateISLCConfig {
 
   # Verificar se o arquivo de configuração existe
   if (Test-Path -Path $configFilePath) {
-    Escrever-Colorido "Arquivo de configuracao encontrado. Atualizando..." "Verde"
+    Write-Colored "Arquivo de configuracao encontrado. Atualizando..." "Verde"
 
     try {
       # Carregar o conteúdo do arquivo XML
@@ -1898,14 +1939,14 @@ function UpdateISLCConfig {
 
       # Salvar as alterações de volta no arquivo XML
       $configXml.Save($configFilePath)
-      Escrever-Colorido "Arquivo de configuracao atualizado com sucesso!" "Verde"
+      Write-Colored "Arquivo de configuracao atualizado com sucesso!" "Verde"
     }
     catch {
-      Escrever-Colorido "Erro ao atualizar o arquivo de configuracao: $_" "Vermelho"
+      Write-Colored "Erro ao atualizar o arquivo de configuracao: $_" "Vermelho"
     }
   }
   else {
-    Escrever-Colorido "Arquivo de configuracao nao encontrado em $configFilePath" "Amarelo"
+    Write-Colored "Arquivo de configuracao nao encontrado em $configFilePath" "Amarelo"
   }
 }
 
@@ -2245,7 +2286,9 @@ Function NetworkOptimizations {
   foreach ($setting in $netAdapterSettings) {
     & $setting -Name "*" | Out-Null
   }
-  Disable-NetAdapterLso -Name "*"  | Out-Null
+
+  Disable-NetAdapterLso -Name "*" -IPv4  | Out-Null
+  Disable-NetAdapterLso -Name "*" -IPv6  | Out-Null
 
   # Ajustes avançados dos adaptadores de rede
   $advancedProperties = @(
@@ -2271,14 +2314,27 @@ Function NetworkOptimizations {
 
 function Finished {
   Clear-Host
-  Clear-Host
   Write-Colored "" "Azul"
   Write-Colored "================ Otimização Concluída ================" "Verde"
   Write-Colored "O sistema foi otimizado para desempenho em jogos." "Azul"
   Write-Colored "Reinicie o computador para aplicar todas as alterações." "Amarelo"
-  Write-Colored "Pressione qualquer tecla para sair..." "Azul"
-  [Console]::ReadKey($true) | Out-Null
+  
+  do {
+    Write-Colored "Deseja reiniciar agora? (S/N)" "Azul"
+    $resposta = Read-Host "Digite 'S' para reiniciar agora ou 'N' para sair"
+    $resposta = $resposta.Trim().ToUpper()
+  } while ($resposta -ne 'S' -and $resposta -ne 'N')
+  
+  if ($resposta -eq 'S') {
+    Write-Colored "Reiniciando o computador..." "Vermelho"
+    Restart-Computer -Force
+  }
+  else {
+    Write-Colored "Pressione qualquer tecla para sair..." "Azul"
+    [Console]::ReadKey($true) | Out-Null
+  }
 }
+
 
 # Executar introdução
 Show-Intro
