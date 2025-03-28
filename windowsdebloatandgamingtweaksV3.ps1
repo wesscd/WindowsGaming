@@ -128,7 +128,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.1.5",
+    "                                                                                  V0.7.1.6",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -528,7 +528,7 @@ function InstallTitusProgs {
 function Execute-BatchScript {
 
   Write-Output "Baixando e executando o script em batch..."
-  $remoteUrl = "https://raw.githubusercontent.com/TitusConsultingBR/techremote/main/techremote.bat"
+  $remoteUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/refs/heads/main/script-ccleaner.bat"
   $localPath = "$env:TEMP\techremote.bat"
 
   try {
@@ -1317,8 +1317,21 @@ function DisableStickyKeys {
 }
 
 function ShowTaskManagerDetails {
-  Write-Output "Showing Task Manager details..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager" -Name "Preferences" -Type Binary -Value ([byte[]](0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00))
+  Write-Output "Exibindo detalhes do Gerenciador de Tarefas..."
+
+  # Define o caminho do registro
+  $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager"
+
+  # Verifica se a chave existe, senão cria
+  if (!(Test-Path $regPath)) {
+    Write-Output "A chave do registro não existe. Criando agora..."
+    New-Item -Path $regPath -Force | Out-Null
+  }
+
+  # Define a propriedade "Preferences"
+  Set-ItemProperty -Path $regPath -Name "Preferences" -Type Binary -Value ([byte[]](0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00))
+  
+  Write-Output "Configuração do Gerenciador de Tarefas aplicada com sucesso."
 }
 
 function ShowFileOperationsDetails {
@@ -1583,8 +1596,21 @@ function DisablePKM {
 }
 
 function DisallowDIP {
-  Write-Output "Disallowing driver installation prompts..."
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverInstall" -Name "PromptOnNewDevice" -Type DWord -Value 0
+  Write-Output "Desativando prompts de instalação de drivers..."
+
+  # Define o caminho do registro
+  $regPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverInstall"
+
+  # Verifica se a chave existe, senão cria
+  if (!(Test-Path $regPath)) {
+    Write-Output "A chave do registro não existe. Criando agora..."
+    New-Item -Path $regPath -Force | Out-Null
+  }
+
+  # Define a propriedade "PromptOnNewDevice"
+  Set-ItemProperty -Path $regPath -Name "PromptOnNewDevice" -Type DWord -Value 0
+
+  Write-Output "Configuração aplicada com sucesso."
 }
 
 function UseBigM {
@@ -1610,11 +1636,28 @@ function StophighDPC {
 }
 
 function Ativar-Servicos {
+  # Verifica se o script está sendo executado como administrador
+  if (-not (Test-Path "HKU:\S-1-5-19")) {
+    Write-Output "Este script precisa ser executado como Administrador."
+    exit
+  }
+
   Write-Output "Ativando serviços essenciais para desempenho..."
+
   $services = @("Dnscache", "wuauserv", "Winmgmt")
+
   foreach ($service in $services) {
-    Set-Service $service -StartupType Automatic
-    Start-Service $service -ErrorAction SilentlyContinue
+    try {
+      # Definir o tipo de inicialização do serviço para Automático
+      Set-Service $service -StartupType Automatic
+
+      # Iniciar o serviço, ignorando erros
+      Start-Service $service -ErrorAction SilentlyContinue
+      Write-Output "Serviço $service ativado com sucesso."
+    }
+    catch {
+      Write-Output "Erro ao ativar o serviço $service: $_"
+    }
   }
 }
 
