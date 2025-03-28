@@ -265,7 +265,7 @@ $tweaks = @(
   "CreateRestorePoint",
   "InstallMVC",
   "Install7Zip",
-  "SlowUpdatesTweaks", # Mantida, pois está definida no script principal
+  "SlowUpdatesTweaks",
   "InstallTitusProgs",
   "Check-Windows",
   "Execute-BatchScript",
@@ -285,6 +285,19 @@ $tweaks = @(
   "SetCurrentNetworkPrivate",
   "SetUnknownNetworksPrivate",
   "DisableNetDevicesAutoInst",
+  # Adicionando funções de desempenho aqui
+  "Set-RamThreshold",
+  "Set-MemoriaVirtual-Registry",
+  "DownloadAndExtractISLC",
+  "UpdateISLCConfig",
+  "ApplyPCOptimizations",
+  "MSIMode",
+  "NvidiaTweaks",
+  "AMDGPUTweaks",
+  "NetworkOptimizations",
+  "DisableNagle",
+  "NetworkAdapterRSS",
+  # Continuação dos tweaks existentes
   "EnableF8BootMenu",
   "DisableMeltdownCompatFlag",
   "EnableUpdateMSRT",
