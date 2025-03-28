@@ -104,6 +104,7 @@ $modules = @(
   ".\Modules\PrivacyTweaks.ps1",
   ".\Modules\Debloat.ps1"
 )
+
 foreach ($module in $modules) {
   try {
     if (Test-Path $module) {
@@ -116,7 +117,7 @@ foreach ($module in $modules) {
     }
   }
   catch {
-    Write-Colored "Erro ao carregar o módulo $module: $_" -Color "VermelhoClaro"
+    Write-Colored "Erro ao carregar o módulo $($module): $_" -Color "VermelhoClaro"
   }
 }
 
