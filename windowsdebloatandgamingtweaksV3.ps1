@@ -10,33 +10,92 @@ chcp 1252 | Out-Null
 
 # Função para texto colorido
 function Write-Colored {
+  <#
+  .SYNOPSIS
+    Exibe texto colorido no console, aceitando nomes de cores em português ou inglês.
+
+  .PARAMETER Text
+    O texto a ser exibido.
+
+  .PARAMETER Color
+    O nome da cor do texto em português ou inglês.
+
+  .PARAMETER BackgroundColor
+    (Opcional) O nome da cor de fundo em português ou inglês.
+
+  .EXAMPLE
+    Write-Colored -Text "Olá, mundo!" -Color "VerdeClaro"
+    Exibe "Olá, mundo!" em verde claro.
+
+  .EXAMPLE
+    Write-Colored -Text "Erro!" -Color "Vermelho" -BackgroundColor "Branco"
+    Exibe "Erro!" em vermelho com fundo branco.
+  #>
   param (
     [string]$Text,
-    [string]$Color
+    [string]$Color,
+    [string]$BackgroundColor = $null
   )
+
+  # Mapeamento de cores em português para inglês
   $colors = @{
-    'Preto'         = 'Black'
-    'Azul'          = 'DarkBlue'
-    'Verde'         = 'DarkGreen'
-    'Ciano'         = 'DarkCyan'
-    'Vermelho'      = 'DarkRed'
-    'Magenta'       = 'DarkMagenta'
-    'Amarelo'       = 'DarkYellow'
-    'CinzaClaro'    = 'Gray'
-    'CinzaEscuro'   = 'DarkGray'
-    'AzulClaro'     = 'Blue'
-    'VerdeClaro'    = 'Green'
-    'CianoClaro'    = 'Cyan'
-    'VermelhoClaro' = 'Red'
-    'MagentaClaro'  = 'Magenta'
-    'AmareloClaro'  = 'Yellow'
-    'Branco'        = 'White'
+    'preto'         = 'Black'
+    'azul'          = 'DarkBlue'
+    'verde'         = 'DarkGreen'
+    'ciano'         = 'DarkCyan'
+    'vermelho'      = 'DarkRed'
+    'magenta'       = 'DarkMagenta'
+    'amarelo'       = 'DarkYellow'
+    'cinzaclaro'    = 'Gray'
+    'cinzaescuro'   = 'DarkGray'
+    'azulclaro'     = 'Blue'
+    'verdeclaro'    = 'Green'  # Corrigido typo de 'verdecalar' para 'verdeclaro'
+    'cianoclaro'    = 'Cyan'
+    'vermelhoclaro' = 'Red'
+    'magentaclaro'  = 'Magenta'
+    'amareloclaro'  = 'Yellow'
+    'branco'        = 'White'
   }
-  $selectedColor = $colors[$Color]
+
+  # Converter a cor para minúsculas para torná-la case-insensitive
+  $ColorLower = $Color.ToLower()
+  $selectedColor = $colors[$ColorLower]
+
+  # Se não encontrada no mapeamento, verificar se é uma cor válida em inglês
   if (-not $selectedColor) {
-    $selectedColor = 'White' # Cor padrão se a chave não for encontrada
+    $validColors = [Enum]::GetNames([System.ConsoleColor])
+    if ($validColors -contains $Color) {
+      $selectedColor = $Color
+    }
+    else {
+      Write-Warning "Cor '$Color' não encontrada. Usando 'White' como padrão."
+      $selectedColor = 'White'
+    }
   }
-  Write-Host $Text -ForegroundColor $selectedColor
+
+  # Tratar a cor de fundo, se fornecida
+  $selectedBgColor = $null
+  if ($BackgroundColor) {
+    $BgColorLower = $BackgroundColor.ToLower()
+    $selectedBgColor = $colors[$BgColorLower]
+    if (-not $selectedBgColor) {
+      $validColors = [Enum]::GetNames([System.ConsoleColor])
+      if ($validColors -contains $BackgroundColor) {
+        $selectedBgColor = $BackgroundColor
+      }
+      else {
+        Write-Warning "Cor de fundo '$BackgroundColor' não encontrada. Ignorando."
+      }
+    }
+  }
+
+  # Exibir o texto com as cores selecionadas
+  if ($selectedBgColor) {
+    Write-Host $Text -ForegroundColor $selectedColor -BackgroundColor $selectedBgColor
+  }
+  else {
+    Write-Host $Text -ForegroundColor $selectedColor
+  }
 }
 
 # Função SlowUpdatesTweaks definida diretamente
@@ -69,7 +128,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.0.7",
+    "                                                                                  V0.7.0.8",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1742,27 +1801,35 @@ function Set-RamThreshold {
 }
 
 function Set-MemoriaVirtual-Registry {
-  Write-Host "Informe a letra do drive (ex: C) para configurar a memória virtual:" -ForegroundColor Cyan
+  Clear-Host
+  # Banner
+  Write-Colored -Text "" # Linha em branco para espaçamento
+  Write-Colored -Text "================================" -Color "Cyan"
+  Write-Colored -Text " Configurando Memória Virtual " -Color "Cyan"
+  Write-Colored -Text "================================" -Color "Cyan"
+  Write-Colored -Text "" # Linha em branco para espaçamento
+
+  Write-Colored -Text "Informe a letra do drive (ex: C) para configurar a memória virtual:" -Color "Cyan"
   $Drive = Read-Host
   $DrivePath = "${Drive}:"
   # Validação do drive
   if (-not (Test-Path $DrivePath)) {
-    Write-Host "Drive $DrivePath não encontrado." -ForegroundColor Red
+    Write-Colored -Text "Drive $DrivePath não encontrado." -Color "Red"
     return
   }
   # Cálculo da memória RAM total em MB
   $TotalRAM = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1MB)
-  $InitialSize = 9081  # Valor fixo conforme comum em scripts originais
+  $InitialSize = 9081  # Valor fixo inicial
   $MaxSize = [math]::Round($TotalRAM * 1.5)  # Máximo como 1,5x a RAM
   $RegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
   try {
     Set-ItemProperty -Path $RegPath -Name "PagingFiles" -Value "$DrivePath\pagefile.sys $InitialSize $MaxSize" -ErrorAction Stop
     Set-ItemProperty -Path $RegPath -Name "AutomaticManagedPagefile" -Value 0 -ErrorAction Stop
-    Write-Host "Memória virtual configurada para $DrivePath com inicial $InitialSize MB e máximo $MaxSize MB." -ForegroundColor Green
-    Write-Host "Reinicie o computador para aplicar as mudanças."
+    Write-Colored -Text "Memória virtual configurada para $DrivePath com inicial $InitialSize MB e máximo $MaxSize MB." -Color "Green"
+    Write-Colored -Text "Reinicie o computador para aplicar as mudanças." -Color "Green"
   }
   catch {
-    Write-Host "Erro ao configurar memória virtual: $_" -ForegroundColor Red
+    Write-Colored -Text "Erro ao configurar memória virtual: $_" -Color "Red"
   }
 }
 
