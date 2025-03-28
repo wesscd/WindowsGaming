@@ -1636,27 +1636,56 @@ function StophighDPC {
 }
 
 function Ativar-Servicos {
-  # Verifica se o script está sendo executado como administrador
-  if (-not (Test-Path "HKU:\S-1-5-19")) {
-    Write-Output "Este script precisa ser executado como Administrador."
-    exit
+  param (
+    [string[]]$Servicos = @('SysMain', 'PcaSvc', 'DiagTrack')
+  )
+
+  # Exibir banner informativo
+  Clear-Host
+  Write-Colored "" "Vermelho"
+  Write-Colored "======================================================" "Vermelho"
+  Write-Colored "===  Servicos Essenciais para Investigacao Forense ===" "Vermelho"
+  Write-Colored "======================================================" "Vermelho"
+  Write-Colored "" "Vermelho"
+  Write-Colored "Este menu auxilia na ativacao dos seguintes servicos:" "CinzaClaro"
+  Write-Colored "- SysMain: " "Amarelo"; Write-Colored "O SysMain, anteriormente conhecido como Superfetch, e um servico do Windows que preenche a memoria RAM com aplicativos frequentemente usados para acelerar o carregamento dos programas mais utilizados." "Branco"
+  Write-Colored "- PcaSvc: " "Amarelo"; Write-Colored "O PcaSvc (Program Compatibility Assistant Service) e um servico que detecta problemas de compatibilidade em programas legados e aplica correcao para melhorar a estabilidade do sistema." "Branco"
+  Write-Colored "- DiagTrack: " "Amarelo"; Write-Colored "O DiagTrack (Connected User Experiences and Telemetry) coleta e envia dados de diagnostico e uso para a Microsoft, auxiliando na melhoria dos servicos e na resolucao de problemas." "Branco"
+  Write-Colored "" "CinzaClaro"
+  Write-Colored "Estes servicos sao essenciais para a investigacao forense de cheats em servidores de Minecraft, DayZ e FIVEM GTA5 que utilizam o Echo AntiCheat." "Amarelo"
+  Write-Colored "" "Amarelo"
+  Write-Colored "===============================================" "AmareloClaro"
+
+  # Função interna para ativar um servico
+  function Ativar-Servico {
+    param (
+      [string]$NomeServico
+    )
+    $servico = Get-Service -Name $NomeServico -ErrorAction SilentlyContinue
+    if ($null -eq $servico) {
+      Write-Colored "Servico '$NomeServico' nao encontrado." "VermelhoClaro"
+      return
+    }
+    Write-Colored "Servico encontrado: $($servico.DisplayName) ($($servico.Name))" "CinzaClaro"
+    if ($servico.Status -eq 'Running') {
+      Write-Colored "Servico '$($servico.Name)' ja esta em execucao." "VerdeClaro"
+    }
+    else {
+      Start-Service -Name $servico.Name
+      Set-Service -Name $servico.Name -StartupType Automatic
+      Write-Colored "Servico '$($servico.Name)' ativado com sucesso." "VerdeClaro"
+    }
   }
 
-  Write-Output "Ativando serviços essenciais para desempenho..."
-
-  $services = @("Dnscache", "wuauserv", "Winmgmt")
-
-  foreach ($service in $services) {
-    try {
-      # Definir o tipo de inicialização do serviço para Automático
-      Set-Service $service -StartupType Automatic
-
-      # Iniciar o serviço, ignorando erros
-      Start-Service $service -ErrorAction SilentlyContinue
-      Write-Output "Serviço $service ativado com sucesso."
+  # Loop para cada servico
+  foreach ($nomeServico in $Servicos) {
+    $pergunta = "Deseja ativar o servico '$nomeServico'? (S/N): "
+    $resposta = Read-Host -Prompt $pergunta
+    if ($resposta.ToUpper() -eq 'S') {
+      Ativar-Servico -NomeServico $nomeServico
     }
-    catch {
-      Write-Output "Erro ao ativar o serviço $service: $($_.Exception.Message)"
+    else {
+      Write-Colored "Servico '$nomeServico' nao foi ativado." "Amarelo"
     }
   }
 }
@@ -2470,7 +2499,7 @@ Function NetworkAdapterRSS {
       Set-ItemProperty -Path $KeyPath7 -Name "Default" -Type String -Value 4096 | Out-Null
     }
     Else {
-      Escrever-Colorido "Caminho ($KeyPath) Nao encontrado." "Vermelho"
+      Write-Colored "Caminho ($KeyPath) Nao encontrado." "Vermelho"
     }
   }
   $ErrorActionPreference = $errpref #restore previous preference
