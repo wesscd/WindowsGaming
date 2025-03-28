@@ -128,7 +128,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.0.9",
+    "                                                                                  V0.7.1.0",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -703,12 +703,18 @@ function AskXBOX {
 }
 
 function DisableNewsFeed {
-  Write-Output "Disabling Windows 10 News and Interests Feed..."
-  If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds")) {
-    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Force | Out-Null
+  $osVersion = [System.Environment]::OSVersion.Version
+  if ($osVersion.Major -eq 10) {
+    Write-Output "Disabling Windows 10 News and Interests Feed..."
+    If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds")) {
+      New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Force | Out-Null
+    }
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type DWord -Value 0
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2
   }
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type DWord -Value 0
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2
+  else {
+    Write-Output "Windows 11 detectado, pulando desativação do News Feed."
+  }
 }
 
 function SetUACLow {
@@ -1803,11 +1809,11 @@ function Set-RamThreshold {
 function Set-MemoriaVirtual-Registry {
   Clear-Host
   # Banner
-  Write-Colored -Text "" # Linha em branco para espaçamento
+  Write-Colored -Text "verde" # Linha em branco para espaçamento
   Write-Colored -Text "================================" -Color "Cyan"
   Write-Colored -Text " Configurando Memória Virtual " -Color "Cyan"
   Write-Colored -Text "================================" -Color "Cyan"
-  Write-Colored -Text "" # Linha em branco para espaçamento
+  Write-Colored -Text "verde" # Linha em branco para espaçamento
 
   Write-Colored -Text "Informe a letra do drive (ex: C) para configurar a memória virtual:" -Color "Cyan"
   $Drive = Read-Host
