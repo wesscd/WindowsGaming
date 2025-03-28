@@ -5,6 +5,7 @@
 # Modificado por: [Seu Nome]
 
 # Definir página de código para suportar caracteres especiais
+
 chcp 860 | Out-Null
 
 # Função para texto colorido
@@ -38,11 +39,24 @@ function Write-Colored {
   Write-Host $Text -ForegroundColor $selectedColor
 }
 
+# Função SlowUpdatesTweaks definida diretamente
+function SlowUpdatesTweaks {
+  Write-Output "Aplicando tweaks para atualizações lentas..."
+  If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate")) {
+    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Force | Out-Null
+  }
+  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferFeatureUpdates" -Type DWord -Value 1
+  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferQualityUpdates" -Type DWord -Value 1
+  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferFeatureUpdatesPeriodInDays" -Type DWord -Value 365
+  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferQualityUpdatesPeriodInDays" -Type DWord -Value 30
+  Write-Colored "Atualizações do Windows configuradas para modo lento." -Color "VerdeClaro"
+}
+
 # Exibir introdução
 function Show-Intro {
   Clear-Host
   $intro = @(
-    "", "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗",
+    "", "", "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗",
     "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝",
     "   ██║   █████╗  ██║     ███████║    ██████╔╝████X╗  ██╔████╔██║██║   ██║   ██║   █████╗  ",
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
@@ -53,12 +67,15 @@ function Show-Intro {
     "Um ponto de restauração será criado antes de prosseguir.",
     "DESATIVE SEU ANTIVÍRUS e PRESSIONE QUALQUER TECLA para continuar!"
   )
-  $colors = @("Green", "Green", "Green", "Green", "Green", "Green", "Green", "Blue", "Yellow", "Yellow", "Red")
+  $colors = @("VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "AzulClaro", "AmareloClaro", "AmareloClaro", "VermelhoClaro")
   for ($i = 0; $i -lt $intro.Length; $i++) {
-    Write-Colored $intro[$i] $colors[$i]
+    $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
+    Write-Colored $intro[$i] $color
   }
   [Console]::ReadKey($true) | Out-Null
 }
+
+# (O restante do script continua como antes)
 
 # Configurar drives de registro
 New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT -ErrorAction SilentlyContinue | Out-Null
@@ -97,17 +114,16 @@ $tweakFunctions = @{
   "Install7Zip"                 = { Install7Zip }
   "Write-ColorOutput"           = { Write-ColorOutput }
   "InstallTitusProgs"           = { InstallTitusProgs }
-  "check-Windows"               = { check-Windows }
+  "Check-Windows"               = { Check-Windows }
   "Execute-BatchScript"         = { Execute-BatchScript }
   "InstallChocoUpdates"         = { InstallChocoUpdates }
-  "EnableUlimatePower"          = { EnableUlimatePower }
-  "askDefender"                 = { askDefender }
-  "DorEOneDrive"                = { DorEOneDrive }
-  "askXBOX"                     = { askXBOX }
-  "Windows11Extra"              = { Windows11Extra }
+  "EnableUltimatePower"         = { EnableUltimatePower }
+  "AskDefender"                 = { AskDefender }
+  "AskXBOX"                     = { AskXBOX }
+  "Windows11Extras"             = { Windows11Extras }
   "DebloatAll"                  = { DebloatAll }
   "RemoveBloatRegistry"         = { RemoveBloatRegistry }
-  "UninstallOneDrive"           = { UninstallOneDrive }
+  "Remove-OneDrive"             = { Remove-OneDrive }
   "UninstallMsftBloat"          = { UninstallMsftBloat }
   "DisableXboxFeatures"         = { DisableXboxFeatures }
   "DisableNewsFeed"             = { DisableNewsFeed }
@@ -135,21 +151,21 @@ $tweakFunctions = @{
   "EnableSleepButton"           = { EnableSleepButton }
   "DisableSleepTimeout"         = { DisableSleepTimeout }
   "DisableFastStartup"          = { DisableFastStartup }
-  "DISGaming"                   = { DISGaming }
+  "DisableGaming"               = { DisableGaming }
   "PowerThrottlingOff"          = { PowerThrottlingOff }
   "Win32PrioritySeparation"     = { Win32PrioritySeparation }
   "DisableAERO"                 = { DisableAERO }
   "BSODdetails"                 = { BSODdetails }
-  "Disablelivetiles"            = { Disablelivetiles }
-  "wallpaperquality"            = { wallpaperquality }
+  "DisableliveTiles"            = { DisableliveTiles }
+  "WallpaperQuality"            = { WallpaperQuality }
   "DisableShistory"             = { DisableShistory }
-  "Disableshortcutword"         = { Disableshortcutword }
+  "DisableShortcutWord"         = { DisableShortcutWord }
   "DisableMouseKKS"             = { DisableMouseKKS }
   "DisableTransparency"         = { DisableTransparency }
   "TurnOffSafeSearch"           = { TurnOffSafeSearch }
   "DisableCloudSearch"          = { DisableCloudSearch }
   "DisableDeviceHistory"        = { DisableDeviceHistory }
-  "DisableSearchHistroy"        = { DisableSearchHistroy }
+  "DisableSearchHistory"        = { DisableSearchHistory }
   "RemoveMeet"                  = { RemoveMeet }
   "EnableActionCenter"          = { EnableActionCenter }
   "EnableLockScreen"            = { EnableLockScreen }
@@ -209,7 +225,7 @@ $tweakFunctions = @{
   "Finished"                    = { Finished }
 
   # Funções de Performance (assumidas em PerformanceTweaks.ps1)
-  "SlowUpdatesTweaks"           = { SlowUpdatesTweaks }
+  #"SlowUpdatesTweaks"           = { SlowUpdatesTweaks }
   "Set-RamThreshold"            = { Set-RamThreshold }
   "Set-MemoriaVirtual-Registry" = { Set-MemoriaVirtual-Registry }
   "DownloadAndExtractISLC"      = { DownloadAndExtractISLC }
@@ -247,43 +263,20 @@ $tweaks = @(
   "CreateRestorePoint",
   "InstallMVC",
   "Install7Zip",
-  "SlowUpdatesTweaks",
-  "Write-ColorOutput",
+  "SlowUpdatesTweaks", # Mantida, pois está definida no script principal
   "InstallTitusProgs",
-  "check-Windows",
+  "Check-Windows",
   "Execute-BatchScript",
-  "Set-RamThreshold",
-  "Set-MemoriaVirtual-Registry",
-  "DownloadAndExtractISLC",
-  "UpdateISLCConfig",
   "InstallChocoUpdates",
-  "EnableUlimatePower",
-  "MSIMode",
-  "askDefender",
-  "DorEOneDrive",
-  "askXBOX",
-  "Windows11Extra",
+  "EnableUltimatePower",
+  "AskDefender",
+  "AskXBOX",
+  "Windows11Extras",
   "DebloatAll",
   "RemoveBloatRegistry",
-  "UninstallOneDrive",
+  "Remove-OneDrive -AskUser",
   "UninstallMsftBloat",
   "DisableXboxFeatures",
-  "DisableTelemetry",
-  "DisableWiFiSense",
-  "DisableSmartScreen",
-  "DisableWebSearch",
-  "DisableAppSuggestions",
-  "DisableActivityHistory",
-  "EnableBackgroundApps",
-  "DisableLocationTracking",
-  "DisableMapUpdates",
-  "DisableFeedback",
-  "DisableTailoredExperiences",
-  "DisableAdvertisingID",
-  "DisableCortana",
-  "DisableErrorReporting",
-  "SetP2PUpdateLocal",
-  "DisableWAPPush",
   "DisableNewsFeed",
   "SetUACLow",
   "DisableSMB1",
@@ -309,21 +302,21 @@ $tweaks = @(
   "EnableSleepButton",
   "DisableSleepTimeout",
   "DisableFastStartup",
-  "DISGaming",
+  "DisableGaming",
   "PowerThrottlingOff",
   "Win32PrioritySeparation",
   "DisableAERO",
   "BSODdetails",
-  "Disablelivetiles",
-  "wallpaperquality",
+  "DisableliveTiles",
+  "WallpaperQuality",
   "DisableShistory",
-  "Disableshortcutword",
+  "DisableShortcutWord",
   "DisableMouseKKS",
   "DisableTransparency",
   "TurnOffSafeSearch",
   "DisableCloudSearch",
   "DisableDeviceHistory",
-  "DisableSearchHistroy",
+  "DisableSearchHistory",
   "RemoveMeet",
   "EnableActionCenter",
   "EnableLockScreen",
@@ -362,7 +355,6 @@ $tweaks = @(
   "QOL",
   "FullscreenOptimizationFIX",
   "GameOptimizationFIX",
-  "ApplyPCOptimizations",
   "RawMouseInput",
   "DetectnApplyMouseFIX",
   "DisableHPET",
@@ -376,11 +368,6 @@ $tweaks = @(
   "ForceContiguousM",
   "DecreaseMKBuffer",
   "StophighDPC",
-  "NvidiaTweaks",
-  "AMDGPUTweaks",
-  "NetworkAdapterRSS",
-  "NetworkOptimizations",
-  "DisableNagle",
   "Ativar-Servicos",
   "RemoveEdit3D",
   "FixURLext",
@@ -451,30 +438,61 @@ function InstallTitusProgs {
 }
 
 function Execute-BatchScript {
-  Clear-Host
-  Write-Colored "" "Azul"
-  Write-Colored "Realizando limpeza de cache dos navegadores" "Verde"
-  $url = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/script-ccleaner.bat"
-  $localPath = "$env:temp\script-ccleaner.bat"
-  Invoke-WebRequest -Uri $url -OutFile $localPath
-  Start-Process -FilePath $localPath -ArgumentList "/c $localPath" -Wait
-  Remove-Item -Path $localPath -Force
-  Write-Output "Script .bat executado e removido com sucesso."
+  Write-Output "Baixando e executando o script em batch..."
+  $remoteUrl = "https://raw.githubusercontent.com/TitusConsultingBR/techremote/main/techremote.bat"
+  $localPath = "$env:TEMP\techremote.bat"
+  try {
+    Invoke-WebRequest -Uri $remoteUrl -OutFile $localPath -ErrorAction Stop
+    if (Test-Path $localPath) {
+      Write-Output "Download concluído. Executando o script..."
+      Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$localPath`"" -Wait -NoNewWindow -ErrorAction Stop
+      Write-Colored "Script em batch executado com sucesso." -Color "VerdeClaro"
+    }
+    else {
+      Write-Colored "Erro: O arquivo não foi baixado corretamente." -Color "VermelhoClaro"
+    }
+  }
+  catch {
+    Write-Colored "Erro ao baixar ou executar o script em batch: $_" -Color "VermelhoClaro"
+  }
+  finally {
+    if (Test-Path $localPath) {
+      Remove-Item $localPath -Force -ErrorAction SilentlyContinue
+      Write-Output "Arquivo temporário removido."
+    }
+  }
 }
 
-function check-Windows {
-  $activationStatus = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object { $_.PartialProductKey }).LicenseStatus
-  if ($activationStatus -eq 1) {
-    Clear-Host
-    Write-Colored "" "Azul"
-    Write-Colored "O Windows está ativado." "Azul"
+function Check-Windows {
+  Write-Output "Verificando ativação do Windows..."
+  try {
+    $slmgrOutput = cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /dli | Out-String
+    if ($slmgrOutput -match "Licensed" -or $slmgrOutput -match "Ativado") {
+      Write-Colored "O Windows já está ativado." -Color "VerdeClaro"
+    }
+    else {
+      Write-Colored "O Windows não está ativado." -Color "AmareloClaro"
+      $choice = Read-Host "Deseja inserir uma chave de produto para ativar? (S/N)"
+      if ($choice -match "(?i)^s$") {
+        $productKey = Read-Host "Digite a chave de produto (ex.: XXXXX-XXXXX-XXXXX-XXXXX-XXXXX)"
+        cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /ipk $productKey | Out-Null
+        $activationResult = cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /ato | Out-String
+        if ($activationResult -match "successfully" -or $activationResult -match "ativado com sucesso") {
+          Write-Colored "Windows ativado com sucesso." -Color "VerdeClaro"
+        }
+        else {
+          Write-Colored "Falha ao ativar o Windows com a chave fornecida." -Color "VermelhoClaro"
+          Write-Output $activationResult
+        }
+      }
+      else {
+        Write-Colored "Ativação ignorada. O Windows permanece não ativado." -Color "AmareloClaro"
+      }
+    }
   }
-  else {
-    Clear-Host
-    Write-Colored "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" "Vermelho"
-    Write-Colored "| O Windows NÃO está ativado. Executando o comando de ativação. |" "Vermelho"
-    Write-Colored "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" "Vermelho"
-    irm https://get.activated.win | iex
+  catch {
+    Write-Colored "Erro ao verificar ou ativar o Windows: $_" -Color "VermelhoClaro"
+    Write-Output "Certifique-se de ter permissões administrativas e uma conexão com a internet (se necessário)."
   }
 }
 
@@ -491,7 +509,7 @@ function InstallChocoUpdates {
   choco upgrade all -y
 }
 
-function askXBOX {
+function AskXBOX {
   $winVer = [System.Environment]::OSVersion.Version
   $isWin11 = $winVer.Major -eq 10 -and $winVer.Build -ge 22000
   do {
@@ -556,54 +574,6 @@ function askXBOX {
       $ErrorActionPreference = $errpref
     }
   }
-}
-
-function EnableFeedback {
-  Write-Output "Enabling Feedback..."
-  Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules" -Name "NumberOfSIUFInPeriod" -ErrorAction SilentlyContinue
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -ErrorAction SilentlyContinue
-  Enable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient" -ErrorAction SilentlyContinue | Out-Null
-  Enable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload" -ErrorAction SilentlyContinue | Out-Null
-}
-
-function EnableTailoredExperiences {
-  Write-Output "Enabling Tailored Experiences..."
-  Remove-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableTailoredExperiencesWithDiagnosticData" -ErrorAction SilentlyContinue
-}
-
-function EnableAdvertisingID {
-  Write-Output "Enabling Advertising ID..."
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" -Name "DisabledByGroupPolicy" -ErrorAction SilentlyContinue
-}
-
-function EnableCortana {
-  Write-Output "Enabling Cortana..."
-  Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -ErrorAction SilentlyContinue
-  If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore")) {
-    New-Item -Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore" -Force | Out-Null
-  }
-  Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Type DWord -Value 0
-  Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Type DWord -Value 0
-  Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -ErrorAction SilentlyContinue
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Name "AllowCortana" -ErrorAction SilentlyContinue
-}
-
-function EnableErrorReporting {
-  Write-Output "Enabling Error reporting..."
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -ErrorAction SilentlyContinue
-  Enable-ScheduledTask -TaskName "Microsoft\Windows\Windows Error Reporting\QueueReporting" | Out-Null
-}
-
-function SetP2PUpdateInternet {
-  Write-Output "Unrestricting Windows Update P2P to internet..."
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -ErrorAction SilentlyContinue
-}
-
-function EnableWAPPush {
-  Write-Output "Enabling and starting WAP Push Service..."
-  Set-Service "dmwappushservice" -StartupType Automatic
-  Start-Service "dmwappushservice" -WarningAction SilentlyContinue
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\dmwappushservice" -Name "DelayedAutoStart" -Type DWord -Value 1
 }
 
 function DisableNewsFeed {
@@ -717,7 +687,7 @@ function EnableNetDevicesAutoInst {
   Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private" -Name "AutoSetup" -ErrorAction SilentlyContinue
 }
 
-function askDefender {
+function AskDefender {
   $osVersion = [System.Environment]::OSVersion.Version
   $isWindows11 = $osVersion.Build -ge 22000
   function Test-Admin {
@@ -729,6 +699,12 @@ function askDefender {
     Write-Colored "Este script precisa ser executado como Administrador. Por favor, execute-o novamente como Administrador." "Vermelho"
     break
   }
+  $tasks = @(
+    "\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance",
+    "\Microsoft\Windows\Windows Defender\Windows Defender Cleanup",
+    "\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan",
+    "\Microsoft\Windows\Windows Defender\Windows Defender Verification"
+  )
   do {
     Clear-Host
     Write-Colored "" "Azul"
@@ -761,12 +737,6 @@ function askDefender {
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SubmitSamplesConsent" -Type DWord -Value 2
     Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "PUAProtection" -ErrorAction SilentlyContinue
     Set-MpPreference -EnableControlledFolderAccess Disabled -ErrorAction SilentlyContinue
-    $tasks = @(
-      "\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance",
-      "\Microsoft\Windows\Windows Defender\Windows Defender Cleanup",
-      "\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan",
-      "\Microsoft\Windows\Windows Defender\Windows Defender Verification"
-    )
     foreach ($task in $tasks) {
       Disable-ScheduledTask -TaskName $task -ErrorAction SilentlyContinue
     }
@@ -776,7 +746,7 @@ function askDefender {
     Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Name "EnableFirewall" -ErrorAction SilentlyContinue
     Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -ErrorAction SilentlyContinue
     if ($osVersion.Build -eq 14393) {
-      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -Type ExpandString -Value "`"%ProgramFiles%\Windows Defender\MSASCuiL.exe`""
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -Type ExpandString -Value "`"%ProgramFiles%\Windows Defender\MSASCuiL.exe`"" 
     }
     elseif ($osVersion.Build -ge 15063) {
       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "SecurityHealth" -Type ExpandString -Value "%windir%\system32\SecurityHealthSystray.exe"
@@ -858,7 +828,7 @@ function DisableMeltdownCompatFlag {
   Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\QualityCompat" -Name "cadca5fe-87d3-4b96-b7fb-a231484277cc" -ErrorAction SilentlyContinue
 }
 
-function DISGaming {
+function DisableGaming {
   Write-Output "Stopping and disabling unnecessary services for gaming..."
   $errpref = $ErrorActionPreference
   $ErrorActionPreference = "silentlycontinue"
@@ -1131,7 +1101,7 @@ function BSODdetails {
   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl" -Name "DisplayParameters" -Type DWord -Value 1
 }
 
-function Disablelivetiles {
+function DisableliveTiles {
   Write-Output "Disabling Live Tiles..."
   If (!(Test-Path "HKCU:\Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications")) {
     New-Item -Path "HKCU:\Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" -Force | Out-Null
@@ -1139,7 +1109,7 @@ function Disablelivetiles {
   Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "NoTileApplicationNotification" -Type DWord -Value 1
 }
 
-function wallpaperquality {
+function WallpaperQuality {
   Write-Output "Setting wallpaper quality to maximum..."
   Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "JPEGImportQuality" -Type DWord -Value 100
 }
@@ -1149,7 +1119,7 @@ function DisableShistory {
   Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackDocs" -Type DWord -Value 0
 }
 
-function Disableshortcutword {
+function DisableShortcutWord {
   Write-Output "Removing 'Shortcut' word from new shortcuts..."
   Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "link" -Type Binary -Value ([byte[]](0, 0, 0, 0))
 }
@@ -1179,7 +1149,7 @@ function DisableDeviceHistory {
   Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace" -Name "DelegateFolders" -Type DWord -Value 0
 }
 
-function DisableSearchHistroy {
+function DisableSearchHistory {
   Write-Output "Disabling search history..."
   Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "HistoryViewEnabled" -Type DWord -Value 0
 }
@@ -1528,29 +1498,51 @@ function Clear-PSHistory {
   Remove-Item -Path (Get-PSReadlineOption).HistorySavePath -Force -ErrorAction SilentlyContinue
 }
 
-function DorEOneDrive {
-  do {
-    Clear-Host
-    Write-Colored "" "Azul"
-    Write-Colored "================ Desinstalar o OneDrive da Microsoft? ================" "Azul"
-    Write-Colored "" "Azul"
-    Write-Colored "Pressione 'D' para desinstalar o OneDrive." "Azul"
-    Write-Colored "Pressione 'P' para pular isso." "Azul"
-    $selection = Read-Host "Por favor, escolha"
-  } until ($selection -match "(?i)^(d|p)$")
-  if ($selection -match "(?i)^d$") {
-    Write-Output "Desinstalando OneDrive..."
-    $onedrivePath = "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
-    if (Test-Path $onedrivePath) {
-      Stop-Process -Name "OneDrive" -Force -ErrorAction SilentlyContinue
-      Start-Process -FilePath $onedrivePath -ArgumentList "/uninstall" -NoNewWindow -Wait
+function Remove-OneDrive {
+  [CmdletBinding()]
+  param (
+    [switch]$AskUser
+  )
+  
+  if ($AskUser) {
+    do {
+      Clear-Host
+      Write-Colored "" "Azul"
+      Write-Colored "================ Desinstalar o OneDrive? ================" "Azul"
+      Write-Colored "" "Azul"
+      Write-Colored "Pressione 'S' para desinstalar o OneDrive." "Azul"
+      Write-Colored "Pressione 'N' para pular isso." "Azul"
+      $selection = Read-Host "Por favor, escolha."
+    } until ($selection -match "(?i)^(s|n)$")
+    if ($selection -match "(?i)^n$") {
+      Write-Colored "Desinstalação do OneDrive ignorada." -Color "AmareloClaro"
+      return
     }
-    Remove-Item -Path "$env:USERPROFILE\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path "HKCU:\Software\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
+  }
+
+  Write-Output "Desinstalando o OneDrive..."
+  try {
+    Stop-Process -Name "OneDrive" -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 2
+    $onedrivePath = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
+    if (Test-Path $onedrivePath) {
+      Start-Process -FilePath $onedrivePath -ArgumentList "/uninstall" -Wait -NoNewWindow -ErrorAction Stop
+    }
+    else {
+      Write-Output "OneDriveSetup.exe não encontrado em $onedrivePath. Pode já estar desinstalado."
+    }
+    Remove-Item "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+    Remove-Item "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+    Remove-Item "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
+    Remove-Item "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe" -Force -ErrorAction SilentlyContinue
+    Write-Colored "OneDrive desinstalado com sucesso." -Color "VerdeClaro"
+  }
+  catch {
+    Write-Colored "Erro ao desinstalar o OneDrive: $_" -Color "VermelhoClaro"
   }
 }
 
-function Windows11Extra {
+function Windows11Extras {
   if ([System.Environment]::OSVersion.Version.Build -ge 22000) {
     Write-Output "Applying Windows 11 specific tweaks..."
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type DWord -Value 0 # Centralizar barra de tarefas
@@ -1601,19 +1593,6 @@ function RemoveBloatRegistry {
   }
 }
 
-function UninstallOneDrive {
-  Write-Output "Uninstalling OneDrive..."
-  Stop-Process -Name "OneDrive" -Force -ErrorAction SilentlyContinue
-  $onedriveSetup = "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
-  if (Test-Path $onedriveSetup) {
-    Start-Process -FilePath $onedriveSetup -ArgumentList "/uninstall" -NoNewWindow -Wait
-  }
-  Remove-Item -Path "$env:USERPROFILE\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
-  Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
-  Remove-Item -Path "$env:PROGRAMDATA\Microsoft OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
-  Remove-Item -Path "HKCU:\Software\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
-}
-
 function UninstallMsftBloat {
   Write-Output "Uninstalling additional Microsoft bloatware..."
   $bloatware = @(
@@ -1648,7 +1627,7 @@ function DisableXboxFeatures {
   Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
 }
 
-function EnableUlimatePower {
+function EnableUltimatePower {
   Write-Output "Enabling Ultimate Performance power plan..."
   powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
   powercfg -setactive e9a42b02-d5df-448d-aa00-03f14749eb61
@@ -1674,16 +1653,11 @@ Show-Intro
 
 # Executar os tweaks
 foreach ($tweak in $tweaks) {
-  if ($tweakFunctions.ContainsKey($tweak)) {
-    Write-Colored "Executando: $tweak" -Color "Verde"
-    try {
-      & $tweakFunctions[$tweak]
-    }
-    catch {
-      Write-Colored "Erro ao executar $tweak : $_" -Color "Vermelho"
-    }
+  $tweakName = $tweak.Split()[0]
+  if ($tweakFunctions.ContainsKey($tweakName)) {
+    Invoke-Expression $tweak
   }
   else {
-    Write-Colored "Tweak não encontrado: $tweak" -Color "Vermelho"
+    Write-Colored "Tweak não encontrado: $tweak" -Color "VermelhoClaro"
   }
 }
