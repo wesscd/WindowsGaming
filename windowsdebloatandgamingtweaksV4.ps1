@@ -195,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.2.4",
+    "                                                                                  V0.7.2.2.5",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -2312,13 +2312,49 @@ function Win32PrioritySeparation {
 }
 
 function DisableAERO {
-  Write-Output "Disabling AERO effects..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Type DWord -Value 0
+  Write-Log "Iniciando função DisableAERO para desativar os efeitos AERO." -ConsoleOutput
+
+  try {
+    Write-Output "Disabling AERO effects..."
+    Write-Log "Desativando os efeitos AERO..." -ConsoleOutput
+
+    Write-Log "Configurando EnableAeroPeek para 0 em HKCU:\Software\Microsoft\Windows\DWM..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "EnableAeroPeek configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Efeitos AERO desativados com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função DisableAERO: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função DisableAERO." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function BSODdetails {
-  Write-Output "Enabling detailed BSOD information..."
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl" -Name "DisplayParameters" -Type DWord -Value 1
+  Write-Log "Iniciando função BSODdetails para habilitar informações detalhadas do BSOD." -ConsoleOutput
+
+  try {
+    Write-Output "Enabling detailed BSOD information..."
+    Write-Log "Habilitando informações detalhadas do BSOD..." -ConsoleOutput
+
+    Write-Log "Configurando DisplayParameters para 1 em HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl" -Name "DisplayParameters" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "DisplayParameters configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Informações detalhadas do BSOD habilitadas com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função BSODdetails: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função BSODdetails." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function DisableliveTiles {
@@ -2980,34 +3016,58 @@ function Set-RamThreshold {
 }
 
 function Set-MemoriaVirtual-Registry {
-  Clear-Host
-  Write-Colored "" "Azul"
-  Write-Colored -Text "================================" -Color "Azul"
-  Write-Colored -Text " Configurando Memória Virtual " -Color "Azul"
-  Write-Colored -Text "================================" -Color "Azul"
-  Write-Colored "" "Azul"
+  Write-Log "Iniciando função Set-MemoriaVirtual-Registry para configurar a memória virtual." -ConsoleOutput
 
-  Write-Colored -Text "Informe a letra do drive (ex: C) para configurar a memória virtual:" -Color "Cyan"
-  $Drive = Read-Host
-  $DrivePath = "${Drive}:"
-  # Validação do drive
-  if (-not (Test-Path $DrivePath)) {
-    Write-Colored -Text "Drive $DrivePath não encontrado." -Color "Red"
-    return
-  }
-  # Cálculo da memória RAM total em MB
-  $TotalRAM = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1MB)
-  $InitialSize = 9081  # Valor fixo inicial
-  $MaxSize = [math]::Round($TotalRAM * 1.5)  # Máximo como 1,5x a RAM
-  $RegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
   try {
+    Clear-Host
+    Write-Colored "" "Azul"
+    Write-Colored -Text "===================================================" -Color "Azul"
+    Write-Colored -Text "==========  Configurando Memória Virtual ==========" -Color "Azul"
+    Write-Colored -Text "===================================================" -Color "Azul"
+    Write-Colored "" "Azul"
+    Write-Log "Exibindo interface de configuração da memória virtual." -ConsoleOutput
+    Write-Colored "" "Azul"
+    Write-Colored -Text "Informe a letra do drive (ex: C) para configurar a memória virtual:" -Color "Cyan"
+    $Drive = Read-Host
+    $DrivePath = "${Drive}:"
+    Write-Log "Usuário informou o drive: $DrivePath" -ConsoleOutput
+
+    # Validação do drive
+    if (-not (Test-Path $DrivePath)) {
+      $errorMessage = "Drive $DrivePath não encontrado."
+      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+      Write-Colored -Text $errorMessage -Color "Red"
+      return
+    }
+    Write-Log "Drive $DrivePath validado com sucesso." -Level "INFO" -ConsoleOutput
+
+    # Cálculo da memória RAM total em MB
+    $TotalRAM = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1MB)
+    $InitialSize = 9081  # Valor fixo inicial
+    $MaxSize = [math]::Round($TotalRAM * 1.5)  # Máximo como 1,5x a RAM
+    $RegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
+    Write-Log "RAM total detectada: $TotalRAM MB. Configurando memória virtual com inicial: $InitialSize MB, máximo: $MaxSize MB." -ConsoleOutput
+
+    Write-Log "Configurando PagingFiles em $RegPath..." -ConsoleOutput
     Set-ItemProperty -Path $RegPath -Name "PagingFiles" -Value "$DrivePath\pagefile.sys $InitialSize $MaxSize" -ErrorAction Stop
+    Write-Log "PagingFiles configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando AutomaticManagedPagefile para 0 em $RegPath..." -ConsoleOutput
     Set-ItemProperty -Path $RegPath -Name "AutomaticManagedPagefile" -Value 0 -ErrorAction Stop
+    Write-Log "AutomaticManagedPagefile configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Memória virtual configurada com sucesso para $DrivePath com inicial $InitialSize MB e máximo $MaxSize MB." -Level "INFO" -ConsoleOutput
     Write-Colored -Text "Memória virtual configurada para $DrivePath com inicial $InitialSize MB e máximo $MaxSize MB." -Color "Green"
     Write-Colored -Text "Reinicie o computador para aplicar as mudanças." -Color "Green"
   }
   catch {
-    Write-Colored -Text "Erro ao configurar memória virtual: $_" -Color "Red"
+    $errorMessage = "Erro ao configurar memória virtual: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored -Text $errorMessage -Color "Red"
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função Set-MemoriaVirtual-Registry." -Level "INFO" -ConsoleOutput
   }
 }
 
