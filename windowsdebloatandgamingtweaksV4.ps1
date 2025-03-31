@@ -195,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.2.0",
+    "                                                                                  V0.7.2.2.1",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1670,25 +1670,79 @@ function EnableUpdateDriver {
     Write-Output "Enabling driver offering through Windows Update..."
     Write-Log "Habilitando a oferta de drivers pelo Windows Update..." -ConsoleOutput
 
+    # Definir os caminhos dos registros
+    $deviceMetadataPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata"
+    $driverSearchingPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching"
+    $windowsUpdatePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+
+    # Remover PreventDeviceMetadataFromNetwork
     Write-Log "Removendo PreventDeviceMetadataFromNetwork do registro..." -ConsoleOutput
-    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -ErrorAction Stop
-    Write-Log "PreventDeviceMetadataFromNetwork removido com sucesso." -Level "INFO" -ConsoleOutput
+    if (Test-Path $deviceMetadataPath) {
+      if (Get-ItemProperty -Path $deviceMetadataPath -Name "PreventDeviceMetadataFromNetwork" -ErrorAction SilentlyContinue) {
+        Remove-ItemProperty -Path $deviceMetadataPath -Name "PreventDeviceMetadataFromNetwork" -ErrorAction Stop
+        Write-Log "PreventDeviceMetadataFromNetwork removido com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Write-Log "Propriedade PreventDeviceMetadataFromNetwork não encontrada no caminho $deviceMetadataPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+      }
+    }
+    else {
+      Write-Log "Caminho $deviceMetadataPath não encontrado. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+    }
 
+    # Remover DontPromptForWindowsUpdate
     Write-Log "Removendo DontPromptForWindowsUpdate do registro..." -ConsoleOutput
-    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DontPromptForWindowsUpdate" -ErrorAction Stop
-    Write-Log "DontPromptForWindowsUpdate removido com sucesso." -Level "INFO" -ConsoleOutput
+    if (Test-Path $driverSearchingPath) {
+      if (Get-ItemProperty -Path $driverSearchingPath -Name "DontPromptForWindowsUpdate" -ErrorAction SilentlyContinue) {
+        Remove-ItemProperty -Path $driverSearchingPath -Name "DontPromptForWindowsUpdate" -ErrorAction Stop
+        Write-Log "DontPromptForWindowsUpdate removido com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Write-Log "Propriedade DontPromptForWindowsUpdate não encontrada no caminho $driverSearchingPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+      }
+    }
+    else {
+      Write-Log "Caminho $driverSearchingPath não encontrado. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+    }
 
+    # Remover DontSearchWindowsUpdate
     Write-Log "Removendo DontSearchWindowsUpdate do registro..." -ConsoleOutput
-    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DontSearchWindowsUpdate" -ErrorAction Stop
-    Write-Log "DontSearchWindowsUpdate removido com sucesso." -Level "INFO" -ConsoleOutput
+    if (Test-Path $driverSearchingPath) {
+      if (Get-ItemProperty -Path $driverSearchingPath -Name "DontSearchWindowsUpdate" -ErrorAction SilentlyContinue) {
+        Remove-ItemProperty -Path $driverSearchingPath -Name "DontSearchWindowsUpdate" -ErrorAction Stop
+        Write-Log "DontSearchWindowsUpdate removido com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Write-Log "Propriedade DontSearchWindowsUpdate não encontrada no caminho $driverSearchingPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+      }
+    }
 
+    # Remover DriverUpdateWizardWuSearchEnabled
     Write-Log "Removendo DriverUpdateWizardWuSearchEnabled do registro..." -ConsoleOutput
-    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DriverUpdateWizardWuSearchEnabled" -ErrorAction Stop
-    Write-Log "DriverUpdateWizardWuSearchEnabled removido com sucesso." -Level "INFO" -ConsoleOutput
+    if (Test-Path $driverSearchingPath) {
+      if (Get-ItemProperty -Path $driverSearchingPath -Name "DriverUpdateWizardWuSearchEnabled" -ErrorAction SilentlyContinue) {
+        Remove-ItemProperty -Path $driverSearchingPath -Name "DriverUpdateWizardWuSearchEnabled" -ErrorAction Stop
+        Write-Log "DriverUpdateWizardWuSearchEnabled removido com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Write-Log "Propriedade DriverUpdateWizardWuSearchEnabled não encontrada no caminho $driverSearchingPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+      }
+    }
 
+    # Remover ExcludeWUDriversInQualityUpdate
     Write-Log "Removendo ExcludeWUDriversInQualityUpdate do registro..." -ConsoleOutput
-    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -ErrorAction Stop
-    Write-Log "ExcludeWUDriversInQualityUpdate removido com sucesso." -Level "INFO" -ConsoleOutput
+    if (Test-Path $windowsUpdatePath) {
+      if (Get-ItemProperty -Path $windowsUpdatePath -Name "ExcludeWUDriversInQualityUpdate" -ErrorAction SilentlyContinue) {
+        Remove-ItemProperty -Path $windowsUpdatePath -Name "ExcludeWUDriversInQualityUpdate" -ErrorAction Stop
+        Write-Log "ExcludeWUDriversInQualityUpdate removido com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Write-Log "Propriedade ExcludeWUDriversInQualityUpdate não encontrada no caminho $windowsUpdatePath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+      }
+    }
+    else {
+      Write-Log "Caminho $windowsUpdatePath não encontrado. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+    }
 
     Write-Log "Oferta de drivers pelo Windows Update habilitada com sucesso." -Level "INFO" -ConsoleOutput
   }
