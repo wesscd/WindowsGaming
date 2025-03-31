@@ -195,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.1.8",
+    "                                                                                  V0.7.2.1.9",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1534,9 +1534,24 @@ function DisableMeltdownCompatFlag {
     Write-Output "Disabling Meltdown (CVE-2017-5754) compatibility flag..."
     Write-Log "Desativando o flag de compatibilidade do Meltdown (CVE-2017-5754)..." -ConsoleOutput
 
-    Write-Log "Removendo a propriedade cadca5fe-87d3-4b96-b7fb-a231484277cc do registro..." -ConsoleOutput
-    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\QualityCompat" -Name "cadca5fe-87d3-4b96-b7fb-a231484277cc" -ErrorAction Stop
-    Write-Log "Flag de compatibilidade do Meltdown removido com sucesso." -Level "INFO" -ConsoleOutput
+    # Definir o caminho do registro
+    $qualityCompatPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\QualityCompat"
+
+    # Verificar se o caminho existe
+    if (Test-Path $qualityCompatPath) {
+      # Verificar se a propriedade existe
+      $propertyName = "cadca5fe-87d3-4b96-b7fb-a231484277cc"
+      if (Get-ItemProperty -Path $qualityCompatPath -Name $propertyName -ErrorAction SilentlyContinue) {
+        Remove-ItemProperty -Path $qualityCompatPath -Name $propertyName -ErrorAction Stop
+        Write-Log "Flag de compatibilidade do Meltdown ($propertyName) removido com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Write-Log "Propriedade $propertyName não encontrada no caminho $qualityCompatPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+      }
+    }
+    else {
+      Write-Log "Caminho $qualityCompatPath não encontrado. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+    }
   }
   catch {
     $errorMessage = "Erro na função DisableMeltdownCompatFlag: $_"
