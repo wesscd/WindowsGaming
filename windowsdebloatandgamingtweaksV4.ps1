@@ -195,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.1.7",
+    "                                                                                  V0.7.2.1.8",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1128,7 +1128,7 @@ function DisableNewsFeed {
         Write-Colored "Não foi possível desativar o News Feed no perfil do usuário atual devido a restrições de permissão. Execute o script como o usuário ou contate o administrador." -Color "AmareloClaro"
       }
       catch {
-        $errorMessage = "Erro ao configurar $registryPathHKCU $_" #comentando para atualizar.
+        $errorMessage = "Erro ao configurar $registryPathHKCU $_" #comentando para atualizar........................
         Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
         Write-Colored $errorMessage -Color "Vermelho"
         throw
