@@ -1128,7 +1128,7 @@ function DisableNewsFeed {
         Write-Colored "Não foi possível desativar o News Feed no perfil do usuário atual devido a restrições de permissão. Execute o script como o usuário ou contate o administrador." -Color "AmareloClaro"
       }
       catch {
-        $errorMessage = "Erro ao configurar $registryPathHKCU: $_"
+        $errorMessage = "Erro ao configurar $registryPathHKCU $_"
         Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
         Write-Colored $errorMessage -Color "Vermelho"
         throw
