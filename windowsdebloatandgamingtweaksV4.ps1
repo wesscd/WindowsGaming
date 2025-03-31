@@ -195,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.2.5",
+    "                                                                                  V0.7.2.2.6",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -2845,50 +2845,110 @@ function Remove-OneDrive {
   param (
     [switch]$AskUser
   )
-  
-  if ($AskUser) {
-    do {
-      Clear-Host
-      Write-Colored "" "Azul"
-      Write-Colored "================ Desinstalar o OneDrive? ================" "Azul"
-      Write-Colored "" "Azul"
-      Write-Colored "Pressione 'S' para desinstalar o OneDrive." "Azul"
-      Write-Colored "Pressione 'N' para pular isso." "Azul"
-      $selection = Read-Host "Por favor, escolha."
-    } until ($selection -match "(?i)^(s|n)$")
-    if ($selection -match "(?i)^n$") {
-      Write-Colored "Desinstalação do OneDrive ignorada." -Color "AmareloClaro"
-      return
-    }
-  }
 
-  Write-Output "Desinstalando o OneDrive..."
+  Write-Log "Iniciando função Remove-OneDrive para desinstalar o OneDrive." -ConsoleOutput
+
   try {
-    Stop-Process -Name "OneDrive" -Force -ErrorAction SilentlyContinue
+    if ($AskUser) {
+      do {
+        Clear-Host
+        Write-Log "Exibindo menu de opções para desinstalar o OneDrive." -ConsoleOutput
+        Write-Colored "" "Azul"
+        Write-Colored "================ Desinstalar o OneDrive? ================" "Azul"
+        Write-Colored "" "Azul"
+        Write-Colored "Pressione 'S' para desinstalar o OneDrive." "Azul"
+        Write-Colored "Pressione 'N' para pular isso." "Azul"
+        $selection = Read-Host "Por favor, escolha."
+        Write-Log "Usuário selecionou: $selection" -ConsoleOutput
+      } until ($selection -match "(?i)^(s|n)$")
+
+      if ($selection -match "(?i)^n$") {
+        Write-Log "Desinstalação do OneDrive ignorada pelo usuário." -Level "INFO" -ConsoleOutput
+        Write-Colored "Desinstalação do OneDrive ignorada." -Color "AmareloClaro"
+        return
+      }
+    }
+
+    Write-Output "Desinstalando o OneDrive..."
+    Write-Log "Iniciando desinstalação do OneDrive..." -ConsoleOutput
+
+    Write-Log "Parando o processo OneDrive..." -ConsoleOutput
+    Stop-Process -Name "OneDrive" -Force -ErrorAction Stop
+    Write-Log "Processo OneDrive parado com sucesso." -Level "INFO" -ConsoleOutput
     Start-Sleep -Seconds 2
+
     $onedrivePath = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
     if (Test-Path $onedrivePath) {
+      Write-Log "Executando $onedrivePath /uninstall para desinstalar o OneDrive..." -ConsoleOutput
       Start-Process -FilePath $onedrivePath -ArgumentList "/uninstall" -Wait -NoNewWindow -ErrorAction Stop
+      Write-Log "OneDrive desinstalado via OneDriveSetup.exe com sucesso." -Level "INFO" -ConsoleOutput
     }
     else {
+      Write-Log "OneDriveSetup.exe não encontrado em $onedrivePath. Pode já estar desinstalado." -Level "WARNING" -ConsoleOutput
       Write-Output "OneDriveSetup.exe não encontrado em $onedrivePath. Pode já estar desinstalado."
     }
-    Remove-Item "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-    Remove-Item "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-    Remove-Item "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-    Remove-Item "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe" -Force -ErrorAction SilentlyContinue
+
+    Write-Log "Removendo pasta $env:USERPROFILE\OneDrive..." -ConsoleOutput
+    Remove-Item "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction Stop
+    Write-Log "Pasta $env:USERPROFILE\OneDrive removida com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Removendo pasta $env:LOCALAPPDATA\Microsoft\OneDrive..." -ConsoleOutput
+    Remove-Item "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction Stop
+    Write-Log "Pasta $env:LOCALAPPDATA\Microsoft\OneDrive removida com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Removendo pasta $env:PROGRAMDATA\Microsoft OneDrive..." -ConsoleOutput
+    Remove-Item "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction Stop
+    Write-Log "Pasta $env:PROGRAMDATA\Microsoft OneDrive removida com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Removendo $env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe..." -ConsoleOutput
+    Remove-Item "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe" -Force -ErrorAction Stop
+    Write-Log "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe removido com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "OneDrive desinstalado com sucesso." -Level "INFO" -ConsoleOutput
     Write-Colored "OneDrive desinstalado com sucesso." -Color "VerdeClaro"
   }
   catch {
-    Write-Colored "Erro ao desinstalar o OneDrive: $_" -Color "VermelhoClaro"
+    $errorMessage = "Erro ao desinstalar o OneDrive: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função Remove-OneDrive." -Level "INFO" -ConsoleOutput
   }
 }
-
 function Windows11Extras {
-  if ([System.Environment]::OSVersion.Version.Build -ge 22000) {
-    Write-Output "Applying Windows 11 specific tweaks..."
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type DWord -Value 0 # Centralizar barra de tarefas
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 1 # Mostrar busca na barra
+  Write-Log "Iniciando função Windows11Extras para aplicar ajustes específicos do Windows 11." -ConsoleOutput
+
+  try {
+    $osBuild = [System.Environment]::OSVersion.Version.Build
+    Write-Log "Versão do sistema operacional detectada: Build $osBuild" -ConsoleOutput
+
+    if ($osBuild -ge 22000) {
+      Write-Output "Applying Windows 11 specific tweaks..."
+      Write-Log "Aplicando ajustes específicos do Windows 11..." -ConsoleOutput
+
+      Write-Log "Configurando TaskbarAl para 0 em HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced..." -ConsoleOutput
+      Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type DWord -Value 0 -ErrorAction Stop
+      Write-Log "TaskbarAl configurado com sucesso para centralizar a barra de tarefas." -Level "INFO" -ConsoleOutput
+
+      Write-Log "Configurando SearchboxTaskbarMode para 1 em HKCU:\Software\Microsoft\Windows\CurrentVersion\Search..." -ConsoleOutput
+      Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 1 -ErrorAction Stop
+      Write-Log "SearchboxTaskbarMode configurado com sucesso para mostrar busca na barra." -Level "INFO" -ConsoleOutput
+
+      Write-Log "Ajustes específicos do Windows 11 aplicados com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Log "Sistema operacional não é Windows 11 (Build < 22000). Pulando ajustes." -Level "INFO" -ConsoleOutput
+    }
+  }
+  catch {
+    $errorMessage = "Erro na função Windows11Extras: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função Windows11Extras." -Level "INFO" -ConsoleOutput
   }
 }
 
