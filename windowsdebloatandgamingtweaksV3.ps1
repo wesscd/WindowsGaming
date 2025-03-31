@@ -2,8 +2,7 @@
 # Script principal para otimização de sistemas Windows focados em jogos
 # Versão: 0.7.0.4 (VM GROK)
 # Autores Originais: ChrisTitusTech, DaddyMadu, wesscd
-# Modificado por: [Seu Nome]
-
+# Modificado por: César Marques
 # Definir página de código para suportar caracteres especiais
 
 chcp 1252 | Out-Null
@@ -128,7 +127,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.1.6",
+    "                                                                                  V0.7.1.7",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1818,7 +1817,6 @@ function UninstallMsftBloat {
   $bloatware = @(
     "Microsoft.Windows.Photos",
     "Microsoft.MicrosoftEdge.Stable",
-    "Microsoft.WindowsCalculator",
     "Microsoft.WindowsStore"
   )
   foreach ($app in $bloatware) {
