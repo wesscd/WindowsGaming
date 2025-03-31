@@ -127,7 +127,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.0_",
+    "                                                                                  V0.7.2.0",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
