@@ -129,21 +129,59 @@ function Write-Log {
 
 # Função SlowUpdatesTweaks definida diretamente
 function SlowUpdatesTweaks {
-  Write-Output "Improving Windows Update to delay Feature updates and only install Security Updates"
+  Write-Log "Iniciando função SlowUpdatesTweaks para melhorar o Windows Update e atrasar atualizações de recursos." -ConsoleOutput
+
   try {
+    Write-Output "Improving Windows Update to delay Feature updates and only install Security Updates"
+    Write-Log "Melhorando o Windows Update para atrasar atualizações de recursos e instalar apenas atualizações de segurança..." -ConsoleOutput
+
+    Write-Log "Criando a chave HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate..." -ConsoleOutput
     New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Force -ErrorAction Stop | Out-Null
+    Write-Log "Chave criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando DeferFeatureUpdates para 1..." -ConsoleOutput
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferFeatureUpdates" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "DeferFeatureUpdates configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando DeferQualityUpdates para 1..." -ConsoleOutput
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferQualityUpdates" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "DeferQualityUpdates configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando DeferFeatureUpdatesPeriodInDays para 30..." -ConsoleOutput
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferFeatureUpdatesPeriodInDays" -Type DWord -Value 30 -ErrorAction Stop
+    Write-Log "DeferFeatureUpdatesPeriodInDays configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando DeferQualityUpdatesPeriodInDays para 4..." -ConsoleOutput
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferQualityUpdatesPeriodInDays" -Type DWord -Value 4 -ErrorAction Stop
+    Write-Log "DeferQualityUpdatesPeriodInDays configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando PauseFeatureUpdatesStartTime para vazio..." -ConsoleOutput
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "PauseFeatureUpdatesStartTime" -Type String -Value "" -ErrorAction Stop
+    Write-Log "PauseFeatureUpdatesStartTime configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando PauseQualityUpdatesStartTime para vazio..." -ConsoleOutput
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "PauseQualityUpdatesStartTime" -Type String -Value "" -ErrorAction Stop
+    Write-Log "PauseQualityUpdatesStartTime configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando ActiveHoursEnd para 2..." -ConsoleOutput
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ActiveHoursEnd" -Type DWord -Value 2 -ErrorAction Stop
+    Write-Log "ActiveHoursEnd configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando ActiveHoursStart para 8..." -ConsoleOutput
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ActiveHoursStart" -Type DWord -Value 8 -ErrorAction Stop
+    Write-Log "ActiveHoursStart configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Ajustes de atualização aplicados com sucesso." -Level "INFO" -ConsoleOutput
     Write-Colored "Ajustes de atualização aplicados com sucesso." -Color "Green"
   }
   catch {
-    Write-Colored "Erro ao aplicar ajustes de atualização: $_" -Color "Red"
+    $errorMessage = "Erro ao aplicar ajustes de atualização: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "Red"
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função SlowUpdatesTweaks." -Level "INFO" -ConsoleOutput
   }
 }
 
@@ -157,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.1.3",
+    "                                                                                  V0.7.2.1.4",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -183,29 +221,6 @@ function RequireAdmin {
     Write-Colored "Este script precisa ser executado como administrador. Reinicie com privilégios elevados." -Color "Vermelho"
     Start-Process Powershell -ArgumentList '-ExecutionPolicy bypass -NoProfile -command "irm https://raw.githubusercontent.com/wesscd/WindowsGaming/master/windowsdebloatandgamingtweaks.ps1 | iex"' -Verb RunAs
     Exit
-  }
-}
-
-# Carregar módulos
-$modules = @(
-  ".\Modules\PerformanceTweaks.ps1",
-  ".\Modules\PrivacyTweaks.ps1",
-  ".\Modules\Debloat.ps1"
-)
-
-foreach ($module in $modules) {
-  try {
-    if (Test-Path $module) {
-      Import-Module $module -Force -ErrorAction Stop
-      Write-Colored "Módulo carregado: $module" -Color "Verde"
-    }
-    else {
-      Write-Colored "Módulo não encontrado: $module" -Color "VermelhoClaro"
-      Write-Output "Certifique-se de que o arquivo está no diretório correto."
-    }
-  }
-  catch {
-    Write-Colored "Erro ao carregar o módulo $($module): $_" -Color "VermelhoClaro"
   }
 }
 
@@ -1493,123 +1508,270 @@ function DisableMeltdownCompatFlag {
 }
 
 function DisableGaming {
-  Write-Output "Stopping and disabling unnecessary services for gaming..."
-  $errpref = $ErrorActionPreference
-  $ErrorActionPreference = "silentlycontinue"
-  Stop-Service "wisvc" -WarningAction SilentlyContinue
-  Set-Service "wisvc" -StartupType Disabled
-  Stop-Service "MapsBroker" -WarningAction SilentlyContinue
-  Set-Service "MapsBroker" -StartupType Disabled
-  Stop-Service "UmRdpService" -WarningAction SilentlyContinue
-  Set-Service "UmRdpService" -StartupType Disabled
-  Stop-Service "TrkWks" -WarningAction SilentlyContinue
-  Set-Service "TrkWks" -StartupType Disabled
-  Stop-Service "TermService" -WarningAction SilentlyContinue
-  Set-Service "TermService" -StartupType Disabled
-  $ErrorActionPreference = $errpref
-}
+  Write-Log "Iniciando função DisableGaming para parar e desativar serviços desnecessários para jogos." -ConsoleOutput
 
-function DisableUpdateMSRT {
-  Write-Output "Disabling Malicious Software Removal Tool offering..."
-  If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\MRT")) {
-    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\MRT" | Out-Null
+  try {
+    Write-Output "Stopping and disabling unnecessary services for gaming..."
+    Write-Log "Parando e desativando serviços desnecessários para jogos..." -ConsoleOutput
+
+    $errpref = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+
+    # wisvc
+    Write-Log "Parando o serviço wisvc..." -ConsoleOutput
+    Stop-Service "wisvc" -WarningAction SilentlyContinue -ErrorAction Stop
+    Write-Log "Configurando wisvc para inicialização desativada..." -ConsoleOutput
+    Set-Service "wisvc" -StartupType Disabled -ErrorAction Stop
+    Write-Log "Serviço wisvc processado com sucesso." -Level "INFO" -ConsoleOutput
+
+    # MapsBroker
+    Write-Log "Parando o serviço MapsBroker..." -ConsoleOutput
+    Stop-Service "MapsBroker" -WarningAction SilentlyContinue -ErrorAction Stop
+    Write-Log "Configurando MapsBroker para inicialização desativada..." -ConsoleOutput
+    Set-Service "MapsBroker" -StartupType Disabled -ErrorAction Stop
+    Write-Log "Serviço MapsBroker processado com sucesso." -Level "INFO" -ConsoleOutput
+
+    # UmRdpService
+    Write-Log "Parando o serviço UmRdpService..." -ConsoleOutput
+    Stop-Service "UmRdpService" -WarningAction SilentlyContinue -ErrorAction Stop
+    Write-Log "Configurando UmRdpService para inicialização desativada..." -ConsoleOutput
+    Set-Service "UmRdpService" -StartupType Disabled -ErrorAction Stop
+    Write-Log "Serviço UmRdpService processado com sucesso." -Level "INFO" -ConsoleOutput
+
+    # TrkWks
+    Write-Log "Parando o serviço TrkWks..." -ConsoleOutput
+    Stop-Service "TrkWks" -WarningAction SilentlyContinue -ErrorAction Stop
+    Write-Log "Configurando TrkWks para inicialização desativada..." -ConsoleOutput
+    Set-Service "TrkWks" -StartupType Disabled -ErrorAction Stop
+    Write-Log "Serviço TrkWks processado com sucesso." -Level "INFO" -ConsoleOutput
+
+    # TermService
+    Write-Log "Parando o serviço TermService..." -ConsoleOutput
+    Stop-Service "TermService" -WarningAction SilentlyContinue -ErrorAction Stop
+    Write-Log "Configurando TermService para inicialização desativada..." -ConsoleOutput
+    Set-Service "TermService" -StartupType Disabled -ErrorAction Stop
+    Write-Log "Serviço TermService processado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Serviços desnecessários para jogos desativados com sucesso." -Level "INFO" -ConsoleOutput
   }
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\MRT" -Name "DontOfferThroughWUAU" -Type DWord -Value 1
+  catch {
+    $errorMessage = "Erro na função DisableGaming: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    $ErrorActionPreference = $errpref
+    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+    Write-Log "Finalizando função DisableGaming." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function EnableUpdateMSRT {
-  Write-Output "Enabling Malicious Software Removal Tool offering..."
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\MRT" -Name "DontOfferThroughWUAU" -ErrorAction SilentlyContinue
-}
+  Write-Log "Iniciando função EnableUpdateMSRT para habilitar a oferta da Ferramenta de Remoção de Software Malicioso." -ConsoleOutput
 
-function DisableUpdateDriver {
-  Write-Output "Disabling driver offering through Windows Update..."
-  If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata")) {
-    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Force | Out-Null
+  try {
+    Write-Output "Enabling Malicious Software Removal Tool offering..."
+    Write-Log "Habilitando a oferta da Ferramenta de Remoção de Software Malicioso..." -ConsoleOutput
+
+    Write-Log "Removendo a propriedade DontOfferThroughWUAU do registro..." -ConsoleOutput
+    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\MRT" -Name "DontOfferThroughWUAU" -ErrorAction Stop
+    Write-Log "Propriedade DontOfferThroughWUAU removida com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Oferta da Ferramenta de Remoção de Software Malicioso habilitada com sucesso." -Level "INFO" -ConsoleOutput
   }
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -Type DWord -Value 1
-  If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching")) {
-    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Force | Out-Null
+  catch {
+    $errorMessage = "Erro na função EnableUpdateMSRT: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
   }
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DontPromptForWindowsUpdate" -Type DWord -Value 1
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DontSearchWindowsUpdate" -Type DWord -Value 1
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DriverUpdateWizardWuSearchEnabled" -Type DWord -Value 0
-  If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate")) {
-    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" | Out-Null
+  finally {
+    Write-Log "Finalizando função EnableUpdateMSRT." -Level "INFO" -ConsoleOutput
   }
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -Type DWord -Value 1
 }
 
 function EnableUpdateDriver {
-  Write-Output "Enabling driver offering through Windows Update..."
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -ErrorAction SilentlyContinue
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DontPromptForWindowsUpdate" -ErrorAction SilentlyContinue
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DontSearchWindowsUpdate" -ErrorAction SilentlyContinue
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DriverUpdateWizardWuSearchEnabled" -ErrorAction SilentlyContinue
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -ErrorAction SilentlyContinue
+  Write-Log "Iniciando função EnableUpdateDriver para habilitar a oferta de drivers pelo Windows Update." -ConsoleOutput
+
+  try {
+    Write-Output "Enabling driver offering through Windows Update..."
+    Write-Log "Habilitando a oferta de drivers pelo Windows Update..." -ConsoleOutput
+
+    Write-Log "Removendo PreventDeviceMetadataFromNetwork do registro..." -ConsoleOutput
+    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -ErrorAction Stop
+    Write-Log "PreventDeviceMetadataFromNetwork removido com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Removendo DontPromptForWindowsUpdate do registro..." -ConsoleOutput
+    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DontPromptForWindowsUpdate" -ErrorAction Stop
+    Write-Log "DontPromptForWindowsUpdate removido com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Removendo DontSearchWindowsUpdate do registro..." -ConsoleOutput
+    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DontSearchWindowsUpdate" -ErrorAction Stop
+    Write-Log "DontSearchWindowsUpdate removido com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Removendo DriverUpdateWizardWuSearchEnabled do registro..." -ConsoleOutput
+    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DriverUpdateWizardWuSearchEnabled" -ErrorAction Stop
+    Write-Log "DriverUpdateWizardWuSearchEnabled removido com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Removendo ExcludeWUDriversInQualityUpdate do registro..." -ConsoleOutput
+    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -ErrorAction Stop
+    Write-Log "ExcludeWUDriversInQualityUpdate removido com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Oferta de drivers pelo Windows Update habilitada com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função EnableUpdateDriver: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função EnableUpdateDriver." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function DisableUpdateRestart {
-  Write-Output "Disabling Windows Update automatic restart..."
-  If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU")) {
-    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Force | Out-Null
-  }
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "NoAutoRebootWithLoggedOnUsers" -Type DWord -Value 1
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "AUPowerManagement" -Type DWord -Value 0
-}
+  Write-Log "Iniciando função DisableUpdateRestart para desativar a reinicialização automática do Windows Update." -ConsoleOutput
 
-function EnableUpdateRestart {
-  Write-Output "Enabling Windows Update automatic restart..."
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "NoAutoRebootWithLoggedOnUsers" -ErrorAction SilentlyContinue
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "AUPowerManagement" -ErrorAction SilentlyContinue
+  try {
+    Write-Output "Disabling Windows Update automatic restart..."
+    Write-Log "Desativando a reinicialização automática do Windows Update..." -ConsoleOutput
+
+    # Definir o caminho do registro
+    $registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
+
+    # Verificar e criar a chave de registro, se necessário
+    if (-not (Test-Path $registryPath)) {
+      Write-Log "Chave $registryPath não existe. Criando..." -ConsoleOutput
+      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
+      Write-Log "Chave $registryPath criada com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Log "Chave $registryPath já existe. Prosseguindo com a configuração." -ConsoleOutput
+    }
+
+    # Configurar NoAutoRebootWithLoggedOnUsers
+    Write-Log "Configurando NoAutoRebootWithLoggedOnUsers para 1 em $registryPath..." -ConsoleOutput
+    Set-ItemProperty -Path $registryPath -Name "NoAutoRebootWithLoggedOnUsers" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "NoAutoRebootWithLoggedOnUsers configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    # Configurar AUPowerManagement
+    Write-Log "Configurando AUPowerManagement para 0 em $registryPath..." -ConsoleOutput
+    Set-ItemProperty -Path $registryPath -Name "AUPowerManagement" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "AUPowerManagement configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Reinicialização automática do Windows Update desativada com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função DisableUpdateRestart: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função DisableUpdateRestart." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function DisableHomeGroups {
-  Write-Output "Stopping and disabling Home Groups services..."
-  $errpref = $ErrorActionPreference
-  $ErrorActionPreference = "silentlycontinue"
-  Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue
-  Set-Service "HomeGroupListener" -StartupType Disabled
-  Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue
-  Set-Service "HomeGroupProvider" -StartupType Disabled
-  $ErrorActionPreference = $errpref
-}
+  Write-Log "Iniciando função DisableHomeGroups para parar e desativar serviços de Grupos Domésticos." -ConsoleOutput
 
-function EnableHomeGroups {
-  Write-Output "Starting and enabling Home Groups services..."
-  $errpref = $ErrorActionPreference
-  $ErrorActionPreference = "silentlycontinue"
-  Set-Service "HomeGroupListener" -StartupType Manual
-  Set-Service "HomeGroupProvider" -StartupType Manual
-  Start-Service "HomeGroupProvider" -WarningAction SilentlyContinue
-  $ErrorActionPreference = $errpref
-}
+  try {
+    Write-Output "Stopping and disabling Home Groups services..."
+    Write-Log "Parando e desativando serviços de Grupos Domésticos..." -ConsoleOutput
 
-function DisableSharedExperiences {
-  Write-Output "Disabling Shared Experiences..."
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableCdp" -Type DWord -Value 0
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableMmx" -Type DWord -Value 0
+    $errpref = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+
+    # HomeGroupListener
+    Write-Log "Parando o serviço HomeGroupListener..." -ConsoleOutput
+    Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue -ErrorAction Stop
+    Write-Log "Configurando HomeGroupListener para inicialização desativada..." -ConsoleOutput
+    Set-Service "HomeGroupListener" -StartupType Disabled -ErrorAction Stop
+    Write-Log "Serviço HomeGroupListener processado com sucesso." -Level "INFO" -ConsoleOutput
+
+    # HomeGroupProvider
+    Write-Log "Parando o serviço HomeGroupProvider..." -ConsoleOutput
+    Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue -ErrorAction Stop
+    Write-Log "Configurando HomeGroupProvider para inicialização desativada..." -ConsoleOutput
+    Set-Service "HomeGroupProvider" -StartupType Disabled -ErrorAction Stop
+    Write-Log "Serviço HomeGroupProvider processado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Serviços de Grupos Domésticos desativados com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função DisableHomeGroups: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    $ErrorActionPreference = $errpref
+    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+    Write-Log "Finalizando função DisableHomeGroups." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function EnableSharedExperiences {
-  Write-Output "Enabling Shared Experiences..."
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableCdp" -ErrorAction SilentlyContinue
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableMmx" -ErrorAction SilentlyContinue
-}
+  Write-Log "Iniciando função EnableSharedExperiences para habilitar Experiências Compartilhadas." -ConsoleOutput
 
-function EnableRemoteAssistance {
-  Write-Output "Enabling Remote Assistance..."
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 1
+  try {
+    Write-Output "Enabling Shared Experiences..."
+    Write-Log "Habilitando Experiências Compartilhadas..." -ConsoleOutput
+
+    Write-Log "Removendo a propriedade EnableCdp do registro..." -ConsoleOutput
+    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableCdp" -ErrorAction Stop
+    Write-Log "EnableCdp removido com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Removendo a propriedade EnableMmx do registro..." -ConsoleOutput
+    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableMmx" -ErrorAction Stop
+    Write-Log "EnableMmx removido com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Experiências Compartilhadas habilitadas com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função EnableSharedExperiences: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função EnableSharedExperiences." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function EnableRemoteDesktop {
-  Write-Output "Enabling Remote Desktop w/o Network Level Authentication..."
-  $errpref = $ErrorActionPreference
-  $ErrorActionPreference = "silentlycontinue"
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Type DWord -Value 0
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Type DWord -Value 0
-  Enable-NetFirewallRule -Name "RemoteDesktop*" | Out-Null
-  $ErrorActionPreference = $errpref
+  Write-Log "Iniciando função EnableRemoteDesktop para habilitar a Área de Trabalho Remota sem autenticação de nível de rede." -ConsoleOutput
+
+  try {
+    Write-Output "Enabling Remote Desktop w/o Network Level Authentication..."
+    Write-Log "Habilitando a Área de Trabalho Remota sem autenticação de nível de rede..." -ConsoleOutput
+
+    $errpref = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+
+    Write-Log "Configurando fDenyTSConnections para 0..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "fDenyTSConnections configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando UserAuthentication para 0..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "UserAuthentication configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Habilitando regras de firewall para RemoteDesktop..." -ConsoleOutput
+    Enable-NetFirewallRule -Name "RemoteDesktop*" -ErrorAction Stop | Out-Null
+    Write-Log "Regras de firewall para RemoteDesktop habilitadas com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Área de Trabalho Remota habilitada com sucesso sem autenticação de nível de rede." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função EnableRemoteDesktop: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    $ErrorActionPreference = $errpref
+    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+    Write-Log "Finalizando função EnableRemoteDesktop." -Level "INFO" -ConsoleOutput
+  }
 }
 
 #Disabling Windows Remote Assistance.
@@ -1624,22 +1786,12 @@ function DisableAutoplay {
   Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Name "DisableAutoplay" -Type DWord -Value 1
 }
 
-function EnableAutoplay {
-  Write-Output "Enabling Autoplay..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Name "DisableAutoplay" -Type DWord -Value 0
-}
-
 function DisableAutorun {
   Write-Output "Disabling Autorun..."
   If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer")) {
     New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Force | Out-Null
   }
   Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoDriveTypeAutoRun" -Type DWord -Value 255
-}
-
-function EnableAutorun {
-  Write-Output "Enabling Autorun..."
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoDriveTypeAutoRun" -ErrorAction SilentlyContinue
 }
 
 function DisableStorageSense {
@@ -1650,11 +1802,6 @@ function DisableStorageSense {
   Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" -Name "01" -Type DWord -Value 0
 }
 
-function EnableStorageSense {
-  Write-Output "Enabling Storage Sense..."
-  Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" -Name "01" -ErrorAction SilentlyContinue
-}
-
 function DisableDefragmentation {
   Write-Output "Disabling Defragmentation..."
   If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Defrag")) {
@@ -1663,21 +1810,10 @@ function DisableDefragmentation {
   Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Defrag" -Name "EnableDefrag" -Type DWord -Value 0
 }
 
-function EnableDefragmentation {
-  Write-Output "Enabling Defragmentation..."
-  Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Defrag" -Name "EnableDefrag" -ErrorAction SilentlyContinue
-}
-
 function EnableIndexing {
   Write-Output "Enabling Indexing..."
   Set-Service "WSearch" -StartupType Automatic
   Start-Service "WSearch" -ErrorAction SilentlyContinue
-}
-
-function DisableIndexing {
-  Write-Output "Disabling Indexing..."
-  Stop-Service "WSearch" -ErrorAction SilentlyContinue
-  Set-Service "WSearch" -StartupType Disabled
 }
 
 function SetBIOSTimeUTC {
@@ -1685,29 +1821,14 @@ function SetBIOSTimeUTC {
   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "RealTimeIsUniversal" -Type DWord -Value 1
 }
 
-function SetBIOSTimeLocal {
-  Write-Output "Setting BIOS time to local time..."
-  Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "RealTimeIsUniversal" -ErrorAction SilentlyContinue
-}
-
 function DisableHibernation {
   Write-Output "Disabling Hibernation..."
   powercfg /hibernate off | Out-Null
 }
 
-function EnableHibernation {
-  Write-Output "Enabling Hibernation..."
-  powercfg /hibernate on | Out-Null
-}
-
 function EnableSleepButton {
   Write-Output "Enabling Sleep Button..."
   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "SleepButtonEnabled" -Type DWord -Value 1
-}
-
-function DisableSleepButton {
-  Write-Output "Disabling Sleep Button..."
-  Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "SleepButtonEnabled" -ErrorAction SilentlyContinue
 }
 
 function DisableSleepTimeout {
@@ -1716,20 +1837,9 @@ function DisableSleepTimeout {
   powercfg -change -standby-timeout-dc 0
 }
 
-function EnableSleepTimeout {
-  Write-Output "Enabling Sleep Timeout..."
-  powercfg -change -standby-timeout-ac 15
-  powercfg -change -standby-timeout-dc 10
-}
-
 function DisableFastStartup {
   Write-Output "Disabling Fast Startup..."
   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 0
-}
-
-function EnableFastStartup {
-  Write-Output "Enabling Fast Startup..."
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 1
 }
 
 function PowerThrottlingOff {
@@ -1740,11 +1850,6 @@ function PowerThrottlingOff {
   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" -Name "PowerThrottlingOff" -Type DWord -Value 1
 }
 
-function PowerThrottlingOn {
-  Write-Output "Enabling Power Throttling..."
-  Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" -Name "PowerThrottlingOff" -ErrorAction SilentlyContinue
-}
-
 function Win32PrioritySeparation {
   Write-Output "Optimizing Win32 Priority Separation for gaming..."
   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "Win32PrioritySeparation" -Type DWord -Value 38
@@ -1753,11 +1858,6 @@ function Win32PrioritySeparation {
 function DisableAERO {
   Write-Output "Disabling AERO effects..."
   Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Type DWord -Value 0
-}
-
-function EnableAERO {
-  Write-Output "Enabling AERO effects..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Type DWord -Value 1
 }
 
 function BSODdetails {
