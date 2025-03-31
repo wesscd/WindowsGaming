@@ -195,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.1.4",
+    "                                                                                  V0.7.2.1.5",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1338,20 +1338,27 @@ function AskDefender {
       Write-Log "Opção escolhida: Desativar o Microsoft Windows Defender." -ConsoleOutput
       Write-Output "Desativando Microsoft Windows Defender e processos relacionados..."
 
+      # Configurações do Firewall
       if (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile") {
         Write-Log "Configurando EnableFirewall para 0 em HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile..." -ConsoleOutput
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Name "EnableFirewall" -Type DWord -Value 0 -ErrorAction Stop
         Write-Log "EnableFirewall configurado com sucesso." -Level "INFO" -ConsoleOutput
       }
-      if (-not (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender")) {
-        Write-Log "Chave HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender não existe. Criando..." -ConsoleOutput
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Force -ErrorAction Stop | Out-Null
+
+      # Criar chave do Defender se não existir
+      $defenderPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender"
+      if (-not (Test-Path $defenderPath)) {
+        Write-Log "Chave $defenderPath não existe. Criando..." -ConsoleOutput
+        New-Item -Path $defenderPath -Force -ErrorAction Stop | Out-Null
         Write-Log "Chave criada com sucesso." -Level "INFO" -ConsoleOutput
       }
+
+      # Desativar AntiSpyware
       Write-Log "Configurando DisableAntiSpyware para 1..." -ConsoleOutput
-      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $defenderPath -Name "DisableAntiSpyware" -Type DWord -Value 1 -ErrorAction Stop
       Write-Log "DisableAntiSpyware configurado com sucesso." -Level "INFO" -ConsoleOutput
 
+      # Remover ou configurar propriedades baseadas na versão
       if ($osVersion.Build -eq 14393) {
         Write-Log "Removendo WindowsDefender do registro para Build 14393..." -ConsoleOutput
         Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -ErrorAction Stop
@@ -1363,26 +1370,38 @@ function AskDefender {
         Write-Log "SecurityHealth removido com sucesso." -Level "INFO" -ConsoleOutput
       }
 
-      if (-not (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet")) {
-        Write-Log "Chave HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet não existe. Criando..." -ConsoleOutput
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Force -ErrorAction Stop | Out-Null
+      # Tratar Spynet
+      $spynetPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet"
+      if (-not (Test-Path $spynetPath)) {
+        Write-Log "Chave $spynetPath não existe. Criando..." -ConsoleOutput
+        New-Item -Path $spynetPath -Force -ErrorAction Stop | Out-Null
         Write-Log "Chave criada com sucesso." -Level "INFO" -ConsoleOutput
       }
+
       Write-Log "Configurando SpynetReporting para 0..." -ConsoleOutput
-      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SpynetReporting" -Type DWord -Value 0 -ErrorAction Stop
+      Set-ItemProperty -Path $spynetPath -Name "SpynetReporting" -Type DWord -Value 0 -ErrorAction Stop
       Write-Log "SpynetReporting configurado com sucesso." -Level "INFO" -ConsoleOutput
+
       Write-Log "Configurando SubmitSamplesConsent para 2..." -ConsoleOutput
-      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SubmitSamplesConsent" -Type DWord -Value 2 -ErrorAction Stop
+      Set-ItemProperty -Path $spynetPath -Name "SubmitSamplesConsent" -Type DWord -Value 2 -ErrorAction Stop
       Write-Log "SubmitSamplesConsent configurado com sucesso." -Level "INFO" -ConsoleOutput
 
+      # Remover PUAProtection
       Write-Log "Removendo PUAProtection..." -ConsoleOutput
-      Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "PUAProtection" -ErrorAction Stop
-      Write-Log "PUAProtection removido com sucesso." -Level "INFO" -ConsoleOutput
+      if (Get-ItemProperty -Path $defenderPath -Name "PUAProtection" -ErrorAction SilentlyContinue) {
+        Remove-ItemProperty -Path $defenderPath -Name "PUAProtection" -ErrorAction Stop
+        Write-Log "PUAProtection removido com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Write-Log "Propriedade PUAProtection não encontrada. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+      }
 
+      # Desativar Controlled Folder Access
       Write-Log "Desativando Controlled Folder Access..." -ConsoleOutput
       Set-MpPreference -EnableControlledFolderAccess Disabled -ErrorAction Stop
       Write-Log "Controlled Folder Access desativado com sucesso." -Level "INFO" -ConsoleOutput
 
+      # Desativar tarefas agendadas
       foreach ($task in $tasks) {
         Write-Log "Desativando tarefa agendada: $task..." -ConsoleOutput
         Disable-ScheduledTask -TaskName $task -ErrorAction Stop
@@ -1395,31 +1414,27 @@ function AskDefender {
       Write-Log "Opção escolhida: Habilitar o Microsoft Windows Defender." -ConsoleOutput
       Write-Output "Ativando Microsoft Windows Defender e processos relacionados..."
 
-      Write-Log "Removendo EnableFirewall do registro..." -ConsoleOutput
-      
+      # Remover EnableFirewall
       if (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile") {
+        Write-Log "Removendo EnableFirewall do registro..." -ConsoleOutput
         Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Name "EnableFirewall" -ErrorAction Stop
+        Write-Log "EnableFirewall removido com sucesso." -Level "INFO" -ConsoleOutput
       }
 
-      Write-Log "EnableFirewall removido com sucesso." -Level "INFO" -ConsoleOutput
-
-      Write-Log "Removendo DisableAntiSpyware do registro..." -ConsoleOutput
-      
-      $registryPathDfnder = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender"
+      # Remover DisableAntiSpyware
+      $defenderPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender"
       $propertyName = "DisableAntiSpyware"
-
-      # Verifica se a propriedade existe
-      if (Get-ItemProperty -Path $registryPathDfnder -Name $propertyName -ErrorAction SilentlyContinue) {
-        # Remove a propriedade se ela existir
-        Remove-ItemProperty -Path $registryPathDfnder -Name $propertyName -ErrorAction Stop
-        Write-Output "Propriedade '$propertyName' removida com sucesso."
+      if (Test-Path $defenderPath) {
+        if (Get-ItemProperty -Path $defenderPath -Name $propertyName -ErrorAction SilentlyContinue) {
+          Remove-ItemProperty -Path $defenderPath -Name $propertyName -ErrorAction Stop
+          Write-Log "$propertyName removido com sucesso." -Level "INFO" -ConsoleOutput
+        }
+        else {
+          Write-Log "Propriedade $propertyName não encontrada no caminho $defenderPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+        }
       }
-      else {
-        Write-Output "Propriedade '$propertyName' não encontrada no caminho '$registryPathDfnder'. Nenhuma ação necessária."
-      }
 
-      Write-Log "DisableAntiSpyware removido com sucesso." -Level "INFO" -ConsoleOutput
-
+      # Configurar propriedades baseadas na versão
       if ($osVersion.Build -eq 14393) {
         Write-Log "Configurando WindowsDefender no registro para Build 14393..." -ConsoleOutput
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -Type ExpandString -Value "`"%ProgramFiles%\Windows Defender\MSASCuiL.exe`"" -ErrorAction Stop
@@ -1431,18 +1446,28 @@ function AskDefender {
         Write-Log "SecurityHealth configurado com sucesso." -Level "INFO" -ConsoleOutput
       }
 
-      Write-Log "Removendo SpynetReporting do registro..." -ConsoleOutput
-      Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SpynetReporting" -ErrorAction Stop
-      Write-Log "SpynetReporting removido com sucesso." -Level "INFO" -ConsoleOutput
+      # Remover SpynetReporting e SubmitSamplesConsent
+      $spynetPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet"
+      if (Test-Path $spynetPath) {
+        if (Get-ItemProperty -Path $spynetPath -Name "SpynetReporting" -ErrorAction SilentlyContinue) {
+          Remove-ItemProperty -Path $spynetPath -Name "SpynetReporting" -ErrorAction Stop
+          Write-Log "SpynetReporting removido com sucesso." -Level "INFO" -ConsoleOutput
+        }
+        if (Get-ItemProperty -Path $spynetPath -Name "SubmitSamplesConsent" -ErrorAction SilentlyContinue) {
+          Remove-ItemProperty -Path $spynetPath -Name "SubmitSamplesConsent" -ErrorAction Stop
+          Write-Log "SubmitSamplesConsent removido com sucesso." -Level "INFO" -ConsoleOutput
+        }
+      }
+      else {
+        Write-Log "Caminho $spynetPath não encontrado. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+      }
 
-      Write-Log "Removendo SubmitSamplesConsent do registro..." -ConsoleOutput
-      Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SubmitSamplesConsent" -ErrorAction Stop
-      Write-Log "SubmitSamplesConsent removido com sucesso." -Level "INFO" -ConsoleOutput
-
+      # Configurar PUAProtection
       Write-Log "Configurando PUAProtection para 1..." -ConsoleOutput
-      Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "PUAProtection" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $defenderPath -Name "PUAProtection" -Type DWord -Value 1 -ErrorAction Stop
       Write-Log "PUAProtection configurado com sucesso." -Level "INFO" -ConsoleOutput
 
+      # Ativar tarefas agendadas
       foreach ($task in $tasks) {
         Write-Log "Ativando tarefa agendada: $task..." -ConsoleOutput
         Enable-ScheduledTask -TaskName $task -ErrorAction Stop
