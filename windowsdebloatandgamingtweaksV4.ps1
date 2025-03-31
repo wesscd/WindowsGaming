@@ -195,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.2.1",
+    "                                                                                  V0.7.2.2.2",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1809,21 +1809,43 @@ function DisableHomeGroups {
     $ErrorActionPreference = "SilentlyContinue"
     Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
 
-    # HomeGroupListener
-    Write-Log "Parando o serviço HomeGroupListener..." -ConsoleOutput
-    Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue -ErrorAction Stop
-    Write-Log "Configurando HomeGroupListener para inicialização desativada..." -ConsoleOutput
-    Set-Service "HomeGroupListener" -StartupType Disabled -ErrorAction Stop
-    Write-Log "Serviço HomeGroupListener processado com sucesso." -Level "INFO" -ConsoleOutput
+    # Obter versão do sistema operacional
+    $osVersion = [System.Environment]::OSVersion.Version
+    $isWindows10OrLater = $osVersion.Build -ge 10240
 
-    # HomeGroupProvider
-    Write-Log "Parando o serviço HomeGroupProvider..." -ConsoleOutput
-    Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue -ErrorAction Stop
-    Write-Log "Configurando HomeGroupProvider para inicialização desativada..." -ConsoleOutput
-    Set-Service "HomeGroupProvider" -StartupType Disabled -ErrorAction Stop
-    Write-Log "Serviço HomeGroupProvider processado com sucesso." -Level "INFO" -ConsoleOutput
+    # Função interna para processar um serviço
+    function Process-Service {
+      param ($serviceName)
+      try {
+        Write-Log "Verificando serviço $serviceName..." -ConsoleOutput
+        if (Get-Service $serviceName -ErrorAction SilentlyContinue) {
+          Write-Log "Parando o serviço $serviceName..." -ConsoleOutput
+          Stop-Service $serviceName -WarningAction SilentlyContinue -ErrorAction Stop
+          Write-Log "Configurando $serviceName para inicialização desativada..." -ConsoleOutput
+          Set-Service $serviceName -StartupType Disabled -ErrorAction Stop
+          Write-Log "Serviço $serviceName processado com sucesso." -Level "INFO" -ConsoleOutput
+        }
+        else {
+          Write-Log "Serviço $serviceName não encontrado no sistema. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+        }
+      }
+      catch {
+        Write-Log "Erro ao processar serviço $serviceName: $_" -Level "ERROR" -ConsoleOutput
+      }
+    }
 
-    Write-Log "Serviços de Grupos Domésticos desativados com sucesso." -Level "INFO" -ConsoleOutput
+    # Processar HomeGroupListener
+    if (-not $isWindows10OrLater) {
+      Process-Service "HomeGroupListener"
+    }
+    else {
+      Write-Log "Versão do Windows não suporta Grupos Domésticos. Pulando HomeGroupListener." -Level "INFO" -ConsoleOutput
+    }
+
+    # Processar HomeGroupProvider (pode existir mesmo em versões mais novas)
+    Process-Service "HomeGroupProvider"
+
+    Write-Log "Serviços de Grupos Domésticos processados com sucesso." -Level "INFO" -ConsoleOutput
   }
   catch {
     $errorMessage = "Erro na função DisableHomeGroups: $_"
