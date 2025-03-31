@@ -195,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.1.9",
+    "                                                                                  V0.7.2.2.0",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1630,9 +1630,26 @@ function EnableUpdateMSRT {
     Write-Output "Enabling Malicious Software Removal Tool offering..."
     Write-Log "Habilitando a oferta da Ferramenta de Remoção de Software Malicioso..." -ConsoleOutput
 
-    Write-Log "Removendo a propriedade DontOfferThroughWUAU do registro..." -ConsoleOutput
-    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\MRT" -Name "DontOfferThroughWUAU" -ErrorAction Stop
-    Write-Log "Propriedade DontOfferThroughWUAU removida com sucesso." -Level "INFO" -ConsoleOutput
+    # Definir o caminho do registro
+    $mrtPath = "HKLM:\SOFTWARE\Policies\Microsoft\MRT"
+
+    # Verificar se o caminho existe
+    Write-Log "Verificando se o caminho $mrtPath existe..." -ConsoleOutput
+    if (-not (Test-Path $mrtPath)) {
+      Write-Log "Caminho $mrtPath não encontrado. Nenhuma ação necessária ou caminho não aplicável." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      # Verificar se a propriedade DontOfferThroughWUAU existe
+      Write-Log "Verificando se a propriedade DontOfferThroughWUAU existe no caminho $mrtPath..." -ConsoleOutput
+      if (Get-ItemProperty -Path $mrtPath -Name "DontOfferThroughWUAU" -ErrorAction SilentlyContinue) {
+        Write-Log "Removendo a propriedade DontOfferThroughWUAU do registro..." -ConsoleOutput
+        Remove-ItemProperty -Path $mrtPath -Name "DontOfferThroughWUAU" -ErrorAction Stop
+        Write-Log "Propriedade DontOfferThroughWUAU removida com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Write-Log "Propriedade DontOfferThroughWUAU não encontrada no caminho $mrtPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+      }
+    }
 
     Write-Log "Oferta da Ferramenta de Remoção de Software Malicioso habilitada com sucesso." -Level "INFO" -ConsoleOutput
   }
