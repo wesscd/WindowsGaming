@@ -195,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.2.3",
+    "                                                                                  V0.7.2.2.4",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1997,72 +1997,318 @@ function DisableAutoplay {
 }
 
 function DisableAutorun {
-  Write-Output "Disabling Autorun..."
-  If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer")) {
-    New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Force | Out-Null
+  Write-Log "Iniciando função DisableAutorun para desativar o Autorun." -ConsoleOutput
+
+  try {
+    Write-Output "Disabling Autorun..."
+    Write-Log "Desativando o Autorun..." -ConsoleOutput
+
+    # Definir o caminho do registro
+    $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"
+
+    # Verificar e criar a chave de registro, se necessário
+    if (-not (Test-Path $registryPath)) {
+      Write-Log "Chave $registryPath não existe. Criando..." -ConsoleOutput
+      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
+      Write-Log "Chave $registryPath criada com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Log "Chave $registryPath já existe. Prosseguindo com a configuração." -ConsoleOutput
+    }
+
+    # Configurar NoDriveTypeAutoRun
+    Write-Log "Configurando NoDriveTypeAutoRun para 255 em $registryPath..." -ConsoleOutput
+    Set-ItemProperty -Path $registryPath -Name "NoDriveTypeAutoRun" -Type DWord -Value 255 -ErrorAction Stop
+    Write-Log "NoDriveTypeAutoRun configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Autorun desativado com sucesso." -Level "INFO" -ConsoleOutput
   }
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoDriveTypeAutoRun" -Type DWord -Value 255
+  catch {
+    $errorMessage = "Erro na função DisableAutorun: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função DisableAutorun." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function DisableStorageSense {
-  Write-Output "Disabling Storage Sense..."
-  If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy")) {
-    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" -Force | Out-Null
+  Write-Log "Iniciando função DisableStorageSense para desativar o Storage Sense." -ConsoleOutput
+
+  try {
+    Write-Output "Disabling Storage Sense..."
+    Write-Log "Desativando o Storage Sense..." -ConsoleOutput
+
+    # Definir o caminho do registro
+    $registryPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy"
+
+    # Verificar e criar a chave de registro, se necessário
+    if (-not (Test-Path $registryPath)) {
+      Write-Log "Chave $registryPath não existe. Criando..." -ConsoleOutput
+      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
+      Write-Log "Chave $registryPath criada com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Log "Chave $registryPath já existe. Prosseguindo com a configuração." -ConsoleOutput
+    }
+
+    # Configurar a propriedade 01
+    Write-Log "Configurando a propriedade '01' para 0 em $registryPath..." -ConsoleOutput
+    Set-ItemProperty -Path $registryPath -Name "01" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "Propriedade '01' configurada com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Storage Sense desativado com sucesso." -Level "INFO" -ConsoleOutput
   }
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" -Name "01" -Type DWord -Value 0
+  catch {
+    $errorMessage = "Erro na função DisableStorageSense: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função DisableStorageSense." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function DisableDefragmentation {
-  Write-Output "Disabling Defragmentation..."
-  If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Defrag")) {
-    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Defrag" -Force | Out-Null
+  Write-Log "Iniciando função DisableDefragmentation para desativar a desfragmentação." -ConsoleOutput
+
+  try {
+    Write-Output "Disabling Defragmentation..."
+    Write-Log "Desativando a desfragmentação..." -ConsoleOutput
+
+    # Definir o caminho do registro
+    $registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Defrag"
+
+    # Verificar e criar a chave de registro, se necessário
+    if (-not (Test-Path $registryPath)) {
+      Write-Log "Chave $registryPath não existe. Criando..." -ConsoleOutput
+      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
+      Write-Log "Chave $registryPath criada com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Log "Chave $registryPath já existe. Prosseguindo com a configuração." -ConsoleOutput
+    }
+
+    # Configurar a propriedade EnableDefrag
+    Write-Log "Configurando EnableDefrag para 0 em $registryPath..." -ConsoleOutput
+    Set-ItemProperty -Path $registryPath -Name "EnableDefrag" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "EnableDefrag configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Desfragmentação desativada com sucesso." -Level "INFO" -ConsoleOutput
   }
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Defrag" -Name "EnableDefrag" -Type DWord -Value 0
+  catch {
+    $errorMessage = "Erro na função DisableDefragmentation: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função DisableDefragmentation." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function EnableIndexing {
-  Write-Output "Enabling Indexing..."
-  Set-Service "WSearch" -StartupType Automatic
-  Start-Service "WSearch" -ErrorAction SilentlyContinue
+  Write-Log "Iniciando função EnableIndexing para habilitar a indexação." -ConsoleOutput
+
+  try {
+    Write-Output "Enabling Indexing..."
+    Write-Log "Habilitando a indexação..." -ConsoleOutput
+
+    Write-Log "Configurando o serviço WSearch para inicialização automática..." -ConsoleOutput
+    Set-Service "WSearch" -StartupType Automatic -ErrorAction Stop
+    Write-Log "WSearch configurado para inicialização automática com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Iniciando o serviço WSearch..." -ConsoleOutput
+    Start-Service "WSearch" -ErrorAction Stop
+    Write-Log "Serviço WSearch iniciado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Indexação habilitada com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função EnableIndexing: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função EnableIndexing." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function SetBIOSTimeUTC {
-  Write-Output "Setting BIOS time to UTC..."
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "RealTimeIsUniversal" -Type DWord -Value 1
+  Write-Log "Iniciando função SetBIOSTimeUTC para definir o tempo do BIOS como UTC." -ConsoleOutput
+
+  try {
+    Write-Output "Setting BIOS time to UTC..."
+    Write-Log "Definindo o tempo do BIOS como UTC..." -ConsoleOutput
+
+    Write-Log "Configurando RealTimeIsUniversal para 1 em HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "RealTimeIsUniversal" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "RealTimeIsUniversal configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Tempo do BIOS definido como UTC com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função SetBIOSTimeUTC: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função SetBIOSTimeUTC." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function DisableHibernation {
-  Write-Output "Disabling Hibernation..."
-  powercfg /hibernate off | Out-Null
+  Write-Log "Iniciando função DisableHibernation para desativar a hibernação." -ConsoleOutput
+
+  try {
+    Write-Output "Disabling Hibernation..."
+    Write-Log "Desativando a hibernação..." -ConsoleOutput
+
+    Write-Log "Executando powercfg /hibernate off..." -ConsoleOutput
+    powercfg /hibernate off -ErrorAction Stop | Out-Null
+    Write-Log "Hibernação desativada com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função DisableHibernation: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função DisableHibernation." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function EnableSleepButton {
-  Write-Output "Enabling Sleep Button..."
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "SleepButtonEnabled" -Type DWord -Value 1
+  Write-Log "Iniciando função EnableSleepButton para habilitar o botão de suspensão." -ConsoleOutput
+
+  try {
+    Write-Output "Enabling Sleep Button..."
+    Write-Log "Habilitando o botão de suspensão..." -ConsoleOutput
+
+    Write-Log "Configurando SleepButtonEnabled para 1 em HKLM:\SYSTEM\CurrentControlSet\Control\Power..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "SleepButtonEnabled" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "SleepButtonEnabled configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Botão de suspensão habilitado com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função EnableSleepButton: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função EnableSleepButton." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function DisableSleepTimeout {
-  Write-Output "Disabling Sleep Timeout..."
-  powercfg -change -standby-timeout-ac 0
-  powercfg -change -standby-timeout-dc 0
+  Write-Log "Iniciando função DisableSleepTimeout para desativar o tempo limite de suspensão." -ConsoleOutput
+
+  try {
+    Write-Output "Disabling Sleep Timeout..."
+    Write-Log "Desativando o tempo limite de suspensão..." -ConsoleOutput
+
+    Write-Log "Executando powercfg -change -standby-timeout-ac 0 para desativar timeout em AC..." -ConsoleOutput
+    powercfg -change -standby-timeout-ac 0 -ErrorAction Stop
+    Write-Log "Tempo limite de suspensão em AC desativado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Executando powercfg -change -standby-timeout-dc 0 para desativar timeout em DC..." -ConsoleOutput
+    powercfg -change -standby-timeout-dc 0 -ErrorAction Stop
+    Write-Log "Tempo limite de suspensão em DC desativado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Tempo limite de suspensão desativado com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função DisableSleepTimeout: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função DisableSleepTimeout." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function DisableFastStartup {
-  Write-Output "Disabling Fast Startup..."
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 0
+  Write-Log "Iniciando função DisableFastStartup para desativar a inicialização rápida." -ConsoleOutput
+
+  try {
+    Write-Output "Disabling Fast Startup..."
+    Write-Log "Desativando a inicialização rápida..." -ConsoleOutput
+
+    Write-Log "Configurando HiberbootEnabled para 0 em HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "HiberbootEnabled configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Inicialização rápida desativada com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função DisableFastStartup: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função DisableFastStartup." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function PowerThrottlingOff {
-  Write-Output "Disabling Power Throttling..."
-  If (!(Test-Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling")) {
-    New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" -Force | Out-Null
+  Write-Log "Iniciando função PowerThrottlingOff para desativar o Power Throttling." -ConsoleOutput
+
+  try {
+    Write-Output "Disabling Power Throttling..."
+    Write-Log "Desativando o Power Throttling..." -ConsoleOutput
+
+    # Definir o caminho do registro
+    $registryPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling"
+
+    # Verificar e criar a chave de registro, se necessário
+    if (-not (Test-Path $registryPath)) {
+      Write-Log "Chave $registryPath não existe. Criando..." -ConsoleOutput
+      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
+      Write-Log "Chave $registryPath criada com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Log "Chave $registryPath já existe. Prosseguindo com a configuração." -ConsoleOutput
+    }
+
+    # Configurar a propriedade PowerThrottlingOff
+    Write-Log "Configurando PowerThrottlingOff para 1 em $registryPath..." -ConsoleOutput
+    Set-ItemProperty -Path $registryPath -Name "PowerThrottlingOff" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "PowerThrottlingOff configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Power Throttling desativado com sucesso." -Level "INFO" -ConsoleOutput
   }
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" -Name "PowerThrottlingOff" -Type DWord -Value 1
+  catch {
+    $errorMessage = "Erro na função PowerThrottlingOff: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função PowerThrottlingOff." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function Win32PrioritySeparation {
-  Write-Output "Optimizing Win32 Priority Separation for gaming..."
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "Win32PrioritySeparation" -Type DWord -Value 38
+  Write-Log "Iniciando função Win32PrioritySeparation para otimizar a separação de prioridade Win32 para jogos." -ConsoleOutput
+
+  try {
+    Write-Output "Optimizing Win32 Priority Separation for gaming..."
+    Write-Log "Otimizando a separação de prioridade Win32 para jogos..." -ConsoleOutput
+
+    Write-Log "Configurando Win32PrioritySeparation para 38 em HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "Win32PrioritySeparation" -Type DWord -Value 38 -ErrorAction Stop
+    Write-Log "Win32PrioritySeparation configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Separação de prioridade Win32 otimizada para jogos com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função Win32PrioritySeparation: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função Win32PrioritySeparation." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function DisableAERO {
