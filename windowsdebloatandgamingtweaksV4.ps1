@@ -3911,14 +3911,3 @@ foreach ($tweak in $tweaks) {
   Start-Sleep -Milliseconds 100 # Pequena pausa para visualização
 }
 Write-Host "" # Nova linha após o progresso
-
-## Executar os tweaks
-#foreach ($tweak in $tweaks) {
-#  $tweakName = $tweak.Split()[0]
-#  if ($tweakFunctions.ContainsKey($tweakName)) {
-#    Invoke-Expression $tweak
-#  }
-#  else {
-#    Write-Colored "Tweak não encontrado: $tweak" -Color "VermelhoClaro"
-#  }
-#}
