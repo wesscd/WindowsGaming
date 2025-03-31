@@ -195,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.2.2",
+    "                                                                                  V0.7.2.2.3",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1866,13 +1866,35 @@ function EnableSharedExperiences {
     Write-Output "Enabling Shared Experiences..."
     Write-Log "Habilitando Experiências Compartilhadas..." -ConsoleOutput
 
-    Write-Log "Removendo a propriedade EnableCdp do registro..." -ConsoleOutput
-    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableCdp" -ErrorAction Stop
-    Write-Log "EnableCdp removido com sucesso." -Level "INFO" -ConsoleOutput
+    # Definir o caminho do registro
+    $systemPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
 
+    # Verificar se o caminho existe, senão criar
+    if (-not (Test-Path $systemPath)) {
+      Write-Log "Caminho $systemPath não existe. Criando..." -ConsoleOutput
+      New-Item -Path $systemPath -Force -ErrorAction Stop | Out-Null
+      Write-Log "Caminho $systemPath criado com sucesso." -Level "INFO" -ConsoleOutput
+    }
+
+    # Remover a propriedade EnableCdp, se existir
+    Write-Log "Removendo a propriedade EnableCdp do registro..." -ConsoleOutput
+    if (Get-ItemProperty -Path $systemPath -Name "EnableCdp" -ErrorAction SilentlyContinue) {
+      Remove-ItemProperty -Path $systemPath -Name "EnableCdp" -ErrorAction Stop
+      Write-Log "EnableCdp removido com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Log "Propriedade EnableCdp não encontrada no caminho $systemPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+    }
+
+    # Remover a propriedade EnableMmx, se existir
     Write-Log "Removendo a propriedade EnableMmx do registro..." -ConsoleOutput
-    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableMmx" -ErrorAction Stop
-    Write-Log "EnableMmx removido com sucesso." -Level "INFO" -ConsoleOutput
+    if (Get-ItemProperty -Path $systemPath -Name "EnableMmx" -ErrorAction SilentlyContinue) {
+      Remove-ItemProperty -Path $systemPath -Name "EnableMmx" -ErrorAction Stop
+      Write-Log "EnableMmx removido com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Log "Propriedade EnableMmx não encontrada no caminho $systemPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+    }
 
     Write-Log "Experiências Compartilhadas habilitadas com sucesso." -Level "INFO" -ConsoleOutput
   }
