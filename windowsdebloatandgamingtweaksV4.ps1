@@ -195,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.2.7",
+    "                                                                                  V0.7.2.2.8",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -3021,12 +3021,19 @@ function RemoveBloatRegistry {
     Write-Log "Lista de chaves de registro carregada: $($keys -join ', ')" -ConsoleOutput
 
     foreach ($key in $keys) {
-      Write-Log "Removendo a chave de registro $key..." -ConsoleOutput
-      Remove-Item -Path $key -Recurse -Force -ErrorAction Stop
-      Write-Log "Chave $key removida com sucesso." -Level "INFO" -ConsoleOutput
+      Write-Log "Verificando e removendo a chave de registro $key..." -ConsoleOutput
+
+      if (Test-Path $key) {
+        Write-Log "Caminho $key encontrado. Removendo..." -ConsoleOutput
+        Remove-Item -Path $key -Recurse -Force -ErrorAction Stop
+        Write-Log "Chave $key removida com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Write-Log "Caminho $key não encontrado. Nenhuma ação necessária." -Level "WARNING" -ConsoleOutput
+      }
     }
 
-    Write-Log "Entradas de registro de bloatware removidas com sucesso." -Level "INFO" -ConsoleOutput
+    Write-Log "Entradas de registro de bloatware processadas com sucesso." -Level "INFO" -ConsoleOutput
   }
   catch {
     $errorMessage = "Erro na função RemoveBloatRegistry: $_"
