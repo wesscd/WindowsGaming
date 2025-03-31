@@ -127,7 +127,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.1.8",
+    "                                                                                  V0.7.1.9",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -493,7 +493,12 @@ function InstallTitusProgs {
       Write-Log "Chocolatey não encontrado. Iniciando instalação..." -ConsoleOutput
       Set-ExecutionPolicy Bypass -Scope Process -Force -ErrorAction Stop
       [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-      Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1')) -ErrorAction Stop
+      
+      $webClient = New-Object System.Net.WebClient -ErrorAction Stop
+      $script = $webClient.DownloadString('https://chocolatey.org/install.ps1')
+      Invoke-Expression $script
+
+
       Write-Log "Chocolatey instalado com sucesso." -Level "INFO" -ConsoleOutput
       Write-Output "Chocolatey instalado com sucesso."
     }
