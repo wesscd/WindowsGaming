@@ -1830,7 +1830,7 @@ function DisableHomeGroups {
         }
       }
       catch {
-        Write-Log "Erro ao processar serviço $serviceName: $_" -Level "ERROR" -ConsoleOutput
+        Write-Log "Erro ao processar serviço $serviceName $_" -Level "ERROR" -ConsoleOutput
       }
     }
 
