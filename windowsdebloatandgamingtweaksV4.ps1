@@ -195,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.1.6",
+    "                                                                                  V0.7.2.1.7",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1105,18 +1105,34 @@ function DisableNewsFeed {
 
       # Verificar e configurar chave HKCU
       $registryPathHKCU = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds"
-      if (-not (Test-Path $registryPathHKCU)) {
-        Write-Log "Chave $registryPathHKCU não existe. Criando..." -ConsoleOutput
-        New-Item -Path $registryPathHKCU -Force -ErrorAction Stop | Out-Null
-        Write-Log "Chave $registryPathHKCU criada com sucesso." -Level "INFO" -ConsoleOutput
-      }
-      else {
-        Write-Log "Chave $registryPathHKCU já existe. Prosseguindo com a configuração." -ConsoleOutput
-      }
+      $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
 
-      Write-Log "Configurando ShellFeedsTaskbarViewMode para 2 em $registryPathHKCU..." -ConsoleOutput
-      Set-ItemProperty -Path $registryPathHKCU -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2 -ErrorAction Stop
-      Write-Log "ShellFeedsTaskbarViewMode configurado com sucesso." -Level "INFO" -ConsoleOutput
+      # Verificar se o script tem permissão para modificar HKCU
+      try {
+        if (-not (Test-Path $registryPathHKCU)) {
+          Write-Log "Chave $registryPathHKCU não existe. Criando..." -ConsoleOutput
+          New-Item -Path $registryPathHKCU -Force -ErrorAction Stop | Out-Null
+          Write-Log "Chave $registryPathHKCU criada com sucesso." -Level "INFO" -ConsoleOutput
+        }
+        else {
+          Write-Log "Chave $registryPathHKCU já existe. Prosseguindo com a configuração." -ConsoleOutput
+        }
+
+        # Tentar configurar a propriedade com tratamento de erro adicional
+        Write-Log "Configurando ShellFeedsTaskbarViewMode para 2 em $registryPathHKCU..." -ConsoleOutput
+        Set-ItemProperty -Path $registryPathHKCU -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2 -ErrorAction Stop
+        Write-Log "ShellFeedsTaskbarViewMode configurado com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      catch [System.UnauthorizedAccessException] {
+        Write-Log "Sem permissão para modificar $registryPathHKCU. Tente executar o script como o usuário atual ou com permissões elevadas." -Level "WARNING" -ConsoleOutput
+        Write-Colored "Não foi possível desativar o News Feed no perfil do usuário atual devido a restrições de permissão. Execute o script como o usuário ou contate o administrador." -Color "AmareloClaro"
+      }
+      catch {
+        $errorMessage = "Erro ao configurar $registryPathHKCU: $_"
+        Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+        Write-Colored $errorMessage -Color "Vermelho"
+        throw
+      }
 
       Write-Log "News and Interests Feed desativado com sucesso no Windows 10." -Level "INFO" -ConsoleOutput
       Write-Colored "News and Interests Feed desativado com sucesso." -Color "VerdeClaro"
