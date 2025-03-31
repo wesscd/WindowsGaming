@@ -185,6 +185,92 @@ function SlowUpdatesTweaks {
   }
 }
 
+function ManagePowerProfiles {
+  Write-Log "Iniciando função ManagePowerProfiles para gerenciar perfis de energia." -ConsoleOutput
+
+  try {
+    Write-Output "Gerenciando Perfis de Energia..."
+    do {
+      Clear-Host
+      Write-Colored "" "Azul"
+      Write-Colored "================ Gerenciar Perfis de Energia ================" "Azul"
+      Write-Colored "Escolha uma opção para configurar o perfil de energia:" "Branco"
+      Write-Colored "1 - Perfil de Alto Desempenho (ideal para jogos)" "VerdeClaro"
+      Write-Colored "2 - Perfil Balanceado (padrão do Windows)" "AmareloClaro"
+      Write-Colored "3 - Perfil Econômico (economia de energia)" "CianoClaro"
+      Write-Colored "4 - Pular esta etapa" "VermelhoClaro"
+      $choice = Read-Host "Digite sua escolha (1-4)"
+      Write-Log "Usuário selecionou: $choice" -ConsoleOutput
+    } until ($choice -match "^[1-4]$")
+
+    switch ($choice) {
+      "1" {
+        Write-Log "Aplicando perfil de Alto Desempenho..." -ConsoleOutput
+        Write-Colored "Configurando perfil de Alto Desempenho..." -Color "VerdeClaro"
+        # Criar ou ativar o plano de alto desempenho
+        powercfg /duplicatescheme 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+        powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+        # Ajustes adicionais para desempenho máximo
+        powercfg /change standby-timeout-ac 0
+        powercfg /change hibernate-timeout-ac 0
+        powercfg /change monitor-timeout-ac 0
+        Write-Log "Perfil de Alto Desempenho aplicado com sucesso." -Level "INFO" -ConsoleOutput
+        Write-Colored "Perfil de Alto Desempenho aplicado com sucesso!" -Color "Verde"
+      }
+      "2" {
+        Write-Log "Aplicando perfil Balanceado..." -ConsoleOutput
+        Write-Colored "Configurando perfil Balanceado..." -Color "AmareloClaro"
+        powercfg /duplicatescheme 381b4222-f694-41f0-9685-ff5bb260df2e
+        powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e
+        Write-Log "Perfil Balanceado aplicado com sucesso." -Level "INFO" -ConsoleOutput
+        Write-Colored "Perfil Balanceado aplicado com sucesso!" -Color "Amarelo"
+      }
+      "3" {
+        Write-Log "Aplicando perfil Econômico..." -ConsoleOutput
+        Write-Colored "Configurando perfil Econômico..." -Color "CianoClaro"
+        powercfg /duplicatescheme a1841308-3541-4fab-bc81-f71556f20b4a
+        powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a
+        powercfg /change standby-timeout-ac 10
+        powercfg /change monitor-timeout-ac 5
+        Write-Log "Perfil Econômico aplicado com sucesso." -Level "INFO" -ConsoleOutput
+        Write-Colored "Perfil Econômico aplicado com sucesso!" -Color "Ciano"
+      }
+      "4" {
+        Write-Log "Perfil de energia não alterado (opção de pular escolhida)." -Level "INFO" -ConsoleOutput
+        Write-Colored "Configuração de perfil de energia ignorada." -Color "VermelhoClaro"
+      }
+    }
+  }
+  catch {
+    $errorMessage = "Erro ao gerenciar perfis de energia: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "Vermelho"
+  }
+  finally {
+    Write-Log "Finalizando função ManagePowerProfiles." -Level "INFO" -ConsoleOutput
+  }
+}
+
+function Show-ProgressBar {
+  param (
+    [int]$CurrentStep,
+    [int]$TotalSteps,
+    [string]$TaskName
+  )
+
+  $percentComplete = [math]::Round(($CurrentStep / $TotalSteps) * 100)
+  $barLength = 50
+  $filledLength = [math]::Round(($percentComplete / 100) * $barLength)
+  $emptyLength = $barLength - $filledLength
+
+  $filledBar = "█" * $filledLength
+  $emptyBar = " " * $emptyLength
+  $progressBar = "[$filledBar$emptyBar] $percentComplete%"
+
+  Write-Host "`r" -NoNewline # Retorna ao início da linha
+  Write-Colored "$progressBar - Executando: $TaskName" -Color "VerdeClaro" -NoNewline
+}
+
 # Exibir introdução
 function Show-Intro {
   Clear-Host
@@ -195,7 +281,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.2.9",
+    "                                                                                  V0.7.2.3.0",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -237,6 +323,7 @@ $tweakFunctions = @{
   "Execute-BatchScript"         = { Execute-BatchScript }
   "InstallChocoUpdates"         = { InstallChocoUpdates }
   "EnableUltimatePower"         = { EnableUltimatePower }
+  "ManagePowerProfiles"         = { ManagePowerProfiles }
   "AskDefender"                 = { AskDefender }
   "AskXBOX"                     = { AskXBOX }
   "Windows11Extras"             = { Windows11Extras }
@@ -388,6 +475,7 @@ $tweaks = @(
   "Execute-BatchScript",
   "InstallChocoUpdates",
   "EnableUltimatePower",
+  "ManagePowerProfiles",
   "AskDefender",
   "AskXBOX",
   "Windows11Extras",
@@ -3796,13 +3884,41 @@ function Finished {
 # Executar introdução
 Show-Intro
 
-# Executar os tweaks
+# Executar os tweaks com barra de progresso
+$totalTweaks = $tweaks.Count
+$currentStep = 0
+
 foreach ($tweak in $tweaks) {
+  $currentStep++
   $tweakName = $tweak.Split()[0]
+  
+  Show-ProgressBar -CurrentStep $currentStep -TotalSteps $totalTweaks -TaskName $tweakName
+  
   if ($tweakFunctions.ContainsKey($tweakName)) {
-    Invoke-Expression $tweak
+    try {
+      Invoke-Expression $tweak
+    }
+    catch {
+      Write-Log "Erro ao executar o tweak $tweakName: $_" -Level "ERROR" -ConsoleOutput
+      Write-Colored "`nErro ao executar $tweakName. Veja o log para detalhes." -Color "VermelhoClaro"
+    }
   }
   else {
-    Write-Colored "Tweak não encontrado: $tweak" -Color "VermelhoClaro"
+    Write-Log "Tweak não encontrado: $tweak" -Level "WARNING" -ConsoleOutput
+    Write-Colored "`nTweak não encontrado: $tweak" -Color "VermelhoClaro"
   }
+  
+  Start-Sleep -Milliseconds 100 # Pequena pausa para visualização
 }
+Write-Host "" # Nova linha após o progresso
+
+## Executar os tweaks
+#foreach ($tweak in $tweaks) {
+#  $tweakName = $tweak.Split()[0]
+#  if ($tweakFunctions.ContainsKey($tweakName)) {
+#    Invoke-Expression $tweak
+#  }
+#  else {
+#    Write-Colored "Tweak não encontrado: $tweak" -Color "VermelhoClaro"
+#  }
+#}
