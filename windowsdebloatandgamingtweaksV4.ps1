@@ -1924,15 +1924,54 @@ function EnableRemoteDesktop {
 }
 
 #Disabling Windows Remote Assistance.
-Function DisableRemoteAssistance {
-  Write-Output "Disabling Windows Remote Assistance..."
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowFullControl" -Type DWord -Value 0
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 0
+function DisableRemoteAssistance {
+  Write-Log "Iniciando função DisableRemoteAssistance para desativar a Assistência Remota do Windows." -ConsoleOutput
+
+  try {
+    Write-Output "Disabling Windows Remote Assistance..."
+    Write-Log "Desativando a Assistência Remota do Windows..." -ConsoleOutput
+
+    Write-Log "Configurando fAllowFullControl para 0..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowFullControl" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "fAllowFullControl configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando fAllowToGetHelp para 0..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "fAllowToGetHelp configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Assistência Remota do Windows desativada com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função DisableRemoteAssistance: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função DisableRemoteAssistance." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function DisableAutoplay {
-  Write-Output "Disabling Autoplay..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Name "DisableAutoplay" -Type DWord -Value 1
+  Write-Log "Iniciando função DisableAutoplay para desativar a Reprodução Automática." -ConsoleOutput
+
+  try {
+    Write-Output "Disabling Autoplay..."
+    Write-Log "Desativando a Reprodução Automática..." -ConsoleOutput
+
+    Write-Log "Configurando DisableAutoplay para 1 em HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Name "DisableAutoplay" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "DisableAutoplay configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Reprodução Automática desativada com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função DisableAutoplay: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função DisableAutoplay." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function DisableAutorun {
