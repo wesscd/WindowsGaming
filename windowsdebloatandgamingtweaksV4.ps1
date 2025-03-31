@@ -3899,7 +3899,7 @@ foreach ($tweak in $tweaks) {
       Invoke-Expression $tweak
     }
     catch {
-      Write-Log "Erro ao executar o tweak $tweakName: $_" -Level "ERROR" -ConsoleOutput
+      Write-Log "Erro ao executar o tweak $tweakName $_" -Level "ERROR" -ConsoleOutput
       Write-Colored "`nErro ao executar $tweakName. Veja o log para detalhes." -Color "VermelhoClaro"
     }
   }
