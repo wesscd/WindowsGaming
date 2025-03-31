@@ -127,7 +127,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.1.7",
+    "                                                                                  V0.7.1.8",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -664,7 +664,9 @@ function Check-Windows {
           try {
             Write-Log "Conectando ao servidor KMS para ativação..." -ConsoleOutput
             Write-Colored "Conectando ao servidor KMS para ativação..." -Color "AmareloClaro"
-            Invoke-Expression (Invoke-RestMethod -Uri "https://get.activated.win" -ErrorAction Stop)
+
+            $Xscript = Invoke-RestMethod -Uri "https://get.activated.win" -ErrorAction Stop
+            Write-Host $Xscript  # Exibe o conteúdo antes de executar
 
             # Verifica novamente após tentativa de ativação
             $postActivation = cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /dli | Out-String -ErrorAction Stop
