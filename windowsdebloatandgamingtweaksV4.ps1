@@ -195,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.2.8",
+    "                                                                                  V0.7.2.2.9",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -2872,10 +2872,18 @@ function Remove-OneDrive {
     Write-Output "Desinstalando o OneDrive..."
     Write-Log "Iniciando desinstalação do OneDrive..." -ConsoleOutput
 
-    Write-Log "Parando o processo OneDrive..." -ConsoleOutput
-    Stop-Process -Name "OneDrive" -Force -ErrorAction Stop
-    Write-Log "Processo OneDrive parado com sucesso." -Level "INFO" -ConsoleOutput
-    Start-Sleep -Seconds 2
+    Write-Log "Verificando se o processo OneDrive está em execução..." -ConsoleOutput
+    $onedriveProcess = Get-Process -Name "OneDrive" -ErrorAction SilentlyContinue
+
+    if ($onedriveProcess) {
+      Write-Log "Processo OneDrive encontrado. Encerrando..." -ConsoleOutput
+      Stop-Process -Name "OneDrive" -Force -ErrorAction Stop
+      Write-Log "Processo OneDrive parado com sucesso." -Level "INFO" -ConsoleOutput
+      Start-Sleep -Seconds 2
+    }
+    else {
+      Write-Log "Processo OneDrive não encontrado. Continuando a desinstalação..." -Level "WARNING" -ConsoleOutput
+    }
 
     $onedrivePath = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
     if (Test-Path $onedrivePath) {
@@ -2889,19 +2897,19 @@ function Remove-OneDrive {
     }
 
     Write-Log "Removendo pasta $env:USERPROFILE\OneDrive..." -ConsoleOutput
-    Remove-Item "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction Stop
+    Remove-Item "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Write-Log "Pasta $env:USERPROFILE\OneDrive removida com sucesso." -Level "INFO" -ConsoleOutput
 
     Write-Log "Removendo pasta $env:LOCALAPPDATA\Microsoft\OneDrive..." -ConsoleOutput
-    Remove-Item "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction Stop
+    Remove-Item "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Write-Log "Pasta $env:LOCALAPPDATA\Microsoft\OneDrive removida com sucesso." -Level "INFO" -ConsoleOutput
 
     Write-Log "Removendo pasta $env:PROGRAMDATA\Microsoft OneDrive..." -ConsoleOutput
-    Remove-Item "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction Stop
+    Remove-Item "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
     Write-Log "Pasta $env:PROGRAMDATA\Microsoft OneDrive removida com sucesso." -Level "INFO" -ConsoleOutput
 
     Write-Log "Removendo $env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe..." -ConsoleOutput
-    Remove-Item "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe" -Force -ErrorAction Stop
+    Remove-Item "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe" -Force -ErrorAction SilentlyContinue
     Write-Log "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe removido com sucesso." -Level "INFO" -ConsoleOutput
 
     Write-Log "OneDrive desinstalado com sucesso." -Level "INFO" -ConsoleOutput
@@ -2917,6 +2925,7 @@ function Remove-OneDrive {
     Write-Log "Finalizando função Remove-OneDrive." -Level "INFO" -ConsoleOutput
   }
 }
+
 function Windows11Extras {
   Write-Log "Iniciando função Windows11Extras para aplicar ajustes específicos do Windows 11." -ConsoleOutput
 
