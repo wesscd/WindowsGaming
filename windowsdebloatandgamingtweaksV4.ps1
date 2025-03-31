@@ -157,7 +157,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.1.2",
+    "                                                                                  V0.7.2.1.3",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -1389,7 +1389,20 @@ function AskDefender {
       Write-Log "EnableFirewall removido com sucesso." -Level "INFO" -ConsoleOutput
 
       Write-Log "Removendo DisableAntiSpyware do registro..." -ConsoleOutput
-      Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -ErrorAction Stop
+      
+      $registryPathDfnder = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender"
+      $propertyName = "DisableAntiSpyware"
+
+      # Verifica se a propriedade existe
+      if (Get-ItemProperty -Path $registryPathDfnder -Name $propertyName -ErrorAction SilentlyContinue) {
+        # Remove a propriedade se ela existir
+        Remove-ItemProperty -Path $registryPathDfnder -Name $propertyName -ErrorAction Stop
+        Write-Output "Propriedade '$propertyName' removida com sucesso."
+      }
+      else {
+        Write-Output "Propriedade '$propertyName' não encontrada no caminho '$registryPathDfnder'. Nenhuma ação necessária."
+      }
+
       Write-Log "DisableAntiSpyware removido com sucesso." -Level "INFO" -ConsoleOutput
 
       if ($osVersion.Build -eq 14393) {
