@@ -114,8 +114,17 @@ function Write-Log {
 
   # Opcional: Exibir no console se solicitado
   if ($ConsoleOutput) {
-    Write-Colored "$logEntry" -Color ($Level -eq "ERROR" ? "Vermelho" : ($Level -eq "WARNING" ? "AmareloClaro" : "VerdeClaro"))
+    if ($Level -eq "ERROR") {
+      Write-Colored "$logEntry" -Color "Vermelho"
+    }
+    elseif ($Level -eq "WARNING") {
+      Write-Colored "$logEntry" -Color "AmareloClaro"
+    }
+    else {
+      Write-Colored "$logEntry" -Color "VerdeClaro"
+    }
   }
+
 }
 
 # Função SlowUpdatesTweaks definida diretamente
@@ -148,7 +157,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.1",
+    "                                                                                  V0.7.2.1.1",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
