@@ -195,7 +195,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.2.6",
+    "                                                                                  V0.7.2.2.7",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -2953,45 +2953,88 @@ function Windows11Extras {
 }
 
 function DebloatAll {
-  Write-Output "Running full debloat process..."
-  $bloatware = @(
-    "Microsoft.3DBuilder",
-    "Microsoft.BingWeather",
-    "Microsoft.GetHelp",
-    "Microsoft.Getstarted",
-    "Microsoft.Messaging",
-    "Microsoft.Microsoft3DViewer",
-    "Microsoft.MicrosoftSolitaireCollection",
-    "Microsoft.MixedReality.Portal",
-    "Microsoft.Office.OneNote",
-    "Microsoft.OneConnect",
-    "Microsoft.People",
-    "Microsoft.Print3D",
-    "Microsoft.SkypeApp",
-    "Microsoft.Wallet",
-    "Microsoft.WindowsAlarms",
-    "Microsoft.WindowsCamera",
-    "Microsoft.windowscommunicationsapps",
-    "Microsoft.WindowsFeedbackHub",
-    "Microsoft.WindowsMaps",
-    "Microsoft.WindowsSoundRecorder",
-    "Microsoft.ZuneMusic",
-    "Microsoft.ZuneVideo"
-  )
-  foreach ($app in $bloatware) {
-    Get-AppxPackage -Name $app -AllUsers | Remove-AppxPackage -ErrorAction SilentlyContinue
-    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -eq $app | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
+  Write-Log "Iniciando função DebloatAll para executar o processo completo de debloat." -ConsoleOutput
+
+  try {
+    Write-Output "Running full debloat process..."
+    Write-Log "Executando o processo completo de debloat..." -ConsoleOutput
+
+    $bloatware = @(
+      "Microsoft.3DBuilder",
+      "Microsoft.BingWeather",
+      "Microsoft.GetHelp",
+      "Microsoft.Getstarted",
+      "Microsoft.Messaging",
+      "Microsoft.Microsoft3DViewer",
+      "Microsoft.MicrosoftSolitaireCollection",
+      "Microsoft.MixedReality.Portal",
+      "Microsoft.Office.OneNote",
+      "Microsoft.OneConnect",
+      "Microsoft.People",
+      "Microsoft.Print3D",
+      "Microsoft.SkypeApp",
+      "Microsoft.Wallet",
+      "Microsoft.WindowsAlarms",
+      "Microsoft.WindowsCamera",
+      "Microsoft.windowscommunicationsapps",
+      "Microsoft.WindowsFeedbackHub",
+      "Microsoft.WindowsMaps",
+      "Microsoft.WindowsSoundRecorder",
+      "Microsoft.ZuneMusic",
+      "Microsoft.ZuneVideo"
+    )
+    Write-Log "Lista de bloatware carregada: $($bloatware -join ', ')" -ConsoleOutput
+
+    foreach ($app in $bloatware) {
+      Write-Log "Removendo o aplicativo $app para todos os usuários..." -ConsoleOutput
+      Get-AppxPackage -Name $app -AllUsers -ErrorAction Stop | Remove-AppxPackage -ErrorAction Stop
+      Write-Log "Aplicativo $app removido com sucesso para todos os usuários." -Level "INFO" -ConsoleOutput
+
+      Write-Log "Removendo o pacote provisionado $app..." -ConsoleOutput
+      Get-AppxProvisionedPackage -Online -ErrorAction Stop | Where-Object DisplayName -eq $app | Remove-AppxProvisionedPackage -Online -ErrorAction Stop
+      Write-Log "Pacote provisionado $app removido com sucesso." -Level "INFO" -ConsoleOutput
+    }
+
+    Write-Log "Processo completo de debloat concluído com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função DebloatAll: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função DebloatAll." -Level "INFO" -ConsoleOutput
   }
 }
 
 function RemoveBloatRegistry {
-  Write-Output "Removing bloatware registry entries..."
-  $keys = @(
-    "HKCR:\Applications\photoviewer.dll",
-    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{3dfdf296-dbec-4fb4-81d1-6a3438bcf4de}"
-  )
-  foreach ($key in $keys) {
-    Remove-Item -Path $key -Recurse -Force -ErrorAction SilentlyContinue
+  Write-Log "Iniciando função RemoveBloatRegistry para remover entradas de registro de bloatware." -ConsoleOutput
+
+  try {
+    Write-Output "Removing bloatware registry entries..."
+    Write-Log "Removendo entradas de registro de bloatware..." -ConsoleOutput
+
+    $keys = @(
+      "HKCR:\Applications\photoviewer.dll",
+      "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{3dfdf296-dbec-4fb4-81d1-6a3438bcf4de}"
+    )
+    Write-Log "Lista de chaves de registro carregada: $($keys -join ', ')" -ConsoleOutput
+
+    foreach ($key in $keys) {
+      Write-Log "Removendo a chave de registro $key..." -ConsoleOutput
+      Remove-Item -Path $key -Recurse -Force -ErrorAction Stop
+      Write-Log "Chave $key removida com sucesso." -Level "INFO" -ConsoleOutput
+    }
+
+    Write-Log "Entradas de registro de bloatware removidas com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função RemoveBloatRegistry: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função RemoveBloatRegistry." -Level "INFO" -ConsoleOutput
   }
 }
 
