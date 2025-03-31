@@ -97,6 +97,27 @@ function Write-Colored {
   }
 }
 
+function Write-Log {
+  param (
+    [string]$Message,
+    [string]$Level = "INFO", # Pode ser "INFO", "WARNING", "ERROR", "DEBUG"
+    [switch]$ConsoleOutput = $false
+  )
+
+  # Definir caminho do log (por exemplo, na pasta Temp do usuário)
+  $logPath = "$env:TEMP\optimization_log.txt"
+  $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+  $logEntry = "[$timestamp] [$Level] $Message"
+
+  # Gravar no arquivo
+  Add-Content -Path $logPath -Value $logEntry -ErrorAction SilentlyContinue
+
+  # Opcional: Exibir no console se solicitado
+  if ($ConsoleOutput) {
+    Write-Colored "$logEntry" -Color ($Level -eq "ERROR" ? "Vermelho" : ($Level -eq "WARNING" ? "AmareloClaro" : "VerdeClaro"))
+  }
+}
+
 # Função SlowUpdatesTweaks definida diretamente
 function SlowUpdatesTweaks {
   Write-Output "Improving Windows Update to delay Feature updates and only install Security Updates"
@@ -127,7 +148,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.0_",
+    "                                                                                  V0.7.2.1",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
