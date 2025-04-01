@@ -4529,14 +4529,14 @@ Function NetworkAdapterRSS {
 }
 
 function Download-GPUFiles {
-    Write-Log "Iniciando função Download-GPUFiles para identificar GPU, criar pasta e baixar arquivos." -ConsoleOutput
+    Write-Log "Iniciando função Download-GPUFiles para identificar GPU, criar pasta e baixar arquivos." -Level "INFO" -ConsoleOutput
 
     try {
         # Identificar a placa de vídeo ativa
         Write-Log "Obtendo informações da placa de vídeo ativa..." -ConsoleOutput
         $gpuInfo = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop | Where-Object { $_.CurrentBitsPerPixel -and $_.AdapterDACType } | Select-Object -First 1
         $gpuName = $gpuInfo.Name
-        Write-Log "Placa de vídeo detectada: $gpuName" -ConsoleOutput
+        Write-Log "Placa de vídeo detectada: $gpuName" -Level "INFO" -ConsoleOutput
 
         # Definir o caminho da pasta em C:\
         $folderPath = "C:\DownloadsGPU"
@@ -4552,38 +4552,38 @@ function Download-GPUFiles {
             Write-Log "Pasta $folderPath já existe. Prosseguindo com os downloads..." -ConsoleOutput
         }
 
-        # Definir os downloads base (comuns a ambas as GPUs) com hashes fictícios
+        # Definir os downloads base (comuns a ambas as GPUs) com hashes reais
         $baseDownloads = @(
             @{
                 Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/MSI_util_v3.exe"
                 FileName = "MSI_util_v3.exe"
-                Hash     = "695800AFAD96F858A3F291B7DF21C16649528F13D39B63FB7C233E5676C8DF6F"  # hash real
+                Hash     = "695800AFAD96F858A3F291B7DF21C16649528F13D39B63FB7C233E5676C8DF6F"
             },
             @{
                 Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
                 FileName = "IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
-                Hash     = "E171C6298F8D01170668754C6625CA065AE76CCD79D6B472EE8CDC40A6942653"  # hash real
+                Hash     = "E171C6298F8D01170668754C6625CA065AE76CCD79D6B472EE8CDC40A6942653"
             }
         )
 
         # Definir downloads específicos por GPU
         if ($gpuName -like "*NVIDIA*" -or $gpuName -like "*GTX*" -or $gpuName -like "*RTX*") {
-            Write-Log "Placa NVIDIA detectada. Adicionando driver NVIDIA à lista de downloads..." -ConsoleOutput
+            Write-Log "Placa NVIDIA detectada. Adicionando driver NVIDIA à lista de downloads..." -Level "INFO" -ConsoleOutput
             $downloads = $baseDownloads + @(
                 @{
                     Url      = "https://us.download.nvidia.com/nvapp/client/11.0.3.218/NVIDIA_app_v11.0.3.218.exe"
                     FileName = "NVIDIA_app_v11.0.3.218.exe"
-                    Hash     = "C19A150E53427175E5996100A25ED016F6730B627B1D6B85813811A8751C77B7"  # hash real
+                    Hash     = "C19A150E53427175E5996100A25ED016F6730B627B1D6B85813811A8751C77B7"
                 }
             )
         }
         elseif ($gpuName -like "*AMD*" -or $gpuName -like "*Radeon*") {
-            Write-Log "Placa AMD detectada. Adicionando driver AMD à lista de downloads..." -ConsoleOutput
+            Write-Log "Placa AMD detectada. Adicionando driver AMD à lista de downloads..." -Level "INFO" -ConsoleOutput
             $downloads = $baseDownloads + @(
                 @{
                     Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/AMD_ADRENALIN_WEB.exe"
                     FileName = "AMD_ADRENALIN_WEB.exe"
-                    Hash     = "87888CE67AF3B7A1652FF134192420CA4CE644EFFB8368E570707A9E224F02F2"  # hash real
+                    Hash     = "87888CE67AF3B7A1652FF134192420CA4CE644EFFB8368E570707A9E224F02F2"
                 }
             )
         }
@@ -4592,14 +4592,15 @@ function Download-GPUFiles {
             $downloads = $baseDownloads
         }
 
-        Write-Log "Lista de downloads definida: $($downloads | ForEach-Object { $_.FileName } -join ', ')" -ConsoleOutput
+        Write-Log "Lista de downloads definida: $($downloads | ForEach-Object { $_.FileName } -join ', ')" -Level "INFO" -ConsoleOutput
 
         # Fazer o download de cada arquivo com verificação de hash
         foreach ($item in $downloads) {
             $downloadUrl = $item.Url
             $filePath = Join-Path -Path $folderPath -ChildPath $item.FileName
-            Write-Log "Iniciando download de $downloadUrl para $filePath..." -ConsoleOutput
+            Write-Log "Iniciando download de $downloadUrl para $filePath..." -Level "INFO" -ConsoleOutput
             Invoke-WebRequest -Uri $downloadUrl -OutFile $filePath -ErrorAction Stop
+            Write-Log "Download concluído para $filePath. Verificando hash..." -Level "INFO" -ConsoleOutput
             Verify-FileHash -FilePath $filePath -ExpectedHash $item.Hash
             Write-Log "Download de $item.FileName concluído com sucesso em $filePath." -Level "INFO" -ConsoleOutput
         }
@@ -4617,7 +4618,6 @@ function Download-GPUFiles {
         Write-Log "Finalizando função Download-GPUFiles." -Level "INFO" -ConsoleOutput
     }
 }
-
 function Finished {
   Write-Log "Iniciando função Finished para finalizar o processo de otimização." -ConsoleOutput
 
