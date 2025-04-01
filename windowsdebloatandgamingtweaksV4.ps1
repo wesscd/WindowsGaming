@@ -97,6 +97,27 @@ function Write-Colored {
   }
 }
 
+function Verify-FileHash {
+    param (
+        [string]$FilePath,
+        [string]$ExpectedHash
+    )
+
+    try {
+        $actualHash = Get-FileHash -Path $FilePath -Algorithm SHA256 -ErrorAction Stop | Select-Object -ExpandProperty Hash
+        if ($actualHash -ne $ExpectedHash) {
+            Write-Log "Hash do arquivo $FilePath não corresponde ao esperado. Download pode estar corrompido ou comprometido." -Level "ERROR" -ConsoleOutput
+            Remove-Item -Path $FilePath -Force -ErrorAction SilentlyContinue
+            throw "Falha na verificação de integridade."
+        }
+        Write-Log "Verificação de integridade do arquivo $FilePath concluída com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    catch {
+        Write-Log "Erro ao verificar o hash do arquivo $FilePath: $_" -Level "ERROR" -ConsoleOutput
+        throw
+    }
+}
+
 function Write-Log {
   param (
       [string]$Message,
@@ -363,7 +384,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.3.5",
+    "                                                                                  V0.7.2.3.6",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -700,123 +721,129 @@ function Write-ColorOutput {
 }
 
 function InstallTitusProgs {
-  Write-Log "Iniciando verificação e instalação do Chocolatey e O&O ShutUp10." -ConsoleOutput
+    Write-Log "Iniciando verificação e instalação do Chocolatey e O&O ShutUp10." -ConsoleOutput
 
-  try {
-    # Verificar e instalar Chocolatey
-    Write-Log "Verificando se o Chocolatey está instalado..." -ConsoleOutput
-    Write-Output "Verificando e instalando Chocolatey, se necessário..."
-    if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-      Write-Log "Chocolatey não encontrado. Iniciando instalação..." -ConsoleOutput
-      Set-ExecutionPolicy Bypass -Scope Process -Force -ErrorAction Stop
-      [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-      
-      $webClient = New-Object System.Net.WebClient -ErrorAction Stop
-      $script = $webClient.DownloadString('https://chocolatey.org/install.ps1')
-      Invoke-Expression $script
+    try {
+        # Verificar e instalar Chocolatey
+        Write-Log "Verificando se o Chocolatey está instalado..." -ConsoleOutput
+        if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+            Write-Log "Chocolatey não encontrado. Iniciando instalação..." -ConsoleOutput
+            Set-ExecutionPolicy Bypass -Scope Process -Force -ErrorAction Stop
+            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+            
+            $webClient = New-Object System.Net.WebClient -ErrorAction Stop
+            $script = $webClient.DownloadString('https://chocolatey.org/install.ps1')
+            Invoke-Expression $script
 
+            Write-Log "Chocolatey instalado com sucesso." -Level "INFO" -ConsoleOutput
+            Write-Output "Chocolatey instalado com sucesso."
+        }
+        else {
+            Write-Log "Chocolatey já está instalado." -Level "INFO" -ConsoleOutput
+            Write-Output "Chocolatey já está instalado."
+        }
 
-      Write-Log "Chocolatey instalado com sucesso." -Level "INFO" -ConsoleOutput
-      Write-Output "Chocolatey instalado com sucesso."
+        # Instalar chocolatey-core.extension
+        Write-Log "Instalando chocolatey-core.extension..." -ConsoleOutput
+        choco install chocolatey-core.extension -y -ErrorAction Stop
+        Write-Log "chocolatey-core.extension instalado com sucesso." -Level "INFO" -ConsoleOutput
+
+        # Executar O&O ShutUp10 com verificação de hash
+        Write-Log "Iniciando execução do O&O ShutUp10 com configurações recomendadas..." -ConsoleOutput
+        Write-Output "Executando O&O ShutUp10 com as configurações recomendadas..."
+        Import-Module BitsTransfer -ErrorAction Stop
+
+        $configUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/ooshutup10.cfg"
+        $exeUrl = "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"
+        $configFile = "$env:TEMP\ooshutup10.cfg"
+        $exeFile = "$env:TEMP\OOSU10.exe"
+
+        # Hashes fictícios (substitua pelos reais)
+        $configExpectedHash = "A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0"
+        $exeExpectedHash = "B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1"
+
+        Write-Log "Baixando arquivos de configuração e executável do O&O ShutUp10..." -ConsoleOutput
+        Start-BitsTransfer -Source $configUrl -Destination $configFile -ErrorAction Stop
+        Start-BitsTransfer -Source $exeUrl -Destination $exeFile -ErrorAction Stop
+
+        # Verificar hashes
+        Verify-FileHash -FilePath $configFile -ExpectedHash $configExpectedHash
+        Verify-FileHash -FilePath $exeFile -ExpectedHash $exeExpectedHash
+
+        Write-Log "Executando O&O ShutUp10..." -ConsoleOutput
+        & $exeFile $configFile /quiet -ErrorAction Stop
+        Start-Sleep -Seconds 10
+
+        Write-Log "Removendo arquivos temporários do O&O ShutUp10..." -ConsoleOutput
+        Remove-Item -Path $configFile, $exeFile -Force -ErrorAction Stop
+        Write-Log "O&O ShutUp10 executado e arquivos temporários removidos com sucesso." -Level "INFO" -ConsoleOutput
+        Write-Output "O&O ShutUp10 executado e arquivos temporários removidos."
     }
-    else {
-      Write-Log "Chocolatey já está instalado." -Level "INFO" -ConsoleOutput
-      Write-Output "Chocolatey já está instalado."
+    catch {
+        $errorMessage = "Erro na função InstallTitusProgs: $_"
+        Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+        Write-Colored $errorMessage -Color "Vermelho"
+        throw  # Repropaga o erro
     }
-
-    # Instalar chocolatey-core.extension
-    Write-Log "Instalando chocolatey-core.extension..." -ConsoleOutput
-    choco install chocolatey-core.extension -y -ErrorAction Stop
-    Write-Log "chocolatey-core.extension instalado com sucesso." -Level "INFO" -ConsoleOutput
-
-    # Executar O&O ShutUp10
-    Write-Log "Iniciando execução do O&O ShutUp10 com configurações recomendadas..." -ConsoleOutput
-    Write-Output "Executando O&O ShutUp10 com as configurações recomendadas..."
-    Import-Module BitsTransfer -ErrorAction Stop
-
-    $configUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/ooshutup10.cfg"
-    $exeUrl = "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"
-    $configFile = "$env:TEMP\ooshutup10.cfg"
-    $exeFile = "$env:TEMP\OOSU10.exe"
-
-    Write-Log "Baixando arquivos de configuração e executável do O&O ShutUp10..." -ConsoleOutput
-    Start-BitsTransfer -Source $configUrl -Destination $configFile -ErrorAction Stop
-    Start-BitsTransfer -Source $exeUrl -Destination $exeFile -ErrorAction Stop
-
-    Write-Log "Executando O&O ShutUp10..." -ConsoleOutput
-    & $exeFile $configFile /quiet -ErrorAction Stop
-    Start-Sleep -Seconds 10
-
-    Write-Log "Removendo arquivos temporários do O&O ShutUp10..." -ConsoleOutput
-    Remove-Item -Path $configFile, $exeFile -Force -ErrorAction Stop
-    Write-Log "O&O ShutUp10 executado e arquivos temporários removidos com sucesso." -Level "INFO" -ConsoleOutput
-    Write-Output "O&O ShutUp10 executado e arquivos temporários removidos."
-
-    Write-Log "Função InstallTitusProgs concluída com sucesso." -Level "INFO" -ConsoleOutput
-  }
-  catch {
-    $errorMessage = "Erro na função InstallTitusProgs: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "Vermelho"
-    throw  # Repropaga o erro para o caller, se necessário
-  }
 }
-
 function Execute-BatchScript {
-  Write-Log "Iniciando download e execução do script em batch." -ConsoleOutput
+    Write-Log "Iniciando download e execução do script em batch." -ConsoleOutput
 
-  try {
-    $remoteUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/refs/heads/main/script-ccleaner.bat"
-    $localPath = "$env:TEMP\techremote.bat"
+    try {
+        $remoteUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/refs/heads/main/script-ccleaner.bat"
+        $localPath = "$env:TEMP\techremote.bat"
+        $expectedHash = "G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6"  # Substitua pelo hash real
 
-    Write-Log "Baixando script em batch de $remoteUrl para $localPath..." -ConsoleOutput
-    Write-Output "Baixando e executando o script em batch..."
+        Write-Log "Baixando script em batch de $remoteUrl para $localPath..." -ConsoleOutput
+        Write-Output "Baixando e executando o script em batch..."
 
-    # Download do script
-    Invoke-WebRequest -Uri $remoteUrl -OutFile $localPath -ErrorAction Stop
+        # Download do script
+        Invoke-WebRequest -Uri $remoteUrl -OutFile $localPath -ErrorAction Stop
 
-    if (Test-Path $localPath) {
-      Write-Log "Download concluído com sucesso. Executando o script..." -Level "INFO" -ConsoleOutput
-      Write-Output "Download concluído. Executando o script..."
+        # Verificar hash
+        Verify-FileHash -FilePath $localPath -ExpectedHash $expectedHash
 
-      # Executar o script
-      Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$localPath`"" -Wait -NoNewWindow -ErrorAction Stop
-      Write-Log "Script em batch executado com sucesso." -Level "INFO" -ConsoleOutput
-      Write-Colored "Script em batch executado com sucesso." -Color "VerdeClaro"
+        if (Test-Path $localPath) {
+            Write-Log "Download concluído com sucesso. Executando o script..." -Level "INFO" -ConsoleOutput
+            Write-Output "Download concluído. Executando o script..."
+
+            # Executar o script
+            Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$localPath`"" -Wait -NoNewWindow -ErrorAction Stop
+            Write-Log "Script em batch executado com sucesso." -Level "INFO" -ConsoleOutput
+            Write-Colored "Script em batch executado com sucesso." -Color "VerdeClaro"
+        }
+        else {
+            $errorMessage = "O arquivo não foi baixado corretamente."
+            Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+            Write-Colored $errorMessage -Color "VermelhoClaro"
+            throw $errorMessage  # Lança o erro
+        }
     }
-    else {
-      $errorMessage = "O arquivo não foi baixado corretamente."
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      Write-Colored $errorMessage -Color "VermelhoClaro"
-      throw $errorMessage  # Lança o erro para ser capturado pelo try/catch externo
-    }
-  }
-  catch {
-    $errorMessage = "Erro ao baixar ou executar o script em batch: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
-    throw  # Repropaga o erro para o caller
-  }
-  finally {
-    if (Test-Path $localPath) {
-      Write-Log "Removendo arquivo temporário $localPath..." -ConsoleOutput
-      try {
-        Remove-Item $localPath -Force -ErrorAction Stop
-        Write-Log "Arquivo temporário removido com sucesso." -Level "INFO" -ConsoleOutput
-        Write-Output "Arquivo temporário removido."
-      }
-      catch {
-        $errorMessage = "Erro ao remover arquivo temporário $localPath $_"
+    catch {
+        $errorMessage = "Erro ao baixar ou executar o script em batch: $_"
         Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
         Write-Colored $errorMessage -Color "VermelhoClaro"
-      }
+        throw  # Repropaga o erro
     }
-    else {
-      Write-Log "Nenhum arquivo temporário para remover." -Level "INFO" -ConsoleOutput
+    finally {
+        if (Test-Path $localPath) {
+            Write-Log "Removendo arquivo temporário $localPath..." -ConsoleOutput
+            try {
+                Remove-Item $localPath -Force -ErrorAction Stop
+                Write-Log "Arquivo temporário removido com sucesso." -Level "INFO" -ConsoleOutput
+                Write-Output "Arquivo temporário removido."
+            }
+            catch {
+                $errorMessage = "Erro ao remover arquivo temporário $localPath $_"
+                Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+                Write-Colored $errorMessage -Color "VermelhoClaro"
+            }
+        }
+        else {
+            Write-Log "Nenhum arquivo temporário para remover." -Level "INFO" -ConsoleOutput
+        }
+        Write-Log "Função Execute-BatchScript concluída." -Level "INFO" -ConsoleOutput
     }
-  }
-
-  Write-Log "Função Execute-BatchScript concluída." -Level "INFO" -ConsoleOutput
 }
 
 function Check-Windows {
@@ -4502,88 +4529,93 @@ Function NetworkAdapterRSS {
 }
 
 function Download-GPUFiles {
-  Write-Log "Iniciando função Download-GPUFiles para identificar GPU, criar pasta e baixar arquivos." -ConsoleOutput
+    Write-Log "Iniciando função Download-GPUFiles para identificar GPU, criar pasta e baixar arquivos." -ConsoleOutput
 
-  try {
-    # Identificar a placa de vídeo ativa
-    Write-Log "Obtendo informações da placa de vídeo ativa..." -ConsoleOutput
-    $gpuInfo = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop | Where-Object { $_.CurrentBitsPerPixel -and $_.AdapterDACType } | Select-Object -First 1
-    $gpuName = $gpuInfo.Name
-    Write-Log "Placa de vídeo detectada: $gpuName" -ConsoleOutput
+    try {
+        # Identificar a placa de vídeo ativa
+        Write-Log "Obtendo informações da placa de vídeo ativa..." -ConsoleOutput
+        $gpuInfo = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop | Where-Object { $_.CurrentBitsPerPixel -and $_.AdapterDACType } | Select-Object -First 1
+        $gpuName = $gpuInfo.Name
+        Write-Log "Placa de vídeo detectada: $gpuName" -ConsoleOutput
 
-    # Definir o caminho da pasta em C:\
-    $folderPath = "C:\DownloadsGPU"
-    Write-Log "Definindo caminho da pasta como: $folderPath" -ConsoleOutput
+        # Definir o caminho da pasta em C:\
+        $folderPath = "C:\DownloadsGPU"
+        Write-Log "Definindo caminho da pasta como: $folderPath" -ConsoleOutput
 
-    # Verificar se a pasta existe, caso contrário, criá-la
-    if (-not (Test-Path -Path $folderPath)) {
-      Write-Log "Pasta $folderPath não existe. Criando..." -ConsoleOutput
-      New-Item -Path $folderPath -ItemType Directory -Force -ErrorAction Stop | Out-Null
-      Write-Log "Pasta $folderPath criada com sucesso." -Level "INFO" -ConsoleOutput
-    }
-    else {
-      Write-Log "Pasta $folderPath já existe. Prosseguindo com os downloads..." -ConsoleOutput
-    }
-
-    # Definir os downloads base (comuns a ambas as GPUs)
-    $baseDownloads = @(
-      @{
-        Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/MSI_util_v3.exe"
-        FileName = "MSI_util_v3.exe"
-      },
-      @{
-        Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
-        FileName = "IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
-      }
-    )
-
-    # Definir downloads específicos por GPU
-    if ($gpuName -like "*NVIDIA*" -or $gpuName -like "*GTX*" -or $gpuName -like "*RTX*") {
-      Write-Log "Placa NVIDIA detectada. Adicionando driver NVIDIA à lista de downloads..." -ConsoleOutput
-      $downloads = $baseDownloads + @(
-        @{
-          Url      = "https://us.download.nvidia.com/nvapp/client/11.0.3.218/NVIDIA_app_v11.0.3.218.exe"
-          FileName = "NVIDIA_app_v11.0.3.218.exe"
+        # Verificar se a pasta existe, caso contrário, criá-la
+        if (-not (Test-Path -Path $folderPath)) {
+            Write-Log "Pasta $folderPath não existe. Criando..." -ConsoleOutput
+            New-Item -Path $folderPath -ItemType Directory -Force -ErrorAction Stop | Out-Null
+            Write-Log "Pasta $folderPath criada com sucesso." -Level "INFO" -ConsoleOutput
         }
-      )
-    }
-    elseif ($gpuName -like "*AMD*" -or $gpuName -like "*Radeon*") {
-      Write-Log "Placa AMD detectada. Adicionando driver AMD à lista de downloads..." -ConsoleOutput
-      $downloads = $baseDownloads + @(
-        @{
-          Url      = "https://drivers.amd.com/drivers/installer/24.30/whql/amd-software-adrenalin-edition-25.3.1-minimalsetup-250312_web.exe"
-          FileName = "amd-software-adrenalin-edition-25.3.1-minimalsetup-250312_web.exe"
+        else {
+            Write-Log "Pasta $folderPath já existe. Prosseguindo com os downloads..." -ConsoleOutput
         }
-      )
-    }
-    else {
-      Write-Log "Nenhuma placa NVIDIA ou AMD reconhecida. Baixando apenas arquivos base..." -Level "WARNING" -ConsoleOutput
-      $downloads = $baseDownloads
-    }
 
-    Write-Log "Lista de downloads definida: $($downloads | ForEach-Object { $_.FileName } -join ', ')" -ConsoleOutput
+        # Definir os downloads base (comuns a ambas as GPUs) com hashes fictícios
+        $baseDownloads = @(
+            @{
+                Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/MSI_util_v3.exe"
+                FileName = "MSI_util_v3.exe"
+                Hash     = "C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2"  # Substitua pelo hash real
+            },
+            @{
+                Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
+                FileName = "IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
+                Hash     = "D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3"  # Substitua pelo hash real
+            }
+        )
 
-    # Fazer o download de cada arquivo
-    foreach ($item in $downloads) {
-      $downloadUrl = $item.Url
-      $filePath = Join-Path -Path $folderPath -ChildPath $item.FileName
-      Write-Log "Iniciando download de $downloadUrl para $filePath..." -ConsoleOutput
-      Invoke-WebRequest -Uri $downloadUrl -OutFile $filePath -ErrorAction Stop
-      Write-Log "Download de $item.FileName concluído com sucesso em $filePath." -Level "INFO" -ConsoleOutput
+        # Definir downloads específicos por GPU
+        if ($gpuName -like "*NVIDIA*" -or $gpuName -like "*GTX*" -or $gpuName -like "*RTX*") {
+            Write-Log "Placa NVIDIA detectada. Adicionando driver NVIDIA à lista de downloads..." -ConsoleOutput
+            $downloads = $baseDownloads + @(
+                @{
+                    Url      = "https://us.download.nvidia.com/nvapp/client/11.0.3.218/NVIDIA_app_v11.0.3.218.exe"
+                    FileName = "NVIDIA_app_v11.0.3.218.exe"
+                    Hash     = "E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4"  # Substitua pelo hash real
+                }
+            )
+        }
+        elseif ($gpuName -like "*AMD*" -or $gpuName -like "*Radeon*") {
+            Write-Log "Placa AMD detectada. Adicionando driver AMD à lista de downloads..." -ConsoleOutput
+            $downloads = $baseDownloads + @(
+                @{
+                    Url      = "https://drivers.amd.com/drivers/installer/24.30/whql/amd-software-adrenalin-edition-25.3.1-minimalsetup-250312_web.exe"
+                    FileName = "amd-software-adrenalin-edition-25.3.1-minimalsetup-250312_web.exe"
+                    Hash     = "F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5"  # Substitua pelo hash real
+                }
+            )
+        }
+        else {
+            Write-Log "Nenhuma placa NVIDIA ou AMD reconhecida. Baixando apenas arquivos base..." -Level "WARNING" -ConsoleOutput
+            $downloads = $baseDownloads
+        }
+
+        Write-Log "Lista de downloads definida: $($downloads | ForEach-Object { $_.FileName } -join ', ')" -ConsoleOutput
+
+        # Fazer o download de cada arquivo com verificação de hash
+        foreach ($item in $downloads) {
+            $downloadUrl = $item.Url
+            $filePath = Join-Path -Path $folderPath -ChildPath $item.FileName
+            Write-Log "Iniciando download de $downloadUrl para $filePath..." -ConsoleOutput
+            Invoke-WebRequest -Uri $downloadUrl -OutFile $filePath -ErrorAction Stop
+            Verify-FileHash -FilePath $filePath -ExpectedHash $item.Hash
+            Write-Log "Download de $item.FileName concluído com sucesso em $filePath." -Level "INFO" -ConsoleOutput
+        }
+
+        Write-Log "Todos os downloads foram concluídos com sucesso em $folderPath." -Level "INFO" -ConsoleOutput
+        Write-Output "Downloads concluídos em: $folderPath"
     }
-
-    Write-Log "Todos os downloads foram concluídos com sucesso em $folderPath." -Level "INFO" -ConsoleOutput
-    Write-Output "Downloads concluídos em: $folderPath"
-  }
-  catch {
-    $errorMessage = "Erro na função Download-GPUFiles: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Output $errorMessage
-    throw  # Repropaga o erro
-  }
-  finally {
-    Write-Log "Finalizando função Download-GPUFiles." -Level "INFO" -ConsoleOutput
-  }
+    catch {
+        $errorMessage = "Erro na função Download-GPUFiles: $_"
+        Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+        Write-Output $errorMessage
+        throw  # Repropaga o erro
+    }
+    finally {
+        Write-Log "Finalizando função Download-GPUFiles." -Level "INFO" -ConsoleOutput
+    }
 }
 
 function Finished {
