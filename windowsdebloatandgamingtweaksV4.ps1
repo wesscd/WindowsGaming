@@ -363,7 +363,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.3.4",
+    "                                                                                  V0.7.2.3.5",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -2629,8 +2629,35 @@ function ShowTaskManagerDetails {
 }
 
 function ShowFileOperationsDetails {
-  Write-Output "Showing file operations details..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager" -Name "EnthusiastMode" -Type DWord -Value 1
+  Write-Log "Iniciando função ShowFileOperationsDetails para exibir detalhes de operações de arquivo no Explorer." -ConsoleOutput
+
+  try {
+      $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager"
+      
+      # Verificar se o caminho existe, caso contrário, criá-lo
+      if (-not (Test-Path $regPath)) {
+          Write-Log "Caminho de registro $regPath não existe. Criando..." -ConsoleOutput
+          New-Item -Path $regPath -Force -ErrorAction Stop | Out-Null
+          Write-Log "Caminho $regPath criado com sucesso." -Level "INFO" -ConsoleOutput
+      } else {
+          Write-Log "Caminho $regPath já existe. Prosseguindo com a configuração..." -ConsoleOutput
+      }
+
+      # Configurar a propriedade EnthusiastMode para exibir detalhes
+      Write-Log "Configurando EnthusiastMode para 1 em $regPath..." -ConsoleOutput
+      Set-ItemProperty -Path $regPath -Name "EnthusiastMode" -Type DWord -Value 1 -ErrorAction Stop
+      Write-Log "EnthusiastMode configurado com sucesso para exibir detalhes de operações de arquivo." -Level "INFO" -ConsoleOutput
+      Write-Output "Detalhes de operações de arquivo configurados para serem exibidos."
+  }
+  catch {
+      $errorMessage = "Erro na função ShowFileOperationsDetails: $_"
+      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+      Write-Colored "Erro ao configurar detalhes de operações de arquivo. Veja o log para detalhes." -Color "Vermelho"
+      throw  # Repropaga o erro para ser tratado externamente, se necessário
+  }
+  finally {
+      Write-Log "Finalizando função ShowFileOperationsDetails." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function DisableFileDeleteConfirm {
