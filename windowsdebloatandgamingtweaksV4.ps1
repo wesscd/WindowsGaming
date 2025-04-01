@@ -4618,6 +4618,7 @@ function Download-GPUFiles {
         Write-Log "Finalizando função Download-GPUFiles." -Level "INFO" -ConsoleOutput
     }
 }
+
 function Finished {
   Write-Log "Iniciando função Finished para finalizar o processo de otimização." -ConsoleOutput
 
@@ -4682,7 +4683,7 @@ foreach ($tweak in $tweaks) {
             Write-Log "Tweak $tweakName concluído com sucesso." -Level "INFO" -ConsoleOutput
         }
         catch {
-            Write-Log "Erro ao executar o tweak $tweakName: $_" -Level "ERROR" -ConsoleOutput
+            Write-Log "Erro ao executar o tweak $tweakName $_" -Level "ERROR" -ConsoleOutput
             Write-Colored "`nErro ao executar $tweakName. Veja o log para detalhes." -Color "VermelhoClaro"
             # Continua para o próximo tweak em vez de parar
             continue
