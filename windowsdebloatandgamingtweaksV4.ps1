@@ -363,7 +363,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.3.3",
+    "                                                                                  V0.7.2.3.4",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -4022,149 +4022,177 @@ Function AMDGPUTweaks {
 }
 
 #Optimizing Network and applying Tweaks for no throttle and maximum speed!
-Function NetworkOptimizations {
+function NetworkOptimizations {
   Write-Log "Iniciando função NetworkOptimizations para otimizar a rede e aplicar ajustes de desempenho máximo." -ConsoleOutput
 
   try {
-    Write-Output "Otimizando a rede e aplicando ajustes para máximo desempenho..."
-    Write-Log "Otimizando a rede e aplicando ajustes para máximo desempenho..." -ConsoleOutput
+      # Salvar e ajustar ErrorActionPreference
+      $errpref = $ErrorActionPreference
+      $ErrorActionPreference = "SilentlyContinue"
+      Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
 
-    # Salvando a preferência de erro original
-    $errpref = $ErrorActionPreference
-    $ErrorActionPreference = "SilentlyContinue"
-    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+      Write-Output "Otimizando a rede e aplicando ajustes para máximo desempenho..."
+      Write-Log "Otimizando a rede e aplicando ajustes para máximo desempenho..." -ConsoleOutput
 
-    # Criando chaves de registro se não existirem
-    Write-Log "Criando chave HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched..." -ConsoleOutput
-    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -Force -ErrorAction Stop | Out-Null
-    Write-Log "Chave HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
-
-    Write-Log "Criando chave HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS..." -ConsoleOutput
-    New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS" -Force -ErrorAction Stop | Out-Null
-    Write-Log "Chave HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
-
-    Write-Log "Criando chave HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters..." -ConsoleOutput
-    New-Item -Path "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters" -Force -ErrorAction Stop | Out-Null
-    Write-Log "Chave HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
-
-    # Ajustes de Registro para otimização de rede
-    $regConfigs = @{
-      "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPER1_0SERVER" = @("explorer.exe", 10)
-      "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPERSERVER"    = @("explorer.exe", 10)
-      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider"                                     = @("LocalPriority", 4), @("HostsPriority", 5), @("DnsPriority", 6), @("NetbtPriority", 7)
-      "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched"                                                  = @("NonBestEffortlimit", 0)
-      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS"                                                 = @("Do not use NLA", "1")
-      "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"                                   = @("Size", 1), @("IRPStackSize", 20)
-      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"                                          = @("MaxUserPort", 65534), @("TcpTimedWaitDelay", 30), @("DefaultTTL", 64), @("MaxNumRssCpus", 4), @("DisableTaskOffload", 0)
-      "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters"                                                          = @("TCPNoDelay", 1)
-      "HKLM:\SYSTEM\ControlSet001\Control\Lsa"                                                            = @("LmCompatibilityLevel", 1)
-      "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"                                       = @("EnableAutoDoh", 2)
-    }
-    Write-Log "Configurações de registro definidas para otimização de rede." -ConsoleOutput
-
-    foreach ($path in $regConfigs.Keys) {
-      foreach ($setting in $regConfigs[$path]) {
-        Write-Log "Configurando $path - $($setting[0]) para $($setting[1])..." -ConsoleOutput
-        Set-ItemProperty -Path $path -Name $setting[0] -Type DWord -Value $setting[1] -ErrorAction Stop
-        Write-Log "$($setting[0]) configurado com sucesso em $path." -Level "INFO" -ConsoleOutput
+      # Verificar se há adaptadores de rede
+      Write-Log "Obtendo adaptadores de rede ativos..." -ConsoleOutput
+      $adapters = Get-NetAdapter -ErrorAction Stop | Where-Object { $_.Status -eq "Up" -and $_.InterfaceDescription -notmatch "Loopback" }
+      if (-not $adapters) {
+          Write-Log "Nenhum adaptador de rede ativo encontrado. Pulando otimizações..." -Level "WARNING" -ConsoleOutput
+          Write-Output "Nenhum adaptador de rede ativo encontrado. Pulando otimizações..."
+          return
       }
-    }
 
-    # Ajustes de TCP/IP
-    Write-Log "Aplicando ajustes de TCP/IP..." -ConsoleOutput
-    Set-NetTCPSetting -SettingName internet -EcnCapability disabled -ErrorAction Stop | Out-Null
-    Set-NetTCPSetting -SettingName internet -Timestamps disabled -ErrorAction Stop | Out-Null
-    Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2 -ErrorAction Stop | Out-Null
-    Set-NetTCPSetting -SettingName internet -NonSackRttResiliency disabled -ErrorAction Stop | Out-Null
-    Set-NetTCPSetting -SettingName internet -InitialRto 2000 -ErrorAction Stop | Out-Null
-    Set-NetTCPSetting -SettingName internet -MinRto 300 -ErrorAction Stop | Out-Null
-    Set-NetTCPSetting -SettingName Internet -AutoTuningLevelLocal normal -ErrorAction Stop | Out-Null
-    Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled -ErrorAction Stop | Out-Null
-    Write-Log "Ajustes de TCP/IP aplicados com sucesso." -Level "INFO" -ConsoleOutput
+      # Criar chaves de registro se não existirem
+      $regPaths = @(
+          "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched",
+          "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS",
+          "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters",
+          "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters",
+          "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters",
+          "HKLM:\SYSTEM\ControlSet001\Control\Lsa",
+          "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
+      )
 
-    # Ajustes de Netsh
-    $netshCommands = @(
-      "int ip set global taskoffload=enabled",
-      "int tcp set global ecncapability=enabled",
-      "int tcp set global rss=enabled",
-      "int tcp set global rsc=enabled",
-      "int tcp set global dca=enabled",
-      "int tcp set global netdma=enabled",
-      "int tcp set global fastopen=enabled",
-      "int tcp set global fastopenfallback=enabled",
-      "int tcp set global prr=enabled",
-      "int tcp set global pacingprofile=always",
-      "int tcp set global hystart=enabled",
-      "int tcp set supplemental internet enablecwndrestart=enabled",
-      "int tcp set security mpp=enabled",
-      "int tcp set global autotuninglevel=normal",
-      "int tcp set supplemental internet congestionprovider=dctcp"
-    )
-    Write-Log "Executando comandos Netsh para otimizações de rede..." -ConsoleOutput
-    foreach ($cmd in $netshCommands) {
-      Write-Log "Executando comando Netsh: $cmd..." -ConsoleOutput
-      netsh $cmd -ErrorAction Stop | Out-Null
-      Write-Log "Comando $cmd executado com sucesso." -Level "INFO" -ConsoleOutput
-    }
+      foreach ($path in $regPaths) {
+          if (-not (Test-Path $path)) {
+              Write-Log "Criando chave de registro $path..." -ConsoleOutput
+              New-Item -Path $path -Force -ErrorAction Stop | Out-Null
+              Write-Log "Chave $path criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
+          }
+      }
 
-    # Ajustes globais de offload
-    Write-Log "Aplicando ajustes globais de offload..." -ConsoleOutput
-    Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing disabled -ErrorAction Stop | Out-Null
-    Set-NetOffloadGlobalSetting -ReceiveSideScaling enabled -ErrorAction Stop | Out-Null
-    Write-Log "Ajustes globais de offload aplicados com sucesso." -Level "INFO" -ConsoleOutput
+      # Ajustes de Registro para otimização de rede
+      $regConfigs = @{
+          "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPER1_0SERVER" = @("explorer.exe", 10)
+          "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPERSERVER"    = @("explorer.exe", 10)
+          "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider"                                     = @("LocalPriority", 4), @("HostsPriority", 5), @("DnsPriority", 6), @("NetbtPriority", 7)
+          "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched"                                                  = @("NonBestEffortlimit", 0)
+          "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS"                                                 = @("Do not use NLA", "1")
+          "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"                                   = @("Size", 1), @("IRPStackSize", 20)
+          "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"                                          = @("MaxUserPort", 65534), @("TcpTimedWaitDelay", 30), @("DefaultTTL", 64), @("MaxNumRssCpus", 4), @("DisableTaskOffload", 0)
+          "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters"                                                          = @("TCPNoDelay", 1)
+          "HKLM:\SYSTEM\ControlSet001\Control\Lsa"                                                            = @("LmCompatibilityLevel", 1)
+          "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"                                       = @("EnableAutoDoh", 2)
+      }
 
-    # Ativação e desativação de funcionalidades em adaptadores de rede
-    $netAdapterSettings = @(
-      "Enable-NetAdapterChecksumOffload",
-      "Enable-NetAdapterIPsecOffload",
-      "Enable-NetAdapterRsc",
-      "Enable-NetAdapterRss",
-      "Enable-NetAdapterQos",
-      "Enable-NetAdapterEncapsulatedPacketTaskOffload",
-      "Enable-NetAdapterSriov",
-      "Enable-NetAdapterVmq"
-    )
-    Write-Log "Aplicando configurações em adaptadores de rede..." -ConsoleOutput
-    foreach ($setting in $netAdapterSettings) {
-      Write-Log "Executando $setting para todos os adaptadores..." -ConsoleOutput
-      & $setting -Name "*" -ErrorAction Stop | Out-Null
-      Write-Log "$setting aplicado com sucesso." -Level "INFO" -ConsoleOutput
-    }
+      Write-Log "Configurações de registro definidas para otimização de rede." -ConsoleOutput
 
-    Write-Log "Desativando Large Send Offload (LSO) para todos os adaptadores..." -ConsoleOutput
-    Disable-LSO -ErrorAction Stop
-    Write-Log "LSO desativado com sucesso." -Level "INFO" -ConsoleOutput
+      foreach ($path in $regConfigs.Keys) {
+          foreach ($setting in $regConfigs[$path]) {
+              Write-Log "Configurando $path - $($setting[0]) para $($setting[1])..." -ConsoleOutput
+              try {
+                  Set-ItemProperty -Path $path -Name $setting[0] -Type DWord -Value $setting[1] -ErrorAction Stop
+                  Write-Log "$($setting[0]) configurado com sucesso em $path." -Level "INFO" -ConsoleOutput
+              }
+              catch {
+                  Write-Log "Falha ao configurar $path - $($setting[0]). Erro: $_" -Level "WARNING" -ConsoleOutput
+              }
+          }
+      }
 
-    # Ajustes avançados dos adaptadores de rede
-    $advancedProperties = @(
-      "Energy-Efficient Ethernet", "Energy Efficient Ethernet", "Ultra Low Power Mode",
-      "System Idle Power Saver", "Green Ethernet", "Power Saving Mode", "Gigabit Lite",
-      "EEE", "Advanced EEE", "ARP Offload", "NS Offload", "Large Send Offload v2 (IPv4)",
-      "Large Send Offload v2 (IPv6)", "TCP Checksum Offload (IPv4)", "TCP Checksum Offload (IPv6)",
-      "UDP Checksum Offload (IPv4)", "UDP Checksum Offload (IPv6)", "Idle Power Saving",
-      "Flow Control", "Interrupt Moderation", "Reduce Speed On Power Down", "Interrupt Moderation Rate",
-      "Log Link State Event", "Packet Priority & VLAN", "Priority & VLAN",
-      "IPv4 Checksum Offload", "Jumbo Frame", "Maximum Number of RSS Queues"
-    )
-    Write-Log "Aplicando ajustes avançados em adaptadores de rede..." -ConsoleOutput
-    foreach ($prop in $advancedProperties) {
-      Write-Log "Desativando propriedade avançada $prop em todos os adaptadores..." -ConsoleOutput
-      Set-NetAdapterAdvancedProperty -Name * -DisplayName $prop -DisplayValue "Disabled" -ErrorAction Stop
-      Write-Log "Propriedade $prop desativada com sucesso." -Level "INFO" -ConsoleOutput
-    }
+      # Ajustes de TCP/IP
+      Write-Log "Aplicando ajustes de TCP/IP..." -ConsoleOutput
+      try {
+          Set-NetTCPSetting -SettingName internet -EcnCapability disabled -ErrorAction Stop | Out-Null
+          Set-NetTCPSetting -SettingName internet -Timestamps disabled -ErrorAction Stop | Out-Null
+          Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2 -ErrorAction Stop | Out-Null
+          Set-NetTCPSetting -SettingName internet -NonSackRttResiliency disabled -ErrorAction Stop | Out-Null
+          Set-NetTCPSetting -SettingName internet -InitialRto 2000 -ErrorAction Stop | Out-Null
+          Set-NetTCPSetting -SettingName internet -MinRto 300 -ErrorAction Stop | Out-Null
+          Set-NetTCPSetting -SettingName Internet -AutoTuningLevelLocal normal -ErrorAction Stop | Out-Null
+          Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled -ErrorAction Stop | Out-Null
+          Write-Log "Ajustes de TCP/IP aplicados com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      catch {
+          Write-Log "Erro ao aplicar ajustes de TCP/IP: $_" -Level "ERROR" -ConsoleOutput
+      }
 
-    Write-Log "Otimizações de rede concluídas com sucesso!" -Level "INFO" -ConsoleOutput
-    Write-Output "Otimizações de rede concluídas com sucesso!"
+      # Ajustes de Netsh
+      $netshCommands = @(
+          "int ip set global taskoffload=enabled",
+          "int tcp set global ecncapability=enabled",
+          "int tcp set global rss=enabled",
+          "int tcp set global rsc=enabled",
+          "int tcp set global dca=enabled",
+          "int tcp set global netdma=enabled",
+          "int tcp set global fastopen=enabled",
+          "int tcp set global fastopenfallback=enabled",
+          "int tcp set global prr=enabled",
+          "int tcp set global pacingprofile=always",
+          "int tcp set global hystart=enabled",
+          "int tcp set supplemental internet enablecwndrestart=enabled",
+          "int tcp set security mpp=enabled",
+          "int tcp set global autotuninglevel=normal",
+          "int tcp set supplemental internet congestionprovider=dctcp"
+      )
+
+      Write-Log "Executando comandos Netsh para otimizações de rede..." -ConsoleOutput
+      foreach ($cmd in $netshCommands) {
+          Write-Log "Executando comando Netsh: $cmd..." -ConsoleOutput
+          try {
+              netsh $cmd -ErrorAction Stop | Out-Null
+              Write-Log "Comando $cmd executado com sucesso." -Level "INFO" -ConsoleOutput
+          }
+          catch {
+              Write-Log "Falha ao executar comando Netsh $cmd. Erro: $_" -Level "WARNING" -ConsoleOutput
+          }
+      }
+
+      # Ajustes globais de offload
+      Write-Log "Aplicando ajustes globais de offload..." -ConsoleOutput
+      try {
+          Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing disabled -ErrorAction Stop | Out-Null
+          Set-NetOffloadGlobalSetting -ReceiveSideScaling enabled -ErrorAction Stop | Out-Null
+          Write-Log "Ajustes globais de offload aplicados com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      catch {
+          Write-Log "Erro ao aplicar ajustes globais de offload: $_" -Level "ERROR" -ConsoleOutput
+      }
+
+      # Ajustes avançados dos adaptadores de rede
+      $advancedProperties = @(
+          "Energy-Efficient Ethernet", "Energy Efficient Ethernet", "Ultra Low Power Mode",
+          "System Idle Power Saver", "Green Ethernet", "Power Saving Mode", "Gigabit Lite",
+          "EEE", "Advanced EEE", "ARP Offload", "NS Offload", "Large Send Offload v2 (IPv4)",
+          "Large Send Offload v2 (IPv6)", "TCP Checksum Offload (IPv4)", "TCP Checksum Offload (IPv6)",
+          "UDP Checksum Offload (IPv4)", "UDP Checksum Offload (IPv6)", "Idle Power Saving",
+          "Flow Control", "Interrupt Moderation", "Reduce Speed On Power Down", "Interrupt Moderation Rate",
+          "Log Link State Event", "Packet Priority & VLAN", "Priority & VLAN",
+          "IPv4 Checksum Offload", "Jumbo Frame", "Maximum Number of RSS Queues"
+      )
+
+      Write-Log "Aplicando ajustes avançados em adaptadores de rede..." -ConsoleOutput
+      foreach ($adapter in $adapters) {
+          foreach ($prop in $advancedProperties) {
+              Write-Log "Tentando desativar propriedade avançada $prop no adaptador $($adapter.Name)..." -ConsoleOutput
+              try {
+                  $existingProps = Get-NetAdapterAdvancedProperty -Name $adapter.Name -ErrorAction Stop | Where-Object { $_.DisplayName -like "*$prop*" }
+                  if ($existingProps) {
+                      Set-NetAdapterAdvancedProperty -Name $adapter.Name -DisplayName $prop -DisplayValue "Disabled" -ErrorAction Stop
+                      Write-Log "Propriedade $prop desativada com sucesso no adaptador $($adapter.Name)." -Level "INFO" -ConsoleOutput
+                  } else {
+                      Write-Log "Propriedade $prop não encontrada no adaptador $($adapter.Name). Pulando..." -Level "WARNING" -ConsoleOutput
+                  }
+              }
+              catch {
+                  Write-Log "Falha ao desativar propriedade $prop no adaptador $($adapter.Name). Erro: $_" -Level "WARNING" -ConsoleOutput
+              }
+          }
+      }
+
+      Write-Log "Otimizações de rede concluídas com sucesso!" -Level "INFO" -ConsoleOutput
+      Write-Output "Otimizações de rede concluídas com sucesso!"
   }
   catch {
-    $errorMessage = "Erro na função NetworkOptimizations: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
+      $errorMessage = "Erro na função NetworkOptimizations: $_"
+      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+      throw  # Repropaga o erro para ser tratado externamente, se necessário
   }
   finally {
-    $ErrorActionPreference = $errpref
-    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
-    Write-Log "Finalizando função NetworkOptimizations." -Level "INFO" -ConsoleOutput
+      $ErrorActionPreference = $errpref
+      Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+      Write-Log "Finalizando função NetworkOptimizations." -Level "INFO" -ConsoleOutput
   }
 }
 
