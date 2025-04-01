@@ -281,7 +281,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.3.0",
+    "                                                                                  V0.7.2.3.2",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -322,6 +322,7 @@ $tweakFunctions = @{
   "Check-Windows"               = { Check-Windows }
   "Execute-BatchScript"         = { Execute-BatchScript }
   "InstallChocoUpdates"         = { InstallChocoUpdates }
+  "Download-GPUFiles"           = { Download-GPUFiles }
   "EnableUltimatePower"         = { EnableUltimatePower }
   "ManagePowerProfiles"         = { ManagePowerProfiles }
   "AskDefender"                 = { AskDefender }
@@ -474,6 +475,7 @@ $tweaks = @(
   "Check-Windows",
   "Execute-BatchScript",
   "InstallChocoUpdates",
+  "Download-GPUFiles",
   "EnableUltimatePower",
   "ManagePowerProfiles",
   "AskDefender",
@@ -3143,36 +3145,92 @@ function RemoveBloatRegistry {
 }
 
 function UninstallMsftBloat {
-  Write-Output "Uninstalling additional Microsoft bloatware..."
-  $bloatware = @(
-    "Microsoft.Windows.Photos",
-    "Microsoft.MicrosoftEdge.Stable",
-    "Microsoft.WindowsStore"
-  )
-  foreach ($app in $bloatware) {
-    Get-AppxPackage -Name $app -AllUsers | Remove-AppxPackage -ErrorAction SilentlyContinue
-    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -eq $app | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
+  Write-Log "Iniciando função UninstallMsftBloat para desinstalar bloatware adicional da Microsoft." -ConsoleOutput
+
+  try {
+    Write-Output "Uninstalling additional Microsoft bloatware..."
+    Write-Log "Desinstalando bloatware adicional da Microsoft..." -ConsoleOutput
+
+    $bloatware = @(
+      "Microsoft.Windows.Photos",
+      "Microsoft.MicrosoftEdge.Stable",
+      "Microsoft.WindowsStore"
+    )
+    Write-Log "Lista de bloatware carregada: $($bloatware -join ', ')" -ConsoleOutput
+
+    foreach ($app in $bloatware) {
+      Write-Log "Removendo o aplicativo $app para todos os usuários..." -ConsoleOutput
+      Get-AppxPackage -Name $app -AllUsers -ErrorAction Stop | Remove-AppxPackage -ErrorAction Stop
+      Write-Log "Aplicativo $app removido com sucesso para todos os usuários." -Level "INFO" -ConsoleOutput
+
+      Write-Log "Removendo o pacote provisionado $app..." -ConsoleOutput
+      Get-AppxProvisionedPackage -Online -ErrorAction Stop | Where-Object DisplayName -eq $app | Remove-AppxProvisionedPackage -Online -ErrorAction Stop
+      Write-Log "Pacote provisionado $app removido com sucesso." -Level "INFO" -ConsoleOutput
+    }
+
+    Write-Log "Bloatware adicional da Microsoft desinstalado com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função UninstallMsftBloat: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função UninstallMsftBloat." -Level "INFO" -ConsoleOutput
   }
 }
 
 function DisableXboxFeatures {
-  Write-Output "Disabling Xbox features...(tudo porcaria)"
-  $xboxApps = @(
-    "Microsoft.XboxApp",
-    "Microsoft.XboxIdentityProvider",
-    "Microsoft.XboxSpeechToTextOverlay",
-    "Microsoft.XboxGameOverlay",
-    "Microsoft.Xbox.TCUI",
-    "Microsoft.XboxGamingOverlay"
-  )
-  foreach ($app in $xboxApps) {
-    Get-AppxPackage -Name $app -AllUsers | Remove-AppxPackage -ErrorAction SilentlyContinue
+  Write-Log "Iniciando função DisableXboxFeatures para desativar recursos do Xbox." -ConsoleOutput
+
+  try {
+    Write-Output "Disabling Xbox features...(tudo porcaria)"
+    Write-Log "Desativando recursos do Xbox...(tudo porcaria)" -ConsoleOutput
+
+    $xboxApps = @(
+      "Microsoft.XboxApp",
+      "Microsoft.XboxIdentityProvider",
+      "Microsoft.XboxSpeechToTextOverlay",
+      "Microsoft.XboxGameOverlay",
+      "Microsoft.Xbox.TCUI",
+      "Microsoft.XboxGamingOverlay"
+    )
+    Write-Log "Lista de aplicativos Xbox carregada: $($xboxApps -join ', ')" -ConsoleOutput
+
+    foreach ($app in $xboxApps) {
+      Write-Log "Removendo o aplicativo Xbox $app para todos os usuários..." -ConsoleOutput
+      Get-AppxPackage -Name $app -AllUsers -ErrorAction Stop | Remove-AppxPackage -ErrorAction Stop
+      Write-Log "Aplicativo $app removido com sucesso." -Level "INFO" -ConsoleOutput
+    }
+
+    Write-Log "Configurando GameDVR_Enabled para 0 em HKCU:\System\GameConfigStore..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "GameDVR_Enabled configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    $registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR"
+    if (-not (Test-Path $registryPath)) {
+      Write-Log "Chave $registryPath não existe. Criando..." -ConsoleOutput
+      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
+      Write-Log "Chave $registryPath criada com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Log "Chave $registryPath já existe. Prosseguindo com a configuração." -ConsoleOutput
+    }
+
+    Write-Log "Configurando AllowGameDVR para 0 em $registryPath..." -ConsoleOutput
+    Set-ItemProperty -Path $registryPath -Name "AllowGameDVR" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "AllowGameDVR configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Recursos do Xbox desativados com sucesso." -Level "INFO" -ConsoleOutput
   }
-  Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 0
-  If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR")) {
-    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Force | Out-Null
+  catch {
+    $errorMessage = "Erro na função DisableXboxFeatures: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
   }
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
+  finally {
+    Write-Log "Finalizando função DisableXboxFeatures." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function EnableUltimatePower {
@@ -3193,32 +3251,48 @@ function CreateRestorePoint {
 
 
 function Set-RamThreshold {
-  $ramGB = [math]::Round((Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
-  $value = switch ($ramGB) {
-    4 { 4194304 }  # 4GB em KB
-    6 { 6291456 }  # 6GB em KB
-    8 { 8388608 }
-    12 { 12582912 }
-    16 { 16777216 }
-    19 { 19922944 }
-    20 { 20971520 }
-    24 { 25165824 }
-    32 { 33554432 }
-    64 { 67108864 }
-    128 { 134217728 }
-    default {
-      Write-Colored "Memória RAM não suportada para esta configuração." -Color "Red"
-      return
-    }
-  }
-  $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control"
-  $regName = "SvcHostSplitThresholdInKB"
+  Write-Log "Iniciando função Set-RamThreshold para configurar o limite de RAM no registro." -ConsoleOutput
+
   try {
+    $ramGB = [math]::Round((Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
+    Write-Log "Quantidade de RAM detectada: $ramGB GB" -ConsoleOutput
+
+    $value = switch ($ramGB) {
+      4 { 4194304 }  # 4GB em KB
+      6 { 6291456 }  # 6GB em KB
+      8 { 8388608 }
+      12 { 12582912 }
+      16 { 16777216 }
+      19 { 19922944 }
+      20 { 20971520 }
+      24 { 25165824 }
+      32 { 33554432 }
+      64 { 67108864 }
+      128 { 134217728 }
+      default {
+        $errorMessage = "Memória RAM ($ramGB GB) não suportada para esta configuração."
+        Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+        Write-Colored "Memória RAM não suportada para esta configuração." -Color "Red"
+        return
+      }
+    }
+    Write-Log "Valor calculado para SvcHostSplitThresholdInKB: $value KB" -ConsoleOutput
+
+    $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control"
+    $regName = "SvcHostSplitThresholdInKB"
+    Write-Log "Configurando $regName para $value em $regPath..." -ConsoleOutput
     Set-ItemProperty -Path $regPath -Name $regName -Value $value -Type DWord -ErrorAction Stop
+    Write-Log "Registro $regName atualizado com sucesso para $value KB." -Level "INFO" -ConsoleOutput
     Write-Colored "Registro atualizado com o valor correto: $value KB" -Color "Green"
   }
   catch {
-    Write-Colored "Erro ao atualizar registro: $_" -Color "Red"
+    $errorMessage = "Erro ao atualizar registro: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "Red"
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função Set-RamThreshold." -Level "INFO" -ConsoleOutput
   }
 }
 
@@ -3280,604 +3354,1142 @@ function Set-MemoriaVirtual-Registry {
 
 ## Download and extract ISLC
 function DownloadAndExtractISLC {
-  # Definir o link de download e o caminho do arquivo
-  $downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
-  $downloadPath = "C:\ISLC_v1.0.3.4.exe"
-  $extractPath = "C:\"
-  $newFolderName = "ISLC"
+  Write-Log "Iniciando função DownloadAndExtractISLC para baixar e extrair o ISLC." -ConsoleOutput
 
-  # Baixar o arquivo executável
-  Write-Colored "Iniciando o download do arquivo..." "Verde"
   try {
-    Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath
+    # Definir o link de download e o caminho do arquivo
+    $downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
+    $downloadPath = "C:\ISLC_v1.0.3.4.exe"
+    $extractPath = "C:\"
+    $newFolderName = "ISLC"
+    Write-Log "Configurações definidas: URL=$downloadUrl, Caminho Download=$downloadPath, Caminho Extração=$extractPath, Nome Pasta=$newFolderName" -ConsoleOutput
+
+    # Baixar o arquivo executável
+    Write-Colored "Iniciando o download do arquivo..." "Verde"
+    Write-Log "Iniciando o download do arquivo de $downloadUrl para $downloadPath..." -ConsoleOutput
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath -ErrorAction Stop
+    Write-Log "Arquivo baixado com sucesso para $downloadPath." -Level "INFO" -ConsoleOutput
     Write-Colored "Arquivo baixado com sucesso!" "Verde"
-  }
-  catch {
-    Write-Colored "Erro ao baixar o arquivo: $_" "Vermelho"
-    return
-  }
 
-  # Verificar se a pasta de extração existe, caso contrário, criar
-  if (-Not (Test-Path -Path $extractPath)) {
-    Write-Colored "Criando a pasta de extração..." "Verde"
-    New-Item -ItemType Directory -Path $extractPath
-  }
+    # Verificar se a pasta de extração existe, caso contrário, criar
+    if (-Not (Test-Path -Path $extractPath)) {
+      Write-Log "Pasta de extração $extractPath não existe. Criando..." -ConsoleOutput
+      Write-Colored "Criando a pasta de extração..." "Verde"
+      New-Item -ItemType Directory -Path $extractPath -ErrorAction Stop
+      Write-Log "Pasta de extração $extractPath criada com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Log "Pasta de extração $extractPath já existe." -ConsoleOutput
+    }
 
-  # Caminho do 7z.exe
-  $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"  # Altere conforme o local do seu 7z.exe
+    # Caminho do 7z.exe
+    $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"  # Altere conforme o local do seu 7z.exe
+    Write-Log "Caminho do 7z.exe definido como: $sevenZipPath" -ConsoleOutput
 
-  # Verificar se o 7z está instalado
-  if (Test-Path -Path $sevenZipPath) {
-    Write-Colored "Extraindo o conteudo do arquivo usando 7-Zip..." "Verde"
-    try {
-      # Extrair diretamente na pasta ISLC
-      & $sevenZipPath x $downloadPath -o"$extractPath" -y
-      Write-Colored "Arquivo extraido com sucesso para $extractPath" "Verde"
-          
-      # Renomear a pasta extraída para MEM
+    # Verificar se o 7z está instalado
+    if (Test-Path -Path $sevenZipPath) {
+      Write-Log "7-Zip encontrado em $sevenZipPath. Extraindo o conteúdo..." -ConsoleOutput
+      Write-Colored "Extraindo o conteúdo do arquivo usando 7-Zip..." "Verde"
+      & $sevenZipPath x $downloadPath -o"$extractPath" -y -ErrorAction Stop
+      Write-Log "Arquivo extraído com sucesso para $extractPath." -Level "INFO" -ConsoleOutput
+      Write-Colored "Arquivo extraído com sucesso para $extractPath" "Verde"
+
+      # Renomear a pasta extraída para ISLC
       $extractedFolderPath = "$extractPath\ISLC v1.0.3.4"
-
       if (Test-Path -Path $extractedFolderPath) {
-        Rename-Item -Path $extractedFolderPath -NewName $newFolderName
+        Write-Log "Renomeando a pasta extraída de $extractedFolderPath para $newFolderName..." -ConsoleOutput
+        Rename-Item -Path $extractedFolderPath -NewName $newFolderName -ErrorAction Stop
+        Write-Log "Pasta renomeada com sucesso para $newFolderName." -Level "INFO" -ConsoleOutput
         Write-Colored "Pasta renomeada para '$newFolderName'." "Verde"
       }
       else {
+        Write-Log "Pasta extraída $extractedFolderPath não encontrada." -Level "ERROR" -ConsoleOutput
         Write-Colored "Pasta extraída não encontrada." "Vermelho"
       }
     }
-    catch {
-      Write-Colored "Erro ao extrair o arquivo: $_" "Vermelho"
+    else {
+      Write-Log "7-Zip não encontrado em $sevenZipPath." -Level "WARNING" -ConsoleOutput
+      Write-Colored "7-Zip não encontrado no caminho especificado." "Amarelo"
     }
+
+    Write-Log "Removendo o arquivo baixado $downloadPath..." -ConsoleOutput
+    Remove-Item -Path $downloadPath -Force -ErrorAction Stop
+    Write-Log "Arquivo $downloadPath excluído com sucesso." -Level "INFO" -ConsoleOutput
+    Write-Colored "Excluindo $downloadPath" "Verde"
+
+    # Caminho completo do executável do programa
+    $origem = "C:\ISLC\Intelligent standby list cleaner ISLC.exe"
+    # Nome do atalho que será criado
+    $atalhoNome = "Intelligent standby list cleaner ISLC.lnk"
+    # Caminho para a pasta de Inicialização do usuário
+    $destino = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup", $atalhoNome)
+    Write-Log "Configurando atalho: Origem=$origem, Destino=$destino" -ConsoleOutput
+
+    # Criação do objeto Shell
+    Write-Log "Criando objeto Shell para criar o atalho..." -ConsoleOutput
+    $shell = New-Object -ComObject WScript.Shell -ErrorAction Stop
+    # Criação do atalho
+    Write-Log "Criando o atalho em $destino..." -ConsoleOutput
+    $atalho = $shell.CreateShortcut($destino)
+    $atalho.TargetPath = $origem
+    $atalho.Save()
+    Write-Log "Atalho criado com sucesso em $destino." -Level "INFO" -ConsoleOutput
+    Write-Output "Atalho criado em: $destino"
   }
-  else {
-    Write-Colored "7-Zip não encontrado no caminho especificado." "Amarelo"
+  catch {
+    $errorMessage = "Erro na função DownloadAndExtractISLC: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage "Vermelho"
+    throw  # Repropaga o erro
   }
-
-  Remove-Item -Path $downloadPath -Force
-  Write-Colored "Excluindo $downloadPath" "Verde"
-
-  # Caminho completo do executável do programa
-  $origem = "C:\ISLC\Intelligent standby list cleaner ISLC.exe"
-
-  # Nome do atalho que será criado
-  $atalhoNome = "Intelligent standby list cleaner ISLC.lnk"
-
-  # Caminho para a pasta de Inicialização do usuário
-  $destino = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup", $atalhoNome)
-
-  # Criação do objeto Shell
-  $shell = New-Object -ComObject WScript.Shell
-
-  # Criação do atalho
-  $atalho = $shell.CreateShortcut($destino)
-  $atalho.TargetPath = $origem
-  $atalho.Save()
-
-  Write-Output "Atalho criado em: $destino"
-
-
+  finally {
+    Write-Log "Finalizando função DownloadAndExtractISLC." -Level "INFO" -ConsoleOutput
+  }
 }
 
 # Update ISLC Config
 function UpdateISLCConfig {
-  # Caminho para o arquivo de configuração (ajuste conforme necessário)
-  $configFilePath = "C:\ISLC\Intelligent standby list cleaner ISLC.exe.Config"
+  Write-Log "Iniciando função UpdateISLCConfig para atualizar o arquivo de configuração do ISLC." -ConsoleOutput
 
-  # Verificar se o arquivo de configuração existe
-  if (Test-Path -Path $configFilePath) {
-    Write-Colored "Arquivo de configuracao encontrado. Atualizando..." "Verde"
+  try {
+    # Caminho para o arquivo de configuração (ajuste conforme necessário)
+    $configFilePath = "C:\ISLC\Intelligent standby list cleaner ISLC.exe.Config"
+    Write-Log "Caminho do arquivo de configuração definido como: $configFilePath" -ConsoleOutput
 
-    try {
+    # Verificar se o arquivo de configuração existe
+    if (Test-Path -Path $configFilePath) {
+      Write-Log "Arquivo de configuração encontrado em $configFilePath. Iniciando atualização..." -ConsoleOutput
+      Write-Colored "Arquivo de configuração encontrado. Atualizando..." "Verde"
+
       # Carregar o conteúdo do arquivo XML
-      [xml]$configXml = Get-Content -Path $configFilePath -Raw
+      Write-Log "Carregando o conteúdo do arquivo XML de $configFilePath..." -ConsoleOutput
+      [xml]$configXml = Get-Content -Path $configFilePath -Raw -ErrorAction Stop
+      Write-Log "Conteúdo XML carregado com sucesso." -Level "INFO" -ConsoleOutput
 
       # Obter a quantidade total de memória RAM do sistema (em MB)
       $totalMemory = (Get-WmiObject Win32_ComputerSystem).TotalPhysicalMemory / 1MB
       $freeMemory = [math]::Round($totalMemory / 2)  # Calcular metade da memória
+      Write-Log "Memória total detectada: $totalMemory MB. Memória livre configurada como: $freeMemory MB" -ConsoleOutput
 
       # Alterar as configurações conforme solicitado
+      Write-Log "Atualizando configuração 'Free memory' para $freeMemory..." -ConsoleOutput
       $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Free memory" } | ForEach-Object { $_.value = "$freeMemory" }
+      Write-Log "'Free memory' atualizado com sucesso." -Level "INFO" -ConsoleOutput
+
+      Write-Log "Atualizando configuração 'Start minimized' para True..." -ConsoleOutput
       $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Start minimized" } | ForEach-Object { $_.value = "True" }
+      Write-Log "'Start minimized' atualizado com sucesso." -Level "INFO" -ConsoleOutput
+
+      Write-Log "Atualizando configuração 'Wanted timer' para 0.50..." -ConsoleOutput
       $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Wanted timer" } | ForEach-Object { $_.value = "0.50" }
+      Write-Log "'Wanted timer' atualizado com sucesso." -Level "INFO" -ConsoleOutput
+
+      Write-Log "Atualizando configuração 'Custom timer' para True..." -ConsoleOutput
       $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Custom timer" } | ForEach-Object { $_.value = "True" }
+      Write-Log "'Custom timer' atualizado com sucesso." -Level "INFO" -ConsoleOutput
+
+      Write-Log "Atualizando configuração 'TaskScheduler' para True..." -ConsoleOutput
       $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "TaskScheduler" } | ForEach-Object { $_.value = "True" }
+      Write-Log "'TaskScheduler' atualizado com sucesso." -Level "INFO" -ConsoleOutput
 
       # Salvar as alterações de volta no arquivo XML
+      Write-Log "Salvando as alterações no arquivo $configFilePath..." -ConsoleOutput
       $configXml.Save($configFilePath)
-      Write-Colored "Arquivo de configuracao atualizado com sucesso!" "Verde"
+      Write-Log "Arquivo de configuração atualizado com sucesso." -Level "INFO" -ConsoleOutput
+      Write-Colored "Arquivo de configuração atualizado com sucesso!" "Verde"
     }
-    catch {
-      Write-Colored "Erro ao atualizar o arquivo de configuracao: $_" "Vermelho"
+    else {
+      Write-Log "Arquivo de configuração não encontrado em $configFilePath." -Level "WARNING" -ConsoleOutput
+      Write-Colored "Arquivo de configuração não encontrado em $configFilePath" "Amarelo"
     }
   }
-  else {
-    Write-Colored "Arquivo de configuracao nao encontrado em $configFilePath" "Amarelo"
+  catch {
+    $errorMessage = "Erro ao atualizar o arquivo de configuração: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage "Vermelho"
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função UpdateISLCConfig." -Level "INFO" -ConsoleOutput
   }
 }
 
 function ApplyPCOptimizations {
-  Write-Output "Aplicando otimizações..."
+  Write-Log "Iniciando função ApplyPCOptimizations para aplicar otimizações no PC." -ConsoleOutput
+
   try {
+    Write-Output "Aplicando otimizações..."
+    Write-Log "Aplicando otimizações..." -ConsoleOutput
+
+    Write-Log "Configurando SystemResponsiveness para 0 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile..." -ConsoleOutput
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "SystemResponsiveness" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "SystemResponsiveness configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando NetworkThrottlingIndex para 10 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile..." -ConsoleOutput
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 10 -ErrorAction Stop
+    Write-Log "NetworkThrottlingIndex configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando AlwaysOn para 1 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile..." -ConsoleOutput
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "AlwaysOn" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "AlwaysOn configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando LazyMode para 1 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile..." -ConsoleOutput
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "LazyMode" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "LazyMode configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando LazyModeTimeout para 25000 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile..." -ConsoleOutput
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "LazyModeTimeout" -Type DWord -Value 25000 -ErrorAction Stop
+    Write-Log "LazyModeTimeout configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Otimizações aplicadas com sucesso." -Level "INFO" -ConsoleOutput
     Write-Colored "Otimizações aplicadas com sucesso." -Color "Green"
   }
   catch {
-    Write-Colored "Erro ao aplicar otimizações: $_" -Color "Red"
+    $errorMessage = "Erro ao aplicar otimizações: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "Red"
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função ApplyPCOptimizations." -Level "INFO" -ConsoleOutput
   }
 }
 
 function MSIMode {
-  Write-Colored "AVISO: Ativar o modo MSI pode causar instabilidade. Use com cautela." -Color "Yellow"
-  $gpuDevices = Get-PnpDevice -Class "Display" | Where-Object { $_.Status -eq "OK" -and $_.FriendlyName -match "NVIDIA|AMD" }
-  if ($gpuDevices) {
-    foreach ($device in $gpuDevices) {
-      $path = "HKLM:\SYSTEM\CurrentControlSet\Enum\$($device.InstanceId)\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties"
-      try {
-        New-Item -Path $path -Force -ErrorAction Stop | Out-Null
-        Set-ItemProperty -Path $path -Name "MSISupported" -Type DWord -Value 1 -ErrorAction Stop
+  Write-Log "Iniciando função MSIMode para habilitar o modo MSI em GPUs compatíveis." -ConsoleOutput
+
+  try {
+    $errpref = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+
+    # Usar Get-CimInstance para obter os IDs PNP das placas de vídeo
+    $GPUIDS = Get-CimInstance -ClassName Win32_VideoController | Select-Object -ExpandProperty PNPDeviceID
+    if ($null -eq $GPUIDS -or $GPUIDS.Count -eq 0) {
+      Write-Log "Nenhuma placa de vídeo detectada. Pulando configuração do modo MSI." -Level "WARNING" -ConsoleOutput
+      'No Video Controllers Found! Skipping...'
+      return
+    }
+
+    Write-Log "IDs de GPUs detectados: $($GPUIDS -join ', ')" -ConsoleOutput
+
+    foreach ($GPUID in $GPUIDS) {
+      if ([string]::IsNullOrWhiteSpace($GPUID)) {
+        Write-Log "ID de GPU inválido encontrado. Pulando..." -Level "WARNING" -ConsoleOutput
+        continue
       }
-      catch {
-        Write-Colored "Erro ao ativar MSI para $($device.FriendlyName): $_" -Color "Red"
+
+      Write-Log "Verificando descrição do dispositivo para GPUID: $GPUID..." -ConsoleOutput
+
+      # Obter a descrição do dispositivo a partir do registro
+      $registryPath = "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID"
+      if (Test-Path $registryPath) {
+        $CheckDeviceDes = Get-ItemProperty -Path $registryPath -ErrorAction Stop | Select-Object -ExpandProperty DeviceDesc
+        Write-Log "Descrição do dispositivo obtida: $CheckDeviceDes" -ConsoleOutput
+      }
+      else {
+        Write-Log "Caminho do registro $registryPath não encontrado para GPUID: $GPUID. Pulando..." -Level "WARNING" -ConsoleOutput
+        continue
+      }
+
+      if ($CheckDeviceDes -like "*GTX*" -or $CheckDeviceDes -like "*RTX*" -or $CheckDeviceDes -like "*AMD*") {
+        Write-Log "Placa compatível GTX/RTX/AMD encontrada! Habilitando modo MSI..." -ConsoleOutput
+        'GTX/RTX/AMD Compatible Card Found! Enabling MSI Mode...'
+
+        $msiRegistryPath = "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties"
+        if (-not (Test-Path $msiRegistryPath)) {
+          Write-Log "Caminho $msiRegistryPath não existe. Criando..." -ConsoleOutput
+          New-Item -Path $msiRegistryPath -Force -ErrorAction Stop | Out-Null
+          Write-Log "Chave $msiRegistryPath criada com sucesso." -Level "INFO" -ConsoleOutput
+        }
+
+        Write-Log "Configurando MSISupported para 1 em $msiRegistryPath..." -ConsoleOutput
+        Set-ItemProperty -Path $msiRegistryPath -Name "MSISupported" -Type DWord -Value 1 -ErrorAction Stop
+        Write-Log "MSISupported configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Modo MSI habilitado com sucesso para a GPU compatível ($GPUID)." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Write-Log "Placa $GPUID não é compatível (GTX/RTX/AMD). Pulando..." -Level "INFO" -ConsoleOutput
       }
     }
-    Write-Colored "Modo MSI ativado para GPUs compatíveis." -Color "Green"
   }
-  else {
-    Write-Colored "Nenhuma GPU compatível encontrada." -Color "Yellow"
+  catch {
+    $errorMessage = "Erro na função MSIMode: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    $ErrorActionPreference = $errpref
+    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+    Write-Log "Finalizando função MSIMode." -Level "INFO" -ConsoleOutput
   }
 }
 
 Function NvidiaTweaks {
-  $CheckGPU = Get-CimInstance -ClassName Win32_VideoController | Select-Object -ExpandProperty Name
-  if (($CheckGPU -like "*GTX*") -or ($CheckGPU -like "*RTX*")) {
-    Write-Output "NVIDIA GTX/RTX Card Detected! Applying Nvidia Power Tweaks..."
+  Write-Log "Iniciando função NvidiaTweaks para aplicar otimizações em GPUs NVIDIA GTX/RTX." -ConsoleOutput
 
-    $url_base = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/BaseProfile.nip"
-    $url_nvidiaprofile = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/nvidiaProfileInspector.exe"
+  try {
+    # Verificar se há GPU NVIDIA GTX/RTX
+    $CheckGPU = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop | Select-Object -ExpandProperty Name
+    Write-Log "Nome da GPU detectado: $CheckGPU" -ConsoleOutput
 
-    Invoke-WebRequest -Uri $url_base -OutFile "$Env:windir\system32\BaseProfile.nip" -ErrorAction SilentlyContinue
-    Invoke-WebRequest -Uri $url_nvidiaprofile -OutFile "$Env:windir\system32\nvidiaProfileInspector.exe" -ErrorAction SilentlyContinue
-    Push-Location
-    set-location "$Env:windir\system32\"
-    nvidiaProfileInspector.exe /s -load "BaseProfile.nip"
-    Pop-Location
+    if (($CheckGPU -like "*GTX*") -or ($CheckGPU -like "*RTX*")) {
+      Write-Output "NVIDIA GTX/RTX Card Detected! Applying Nvidia Power Tweaks..."
+      Write-Log "Placa NVIDIA GTX/RTX detectada! Aplicando otimizações de energia..." -ConsoleOutput
+
+      $url_base = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/BaseProfile.nip"
+      $url_nvidiaprofile = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/nvidiaProfileInspector.exe"
+
+      Write-Log "Baixando BaseProfile.nip de $url_base para $Env:windir\system32\BaseProfile.nip..." -ConsoleOutput
+      Invoke-WebRequest -Uri $url_base -OutFile "$Env:windir\system32\BaseProfile.nip" -ErrorAction Stop
+      Write-Log "BaseProfile.nip baixado com sucesso." -Level "INFO" -ConsoleOutput
+
+      Write-Log "Baixando nvidiaProfileInspector.exe de $url_nvidiaprofile para $Env:windir\system32\nvidiaProfileInspector.exe..." -ConsoleOutput
+      Invoke-WebRequest -Uri $url_nvidiaprofile -OutFile "$Env:windir\system32\nvidiaProfileInspector.exe" -ErrorAction Stop
+      Write-Log "nvidiaProfileInspector.exe baixado com sucesso." -Level "INFO" -ConsoleOutput
+
+      Write-Log "Mudando diretório para $Env:windir\system32\ para executar o nvidiaProfileInspector..." -ConsoleOutput
+      Push-Location
+      Set-Location "$Env:windir\system32\"
+      Write-Log "Executando nvidiaProfileInspector.exe com o perfil BaseProfile.nip..." -ConsoleOutput
+      & "nvidiaProfileInspector.exe" /s -load "BaseProfile.nip" -ErrorAction Stop
+      Write-Log "Perfil BaseProfile.nip aplicado com sucesso pelo nvidiaProfileInspector." -Level "INFO" -ConsoleOutput
+      Pop-Location
+      Write-Log "Diretório restaurado." -ConsoleOutput
+    }
+    else {
+      Write-Output "Nvidia GTX/RTX Card Not Detected! Skipping..."
+      Write-Log "Placa NVIDIA GTX/RTX não detectada! Pulando otimizações de energia..." -Level "INFO" -ConsoleOutput
+    }
+
+    # Verificação de entradas de registro para ajustes de latência
+    $errpref = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente para verificação de registro." -ConsoleOutput
+
+    Write-Log "Verificando entradas de registro para GPUs NVIDIA..." -ConsoleOutput
+    $CheckGPURegistryKey0 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -ErrorAction Stop).DriverDesc
+    $CheckGPURegistryKey1 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -ErrorAction Stop).DriverDesc
+    $CheckGPURegistryKey2 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -ErrorAction Stop).DriverDesc
+    $CheckGPURegistryKey3 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -ErrorAction Stop).DriverDesc
+    Write-Log "Entradas de registro verificadas: 0000=$CheckGPURegistryKey0, 0001=$CheckGPURegistryKey1, 0002=$CheckGPURegistryKey2, 0003=$CheckGPURegistryKey3" -ConsoleOutput
+
+    $ErrorActionPreference = $errpref
+    Write-Log "Restaurando ErrorActionPreference para $errpref após verificação de registro." -ConsoleOutput
+
+    if (($CheckGPURegistryKey0 -like "*GTX*") -or ($CheckGPURegistryKey0 -like "*RTX*")) {
+      Write-Output "Nvidia GTX/RTX Card Registry Path 0000 Detected! Applying Nvidia Latency Tweaks..."
+      Write-Log "Placa NVIDIA GTX/RTX detectada no caminho de registro 0000! Aplicando otimizações de latência..." -ConsoleOutput
+
+      $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000"
+      Write-Log "Aplicando ajustes de latência no caminho $regPath..." -ConsoleOutput
+      Set-ItemProperty -Path $regPath -Name "D3PCLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "F1TransitionLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LOWLATENCY" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "Node3DLowLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020" -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RmGspcMaxFtuS" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RmGspcMinFtuS" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RmGspcPerioduS" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "vrrCursorMarginUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "vrrDeflickerMarginUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "vrrDeflickerMaxUs" -Type DWord -Value 1 -ErrorAction Stop
+      Write-Log "Otimizações de latência NVIDIA aplicadas com sucesso no caminho 0000." -Level "INFO" -ConsoleOutput
+    }
+    elseif (($CheckGPURegistryKey1 -like "*GTX*") -or ($CheckGPURegistryKey1 -like "*RTX*")) {
+      Write-Output "Nvidia GTX/RTX Card Registry Path 0001 Detected! Applying Nvidia Latency Tweaks..."
+      Write-Log "Placa NVIDIA GTX/RTX detectada no caminho de registro 0001! Aplicando otimizações de latência..." -ConsoleOutput
+
+      $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001"
+      Write-Log "Aplicando ajustes de latência no caminho $regPath..." -ConsoleOutput
+      Set-ItemProperty -Path $regPath -Name "D3PCLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "F1TransitionLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LOWLATENCY" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "Node3DLowLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020" -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RmGspcMaxFtuS" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RmGspcMinFtuS" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RmGspcPerioduS" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "vrrCursorMarginUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "vrrDeflickerMarginUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "vrrDeflickerMaxUs" -Type DWord -Value 1 -ErrorAction Stop
+      Write-Log "Otimizações de latência NVIDIA aplicadas com sucesso no caminho 0001." -Level "INFO" -ConsoleOutput
+    }
+    elseif (($CheckGPURegistryKey2 -like "*GTX*") -or ($CheckGPURegistryKey2 -like "*RTX*")) {
+      Write-Output "Nvidia GTX/RTX Card Registry Path 0002 Detected! Applying Nvidia Latency Tweaks..."
+      Write-Log "Placa NVIDIA GTX/RTX detectada no caminho de registro 0002! Aplicando otimizações de latência..." -ConsoleOutput
+
+      $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002"
+      Write-Log "Aplicando ajustes de latência no caminho $regPath..." -ConsoleOutput
+      Set-ItemProperty -Path $regPath -Name "D3PCLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "F1TransitionLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LOWLATENCY" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "Node3DLowLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020" -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RmGspcMaxFtuS" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RmGspcMinFtuS" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RmGspcPerioduS" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "vrrCursorMarginUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "vrrDeflickerMarginUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "vrrDeflickerMaxUs" -Type DWord -Value 1 -ErrorAction Stop
+      Write-Log "Otimizações de latência NVIDIA aplicadas com sucesso no caminho 0002." -Level "INFO" -ConsoleOutput
+    }
+    elseif (($CheckGPURegistryKey3 -like "*GTX*") -or ($CheckGPURegistryKey3 -like "*RTX*")) {
+      Write-Output "Nvidia GTX/RTX Card Registry Path 0003 Detected! Applying Nvidia Latency Tweaks..."
+      Write-Log "Placa NVIDIA GTX/RTX detectada no caminho de registro 0003! Aplicando otimizações de latência..." -ConsoleOutput
+
+      $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003"
+      Write-Log "Aplicando ajustes de latência no caminho $regPath..." -ConsoleOutput
+      Set-ItemProperty -Path $regPath -Name "D3PCLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "F1TransitionLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LOWLATENCY" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "Node3DLowLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020" -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RmGspcMaxFtuS" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RmGspcMinFtuS" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RmGspcPerioduS" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "vrrCursorMarginUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "vrrDeflickerMarginUs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "vrrDeflickerMaxUs" -Type DWord -Value 1 -ErrorAction Stop
+      Write-Log "Otimizações de latência NVIDIA aplicadas com sucesso no caminho 0003." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Output "No NVIDIA GTX/RTX Card Registry entry Found! Skipping..."
+      Write-Log "Nenhuma entrada de registro NVIDIA GTX/RTX encontrada! Pulando otimizações de latência..." -Level "INFO" -ConsoleOutput
+    }
   }
-  else {
-    Write-Output "Nvidia GTX/RTX Card Not Detected! Skipping..."
-  } 
-  $errpref = $ErrorActionPreference #save actual preference
-  $ErrorActionPreference = "silentlycontinue"	   
-  $CheckGPURegistryKey0 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000").DriverDesc
-  $CheckGPURegistryKey1 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001").DriverDesc
-  $CheckGPURegistryKey2 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002").DriverDesc
-  $CheckGPURegistryKey3 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003").DriverDesc
-  $ErrorActionPreference = $errpref #restore previous preference
-  if (($CheckGPURegistryKey0 -like "*GTX*") -or ($CheckGPURegistryKey0 -like "*RTX*")) {
-    Write-Output "Nvidia GTX/RTX Card Registry Path 0000 Detected! Applying Nvidia Latency Tweaks..."
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "D3PCLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "F1TransitionLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LOWLATENCY" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "Node3DLowLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020"
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RmGspcMaxFtuS" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RmGspcMinFtuS" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RmGspcPerioduS" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "vrrCursorMarginUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "vrrDeflickerMarginUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "vrrDeflickerMaxUs" -Type DWord -Value 1
+  catch {
+    $errorMessage = "Erro na função NvidiaTweaks: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
   }
-  elseif (($CheckGPURegistryKey1 -like "*GTX*") -or ($CheckGPURegistryKey1 -like "*RTX*")) {
-    Write-Output "Nvidia GTX/RTX Card Registry Path 0001 Detected! Applying Nvidia Latency Tweaks..."
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "D3PCLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "F1TransitionLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LOWLATENCY" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "Node3DLowLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020"
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RmGspcMaxFtuS" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RmGspcMinFtuS" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RmGspcPerioduS" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "vrrCursorMarginUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "vrrDeflickerMarginUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "vrrDeflickerMaxUs" -Type DWord -Value 1
-  }
-  elseif (($CheckGPURegistryKey2 -like "*GTX*") -or ($CheckGPURegistryKey2 -like "*RTX*")) {
-    Write-Output "Nvidia GTX/RTX Card Registry Path 0002 Detected! Applying Nvidia Latency Tweaks..."
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "D3PCLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "F1TransitionLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LOWLATENCY" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "Node3DLowLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020"
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RmGspcMaxFtuS" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RmGspcMinFtuS" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RmGspcPerioduS" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "vrrCursorMarginUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "vrrDeflickerMarginUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "vrrDeflickerMaxUs" -Type DWord -Value 1
-  }
-  elseif (($CheckGPURegistryKey3 -like "*GTX*") -or ($CheckGPURegistryKey3 -like "*RTX*")) {
-    Write-Output "Nvidia GTX/RTX Card Registry Path 0003 Detected! Applying Nvidia Latency Tweaks..."
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "D3PCLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "F1TransitionLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LOWLATENCY" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "Node3DLowLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "PciLatencyTimerControl" -Type DWord -Value "0x00000020"
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMDeepL1EntryLatencyUsec" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RmGspcMaxFtuS" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RmGspcMinFtuS" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RmGspcPerioduS" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMLpwrEiIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMLpwrGrIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMLpwrGrRgIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "RMLpwrMsIdleThresholdUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "VRDirectFlipDPCDelayUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "VRDirectFlipTimingMarginUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "VRDirectJITFlipMsHybridFlipDelayUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "vrrCursorMarginUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "vrrDeflickerMarginUs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "vrrDeflickerMaxUs" -Type DWord -Value 1
-  }
-  else {
-    Write-Output "No NVIDIA GTX/RTX Card Registry entry Found! Skipping..."
+  finally {
+    Write-Log "Finalizando função NvidiaTweaks." -Level "INFO" -ConsoleOutput
   }
 }
 
 #Applying AMD Tweaks If Detected!
 Function AMDGPUTweaks {
-  $errpref = $ErrorActionPreference #save actual preference
-  $ErrorActionPreference = "silentlycontinue"
-  $CheckGPURegistryKey0 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000").DriverDesc
-  $CheckGPURegistryKey1 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001").DriverDesc
-  $CheckGPURegistryKey2 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002").DriverDesc
-  $CheckGPURegistryKey3 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003").DriverDesc
-  $ErrorActionPreference = $errpref #restore previous preference
-  if ($CheckGPURegistryKey0 -like "*amd*") {
-    Write-Output "AMD GPU Registry Path 0000 Detected! Applying AMD Latency Tweaks..."
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LTRSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LTRSnoopL0Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "KMD_RpmComputeLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "DalUrgentLatencyNs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "memClockSwitchLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1
+  Write-Log "Iniciando função AMDGPUTweaks para aplicar otimizações em GPUs AMD." -ConsoleOutput
+
+  try {
+    $errpref = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+
+    Write-Log "Verificando entradas de registro para GPUs AMD..." -ConsoleOutput
+    $CheckGPURegistryKey0 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" -ErrorAction Stop).DriverDesc
+    $CheckGPURegistryKey1 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -ErrorAction Stop).DriverDesc
+    $CheckGPURegistryKey2 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -ErrorAction Stop).DriverDesc
+    $CheckGPURegistryKey3 = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -ErrorAction Stop).DriverDesc
+    Write-Log "Entradas de registro verificadas: 0000=$CheckGPURegistryKey0, 0001=$CheckGPURegistryKey1, 0002=$CheckGPURegistryKey2, 0003=$CheckGPURegistryKey3" -ConsoleOutput
+
+    $ErrorActionPreference = $errpref
+    Write-Log "Restaurando ErrorActionPreference para $errpref após verificação de registro." -ConsoleOutput
+
+    if ($CheckGPURegistryKey0 -like "*amd*") {
+      Write-Output "AMD GPU Registry Path 0000 Detected! Applying AMD Latency Tweaks..."
+      Write-Log "GPU AMD detectada no caminho de registro 0000! Aplicando otimizações de latência..." -ConsoleOutput
+
+      $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000"
+      Write-Log "Aplicando ajustes de latência no caminho $regPath..." -ConsoleOutput
+      Set-ItemProperty -Path $regPath -Name "LTRSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LTRSnoopL0Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "KMD_RpmComputeLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "DalUrgentLatencyNs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "memClockSwitchLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1 -ErrorAction Stop
+      Write-Log "Otimizações de latência AMD aplicadas com sucesso no caminho 0000." -Level "INFO" -ConsoleOutput
+    }
+    elseif ($CheckGPURegistryKey1 -like "*amd*") {
+      Write-Output "AMD GPU Registry Path 0001 Detected! Applying AMD Latency Tweaks..."
+      Write-Log "GPU AMD detectada no caminho de registro 0001! Aplicando otimizações de latência..." -ConsoleOutput
+
+      $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001"
+      Write-Log "Aplicando ajustes de latência no caminho $regPath..." -ConsoleOutput
+      Set-ItemProperty -Path $regPath -Name "LTRSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LTRSnoopL0Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "KMD_RpmComputeLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "DalUrgentLatencyNs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "memClockSwitchLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1 -ErrorAction Stop
+      Write-Log "Otimizações de latência AMD aplicadas com sucesso no caminho 0001." -Level "INFO" -ConsoleOutput
+    }
+    elseif ($CheckGPURegistryKey2 -like "*amd*") {
+      Write-Output "AMD GPU Registry Path 0002 Detected! Applying AMD Latency Tweaks..."
+      Write-Log "GPU AMD detectada no caminho de registro 0002! Aplicando otimizações de latência..." -ConsoleOutput
+
+      $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002"
+      Write-Log "Aplicando ajustes de latência no caminho $regPath..." -ConsoleOutput
+      Set-ItemProperty -Path $regPath -Name "LTRSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LTRSnoopL0Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "KMD_RpmComputeLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "DalUrgentLatencyNs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "memClockSwitchLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1 -ErrorAction Stop
+      Write-Log "Otimizações de latência AMD aplicadas com sucesso no caminho 0002." -Level "INFO" -ConsoleOutput
+    }
+    elseif ($CheckGPURegistryKey3 -like "*amd*") {
+      Write-Output "AMD GPU Registry Path 0003 Detected! Applying AMD Latency Tweaks..."
+      Write-Log "GPU AMD detectada no caminho de registro 0003! Aplicando otimizações de latência..." -ConsoleOutput
+
+      $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003"
+      Write-Log "Aplicando ajustes de latência no caminho $regPath..." -ConsoleOutput
+      Set-ItemProperty -Path $regPath -Name "LTRSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LTRSnoopL0Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "KMD_RpmComputeLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "DalUrgentLatencyNs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "memClockSwitchLatency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1 -ErrorAction Stop
+      Set-ItemProperty -Path $regPath -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1 -ErrorAction Stop
+      Write-Log "Otimizações de latência AMD aplicadas com sucesso no caminho 0003." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Output "No AMD GPU Registry entry Found! Skipping..."
+      Write-Log "Nenhuma entrada de registro AMD GPU encontrada! Pulando otimizações de latência..." -Level "INFO" -ConsoleOutput
+    }
   }
-  elseif ($CheckGPURegistryKey1 -like "*amd*") {
-    Write-Output "AMD GPU Registry Path 0001 Detected! Applying AMD Latency Tweaks..."
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LTRSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LTRSnoopL0Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "KMD_RpmComputeLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "DalUrgentLatencyNs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "memClockSwitchLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0001" -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1
+  catch {
+    $errorMessage = "Erro na função AMDGPUTweaks: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
   }
-  elseif ($CheckGPURegistryKey2 -like "*amd*") {
-    Write-Output "AMD GPU Registry Path 0002 Detected! Applying AMD Latency Tweaks..."
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LTRSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LTRSnoopL0Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "KMD_RpmComputeLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "DalUrgentLatencyNs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "memClockSwitchLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0002" -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1
-  }
-  elseif ($CheckGPURegistryKey3 -like "*amd*") {
-    Write-Output "AMD GPU Registry Path 0003 Detected! Applying AMD Latency Tweaks..."
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LTRSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LTRSnoopL0Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LTRNoSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "LTRMaxNoSnoopLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "KMD_RpmComputeLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "DalUrgentLatencyNs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "memClockSwitchLatency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "PP_RTPMComputeF1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "PP_DGBMMMaxTransitionLatencyUvd" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "PP_DGBPMMaxTransitionLatencyGfx" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "DalNBLatencyForUnderFlow" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "DalDramClockChangeLatencyNs" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRSnoopL0Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRNoSnoopL1Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRNoSnoopL0Latency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRMaxSnoopLatencyValue" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0003" -Name "BGM_LTRMaxNoSnoopLatencyValue" -Type DWord -Value 1
-  }
-  else {
-    Write-Output "No AMD GPU Registry entry Found! Skipping..."
+  finally {
+    Write-Log "Finalizando função AMDGPUTweaks." -Level "INFO" -ConsoleOutput
   }
 }
-
 
 #Optimizing Network and applying Tweaks for no throttle and maximum speed!
 Function NetworkOptimizations {
-  Write-Output "Otimizando a rede e aplicando ajustes para máximo desempenho..."
-	
-  # Salvando a preferência de erro original
-  $errpref = $ErrorActionPreference 
-  $ErrorActionPreference = "SilentlyContinue"
+  Write-Log "Iniciando função NetworkOptimizations para otimizar a rede e aplicar ajustes de desempenho máximo." -ConsoleOutput
 
-  # Criando chaves de registro se não existirem
-  New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -Force | Out-Null
-  New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS" -Force | Out-Null
-  New-Item -Path "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters" -Force | Out-Null
+  try {
+    Write-Output "Otimizando a rede e aplicando ajustes para máximo desempenho..."
+    Write-Log "Otimizando a rede e aplicando ajustes para máximo desempenho..." -ConsoleOutput
 
-  # Ajustes de Registro para otimização de rede
-  $regConfigs = @{
-    "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPER1_0SERVER" = @("explorer.exe", 10)
-    "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPERSERVER"    = @("explorer.exe", 10)
-    "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider"                                     = @("LocalPriority", 4), @("HostsPriority", 5), @("DnsPriority", 6), @("NetbtPriority", 7)
-    "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched"                                                  = @("NonBestEffortlimit", 0)
-    "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS"                                                 = @("Do not use NLA", "1")
-    "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"                                   = @("Size", 1), @("IRPStackSize", 20)
-    "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"                                          = @("MaxUserPort", 65534), @("TcpTimedWaitDelay", 30), @("DefaultTTL", 64), @("MaxNumRssCpus", 4), @("DisableTaskOffload", 0)
-    "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters"                                                          = @("TCPNoDelay", 1)
-    "HKLM:\SYSTEM\ControlSet001\Control\Lsa"                                                            = @("LmCompatibilityLevel", 1)
-    "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"                                       = @("EnableAutoDoh", 2)
-  }
+    # Salvando a preferência de erro original
+    $errpref = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
 
-  foreach ($path in $regConfigs.Keys) {
-    foreach ($setting in $regConfigs[$path]) {
-      Set-ItemProperty -Path $path -Name $setting[0] -Type DWord -Value $setting[1] -ErrorAction SilentlyContinue
+    # Criando chaves de registro se não existirem
+    Write-Log "Criando chave HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched..." -ConsoleOutput
+    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -Force -ErrorAction Stop | Out-Null
+    Write-Log "Chave HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Criando chave HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS..." -ConsoleOutput
+    New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS" -Force -ErrorAction Stop | Out-Null
+    Write-Log "Chave HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Criando chave HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters..." -ConsoleOutput
+    New-Item -Path "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters" -Force -ErrorAction Stop | Out-Null
+    Write-Log "Chave HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
+
+    # Ajustes de Registro para otimização de rede
+    $regConfigs = @{
+      "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPER1_0SERVER" = @("explorer.exe", 10)
+      "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPERSERVER"    = @("explorer.exe", 10)
+      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider"                                     = @("LocalPriority", 4), @("HostsPriority", 5), @("DnsPriority", 6), @("NetbtPriority", 7)
+      "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched"                                                  = @("NonBestEffortlimit", 0)
+      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS"                                                 = @("Do not use NLA", "1")
+      "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"                                   = @("Size", 1), @("IRPStackSize", 20)
+      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"                                          = @("MaxUserPort", 65534), @("TcpTimedWaitDelay", 30), @("DefaultTTL", 64), @("MaxNumRssCpus", 4), @("DisableTaskOffload", 0)
+      "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters"                                                          = @("TCPNoDelay", 1)
+      "HKLM:\SYSTEM\ControlSet001\Control\Lsa"                                                            = @("LmCompatibilityLevel", 1)
+      "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"                                       = @("EnableAutoDoh", 2)
     }
+    Write-Log "Configurações de registro definidas para otimização de rede." -ConsoleOutput
+
+    foreach ($path in $regConfigs.Keys) {
+      foreach ($setting in $regConfigs[$path]) {
+        Write-Log "Configurando $path - $($setting[0]) para $($setting[1])..." -ConsoleOutput
+        Set-ItemProperty -Path $path -Name $setting[0] -Type DWord -Value $setting[1] -ErrorAction Stop
+        Write-Log "$($setting[0]) configurado com sucesso em $path." -Level "INFO" -ConsoleOutput
+      }
+    }
+
+    # Ajustes de TCP/IP
+    Write-Log "Aplicando ajustes de TCP/IP..." -ConsoleOutput
+    Set-NetTCPSetting -SettingName internet -EcnCapability disabled -ErrorAction Stop | Out-Null
+    Set-NetTCPSetting -SettingName internet -Timestamps disabled -ErrorAction Stop | Out-Null
+    Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2 -ErrorAction Stop | Out-Null
+    Set-NetTCPSetting -SettingName internet -NonSackRttResiliency disabled -ErrorAction Stop | Out-Null
+    Set-NetTCPSetting -SettingName internet -InitialRto 2000 -ErrorAction Stop | Out-Null
+    Set-NetTCPSetting -SettingName internet -MinRto 300 -ErrorAction Stop | Out-Null
+    Set-NetTCPSetting -SettingName Internet -AutoTuningLevelLocal normal -ErrorAction Stop | Out-Null
+    Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled -ErrorAction Stop | Out-Null
+    Write-Log "Ajustes de TCP/IP aplicados com sucesso." -Level "INFO" -ConsoleOutput
+
+    # Ajustes de Netsh
+    $netshCommands = @(
+      "int ip set global taskoffload=enabled",
+      "int tcp set global ecncapability=enabled",
+      "int tcp set global rss=enabled",
+      "int tcp set global rsc=enabled",
+      "int tcp set global dca=enabled",
+      "int tcp set global netdma=enabled",
+      "int tcp set global fastopen=enabled",
+      "int tcp set global fastopenfallback=enabled",
+      "int tcp set global prr=enabled",
+      "int tcp set global pacingprofile=always",
+      "int tcp set global hystart=enabled",
+      "int tcp set supplemental internet enablecwndrestart=enabled",
+      "int tcp set security mpp=enabled",
+      "int tcp set global autotuninglevel=normal",
+      "int tcp set supplemental internet congestionprovider=dctcp"
+    )
+    Write-Log "Executando comandos Netsh para otimizações de rede..." -ConsoleOutput
+    foreach ($cmd in $netshCommands) {
+      Write-Log "Executando comando Netsh: $cmd..." -ConsoleOutput
+      netsh $cmd -ErrorAction Stop | Out-Null
+      Write-Log "Comando $cmd executado com sucesso." -Level "INFO" -ConsoleOutput
+    }
+
+    # Ajustes globais de offload
+    Write-Log "Aplicando ajustes globais de offload..." -ConsoleOutput
+    Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing disabled -ErrorAction Stop | Out-Null
+    Set-NetOffloadGlobalSetting -ReceiveSideScaling enabled -ErrorAction Stop | Out-Null
+    Write-Log "Ajustes globais de offload aplicados com sucesso." -Level "INFO" -ConsoleOutput
+
+    # Ativação e desativação de funcionalidades em adaptadores de rede
+    $netAdapterSettings = @(
+      "Enable-NetAdapterChecksumOffload",
+      "Enable-NetAdapterIPsecOffload",
+      "Enable-NetAdapterRsc",
+      "Enable-NetAdapterRss",
+      "Enable-NetAdapterQos",
+      "Enable-NetAdapterEncapsulatedPacketTaskOffload",
+      "Enable-NetAdapterSriov",
+      "Enable-NetAdapterVmq"
+    )
+    Write-Log "Aplicando configurações em adaptadores de rede..." -ConsoleOutput
+    foreach ($setting in $netAdapterSettings) {
+      Write-Log "Executando $setting para todos os adaptadores..." -ConsoleOutput
+      & $setting -Name "*" -ErrorAction Stop | Out-Null
+      Write-Log "$setting aplicado com sucesso." -Level "INFO" -ConsoleOutput
+    }
+
+    Write-Log "Desativando Large Send Offload (LSO) para todos os adaptadores..." -ConsoleOutput
+    Disable-LSO -ErrorAction Stop
+    Write-Log "LSO desativado com sucesso." -Level "INFO" -ConsoleOutput
+
+    # Ajustes avançados dos adaptadores de rede
+    $advancedProperties = @(
+      "Energy-Efficient Ethernet", "Energy Efficient Ethernet", "Ultra Low Power Mode",
+      "System Idle Power Saver", "Green Ethernet", "Power Saving Mode", "Gigabit Lite",
+      "EEE", "Advanced EEE", "ARP Offload", "NS Offload", "Large Send Offload v2 (IPv4)",
+      "Large Send Offload v2 (IPv6)", "TCP Checksum Offload (IPv4)", "TCP Checksum Offload (IPv6)",
+      "UDP Checksum Offload (IPv4)", "UDP Checksum Offload (IPv6)", "Idle Power Saving",
+      "Flow Control", "Interrupt Moderation", "Reduce Speed On Power Down", "Interrupt Moderation Rate",
+      "Log Link State Event", "Packet Priority & VLAN", "Priority & VLAN",
+      "IPv4 Checksum Offload", "Jumbo Frame", "Maximum Number of RSS Queues"
+    )
+    Write-Log "Aplicando ajustes avançados em adaptadores de rede..." -ConsoleOutput
+    foreach ($prop in $advancedProperties) {
+      Write-Log "Desativando propriedade avançada $prop em todos os adaptadores..." -ConsoleOutput
+      Set-NetAdapterAdvancedProperty -Name * -DisplayName $prop -DisplayValue "Disabled" -ErrorAction Stop
+      Write-Log "Propriedade $prop desativada com sucesso." -Level "INFO" -ConsoleOutput
+    }
+
+    Write-Log "Otimizações de rede concluídas com sucesso!" -Level "INFO" -ConsoleOutput
+    Write-Output "Otimizações de rede concluídas com sucesso!"
   }
-
-  # Ajustes de TCP/IP
-  Set-NetTCPSetting -SettingName internet -EcnCapability disabled | Out-Null
-  Set-NetTCPSetting -SettingName internet -Timestamps disabled | Out-Null
-  Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2 | Out-Null
-  Set-NetTCPSetting -SettingName internet -NonSackRttResiliency disabled | Out-Null
-  Set-NetTCPSetting -SettingName internet -InitialRto 2000 | Out-Null
-  Set-NetTCPSetting -SettingName internet -MinRto 300 | Out-Null
-  Set-NetTCPSetting -SettingName Internet -AutoTuningLevelLocal normal | Out-Null
-  Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled | Out-Null
-
-  # Ajustes de Netsh
-  $netshCommands = @(
-    "int ip set global taskoffload=enabled",
-    "int tcp set global ecncapability=enabled",
-    "int tcp set global rss=enabled",
-    "int tcp set global rsc=enabled",
-    "int tcp set global dca=enabled",
-    "int tcp set global netdma=enabled",
-    "int tcp set global fastopen=enabled",
-    "int tcp set global fastopenfallback=enabled",
-    "int tcp set global prr=enabled",
-    "int tcp set global pacingprofile=always",
-    "int tcp set global hystart=enabled",
-    "int tcp set supplemental internet enablecwndrestart=enabled",
-    "int tcp set security mpp=enabled",
-    "int tcp set global autotuninglevel=normal",
-    "int tcp set supplemental internet congestionprovider=dctcp"
-  )
-  foreach ($cmd in $netshCommands) {
-    netsh $cmd | Out-Null
+  catch {
+    $errorMessage = "Erro na função NetworkOptimizations: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
   }
-
-  # Ajustes globais de offload
-  Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing disabled | Out-Null
-  Set-NetOffloadGlobalSetting -ReceiveSideScaling enabled | Out-Null
-
-  # Ativação e desativação de funcionalidades em adaptadores de rede
-  $netAdapterSettings = @(
-    "Enable-NetAdapterChecksumOffload",
-    "Enable-NetAdapterIPsecOffload",
-    "Enable-NetAdapterRsc",
-    "Enable-NetAdapterRss",
-    "Enable-NetAdapterQos",
-    "Enable-NetAdapterEncapsulatedPacketTaskOffload",
-    "Enable-NetAdapterSriov",
-    "Enable-NetAdapterVmq"
-  )
-  foreach ($setting in $netAdapterSettings) {
-    & $setting -Name "*" | Out-Null
+  finally {
+    $ErrorActionPreference = $errpref
+    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+    Write-Log "Finalizando função NetworkOptimizations." -Level "INFO" -ConsoleOutput
   }
-
-  Disable-LSO # Desativar LSO (Large Send Offload) para todos os adaptadores de rede
-
-  # Ajustes avançados dos adaptadores de rede
-  $advancedProperties = @(
-    "Energy-Efficient Ethernet", "Energy Efficient Ethernet", "Ultra Low Power Mode",
-    "System Idle Power Saver", "Green Ethernet", "Power Saving Mode", "Gigabit Lite",
-    "EEE", "Advanced EEE", "ARP Offload", "NS Offload", "Large Send Offload v2 (IPv4)",
-    "Large Send Offload v2 (IPv6)", "TCP Checksum Offload (IPv4)", "TCP Checksum Offload (IPv6)",
-    "UDP Checksum Offload (IPv4)", "UDP Checksum Offload (IPv6)", "Idle Power Saving",
-    "Flow Control", "Interrupt Moderation", "Reduce Speed On Power Down", "Interrupt Moderation Rate",
-    "Log Link State Event", "Packet Priority & VLAN", "Priority & VLAN",
-    "IPv4 Checksum Offload", "Jumbo Frame", "Maximum Number of RSS Queues"
-  )
-
-  foreach ($prop in $advancedProperties) {
-    Set-NetAdapterAdvancedProperty -Name * -DisplayName $prop -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-  }
-
-  # Restaurando a preferência de erro original
-  $ErrorActionPreference = $errpref
-
-  Write-Output "Otimizações de rede concluídas com sucesso!"
 }
 
 function Disable-LSO {
-  $adapters = Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.InterfaceDescription -notmatch "Loopback" }
+  Write-Log "Iniciando função Disable-LSO para desativar Large Send Offload (LSO) em adaptadores de rede." -ConsoleOutput
 
-  foreach ($adapter in $adapters) {
-    Write-Output "Desativando Large Send Offload (LSO) para: $($adapter.Name)"
+  try {
+    Write-Log "Obtendo adaptadores de rede ativos (exceto Loopback)..." -ConsoleOutput
+    $adapters = Get-NetAdapter -ErrorAction Stop | Where-Object { $_.Status -eq "Up" -and $_.InterfaceDescription -notmatch "Loopback" }
+    Write-Log "Adaptadores de rede detectados: $($adapters.Name -join ', ')" -ConsoleOutput
 
-    # Verifica se há suporte ao LSO antes de tentar desativar
-    $lsoSupport = Get-NetAdapterAdvancedProperty -Name $adapter.Name -RegistryKeyword "*LsoV2IPv4" -ErrorAction SilentlyContinue
-    if ($lsoSupport) {
-      try {
-        Disable-NetAdapterLso -Name $adapter.Name -IPv4 -ErrorAction Stop
-        Disable-NetAdapterLso -Name $adapter.Name -IPv6 -ErrorAction Stop
-        Write-Output "LSO desativado para: $($adapter.Name)"
+    foreach ($adapter in $adapters) {
+      Write-Output "Desativando Large Send Offload (LSO) para: $($adapter.Name)"
+      Write-Log "Desativando Large Send Offload (LSO) para o adaptador: $($adapter.Name)..." -ConsoleOutput
+
+      # Verifica se há suporte ao LSO antes de tentar desativar
+      Write-Log "Verificando suporte ao LSO para $($adapter.Name)..." -ConsoleOutput
+      $lsoSupport = Get-NetAdapterAdvancedProperty -Name $adapter.Name -RegistryKeyword "*LsoV2IPv4" -ErrorAction Stop
+      if ($lsoSupport) {
+        Write-Log "Suporte ao LSO detectado para $($adapter.Name). Tentando desativar..." -ConsoleOutput
+        try {
+          Write-Log "Desativando LSO para IPv4 no adaptador $($adapter.Name)..." -ConsoleOutput
+          Disable-NetAdapterLso -Name $adapter.Name -IPv4 -ErrorAction Stop
+          Write-Log "LSO para IPv4 desativado com sucesso." -Level "INFO" -ConsoleOutput
+
+          Write-Log "Desativando LSO para IPv6 no adaptador $($adapter.Name)..." -ConsoleOutput
+          Disable-NetAdapterLso -Name $adapter.Name -IPv6 -ErrorAction Stop
+          Write-Log "LSO para IPv6 desativado com sucesso." -Level "INFO" -ConsoleOutput
+
+          Write-Output "LSO desativado para: $($adapter.Name)"
+          Write-Log "LSO desativado com sucesso para o adaptador: $($adapter.Name)." -Level "INFO" -ConsoleOutput
+        }
+        catch {
+          $errorMessage = "Falha ao desativar LSO para $($adapter.Name). Motivo: $($_.Exception.Message)"
+          Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+          Write-Warning $errorMessage
+        }
       }
-      catch {
-        Write-Warning "Falha ao desativar LSO para: $($adapter.Name). Motivo: $($_.Exception.Message)"
+      else {
+        Write-Log "LSO não suportado para $($adapter.Name). Ignorando..." -Level "WARNING" -ConsoleOutput
+        Write-Warning "LSO não suportado para: $($adapter.Name), ignorando."
       }
     }
-    else {
-      Write-Warning "LSO não suportado para: $($adapter.Name), ignorando."
-    }
+
+    Write-Log "Processo de desativação de LSO concluído com sucesso para todos os adaptadores aplicáveis." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função Disable-LSO: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função Disable-LSO." -Level "INFO" -ConsoleOutput
   }
 }
 
 # Disable Nagle's Algorithm
 Function DisableNagle {
-  $errpref = $ErrorActionPreference #save actual preference
-  $ErrorActionPreference = "silentlycontinue"
-  $NetworkIDS = @(
-(Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\*").PSChildName
-  )
-  foreach ($NetworkID in $NetworkIDS) {
-    Write-Output "Disabling Nagles Algorithm..."
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$NetworkID" -Name "TcpAckFrequency" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$NetworkID" -Name "TCPNoDelay" -Type DWord -Value 1
+  Write-Log "Iniciando função DisableNagle para desativar o algoritmo de Nagle." -ConsoleOutput
+
+  try {
+    $errpref = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+
+    Write-Log "Obtendo IDs de interfaces de rede..." -ConsoleOutput
+    $NetworkIDS = @(
+          (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\*" -ErrorAction Stop).PSChildName
+    )
+    Write-Log "IDs de interfaces de rede detectados: $($NetworkIDS -join ', ')" -ConsoleOutput
+
+    foreach ($NetworkID in $NetworkIDS) {
+      Write-Output "Disabling Nagle's Algorithm..."
+      Write-Log "Desativando o algoritmo de Nagle para a interface: $NetworkID..." -ConsoleOutput
+
+      $regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$NetworkID"
+      Write-Log "Configurando TcpAckFrequency para 1 em $regPath..." -ConsoleOutput
+      Set-ItemProperty -Path $regPath -Name "TcpAckFrequency" -Type DWord -Value 1 -ErrorAction Stop
+      Write-Log "TcpAckFrequency configurado com sucesso para $NetworkID." -Level "INFO" -ConsoleOutput
+
+      Write-Log "Configurando TCPNoDelay para 1 em $regPath..." -ConsoleOutput
+      Set-ItemProperty -Path $regPath -Name "TCPNoDelay" -Type DWord -Value 1 -ErrorAction Stop
+      Write-Log "TCPNoDelay configurado com sucesso para $NetworkID." -Level "INFO" -ConsoleOutput
+    }
+
+    Write-Log "Algoritmo de Nagle desativado com sucesso para todas as interfaces de rede." -Level "INFO" -ConsoleOutput
   }
-  $ErrorActionPreference = $errpref #restore previous preference
+  catch {
+    $errorMessage = "Erro na função DisableNagle: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    $ErrorActionPreference = $errpref
+    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+    Write-Log "Finalizando função DisableNagle." -Level "INFO" -ConsoleOutput
+  }
 }
 
 #setting network adabter optimal rss
 Function NetworkAdapterRSS {
-  $errpref = $ErrorActionPreference #save actual preference
-  $ErrorActionPreference = "silentlycontinue"
-  Write-Output "Setting network adapter RSS..."
-  $PhysicalAdapters = Get-WmiObject -Class Win32_NetworkAdapter | Where-Object { $_.PNPDeviceID -notlike "ROOT\*" -and $_.Manufacturer -ne "Microsoft" -and $_.ConfigManagerErrorCode -eq 0 -and $_.ConfigManagerErrorCode -ne 22 }
-	
-  Foreach ($PhysicalAdapter in $PhysicalAdapters) {
-    # $PhysicalAdapterName = $PhysicalAdapter.Name
-    $DeviceID = $PhysicalAdapter.DeviceID
-    If ([Int32]$DeviceID -lt 10) {
-      $AdapterDeviceNumber = "000" + $DeviceID
+  Write-Log "Iniciando função NetworkAdapterRSS para configurar RSS em adaptadores de rede." -ConsoleOutput
+
+  try {
+    $errpref = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+
+    Write-Output "Setting network adapter RSS..."
+    Write-Log "Configurando RSS para adaptadores de rede..." -ConsoleOutput
+
+    Write-Log "Obtendo adaptadores físicos de rede..." -ConsoleOutput
+    $PhysicalAdapters = Get-WmiObject -Class Win32_NetworkAdapter -ErrorAction Stop | Where-Object { 
+      $_.PNPDeviceID -notlike "ROOT\*" -and 
+      $_.Manufacturer -ne "Microsoft" -and 
+      $_.ConfigManagerErrorCode -eq 0 -and 
+      $_.ConfigManagerErrorCode -ne 22 
     }
-    Else {
-      $AdapterDeviceNumber = "00" + $DeviceID
+    Write-Log "Adaptadores físicos detectados: $($PhysicalAdapters.Name -join ', ')" -ConsoleOutput
+
+    foreach ($PhysicalAdapter in $PhysicalAdapters) {
+      $DeviceID = $PhysicalAdapter.DeviceID
+      Write-Log "Processando adaptador com DeviceID: $DeviceID..." -ConsoleOutput
+
+      If ([Int32]$DeviceID -lt 10) {
+        $AdapterDeviceNumber = "000" + $DeviceID
+      }
+      Else {
+        $AdapterDeviceNumber = "00" + $DeviceID
+      }
+      Write-Log "Número do dispositivo ajustado para: $AdapterDeviceNumber" -ConsoleOutput
+
+      $KeyPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber"
+      $KeyPath2 = "$KeyPath\Ndi\params\*RSS\Enum"
+      $KeyPath3 = "$KeyPath\Ndi\params\*RSS"
+      $KeyPath4 = "$KeyPath\Ndi\params\*NumRssQueues\Enum"
+      $KeyPath5 = "$KeyPath\Ndi\params\*NumRssQueues"
+      $KeyPath6 = "$KeyPath\Ndi\params\*ReceiveBuffers"
+      $KeyPath7 = "$KeyPath\Ndi\params\*TransmitBuffers"
+
+      If (Test-Path -Path $KeyPath) {
+        Write-Log "Caminho $KeyPath encontrado. Aplicando configurações RSS..." -ConsoleOutput
+
+        Write-Log "Criando subchave $KeyPath2..." -ConsoleOutput
+        New-Item -Path $KeyPath2 -Force -ErrorAction Stop | Out-Null
+        Write-Log "Subchave $KeyPath2 criada com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Criando subchave $KeyPath4..." -ConsoleOutput
+        New-Item -Path $KeyPath4 -Force -ErrorAction Stop | Out-Null
+        Write-Log "Subchave $KeyPath4 criada com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando *NumRssQueues para 2 em $KeyPath..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath -Name "*NumRssQueues" -Type String -Value 2 -ErrorAction Stop | Out-Null
+        Write-Log "*NumRssQueues configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando *RSS para 1 em $KeyPath..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath -Name "*RSS" -Type String -Value 1 -ErrorAction Stop | Out-Null
+        Write-Log "*RSS configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando *RSSProfile para 4 em $KeyPath..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath -Name "*RSSProfile" -Type String -Value 4 -ErrorAction Stop | Out-Null
+        Write-Log "*RSSProfile configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando *RssBaseProcNumber para 2 em $KeyPath..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath -Name "*RssBaseProcNumber" -Type String -Value 2 -ErrorAction Stop | Out-Null
+        Write-Log "*RssBaseProcNumber configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando *MaxRssProcessors para 4 em $KeyPath..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath -Name "*MaxRssProcessors" -Type String -Value 4 -ErrorAction Stop | Out-Null
+        Write-Log "*MaxRssProcessors configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando *NumaNodeId para 0 em $KeyPath..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath -Name "*NumaNodeId" -Type String -Value 0 -ErrorAction Stop | Out-Null
+        Write-Log "*NumaNodeId configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando *RssBaseProcGroup para 0 em $KeyPath..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath -Name "*RssBaseProcGroup" -Type String -Value 0 -ErrorAction Stop | Out-Null
+        Write-Log "*RssBaseProcGroup configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando *RssMaxProcNumber para 4 em $KeyPath..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath -Name "*RssMaxProcNumber" -Type String -Value 4 -ErrorAction Stop | Out-Null
+        Write-Log "*RssMaxProcNumber configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando *RssMaxProcGroup para 0 em $KeyPath..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath -Name "*RssMaxProcGroup" -Type String -Value 0 -ErrorAction Stop | Out-Null
+        Write-Log "*RssMaxProcGroup configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando *ReceiveBuffers para 2048 em $KeyPath..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath -Name "*ReceiveBuffers" -Type String -Value 2048 -ErrorAction Stop | Out-Null
+        Write-Log "*ReceiveBuffers configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando *TransmitBuffers para 4096 em $KeyPath..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath -Name "*TransmitBuffers" -Type String -Value 4096 -ErrorAction Stop | Out-Null
+        Write-Log "*TransmitBuffers configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Criando propriedade 'default' em $KeyPath3 com valor 1..." -ConsoleOutput
+        New-ItemProperty -Path $KeyPath3 -Name "default" -Type String -Value 1 -ErrorAction Stop | Out-Null
+        Write-Log "Propriedade 'default' criada com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Criando propriedade 'ParamDesc' em $KeyPath3 com valor 'Receive Side Scaling'..." -ConsoleOutput
+        New-ItemProperty -Path $KeyPath3 -Name "ParamDesc" -Type String -Value "Receive Side Scaling" -ErrorAction Stop | Out-Null
+        Write-Log "Propriedade 'ParamDesc' criada com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Criando propriedade 'type' em $KeyPath3 com valor 'enum'..." -ConsoleOutput
+        New-ItemProperty -Path $KeyPath3 -Name "type" -Type String -Value "enum" -ErrorAction Stop | Out-Null
+        Write-Log "Propriedade 'type' criada com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Criando propriedade '0' em $KeyPath2 com valor 'Disabled'..." -ConsoleOutput
+        New-ItemProperty -Path $KeyPath2 -Name "0" -Type String -Value "Disabled" -ErrorAction Stop | Out-Null
+        Write-Log "Propriedade '0' criada com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Criando propriedade '1' em $KeyPath2 com valor 'Enabled'..." -ConsoleOutput
+        New-ItemProperty -Path $KeyPath2 -Name "1" -Type String -Value "Enabled" -ErrorAction Stop | Out-Null
+        Write-Log "Propriedade '1' criada com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Criando propriedade '1' em $KeyPath4 com valor '1 Queue'..." -ConsoleOutput
+        New-ItemProperty -Path $KeyPath4 -Name "1" -Type String -Value "1 Queue" -ErrorAction Stop | Out-Null
+        Write-Log "Propriedade '1' criada com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Criando propriedade '2' em $KeyPath4 com valor '2 Queue'..." -ConsoleOutput
+        New-ItemProperty -Path $KeyPath4 -Name "2" -Type String -Value "2 Queue" -ErrorAction Stop | Out-Null
+        Write-Log "Propriedade '2' criada com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Criando propriedade '3' em $KeyPath4 com valor '3 Queue'..." -ConsoleOutput
+        New-ItemProperty -Path $KeyPath4 -Name "3" -Type String -Value "3 Queue" -ErrorAction Stop | Out-Null
+        Write-Log "Propriedade '3' criada com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Criando propriedade '4' em $KeyPath4 com valor '4 Queue'..." -ConsoleOutput
+        New-ItemProperty -Path $KeyPath4 -Name "4" -Type String -Value "4 Queue" -ErrorAction Stop | Out-Null
+        Write-Log "Propriedade '4' criada com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Criando propriedade 'default' em $KeyPath5 com valor '2'..." -ConsoleOutput
+        New-ItemProperty -Path $KeyPath5 -Name "default" -Type String -Value "2" -ErrorAction Stop | Out-Null
+        Write-Log "Propriedade 'default' criada com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Criando propriedade 'ParamDesc' em $KeyPath5 com valor 'Maximum Number of RSS Queues'..." -ConsoleOutput
+        New-ItemProperty -Path $KeyPath5 -Name "ParamDesc" -Type String -Value "Maximum Number of RSS Queues" -ErrorAction Stop | Out-Null
+        Write-Log "Propriedade 'ParamDesc' criada com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Criando propriedade 'type' em $KeyPath5 com valor 'enum'..." -ConsoleOutput
+        New-ItemProperty -Path $KeyPath5 -Name "type" -Type String -Value "enum" -ErrorAction Stop | Out-Null
+        Write-Log "Propriedade 'type' criada com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando 'Max' para 6144 em $KeyPath6..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath6 -Name "Max" -Type String -Value 6144 -ErrorAction Stop | Out-Null
+        Write-Log "'Max' configurado com sucesso em $KeyPath6." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando 'Default' para 2048 em $KeyPath6..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath6 -Name "Default" -Type String -Value 2048 -ErrorAction Stop | Out-Null
+        Write-Log "'Default' configurado com sucesso em $KeyPath6." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando 'Max' para 6144 em $KeyPath7..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath7 -Name "Max" -Type String -Value 6144 -ErrorAction Stop | Out-Null
+        Write-Log "'Max' configurado com sucesso em $KeyPath7." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurando 'Default' para 4096 em $KeyPath7..." -ConsoleOutput
+        Set-ItemProperty -Path $KeyPath7 -Name "Default" -Type String -Value 4096 -ErrorAction Stop | Out-Null
+        Write-Log "'Default' configurado com sucesso em $KeyPath7." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Configurações RSS aplicadas com sucesso para o adaptador $AdapterDeviceNumber." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Write-Log "Caminho $KeyPath não encontrado para o adaptador $AdapterDeviceNumber." -Level "WARNING" -ConsoleOutput
+        Write-Colored "Caminho ($KeyPath) Não encontrado." "Vermelho"
+      }
     }
-    $KeyPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber"
-    $KeyPath2 = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber\Ndi\params\*RSS\Enum"
-    $KeyPath3 = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber\Ndi\params\*RSS"
-    $KeyPath4 = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber\Ndi\params\*NumRssQueues\Enum"
-    $KeyPath5 = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber\Ndi\params\*NumRssQueues"
-    $KeyPath6 = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber\Ndi\params\*ReceiveBuffers"
-    $KeyPath7 = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber\Ndi\params\*TransmitBuffers"
-		
-    If (Test-Path -Path $KeyPath) {
-      new-Item -Path $KeyPath2 -Force | Out-Null
-      new-Item -Path $KeyPath4 -Force | Out-Null
-      Set-ItemProperty -Path $KeyPath -Name "*NumRssQueues" -Type String -Value 2 | Out-Null
-      Set-ItemProperty -Path $KeyPath -Name "*RSS" -Type String -Value 1 | Out-Null
-      Set-ItemProperty -Path $KeyPath -Name "*RSSProfile" -Type String -Value 4 | Out-Null
-      Set-ItemProperty -Path $KeyPath -Name "*RssBaseProcNumber" -Type String -Value 2 | Out-Null
-      Set-ItemProperty -Path $KeyPath -Name "*MaxRssProcessors" -Type String -Value 4 | Out-Null
-      Set-ItemProperty -Path $KeyPath -Name "*NumaNodeId" -Type String -Value 0 | Out-Null
-      Set-ItemProperty -Path $KeyPath -Name "*RssBaseProcGroup" -Type String -Value 0 | Out-Null
-      Set-ItemProperty -Path $KeyPath -Name "*RssMaxProcNumber" -Type String -Value 4 | Out-Null
-      Set-ItemProperty -Path $KeyPath -Name "*RssMaxProcGroup" -Type String -Value 0 | Out-Null
-      Set-ItemProperty -Path $KeyPath -Name "*ReceiveBuffers" -Type String -Value 2048 | Out-Null
-      Set-ItemProperty -Path $KeyPath -Name "*TransmitBuffers" -Type String -Value 4096 | Out-Null
-      New-ItemProperty -Path $KeyPath3 -Name "default" -Type String -Value 1 | Out-Null
-      New-ItemProperty -Path $KeyPath3 -Name "ParamDesc" -Type String -Value "Receive Side Scaling" | Out-Null
-      New-ItemProperty -Path $KeyPath3 -Name "type" -Type String -Value "enum" | Out-Null
-      New-ItemProperty -Path $KeyPath2 -Name "0" -Type String -Value "Disabled" | Out-Null
-      New-ItemProperty -Path $KeyPath2 -Name "1" -Type String -Value "Enabled" | Out-Null
-      New-ItemProperty -Path $KeyPath4 -Name "1" -Type String -Value "1 Queue" | Out-Null
-      New-ItemProperty -Path $KeyPath4 -Name "2" -Type String -Value "2 Queue" | Out-Null
-      New-ItemProperty -Path $KeyPath4 -Name "3" -Type String -Value "3 Queue" | Out-Null
-      New-ItemProperty -Path $KeyPath4 -Name "4" -Type String -Value "4 Queue" | Out-Null
-      New-ItemProperty -Path $KeyPath5 -Name "default" -Type String -Value "2" | Out-Null
-      New-ItemProperty -Path $KeyPath5 -Name "ParamDesc" -Type String -Value "Maximum Number of RSS Queues" | Out-Null
-      New-ItemProperty -Path $KeyPath5 -Name "type" -Type String -Value "enum" | Out-Null
-      Set-ItemProperty -Path $KeyPath6 -Name "Max" -Type String -Value 6144 | Out-Null
-      Set-ItemProperty -Path $KeyPath6 -Name "Default" -Type String -Value 2048 | Out-Null
-      Set-ItemProperty -Path $KeyPath7 -Name "Max" -Type String -Value 6144 | Out-Null
-      Set-ItemProperty -Path $KeyPath7 -Name "Default" -Type String -Value 4096 | Out-Null
-    }
-    Else {
-      Write-Colored "Caminho ($KeyPath) Nao encontrado." "Vermelho"
-    }
+
+    Write-Log "Configuração RSS concluída para todos os adaptadores físicos aplicáveis." -Level "INFO" -ConsoleOutput
   }
-  $ErrorActionPreference = $errpref #restore previous preference
+  catch {
+    $errorMessage = "Erro na função NetworkAdapterRSS: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    $ErrorActionPreference = $errpref
+    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+    Write-Log "Finalizando função NetworkAdapterRSS." -Level "INFO" -ConsoleOutput
+  }
 }
 
+function Download-GPUFiles {
+  Write-Log "Iniciando função Download-GPUFiles para identificar GPU, criar pasta e baixar arquivos." -ConsoleOutput
+
+  try {
+    # Identificar a placa de vídeo ativa
+    Write-Log "Obtendo informações da placa de vídeo ativa..." -ConsoleOutput
+    $gpuInfo = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop | Where-Object { $_.CurrentBitsPerPixel -and $_.AdapterDACType } | Select-Object -First 1
+    $gpuName = $gpuInfo.Name
+    Write-Log "Placa de vídeo detectada: $gpuName" -ConsoleOutput
+
+    # Definir o caminho da pasta em C:\
+    $folderPath = "C:\DownloadsGPU"
+    Write-Log "Definindo caminho da pasta como: $folderPath" -ConsoleOutput
+
+    # Verificar se a pasta existe, caso contrário, criá-la
+    if (-not (Test-Path -Path $folderPath)) {
+      Write-Log "Pasta $folderPath não existe. Criando..." -ConsoleOutput
+      New-Item -Path $folderPath -ItemType Directory -Force -ErrorAction Stop | Out-Null
+      Write-Log "Pasta $folderPath criada com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Log "Pasta $folderPath já existe. Prosseguindo com os downloads..." -ConsoleOutput
+    }
+
+    # Definir os downloads base (comuns a ambas as GPUs)
+    $baseDownloads = @(
+      @{
+        Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/MSI_util_v3.exe"
+        FileName = "MSI_util_v3.exe"
+      },
+      @{
+        Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
+        FileName = "IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
+      }
+    )
+
+    # Definir downloads específicos por GPU
+    if ($gpuName -like "*NVIDIA*" -or $gpuName -like "*GTX*" -or $gpuName -like "*RTX*") {
+      Write-Log "Placa NVIDIA detectada. Adicionando driver NVIDIA à lista de downloads..." -ConsoleOutput
+      $downloads = $baseDownloads + @(
+        @{
+          Url      = "https://us.download.nvidia.com/nvapp/client/11.0.3.218/NVIDIA_app_v11.0.3.218.exe"
+          FileName = "NVIDIA_app_v11.0.3.218.exe"
+        }
+      )
+    }
+    elseif ($gpuName -like "*AMD*" -or $gpuName -like "*Radeon*") {
+      Write-Log "Placa AMD detectada. Adicionando driver AMD à lista de downloads..." -ConsoleOutput
+      $downloads = $baseDownloads + @(
+        @{
+          Url      = "https://drivers.amd.com/drivers/installer/24.30/whql/amd-software-adrenalin-edition-25.3.1-minimalsetup-250312_web.exe"
+          FileName = "amd-software-adrenalin-edition-25.3.1-minimalsetup-250312_web.exe"
+        }
+      )
+    }
+    else {
+      Write-Log "Nenhuma placa NVIDIA ou AMD reconhecida. Baixando apenas arquivos base..." -Level "WARNING" -ConsoleOutput
+      $downloads = $baseDownloads
+    }
+
+    Write-Log "Lista de downloads definida: $($downloads | ForEach-Object { $_.FileName } -join ', ')" -ConsoleOutput
+
+    # Fazer o download de cada arquivo
+    foreach ($item in $downloads) {
+      $downloadUrl = $item.Url
+      $filePath = Join-Path -Path $folderPath -ChildPath $item.FileName
+      Write-Log "Iniciando download de $downloadUrl para $filePath..." -ConsoleOutput
+      Invoke-WebRequest -Uri $downloadUrl -OutFile $filePath -ErrorAction Stop
+      Write-Log "Download de $item.FileName concluído com sucesso em $filePath." -Level "INFO" -ConsoleOutput
+    }
+
+    Write-Log "Todos os downloads foram concluídos com sucesso em $folderPath." -Level "INFO" -ConsoleOutput
+    Write-Output "Downloads concluídos em: $folderPath"
+  }
+  catch {
+    $errorMessage = "Erro na função Download-GPUFiles: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Output $errorMessage
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função Download-GPUFiles." -Level "INFO" -ConsoleOutput
+  }
+}
 
 function Finished {
-  Clear-Host
-  Write-Colored "" "Azul"
-  Write-Colored "================ Otimização Concluída ================" "Verde"
-  Write-Colored "O sistema foi otimizado para desempenho em jogos." "Azul"
-  Write-Colored "Reinicie o computador para aplicar todas as alterações." "Amarelo"
-  
-  do {
-    Write-Colored "Deseja reiniciar agora? (S/N)" "Azul"
-    $resposta = Read-Host "Digite 'S' para reiniciar agora ou 'N' para sair"
-    $resposta = $resposta.Trim().ToUpper()
-  } while ($resposta -ne 'S' -and $resposta -ne 'N')
-  
-  if ($resposta -eq 'S') {
-    Write-Colored "Reiniciando o computador..." "Vermelho"
-    Restart-Computer -Force
+  Write-Log "Iniciando função Finished para finalizar o processo de otimização." -ConsoleOutput
+
+  try {
+    Clear-Host
+    Write-Log "Limpando a tela para exibir mensagem de conclusão." -ConsoleOutput
+
+    Write-Colored "" "Azul"
+    Write-Colored "================ Otimização Concluída ================" "Verde"
+    Write-Colored "O sistema foi otimizado para desempenho em jogos." "Azul"
+    Write-Colored "Reinicie o computador para aplicar todas as alterações." "Amarelo"
+    Write-Log "Exibindo mensagem de conclusão: Otimização concluída e instruções para reiniciar." -ConsoleOutput
+
+    do {
+      Write-Colored "Deseja reiniciar agora? (S/N)" "Azul"
+      Write-Log "Solicitando escolha do usuário para reiniciar (S/N)..." -ConsoleOutput
+      $resposta = Read-Host "Digite 'S' para reiniciar agora ou 'N' para sair"
+      $resposta = $resposta.Trim().ToUpper()
+      Write-Log "Usuário respondeu: $resposta" -ConsoleOutput
+    } while ($resposta -ne 'S' -and $resposta -ne 'N')
+
+    if ($resposta -eq 'S') {
+      Write-Colored "Reiniciando o computador..." "Vermelho"
+      Write-Log "Usuário escolheu reiniciar. Reiniciando o computador..." -ConsoleOutput
+      Restart-Computer -Force -ErrorAction Stop
+      Write-Log "Comando de reinicialização executado com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Colored "Pressione qualquer tecla para sair..." "Azul"
+      Write-Log "Usuário escolheu não reiniciar. Aguardando pressionamento de tecla para sair..." -ConsoleOutput
+      [Console]::ReadKey($true) | Out-Null
+      Write-Log "Tecla pressionada. Encerrando função." -Level "INFO" -ConsoleOutput
+    }
   }
-  else {
-    Write-Colored "Pressione qualquer tecla para sair..." "Azul"
-    [Console]::ReadKey($true) | Out-Null
+  catch {
+    $errorMessage = "Erro na função Finished: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função Finished." -Level "INFO" -ConsoleOutput
   }
 }
 
