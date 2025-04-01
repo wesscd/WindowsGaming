@@ -759,8 +759,8 @@ function InstallTitusProgs {
         $exeFile = "$env:TEMP\OOSU10.exe"
 
         # Hashes fictícios (substitua pelos reais)
-        $configExpectedHash = "A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0"
-        $exeExpectedHash = "B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1"
+        $configExpectedHash = "C8FA1E1EECCD10230452FC3D2E08F882B0AF7710A6CCDA35DB17E97394B305C9"
+        $exeExpectedHash = "6FF124ADBD65B5C74EDCC5A60B386919542CA2A83BC4FCF95DB1274AF7963C6E"
 
         Write-Log "Baixando arquivos de configuração e executável do O&O ShutUp10..." -ConsoleOutput
         Start-BitsTransfer -Source $configUrl -Destination $configFile -ErrorAction Stop
@@ -792,7 +792,7 @@ function Execute-BatchScript {
     try {
         $remoteUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/refs/heads/main/script-ccleaner.bat"
         $localPath = "$env:TEMP\techremote.bat"
-        $expectedHash = "G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6"  # Substitua pelo hash real
+        $expectedHash = "319048D53494BFAD71260B6415A2FFC90F0A83565A52856DFAE70810B40E593A"  # hash real
 
         Write-Log "Baixando script em batch de $remoteUrl para $localPath..." -ConsoleOutput
         Write-Output "Baixando e executando o script em batch..."
@@ -4557,12 +4557,12 @@ function Download-GPUFiles {
             @{
                 Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/MSI_util_v3.exe"
                 FileName = "MSI_util_v3.exe"
-                Hash     = "C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2"  # Substitua pelo hash real
+                Hash     = "695800AFAD96F858A3F291B7DF21C16649528F13D39B63FB7C233E5676C8DF6F"  # hash real
             },
             @{
                 Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
                 FileName = "IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
-                Hash     = "D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3"  # Substitua pelo hash real
+                Hash     = "E171C6298F8D01170668754C6625CA065AE76CCD79D6B472EE8CDC40A6942653"  # hash real
             }
         )
 
@@ -4573,7 +4573,7 @@ function Download-GPUFiles {
                 @{
                     Url      = "https://us.download.nvidia.com/nvapp/client/11.0.3.218/NVIDIA_app_v11.0.3.218.exe"
                     FileName = "NVIDIA_app_v11.0.3.218.exe"
-                    Hash     = "E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4"  # Substitua pelo hash real
+                    Hash     = "C19A150E53427175E5996100A25ED016F6730B627B1D6B85813811A8751C77B7"  # hash real
                 }
             )
         }
@@ -4581,9 +4581,9 @@ function Download-GPUFiles {
             Write-Log "Placa AMD detectada. Adicionando driver AMD à lista de downloads..." -ConsoleOutput
             $downloads = $baseDownloads + @(
                 @{
-                    Url      = "https://drivers.amd.com/drivers/installer/24.30/whql/amd-software-adrenalin-edition-25.3.1-minimalsetup-250312_web.exe"
-                    FileName = "amd-software-adrenalin-edition-25.3.1-minimalsetup-250312_web.exe"
-                    Hash     = "F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5"  # Substitua pelo hash real
+                    Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/AMD_ADRENALIN_WEB.exe"
+                    FileName = "AMD_ADRENALIN_WEB.exe"
+                    Hash     = "87888CE67AF3B7A1652FF134192420CA4CE644EFFB8368E570707A9E224F02F2"  # hash real
                 }
             )
         }
