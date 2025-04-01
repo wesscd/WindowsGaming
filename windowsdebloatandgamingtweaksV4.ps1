@@ -4670,25 +4670,29 @@ $totalTweaks = $tweaks.Count
 $currentStep = 0
 
 foreach ($tweak in $tweaks) {
-  $currentStep++
-  $tweakName = $tweak.Split()[0]
-  
-  Show-ProgressBar -CurrentStep $currentStep -TotalSteps $totalTweaks -TaskName $tweakName
-  
-  if ($tweakFunctions.ContainsKey($tweakName)) {
-    try {
-      Invoke-Expression $tweak
+    $currentStep++
+    $tweakName = $tweak.Split()[0]
+    
+    Write-Log "Iniciando execução do tweak: $tweakName (Passo $currentStep de $totalTweaks)" -Level "INFO" -ConsoleOutput
+    Show-ProgressBar -CurrentStep $currentStep -TotalSteps $totalTweaks -TaskName $tweakName
+    
+    if ($tweakFunctions.ContainsKey($tweakName)) {
+        try {
+            Invoke-Expression $tweak
+            Write-Log "Tweak $tweakName concluído com sucesso." -Level "INFO" -ConsoleOutput
+        }
+        catch {
+            Write-Log "Erro ao executar o tweak $tweakName: $_" -Level "ERROR" -ConsoleOutput
+            Write-Colored "`nErro ao executar $tweakName. Veja o log para detalhes." -Color "VermelhoClaro"
+            # Continua para o próximo tweak em vez de parar
+            continue
+        }
     }
-    catch {
-      Write-Log "Erro ao executar o tweak $tweakName $_" -Level "ERROR" -ConsoleOutput
-      Write-Colored "`nErro ao executar $tweakName. Veja o log para detalhes." -Color "VermelhoClaro"
+    else {
+        Write-Log "Tweak não encontrado: $tweak" -Level "WARNING" -ConsoleOutput
+        Write-Colored "`nTweak não encontrado: $tweak" -Color "VermelhoClaro"
     }
-  }
-  else {
-    Write-Log "Tweak não encontrado: $tweak" -Level "WARNING" -ConsoleOutput
-    Write-Colored "`nTweak não encontrado: $tweak" -Color "VermelhoClaro"
-  }
-  
-  Start-Sleep -Milliseconds 100 # Pequena pausa para visualização
+    
+    Start-Sleep -Milliseconds 100 # Pequena pausa para visualização
 }
 Write-Host "" # Nova linha após o progresso
