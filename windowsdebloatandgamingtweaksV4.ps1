@@ -104,9 +104,9 @@ function Write-Log {
     [switch]$ConsoleOutput = $false
   )
 
-  # Definir caminho do log (por exemplo, na pasta Temp do usuário)
+  # Definir caminho do log (por exemplo, na pasta Temp do usuário) AppData\Local\Temp
   $logPath = "$env:TEMP\optimization_log.txt"
-  $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+  $timestamp = Get-Date -Format "dd-MM-yyyy HH:mm:ss"
   $logEntry = "[$timestamp] [$Level] $Message"
 
   # Gravar no arquivo
