@@ -99,35 +99,117 @@ function Write-Colored {
 
 function Write-Log {
   param (
-    [string]$Message,
-    [string]$Level = "INFO", # Pode ser "INFO", "WARNING", "ERROR", "DEBUG"
-    [switch]$ConsoleOutput = $false
+      [string]$Message,
+      [string]$Level = "INFO", # Pode ser "INFO", "WARNING", "ERROR"
+      [switch]$ConsoleOutput = $false,
+      [int]$MaxLogSizeMB = 10, # Tamanho máximo do log em MB (padrão: 10MB)
+      [int]$MaxLogFiles = 5    # Número máximo de arquivos de log rotacionados
   )
 
-  # Definir caminho do log (por exemplo, na pasta Temp do usuário) AppData\Local\Temp
-  $logPath = "$env:TEMP\optimization_log.txt"
-  $timestamp = Get-Date -Format "dd-MM-yyyy HH:mm:ss"
-  $logEntry = "[$timestamp] [$Level] $Message"
+  # Definir caminho base para logs (usando Temp do usuário)
+  $logBasePath = "$env:TEMP"
+  $logBaseName = "optimization_log"
+  $logExtension = ".txt"
 
-  # Gravar no arquivo
-  Add-Content -Path $logPath -Value $logEntry -ErrorAction SilentlyContinue
+  # Gerar nome do arquivo com timestamp para evitar sobrescrita
+  $timestamp = Get-Date -Format "ddMMyyyy_HHmmss"
+  $logPath = Join-Path -Path $logBasePath -ChildPath "$logBaseName_$timestamp$logExtension"
 
-  # Opcional: Exibir no console se solicitado
-  if ($ConsoleOutput) {
-    if ($Level -eq "ERROR") {
-      Write-Colored "$logEntry" -Color "Vermelho"
-    }
-    elseif ($Level -eq "WARNING") {
-      Write-Colored "$logEntry" -Color "AmareloClaro"
-    }
-    else {
-      Write-Colored "$logEntry" -Color "VerdeClaro"
-    }
+  # Verificar se o diretório de logs existe e é acessível
+  if (-not (Test-Path $logBasePath)) {
+      try {
+          New-Item -Path $logBasePath -ItemType Directory -Force -ErrorAction Stop | Out-Null
+          Write-Verbose "Diretório de logs criado em $logBasePath."
+      }
+      catch {
+          Write-Error "Não foi possível criar ou acessar o diretório de logs $logBasePath. Erro: $_"
+          return
+      }
   }
 
+  # Verificar e gerenciar rotação de logs
+  $existingLogs = Get-ChildItem -Path $logBasePath -Filter "$logBaseName*_*$logExtension" | Sort-Object LastWriteTime -Descending
+  if ($existingLogs.Count -ge $MaxLogFiles) {
+      $logsToDelete = $existingLogs | Select-Object -Skip ($MaxLogFiles - 1)
+      foreach ($log in $logsToDelete) {
+          try {
+              Remove-Item -Path $log.FullName -Force -ErrorAction Stop
+              Write-Verbose "Log antigo removido: $($log.FullName)"
+          }
+          catch {
+              Write-Warning "Não foi possível remover o log antigo $($log.FullName). Erro: $_"
+          }
+      }
+  }
+
+  # Verificar tamanho atual do log mais recente (se existir)
+  $latestLog = $existingLogs | Select-Object -First 1
+  if ($latestLog -and ($latestLog.Length / 1MB) -gt $MaxLogSizeMB) {
+      Write-Verbose "Tamanho do log excedeu $MaxLogSizeMB MB. Criando novo log."
+  }
+
+  # Formatar a entrada do log
+  $logTimestamp = Get-Date -Format "dd-MM-yyyy HH:mm:ss"
+  $logEntry = "[$logTimestamp] [$Level] $Message"
+
+  # Tentar escrever no arquivo de log
+  try {
+      # Criar o arquivo se não existir
+      if (-not (Test-Path $logPath)) {
+          New-Item -Path $logPath -ItemType File -Force -ErrorAction Stop | Out-Null
+          Add-Content -Path $logPath -Value "Início do log em $logTimestamp" -ErrorAction Stop
+      }
+
+      # Adicionar a nova entrada
+      Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+
+      # Saída no console, se solicitado
+      if ($ConsoleOutput) {
+          switch ($Level.ToUpper()) {
+              "ERROR" {
+                  Write-Colored "$logEntry" -Color "Vermelho"
+              }
+              "WARNING" {
+                  Write-Colored "$logEntry" -Color "AmareloClaro"
+              }
+              default {
+                  Write-Colored "$logEntry" -Color "VerdeClaro"
+              }
+          }
+      }
+  }
+  catch {
+      # Se falhar ao escrever no log, exibir mensagem de erro
+      $errorMsg = "Falha ao escrever no log $logPath. Erro: $_"
+      Write-Error $errorMsg
+
+      # Tentar registrar o erro em um log de emergência (se possível)
+      $emergencyLog = Join-Path -Path $logBasePath -ChildPath "emergency_log.txt"
+      try {
+          Add-Content -Path $emergencyLog -Value $errorMsg -ErrorAction Stop
+      }
+      catch {
+          Write-Error "Não foi possível registrar no log de emergência. Erro: $_"
+      }
+
+      # Forçar saída no console, mesmo sem ConsoleOutput
+      Write-Colored "Erro crítico no logging: $errorMsg" -Color "Vermelho"
+  }
 }
 
+# Notas adicionais:
+# - A função agora usa um nome de arquivo único com timestamp para evitar sobrescrita.
+# - Implementada rotação de logs para manter até $MaxLogFiles arquivos, excluindo os mais antigos.
+# - Adicionado limite de tamanho do log ($MaxLogSizeMB).
+# - Melhorada a gestão de erros com blocos try/catch para capturar falhas ao criar ou escrever no log.
+# - Adicionado log de emergência caso o log principal falhe.
+
+# Exemplo de uso:
+# Write-Log "Iniciando processo" -Level "INFO" -ConsoleOutput
+# Write-Log "Erro detectado" -Level "ERROR" -ConsoleOutput
+
 # Função SlowUpdatesTweaks definida diretamente
+
 function SlowUpdatesTweaks {
   Write-Log "Iniciando função SlowUpdatesTweaks para melhorar o Windows Update e atrasar atualizações de recursos." -ConsoleOutput
 
@@ -281,7 +363,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.3.2",
+    "                                                                                  V0.7.2.3.3",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
