@@ -113,7 +113,7 @@ function Verify-FileHash {
         Write-Log "Verificação de integridade do arquivo $FilePath concluída com sucesso." -Level "INFO" -ConsoleOutput
     }
     catch {
-        Write-Log "Erro ao verificar o hash do arquivo $FilePath: $_" -Level "ERROR" -ConsoleOutput
+        Write-Log "Erro ao verificar o hash do arquivo $FilePath $_" -Level "ERROR" -ConsoleOutput
         throw
     }
 }
