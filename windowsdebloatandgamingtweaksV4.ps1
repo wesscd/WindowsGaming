@@ -334,7 +334,7 @@ function Show-Intro {
     "╚═══════════════════════════════════════╝"
 
   )
-  $colors = @("VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "AzulClaro", "AmareloClaro", "AmareloClaro", "VermelhoClaro", "Branco", "CianoClaro", "CianoClaro", "CianoClaro", "CianoClaro", "CianoClaro")
+  $colors = @("VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "AzulClaro", "AmareloClaro", "AmareloClaro", "VermelhoClaro", "Branco", "CianoClaro", "CianoClaro", "CianoClaro", "CianoClaro", "CianoClaro", "CianoClaro", "CianoClaro")
     
   for ($i = 0; $i -lt $intro.Length; $i++) {
     $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
