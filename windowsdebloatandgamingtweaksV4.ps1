@@ -3063,7 +3063,7 @@ Function GameOptimizationFIX {
       Get-WmiObject MSPower_DeviceEnable -Namespace root\wmi -ErrorAction Stop | ForEach-Object { 
         Write-Log "Desativando economia de energia para dispositivo: $($_.InstanceName)..." -ConsoleOutput
         $_.enable = $false
-        $_.psbase.put() -ErrorAction Stop | Out-Null
+        $_.psbase.put() | Out-Null
         Write-Log "Economia de energia desativada com sucesso para $($_.InstanceName)." -Level "INFO" -ConsoleOutput
       }
       Write-Log "Opções de economia de energia desativadas com sucesso em todos os dispositivos conectados." -Level "INFO" -ConsoleOutput
