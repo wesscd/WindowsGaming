@@ -1112,9 +1112,9 @@ function AskXBOX {
     $banner = @(
       "",
       "",
-      "╔═══════════════════════════════════════╗",
+      "╔════════════════════════════════════════╗",
       "╠══════ Gerenciar Recursos do Xbox ══════╣",
-      "╚═══════════════════════════════════════╝",
+      "╚════════════════════════════════════════╝",
       "",
       "≫ Este menu permite gerenciar os recursos e aplicativos relacionados ao Xbox.",
       "≫ AVISO: Desabilitar os aplicativos do Xbox fará com que o Win+G (Game Bar) não funcione!",
@@ -1124,6 +1124,17 @@ function AskXBOX {
       "≫ Pressione 'P' para pular esta etapa.",
       "",
       "Pressione qualquer tecla para continuar..."
+    )
+
+    $colors = @(
+      "Branco", "Branco", 
+      "Amarelo", "Amarelo", "Amarelo", 
+      "Branco", 
+      "AmareloClaro", "AmareloClaro", 
+      "Branco", 
+      "AmareloClaro", "AmareloClaro", "AmareloClaro", 
+      "Branco", 
+      "Verde"
     )
 
     for ($i = 0; $i -lt $banner.Length; $i++) {
@@ -3561,6 +3572,17 @@ function Ativar-Servicos {
     "Pressione qualquer tecla para continuar..."
   )
 
+  $colors = @(
+    "Branco", "Branco", 
+    "Amarelo", "Amarelo", "Amarelo", 
+    "Branco", 
+    "AmareloClaro", 
+    "Branco", 
+    "AmareloClaro", "AmareloClaro", "AmareloClaro", 
+    "Branco", 
+    "Verde"
+  )
+
   for ($i = 0; $i -lt $banner.Length; $i++) {
     $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
     Write-Colored $banner[$i] $color
@@ -3645,9 +3667,9 @@ function Remove-OneDrive {
       $banner = @(
         "",
         "",
-        "╔═══════════════════════════════════════╗",
-        "╠══════ Desinstalar o OneDrive ══════╣",
-        "╚═══════════════════════════════════════╝",
+        "╔════════════════════════════════════════╗",
+        "╠════════ Desinstalar o OneDrive ════════╣",
+        "╚════════════════════════════════════════╝",
         "",
         "≫ Este menu permite desinstalar o OneDrive do sistema.",
         "≫ O processo encerrará o OneDrive, desinstalará o programa e removerá pastas associadas.",
@@ -3657,6 +3679,17 @@ function Remove-OneDrive {
         "≫ Pressione 'N' para pular esta etapa.",
         "",
         "Pressione qualquer tecla para continuar..."
+      )
+
+      $colors = @(
+        "Branco", "Branco", 
+        "Amarelo", "Amarelo", "Amarelo", 
+        "Branco", 
+        "AmareloClaro", "AmareloClaro", "AmareloClaro", 
+        "Branco", 
+        "AmareloClaro", "AmareloClaro", 
+        "Branco", 
+        "Verde"
       )
 
       for ($i = 0; $i -lt $banner.Length; $i++) {
@@ -4026,9 +4059,9 @@ function Set-MemoriaVirtual-Registry {
     $banner = @(
       "",
       "",
-      "╔═══════════════════════════════════════╗",
-      "╠══════ Configurar Memória Virtual ══════╣",
-      "╚═══════════════════════════════════════╝",
+      "╔══════════════════════════════════════════╗",
+      "╠═══════ Configurar Memória Virtual ═══════╣",
+      "╚══════════════════════════════════════════╝",
       "",
       "≫ Este menu permite configurar a memória virtual do sistema.",
       "≫ A memória virtual será ajustada com base na RAM total detectada.",
@@ -4037,6 +4070,15 @@ function Set-MemoriaVirtual-Registry {
       "≫ O sistema desativará a gestão automática da memória virtual.",
       "",
       "Pressione qualquer tecla para continuar..."
+    )
+
+    $colors = @(
+      "Branco", "Branco", 
+      "Amarelo", "Amarelo", "Amarelo", 
+      "Branco", 
+      "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", 
+      "Branco", 
+      "Verde"
     )
 
     for ($i = 0; $i -lt $banner.Length; $i++) {
