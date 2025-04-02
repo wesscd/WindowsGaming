@@ -326,11 +326,11 @@ function Show-Intro {
     "",
     "╔═══════════════════════════════════════╗",
     "╠══════ Informações do Computador ══════╣",
-    "║ Nome do Host: " + [System.Environment]::MachineName,
-    "║ Sistema Operacional: " + (Get-ComputerInfo).WindowsProductName,
-    "║ Versão do Windows: " + (Get-ComputerInfo).WindowsVersion,
+    "║ Nome do Host: " + [System.Environment]::MachineName + " " * (35 - ([System.Environment]::MachineName).Length),
+    "║ Sistema Operacional: " + (Get-ComputerInfo).WindowsProductName + " " * (35 - ((Get-ComputerInfo).WindowsProductName).Length),
+    "║ Versão do Windows: " + (Get-ComputerInfo).WindowsVersion + " " * (35 - ((Get-ComputerInfo).WindowsVersion).Length),
     "║ Processador: " + (Get-CimInstance Win32_Processor).Name,
-    "║ Memória RAM: " + [math]::Round((Get-ComputerInfo).CsTotalPhysicalMemory / 1GB, 2) + " GB",
+    "║ Memória RAM: " + [math]::Round((Get-ComputerInfo).CsTotalPhysicalMemory / 1GB, 2) + " GB" + " " * (35 - ([math]::Round((Get-ComputerInfo).CsTotalPhysicalMemory / 1GB, 2).ToString() + " GB").Length),
     "╚═══════════════════════════════════════╝"
   )
   $colors = @(
@@ -338,7 +338,7 @@ function Show-Intro {
     "AzulClaro", "AmareloClaro", "AmareloClaro", "VermelhoClaro", "Branco", 
     "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro"
   )
-
+  
   for ($i = 0; $i -lt $intro.Length; $i++) {
     $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
     Write-Colored $intro[$i] $color
@@ -346,6 +346,9 @@ function Show-Intro {
 
   [Console]::ReadKey($true)
 }
+
+# Executa a função
+Show-Intro
 
 # Executa a função
 Show-Intro
