@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.4.6 (GROK / GPT)
+# Versão: V0.7.2.4.7 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
@@ -335,7 +335,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.4.6",
+    "                                                                                  V0.7.2.4.7",
     "",
     "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
@@ -833,16 +833,48 @@ function Check-Windows {
       Write-Log "Windows não está ativado. Solicitando ação do usuário." -Level "WARNING" -ConsoleOutput
       Write-Colored "O Windows não está ativado." -Color "AmareloClaro"
 
+      Clear-Host
+      Write-Log "Exibindo menu de opções para ativação do Windows." -ConsoleOutput
+      $banner = @(
+        "",
+        "",
+        "╔════════════════════════════════════════╗",
+        "╠═══════════ Ativar o Windows ═══════════╣",
+        "╚════════════════════════════════════════╝",
+        "",
+        "≫ Este menu permite ativar o Windows caso ele não esteja ativado.",
+        "≫ Você pode inserir uma chave de produto ou usar um servidor KMS para ativação.",
+        "",
+        "≫ Pressione 'C' para inserir uma nova chave de produto.",
+        "≫ Pressione 'K' para ativar via KMS.",
+        "≫ Pressione 'P' para pular a ativação.",
+        "",
+        "Pressione qualquer tecla para continuar..."
+      )
+
+      $colors = @(
+        "Branco", "Branco", 
+        "Amarelo", "Amarelo", "Amarelo", 
+        "Branco", 
+        "AmareloClaro", "AmareloClaro", 
+        "Branco", 
+        "AmareloClaro", "AmareloClaro", "AmareloClaro", 
+        "Branco", 
+        "Verde"
+      )
+
+      for ($i = 0; $i -lt $banner.Length; $i++) {
+        $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
+        Write-Colored $banner[$i] $color
+      }
+
+      [Console]::ReadKey($true)
+
       do {
         Clear-Host
-        Write-Log "Exibindo menu de opções para ativação do Windows." -ConsoleOutput
-        Write-Colored "" "Azul"
-        Write-Colored "================ Ativar o Windows ================" "Azul"
-        Write-Colored "" "Azul"
-        Write-Colored "Pressione 'C' para inserir uma nova chave de produto." "Azul"
-        Write-Colored "Pressione 'K' para ativar via KMS." "Azul"
-        Write-Colored "Pressione 'P' para pular a ativação." "Azul"
-        $selection = Read-Host "Por favor, escolha."
+        Write-Colored "" "Branco"
+        Write-Colored "Digite sua escolha (C/K/P):" "Cyan"
+        $selection = Read-Host
         Write-Log "Usuário selecionou: $selection" -ConsoleOutput
       } until ($selection -match "(?i)^(c|k|p)$")
 
