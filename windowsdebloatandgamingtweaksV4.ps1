@@ -1107,17 +1107,53 @@ function AskXBOX {
     Write-Log "Versão do Windows detectada: Major $($winVer.Major), Build $($winVer.Build). Windows 11: $isWin11" -ConsoleOutput
 
     # Solicitar escolha do usuário
+    Clear-Host
+    Write-Log "Exibindo menu de opções para gerenciar recursos do Xbox." -ConsoleOutput
+    $banner = @(
+      "",
+      "",
+      "╔═══════════════════════════════════════╗",
+      "╠══════ Gerenciar Recursos do Xbox ══════╣",
+      "╚═══════════════════════════════════════╝",
+      "",
+      "≫ Este menu permite gerenciar os recursos e aplicativos relacionados ao Xbox.",
+      "≫ AVISO: Desabilitar os aplicativos do Xbox fará com que o Win+G (Game Bar) não funcione!",
+      "",
+      "≫ Pressione 'D' para desabilitar os recursos do Xbox.",
+      "≫ Pressione 'H' para habilitar os recursos do Xbox.",
+      "≫ Pressione 'P' para pular esta etapa.",
+      "",
+      "Pressione qualquer tecla para continuar..."
+    )
+
+    $colors = @(
+      "Branco", "Branco", 
+      "Amarelo", "Amarelo", "Amarelo", 
+      "Branco", 
+      "AmareloClaro", "VermelhoClaro", 
+      "Branco", 
+      "AmareloClaro", "AmareloClaro", "AmareloClaro", 
+      "Branco", 
+      "Verde"
+    )
+
+    # Função auxiliar para escrever texto colorido
+    function Write-Colored($text, $color) {
+      Write-Host $text -ForegroundColor $color
+    }
+
+    for ($i = 0; $i -lt $banner.Length; $i++) {
+      $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
+      Write-Colored $banner[$i] $color
+    }
+
+    [Console]::ReadKey($true)
+
     do {
       Clear-Host
-      Write-Log "Exibindo menu de opções para gerenciar recursos do Xbox." -ConsoleOutput
-      Write-Colored "" "Azul"
-      Write-Colored "================ Desabilitar os recursos do XBOX e todos os aplicativos relacionados? ================" "Azul"
-      Write-Colored "" "Azul"
-      Write-Colored "AVISO: REMOVER OS APLICATIVOS DO XBOX fará com que o Win+G não funcione!" "Vermelho"
-      Write-Colored "Pressione 'D' para desabilitar os recursos do XBOX." "Azul"
-      Write-Colored "Pressione 'H' para habilitar os recursos do XBOX." "Azul"
-      Write-Colored "Pressione 'P' para pular isso." "Azul"
-      $selection = Read-Host "Por favor, escolha"
+      Write-Colored "" "Branco"
+      Write-Colored "Digite sua escolha (D/H/P):" "Cyan"
+      $selection = Read-Host
       Write-Log "Usuário selecionou: $selection" -ConsoleOutput
     } until ($selection -match "(?i)^(d|h|p)$")
 
@@ -1197,7 +1233,7 @@ function AskXBOX {
         }
 
         Write-Log "Reinstalando aplicativos do Xbox..." -ConsoleOutput
-        foreach ($app in $xboxApps) {
+        foreach ($app in $xboxApps) { 
           $pkg = Get-AppxPackage -AllUsers $app -ErrorAction Stop
           if ($pkg) {
             Write-Log "Reinstalando aplicativo: $app" -ConsoleOutput
@@ -3525,50 +3561,59 @@ function Ativar-Servicos {
 
   # Exibir banner informativo
   Clear-Host
-  Write-Colored "" "Vermelho"
-  Write-Colored "======================================================" "Vermelho"
-  Write-Colored "===  Servicos Essenciais para Investigacao Forense ===" "Vermelho"
-  Write-Colored "======================================================" "Vermelho"
-  Write-Colored "" "Vermelho"
-  Write-Colored "Este menu auxilia na ativacao dos seguintes servicos:" "CinzaClaro"
-  Write-Colored "- SysMain: " "Amarelo"; Write-Colored "O SysMain, anteriormente conhecido como Superfetch, e um servico do Windows que preenche a memoria RAM com aplicativos frequentemente usados para acelerar o carregamento dos programas mais utilizados." "Branco"
-  Write-Colored "- PcaSvc: " "Amarelo"; Write-Colored "O PcaSvc (Program Compatibility Assistant Service) e um servico que detecta problemas de compatibilidade em programas legados e aplica correcao para melhorar a estabilidade do sistema." "Branco"
-  Write-Colored "- DiagTrack: " "Amarelo"; Write-Colored "O DiagTrack (Connected User Experiences and Telemetry) coleta e envia dados de diagnostico e uso para a Microsoft, auxiliando na melhoria dos servicos e na resolucao de problemas." "Branco"
-  Write-Colored "" "CinzaClaro"
-  Write-Colored "Estes servicos sao essenciais para a investigacao forense de cheats em servidores de Minecraft, DayZ e FIVEM GTA5 que utilizam o Echo AntiCheat." "Amarelo"
-  Write-Colored "" "Amarelo"
-  Write-Colored "===============================================" "AmareloClaro"
+  $banner = @(
+    "",
+    "",
+    "╔═══════════════════════════════════════╗",
+    "╠══════ Ativar Serviços Essenciais ══════╣",
+    "╚═══════════════════════════════════════╝",
+    "",
+    "≫ Este menu auxilia na ativação dos seguintes serviços, essenciais para investigação forense de cheats em servidores de Minecraft, DayZ e FIVEM GTA5 que utilizam o Echo AntiCheat:",
+    "",
+    "≫ SysMain: O SysMain, anteriormente conhecido como Superfetch, é um serviço do Windows que preenche a memória RAM com aplicativos frequentemente usados para acelerar o carregamento dos programas mais utilizados.",
+    "≫ PcaSvc: O PcaSvc (Program Compatibility Assistant Service) é um serviço que detecta problemas de compatibilidade em programas legados e aplica correções para melhorar a estabilidade do sistema.",
+    "≫ DiagTrack: O DiagTrack (Connected User Experiences and Telemetry) coleta e envia dados de diagnóstico e uso para a Microsoft, auxiliando na melhoria dos serviços e na resolução de problemas.",
+    "",
+    "Pressione qualquer tecla para continuar..."
+  )
 
-  # Função interna para ativar um servico
+  for ($i = 0; $i -lt $banner.Length; $i++) {
+    $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
+    Write-Colored $banner[$i] $color
+  }
+
+  [Console]::ReadKey($true)
+
+  # Função interna para ativar um serviço
   function Ativar-Servico {
     param (
       [string]$NomeServico
     )
     $servico = Get-Service -Name $NomeServico -ErrorAction SilentlyContinue
     if ($null -eq $servico) {
-      Write-Colored "Servico '$NomeServico' nao encontrado." "VermelhoClaro"
+      Write-Colored "Serviço '$NomeServico' não encontrado." "VermelhoClaro"
       return
     }
-    Write-Colored "Servico encontrado: $($servico.DisplayName) ($($servico.Name))" "CinzaClaro"
+    Write-Colored "Serviço encontrado: $($servico.DisplayName) ($($servico.Name))" "CinzaClaro"
     if ($servico.Status -eq 'Running') {
-      Write-Colored "Servico '$($servico.Name)' ja esta em execucao." "VerdeClaro"
+      Write-Colored "Serviço '$($servico.Name)' já está em execução." "VerdeClaro"
     }
     else {
       Start-Service -Name $servico.Name
       Set-Service -Name $servico.Name -StartupType Automatic
-      Write-Colored "Servico '$($servico.Name)' ativado com sucesso." "VerdeClaro"
+      Write-Colored "Serviço '$($servico.Name)' ativado com sucesso." "VerdeClaro"
     }
   }
 
-  # Loop para cada servico
+  # Loop para cada serviço
   foreach ($nomeServico in $Servicos) {
-    $pergunta = "Deseja ativar o servico '$nomeServico'? (S/N): "
+    $pergunta = "Deseja ativar o serviço '$nomeServico'? (S/N): "
     $resposta = Read-Host -Prompt $pergunta
     if ($resposta.ToUpper() -eq 'S') {
       Ativar-Servico -NomeServico $nomeServico
     }
     else {
-      Write-Colored "Servico '$nomeServico' nao foi ativado." "Amarelo"
+      Write-Colored "Serviço '$nomeServico' não foi ativado." "Amarelo"
     }
   }
 }
@@ -3611,15 +3656,37 @@ function Remove-OneDrive {
 
   try {
     if ($AskUser) {
+      Clear-Host
+      Write-Log "Exibindo menu de opções para desinstalar o OneDrive." -ConsoleOutput
+      $banner = @(
+        "",
+        "",
+        "╔═══════════════════════════════════════╗",
+        "╠══════ Desinstalar o OneDrive ══════╣",
+        "╚═══════════════════════════════════════╝",
+        "",
+        "≫ Este menu permite desinstalar o OneDrive do sistema.",
+        "≫ O processo encerrará o OneDrive, desinstalará o programa e removerá pastas associadas.",
+        "≫ Atenção: Certifique-se de que todos os arquivos importantes foram sincronizados ou movidos antes de prosseguir.",
+        "",
+        "≫ Pressione 'S' para desinstalar o OneDrive.",
+        "≫ Pressione 'N' para pular esta etapa.",
+        "",
+        "Pressione qualquer tecla para continuar..."
+      )
+
+      for ($i = 0; $i -lt $banner.Length; $i++) {
+        $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
+        Write-Colored $banner[$i] $color
+      }
+
+      [Console]::ReadKey($true)
+
       do {
         Clear-Host
-        Write-Log "Exibindo menu de opções para desinstalar o OneDrive." -ConsoleOutput
-        Write-Colored "" "Azul"
-        Write-Colored "================ Desinstalar o OneDrive? ================" "Azul"
-        Write-Colored "" "Azul"
-        Write-Colored "Pressione 'S' para desinstalar o OneDrive." "Azul"
-        Write-Colored "Pressione 'N' para pular isso." "Azul"
-        $selection = Read-Host "Por favor, escolha."
+        Write-Colored "" "Branco"
+        Write-Colored "Digite sua escolha (S/N):" "Cyan"
+        $selection = Read-Host
         Write-Log "Usuário selecionou: $selection" -ConsoleOutput
       } until ($selection -match "(?i)^(s|n)$")
 
@@ -3972,13 +4039,31 @@ function Set-MemoriaVirtual-Registry {
 
   try {
     Clear-Host
-    Write-Colored "" "Azul"
-    Write-Colored -Text "===================================================" -Color "Azul"
-    Write-Colored -Text "==========  Configurando Memória Virtual ==========" -Color "Azul"
-    Write-Colored -Text "===================================================" -Color "Azul"
-    Write-Colored "" "Azul"
+    $banner = @(
+      "",
+      "",
+      "╔═══════════════════════════════════════╗",
+      "╠══════ Configurar Memória Virtual ══════╣",
+      "╚═══════════════════════════════════════╝",
+      "",
+      "≫ Este menu permite configurar a memória virtual do sistema.",
+      "≫ A memória virtual será ajustada com base na RAM total detectada.",
+      "≫ Tamanho inicial: 9081 MB (fixo).",
+      "≫ Tamanho máximo: 1,5x a RAM total.",
+      "≫ O sistema desativará a gestão automática da memória virtual.",
+      "",
+      "Pressione qualquer tecla para continuar..."
+    )
+
+    for ($i = 0; $i -lt $banner.Length; $i++) {
+      $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
+      Write-Colored $banner[$i] $color
+    }
+
+    [Console]::ReadKey($true)
+
     Write-Log "Exibindo interface de configuração da memória virtual." -ConsoleOutput
-    Write-Colored "" "Azul"
+    Write-Colored "" "Branco"
     Write-Colored -Text "Informe a letra do drive (ex: C) para configurar a memória virtual:" -Color "Cyan"
     $Drive = Read-Host
     $DrivePath = "${Drive}:"
