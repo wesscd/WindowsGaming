@@ -323,7 +323,7 @@ function Show-Intro {
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
     "DESATIVE SEU ANTIVÍRUS e PRESSIONE QUALQUER TECLA para continuar!",
-    "", "=== Informações do Computador ===",
+    "", "", "=== Informações do Computador ===",
     "Nome do Host: " + [System.Environment]::MachineName,
     "Sistema Operacional: " + (Get-ComputerInfo).WindowsProductName,
     "Versão do Windows: " + (Get-ComputerInfo).WindowsVersion,
@@ -336,7 +336,7 @@ function Show-Intro {
     $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
     Write-Colored $intro[$i] $color
   }
-  
+
   [Console]::ReadKey($true)
 }
 
