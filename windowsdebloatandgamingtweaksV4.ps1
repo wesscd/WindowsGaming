@@ -3493,93 +3493,116 @@ function DownloadAndExtractISLC {
   Write-Log "Iniciando função DownloadAndExtractISLC para baixar e extrair o ISLC." -ConsoleOutput
 
   try {
-    # Definir o link de download e o caminho do arquivo
-    $downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
-    $downloadPath = "C:\ISLC_v1.0.3.4.exe"
-    $extractPath = "C:\"
-    $newFolderName = "ISLC"
-    Write-Log "Configurações definidas: URL=$downloadUrl, Caminho Download=$downloadPath, Caminho Extração=$extractPath, Nome Pasta=$newFolderName" -ConsoleOutput
+      # Definir o link de download e o caminho do arquivo
+      $downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
+      $downloadPath = "C:\ISLC_v1.0.3.4.exe"
+      $extractPath = "C:\"
+      $newFolderName = "ISLC"
 
-    # Baixar o arquivo executável
-    Write-Colored "Iniciando o download do arquivo..." "Verde"
-    Write-Log "Iniciando o download do arquivo de $downloadUrl para $downloadPath..." -ConsoleOutput
-    Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath -ErrorAction Stop
-    Write-Log "Arquivo baixado com sucesso para $downloadPath." -Level "INFO" -ConsoleOutput
-    Write-Colored "Arquivo baixado com sucesso!" "Verde"
+      Write-Log "Configurações definidas: URL=$downloadUrl, Caminho Download=$downloadPath, Caminho Extração=$extractPath, Nome Pasta=$newFolderName" -ConsoleOutput
 
-    # Verificar se a pasta de extração existe, caso contrário, criar
-    if (-Not (Test-Path -Path $extractPath)) {
-      Write-Log "Pasta de extração $extractPath não existe. Criando..." -ConsoleOutput
-      Write-Colored "Criando a pasta de extração..." "Verde"
-      New-Item -ItemType Directory -Path $extractPath -ErrorAction Stop
-      Write-Log "Pasta de extração $extractPath criada com sucesso." -Level "INFO" -ConsoleOutput
-    }
-    else {
-      Write-Log "Pasta de extração $extractPath já existe." -ConsoleOutput
-    }
+      # Baixar o arquivo executável
+      Write-Colored "Iniciando o download do arquivo..." "Verde"
+      Write-Log "Iniciando o download do arquivo de $downloadUrl para $downloadPath..." -ConsoleOutput
+      Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath -ErrorAction Stop
+      Write-Log "Arquivo baixado com sucesso para $downloadPath." -Level "INFO" -ConsoleOutput
+      Write-Colored "Arquivo baixado com sucesso!" "Verde"
 
-    # Caminho do 7z.exe
-    $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"  # Altere conforme o local do seu 7z.exe
-    Write-Log "Caminho do 7z.exe definido como: $sevenZipPath" -ConsoleOutput
-
-    # Verificar se o 7z está instalado
-    if (Test-Path -Path $sevenZipPath) {
-      Write-Log "7-Zip encontrado em $sevenZipPath. Extraindo o conteúdo..." -ConsoleOutput
-      Write-Colored "Extraindo o conteúdo do arquivo usando 7-Zip..." "Verde"
-      & $sevenZipPath x $downloadPath -o"$extractPath" -y -ErrorAction Stop
-      Write-Log "Arquivo extraído com sucesso para $extractPath." -Level "INFO" -ConsoleOutput
-      Write-Colored "Arquivo extraído com sucesso para $extractPath" "Verde"
-
-      # Renomear a pasta extraída para ISLC
-      $extractedFolderPath = "$extractPath\ISLC v1.0.3.4"
-      if (Test-Path -Path $extractedFolderPath) {
-        Write-Log "Renomeando a pasta extraída de $extractedFolderPath para $newFolderName..." -ConsoleOutput
-        Rename-Item -Path $extractedFolderPath -NewName $newFolderName -ErrorAction Stop
-        Write-Log "Pasta renomeada com sucesso para $newFolderName." -Level "INFO" -ConsoleOutput
-        Write-Colored "Pasta renomeada para '$newFolderName'." "Verde"
+      # Verificar se a pasta de extração existe, caso contrário, criar
+      if (-Not (Test-Path -Path $extractPath)) {
+          Write-Log "Pasta de extração $extractPath não existe. Criando..." -ConsoleOutput
+          Write-Colored "Criando a pasta de extração..." "Verde"
+          New-Item -ItemType Directory -Path $extractPath -ErrorAction Stop
+          Write-Log "Pasta de extração $extractPath criada com sucesso." -Level "INFO" -ConsoleOutput
       }
       else {
-        Write-Log "Pasta extraída $extractedFolderPath não encontrada." -Level "ERROR" -ConsoleOutput
-        Write-Colored "Pasta extraída não encontrada." "Vermelho"
+          Write-Log "Pasta de extração $extractPath já existe." -ConsoleOutput
       }
-    }
-    else {
-      Write-Log "7-Zip não encontrado em $sevenZipPath." -Level "WARNING" -ConsoleOutput
-      Write-Colored "7-Zip não encontrado no caminho especificado." "Amarelo"
-    }
 
-    Write-Log "Removendo o arquivo baixado $downloadPath..." -ConsoleOutput
-    Remove-Item -Path $downloadPath -Force -ErrorAction Stop
-    Write-Log "Arquivo $downloadPath excluído com sucesso." -Level "INFO" -ConsoleOutput
-    Write-Colored "Excluindo $downloadPath" "Verde"
+      # Caminho do 7z.exe
+      $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"  # Altere conforme o local do seu 7z.exe
+      Write-Log "Caminho do 7z.exe definido como: $sevenZipPath" -ConsoleOutput
 
-    # Caminho completo do executável do programa
-    $origem = "C:\ISLC\Intelligent standby list cleaner ISLC.exe"
-    # Nome do atalho que será criado
-    $atalhoNome = "Intelligent standby list cleaner ISLC.lnk"
-    # Caminho para a pasta de Inicialização do usuário
-    $destino = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup", $atalhoNome)
-    Write-Log "Configurando atalho: Origem=$origem, Destino=$destino" -ConsoleOutput
+      # Verificar se o 7z está instalado
+      if (Test-Path -Path $sevenZipPath) {
+          Write-Log "7-Zip encontrado em $sevenZipPath. Extraindo o conteúdo..." -ConsoleOutput
+          Write-Colored "Extraindo o conteúdo do arquivo usando 7-Zip..." "Verde"
 
-    # Criação do objeto Shell
-    Write-Log "Criando objeto Shell para criar o atalho..." -ConsoleOutput
-    $shell = New-Object -ComObject WScript.Shell -ErrorAction Stop
-    # Criação do atalho
-    Write-Log "Criando o atalho em $destino..." -ConsoleOutput
-    $atalho = $shell.CreateShortcut($destino)
-    $atalho.TargetPath = $origem
-    $atalho.Save()
-    Write-Log "Atalho criado com sucesso em $destino." -Level "INFO" -ConsoleOutput
-    Write-Output "Atalho criado em: $destino"
+          # Executar o 7-Zip e capturar saída e erro separadamente
+          $process = Start-Process -FilePath $sevenZipPath -ArgumentList "x", "$downloadPath", "-o$extractPath", "-y" -NoNewWindow -Wait -PassThru
+          $exitCode = $process.ExitCode
+
+          if ($exitCode -ne 0) {
+              Write-Log "Erro ao extrair o arquivo com 7-Zip. Código de saída: $exitCode" -Level "ERROR" -ConsoleOutput
+              throw "Erro ao extrair o arquivo com 7-Zip. Código de saída: $exitCode"
+          }
+
+          Write-Log "Arquivo extraído com sucesso para $extractPath." -Level "INFO" -ConsoleOutput
+          Write-Colored "Arquivo extraído com sucesso para $extractPath" "Verde"
+
+          # Renomear a pasta extraída para ISLC
+          $extractedFolderPath = Join-Path -Path $extractPath -ChildPath "ISLC v1.0.3.4"
+          if (Test-Path -Path $extractedFolderPath) {
+              Write-Log "Renomeando a pasta extraída de $extractedFolderPath para $newFolderName..." -ConsoleOutput
+              Rename-Item -Path $extractedFolderPath -NewName $newFolderName -ErrorAction Stop
+              Write-Log "Pasta renomeada com sucesso para $newFolderName." -Level "INFO" -ConsoleOutput
+              Write-Colored "Pasta renomeada para '$newFolderName'." "Verde"
+          }
+          else {
+              Write-Log "Pasta extraída $extractedFolderPath não encontrada. Verificando subpastas..." -Level "WARNING" -ConsoleOutput
+
+              # Tentar encontrar a pasta extraída manualmente
+              $foundFolder = Get-ChildItem -Path $extractPath -Directory | Where-Object { $_.Name -like "ISLC*" } | Select-Object -First 1
+              if ($foundFolder) {
+                  Write-Log "Pasta encontrada: $($foundFolder.FullName). Renomeando para $newFolderName..." -Level "INFO" -ConsoleOutput
+                  Rename-Item -Path $foundFolder.FullName -NewName $newFolderName -ErrorAction Stop
+                  Write-Colored "Pasta renomeada para '$newFolderName'." "Verde"
+              }
+              else {
+                  Write-Log "Nenhuma pasta extraída encontrada em $extractPath." -Level "ERROR" -ConsoleOutput
+                  Write-Colored "Nenhuma pasta extraída encontrada." "Vermelho"
+                  throw "Pasta extraída não encontrada após extração."
+              }
+          }
+      }
+      else {
+          Write-Log "7-Zip não encontrado em $sevenZipPath." -Level "WARNING" -ConsoleOutput
+          Write-Colored "7-Zip não encontrado no caminho especificado." "Amarelo"
+          throw "7-Zip não instalado ou não encontrado."
+      }
+
+      Write-Log "Removendo o arquivo baixado $downloadPath..." -ConsoleOutput
+      Remove-Item -Path $downloadPath -Force -ErrorAction Stop
+      Write-Log "Arquivo $downloadPath excluído com sucesso." -Level "INFO" -ConsoleOutput
+      Write-Colored "Excluindo $downloadPath" "Verde"
+
+      # Caminho completo do executável do programa
+      $origem = "C:\ISLC\Intelligent standby list cleaner ISLC.exe"
+      # Nome do atalho que será criado
+      $atalhoNome = "Intelligent standby list cleaner ISLC.lnk"
+      # Caminho para a pasta de Inicialização do usuário
+      $destino = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup", $atalhoNome)
+      Write-Log "Configurando atalho: Origem=$origem, Destino=$destino" -ConsoleOutput
+
+      # Criação do objeto Shell
+      Write-Log "Criando objeto Shell para criar o atalho..." -ConsoleOutput
+      $shell = New-Object -ComObject WScript.Shell -ErrorAction Stop
+      # Criação do atalho
+      Write-Log "Criando o atalho em $destino..." -ConsoleOutput
+      $atalho = $shell.CreateShortcut($destino)
+      $atalho.TargetPath = $origem
+      $atalho.Save()
+      Write-Log "Atalho criado com sucesso em $destino." -Level "INFO" -ConsoleOutput
+      Write-Output "Atalho criado em: $destino"
   }
   catch {
-    $errorMessage = "Erro na função DownloadAndExtractISLC: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage "Vermelho"
-    throw  # Repropaga o erro
+      $errorMessage = "Erro na função DownloadAndExtractISLC: $_"
+      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+      Write-Colored $errorMessage "Vermelho"
+      throw  # Repropaga o erro
   }
   finally {
-    Write-Log "Finalizando função DownloadAndExtractISLC." -Level "INFO" -ConsoleOutput
+      Write-Log "Finalizando função DownloadAndExtractISLC." -Level "INFO" -ConsoleOutput
   }
 }
 
