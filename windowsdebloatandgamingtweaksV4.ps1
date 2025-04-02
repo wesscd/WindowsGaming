@@ -4402,7 +4402,7 @@ function AMDGPUTweaks {
       $subKeys = Get-ChildItem -Path $baseRegPath -ErrorAction Stop | Where-Object { $_.PSChildName -match '^\d{4}$' }
     }
     catch {
-      Write-Log "Falha ao listar subchaves ou ajustar permissões em $baseRegPath: $_" -Level "WARNING" -ConsoleOutput
+      Write-Log "Falha ao listar subchaves ou ajustar permissões em $baseRegPath $_" -Level "WARNING" -ConsoleOutput
       Write-Output "Aviso: Não foi possível acessar o registro de dispositivos de vídeo. Continuando com base em CIM/WMI..."
     }
 
@@ -4446,7 +4446,7 @@ function AMDGPUTweaks {
               Write-Log "Propriedade $($prop.Name) configurada com sucesso em $regPath." -Level "DEBUG" -ConsoleOutput
             }
             catch {
-              Write-Log "Falha ao configurar $($prop.Name) em $regPath: $_" -Level "WARNING" -ConsoleOutput
+              Write-Log "Falha ao configurar $($prop.Name) em $regPath $_" -Level "WARNING" -ConsoleOutput
             }
           }
           Write-Log "Otimizações de latência AMD aplicadas com sucesso no caminho $subKeyName." -Level "INFO" -ConsoleOutput
@@ -4488,7 +4488,7 @@ function AMDGPUTweaks {
             Write-Log "Propriedade $($prop.Name) configurada com sucesso em $defaultRegPath." -Level "DEBUG" -ConsoleOutput
           }
           catch {
-            Write-Log "Falha ao configurar $($prop.Name) em $defaultRegPath: $_" -Level "WARNING" -ConsoleOutput
+            Write-Log "Falha ao configurar $($prop.Name) em $defaultRegPath $_" -Level "WARNING" -ConsoleOutput
           }
         }
         Write-Log "Otimizações de latência AMD aplicadas com sucesso no caminho padrão 0000." -Level "INFO" -ConsoleOutput
