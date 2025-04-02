@@ -324,18 +324,21 @@ function Show-Intro {
     "Um ponto de restauração será criado antes de prosseguir.",
     "DESATIVE SEU ANTIVÍRUS e PRESSIONE QUALQUER TECLA para continuar!",
     "",
-    "╔═══════════════════════════════════════╗", 
-    "╠══════ Informações do Computador ══════╣", 
-    "╠═ Nome do Host: " + [System.Environment]::MachineName,
-    "╠═ Sistema Operacional: " + (Get-ComputerInfo).WindowsProductName,
-    "╠═ Versão do Windows: " + (Get-ComputerInfo).WindowsVersion,
-    "╠═ Processador: " + (Get-CimInstance Win32_Processor).Name,
-    "╠═ Memória RAM: " + [math]::Round((Get-ComputerInfo).CsTotalPhysicalMemory / 1GB, 2) + " GB",
+    "╔═══════════════════════════════════════╗",
+    "╠══════ Informações do Computador ══════╣",
+    "║ Nome do Host: " + [System.Environment]::MachineName,
+    "║ Sistema Operacional: " + (Get-ComputerInfo).WindowsProductName,
+    "║ Versão do Windows: " + (Get-ComputerInfo).WindowsVersion,
+    "║ Processador: " + (Get-CimInstance Win32_Processor).Name,
+    "║ Memória RAM: " + [math]::Round((Get-ComputerInfo).CsTotalPhysicalMemory / 1GB, 2) + " GB",
     "╚═══════════════════════════════════════╝"
-
   )
-  $colors = @("VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "AzulClaro", "AmareloClaro", "AmareloClaro", "VermelhoClaro", "Branco", "CianoClaro", "CianoClaro", "CianoClaro", "CianoClaro", "CianoClaro", "CianoClaro", "CianoClaro")
-    
+  $colors = @(
+    "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", 
+    "AzulClaro", "AmareloClaro", "AmareloClaro", "VermelhoClaro", "Branco", 
+    "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro"
+  )
+
   for ($i = 0; $i -lt $intro.Length; $i++) {
     $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
     Write-Colored $intro[$i] $color
@@ -343,6 +346,9 @@ function Show-Intro {
 
   [Console]::ReadKey($true)
 }
+
+# Executa a função
+Show-Intro
 
 # (O restante do script continua como antes)
 
