@@ -2,7 +2,7 @@
 # Script principal para otimização de sistemas Windows focados em jogos
 # Versão: V0.7.2.4.1 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
-# Modificado por: César Marques
+# Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
 chcp 1252 | Out-Null
