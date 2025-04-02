@@ -384,7 +384,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.3.8",
+    "                                                                                  V0.7.2.3.9",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -2871,40 +2871,383 @@ function UnpinStartMenuTiles {
   }
 }
 
-function QOL {
-  Write-Output "Applying Quality of Life tweaks..."
-  Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "MenuShowDelay" -Type DWord -Value 0
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarSmallIcons" -Type DWord -Value 1
-}
+Function QOL {
+  Write-Log "Iniciando função QOL para aplicar ajustes de qualidade de vida do DaddyMadu." -ConsoleOutput
 
-function FullscreenOptimizationFIX {
-  Write-Output "Disabling Fullscreen Optimizations for all applications..."
-  Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehaviorMode" -Type DWord -Value 2
-  If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers")) {
-    New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" -Force | Out-Null
+  try {
+    Write-Output "Habilitando ajustes de qualidade de vida do DaddyMadu..."
+    Write-Log "Habilitando ajustes de qualidade de vida do DaddyMadu..." -ConsoleOutput
+
+    $errpref = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+
+    Write-Log "Criando chave HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement..." -ConsoleOutput
+    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -ErrorAction Stop | Out-Null
+    Write-Log "Chave HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando ScoobeSystemSettingEnabled para 0 para desativar 'Aproveite ainda mais o Windows'..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Type DWord -Value 0 -ErrorAction Stop | Out-Null
+    Write-Log "ScoobeSystemSettingEnabled configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando DynamicScrollbars para 0 para desativar ocultar barras de rolagem..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility" -Name "DynamicScrollbars" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "DynamicScrollbars configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando SmoothScroll para 0 para desativar rolagem suave..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "SmoothScroll" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "SmoothScroll configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    $osBuild = [System.Environment]::OSVersion.Version.Build
+    Write-Log "Verificando versão do SO (Build: $osBuild) para aplicar NoInstrumentation..." -ConsoleOutput
+    If ($osBuild -ge 22000) {
+      Write-Log "Configurando NoInstrumentation para 1 no Windows 11 ou superior para desativar rastreamento de usuário da Microsoft..." -ConsoleOutput
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Type DWord -Value 1 -ErrorAction Stop
+      Write-Log "NoInstrumentation configurado com sucesso para Windows 11 ou superior." -Level "INFO" -ConsoleOutput
+    }
+    Else {
+      Write-Log "Configurando NoInstrumentation para 1 em versões anteriores ao Windows 11 para desativar rastreamento de usuário da Microsoft..." -ConsoleOutput
+      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Type DWord -Value 1 -ErrorAction Stop
+      Write-Log "NoInstrumentation configurado com sucesso para versões anteriores ao Windows 11." -Level "INFO" -ConsoleOutput
+    }
+
+    Write-Log "Removendo TaskbarNoMultimon de HKCU:\Software\Policies\Microsoft\Windows\Explorer..." -ConsoleOutput
+    Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Name "TaskbarNoMultimon" -ErrorAction Stop
+    Write-Log "TaskbarNoMultimon removido com sucesso de HKCU." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Removendo TaskbarNoMultimon de HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer..." -ConsoleOutput
+    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "TaskbarNoMultimon" -ErrorAction Stop
+    Write-Log "TaskbarNoMultimon removido com sucesso de HKLM." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando MMTaskbarMode para 2 para mostrar botões da barra de tarefas apenas onde a janela está aberta..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "MMTaskbarMode" -Type DWord -Value 2 -ErrorAction Stop
+    Write-Log "MMTaskbarMode configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Ajustes de qualidade de vida aplicados com sucesso." -Level "INFO" -ConsoleOutput
   }
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" -Name "~ DISABLEDXMAXIMIZEDWINDOWEDMODE" -Type String -Value ""
+  catch {
+    $errorMessage = "Erro na função QOL: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    $ErrorActionPreference = $errpref
+    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+    Write-Log "Finalizando função QOL." -Level "INFO" -ConsoleOutput
+  }
+}
+Function FullscreenOptimizationFIX {
+  Write-Log "Iniciando função FullscreenOptimizationFIX para desativar otimizações de tela cheia." -ConsoleOutput
+
+  try {
+    $errpref = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+
+    Write-Output "Desativando otimizações de tela cheia..."
+    Write-Log "Desativando otimizações de tela cheia..." -ConsoleOutput
+
+    Write-Log "Configurando GameDVR_FSEBehaviorMode para 2 em HKCU:\System\GameConfigStore..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehaviorMode" -Type DWord -Value 2 -ErrorAction Stop
+    Write-Log "GameDVR_FSEBehaviorMode configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando GameDVR_HonorUserFSEBehaviorMode para 1 em HKCU:\System\GameConfigStore..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_HonorUserFSEBehaviorMode" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "GameDVR_HonorUserFSEBehaviorMode configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando GameDVR_FSEBehavior para 2 em HKCU:\System\GameConfigStore..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehavior" -Type DWord -Value 2 -ErrorAction Stop
+    Write-Log "GameDVR_FSEBehavior configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando GameDVR_DXGIHonorFSEWindowsCompatible para 1 em HKCU:\System\GameConfigStore..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DXGIHonorFSEWindowsCompatible" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "GameDVR_DXGIHonorFSEWindowsCompatible configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando GameDVR_EFSEFeatureFlags para 0 em HKCU:\System\GameConfigStore..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_EFSEFeatureFlags" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "GameDVR_EFSEFeatureFlags configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando GameDVR_DSEBehavior para 2 em HKCU:\System\GameConfigStore..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DSEBehavior" -Type DWord -Value 2 -ErrorAction Stop
+    Write-Log "GameDVR_DSEBehavior configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando AppCaptureEnabled para 0 em HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Type DWord -Value 0 -ErrorAction Stop
+    Write-Log "AppCaptureEnabled configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando SwapEffectUpgradeCache para 1 em HKCU:\Software\Microsoft\DirectX\GraphicsSettings..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\DirectX\GraphicsSettings" -Name "SwapEffectUpgradeCache" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "SwapEffectUpgradeCache configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando DirectXUserGlobalSettings para 'SwapEffectUpgradeEnable=1;' em HKCU:\Software\Microsoft\DirectX\UserGpuPreferences..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\DirectX\UserGpuPreferences" -Name "DirectXUserGlobalSettings" -Type String -Value 'SwapEffectUpgradeEnable=1;' -ErrorAction Stop
+    Write-Log "DirectXUserGlobalSettings configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando InactivityShutdownDelay para 4294967295 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform" -Name "InactivityShutdownDelay" -Type DWord -Value 4294967295 -ErrorAction Stop
+    Write-Log "InactivityShutdownDelay configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando OverlayTestMode para 5 em HKLM:\SOFTWARE\Microsoft\Windows\Dwm..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Dwm" -Name "OverlayTestMode" -Type DWord -Value 5 -ErrorAction Stop
+    Write-Log "OverlayTestMode configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Desativando compressão de memória via MMAgent..." -ConsoleOutput
+    Disable-MMAgent -MemoryCompression -ErrorAction Stop | Out-Null
+    Write-Log "Compressão de memória desativada com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Ajustes de otimização de tela cheia aplicados com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função FullscreenOptimizationFIX: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    $ErrorActionPreference = $errpref
+    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+    Write-Log "Finalizando função FullscreenOptimizationFIX." -Level "INFO" -ConsoleOutput
+  }
 }
 
-function GameOptimizationFIX {
-  Write-Output "Applying game optimization fixes..."
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Priority" -Type DWord -Value 6
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Scheduling Category" -Type String -Value "High"
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "SFIO Priority" -Type String -Value "High"
+Function GameOptimizationFIX {
+  Write-Log "Iniciando função GameOptimizationFIX para aplicar correções de otimização para jogos." -ConsoleOutput
+
+  try {
+    Write-Output "Aplicando correções de otimização para jogos..."
+    Write-Log "Aplicando correções de otimização para jogos..." -ConsoleOutput
+
+    Write-Log "Configurando GPU Priority para 8 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "GPU Priority" -Type DWord -Value 8 -ErrorAction Stop
+    Write-Log "GPU Priority configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando Priority para 6 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Priority" -Type DWord -Value 6 -ErrorAction Stop
+    Write-Log "Priority configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando Scheduling Category para 'High' em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Scheduling Category" -Type String -Value "High" -ErrorAction Stop
+    Write-Log "Scheduling Category configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando SFIO Priority para 'High' em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "SFIO Priority" -Type String -Value "High" -ErrorAction Stop
+    Write-Log "SFIO Priority configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando IRQ8Priority para 1 em HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "IRQ8Priority" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "IRQ8Priority configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Adicionando CpuPriorityClass para 4 em HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions..." -ConsoleOutput
+    reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions" /v CpuPriorityClass /t REG_DWORD /d 4 /f -ErrorAction Stop | Out-Null
+    Write-Log "CpuPriorityClass adicionado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Adicionando IoPriority para 3 em HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions..." -ConsoleOutput
+    reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions" /v IoPriority /t REG_DWORD /d 3 /f -ErrorAction Stop | Out-Null
+    Write-Log "IoPriority adicionado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Desativando suporte a nomes 8.3 via fsutil..." -ConsoleOutput
+    fsutil behavior set disable8dot3 1 -ErrorAction Stop
+    Write-Log "Suporte a nomes 8.3 desativado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Desativando última atualização de acesso via fsutil..." -ConsoleOutput
+    fsutil behavior set disablelastaccess 1 -ErrorAction Stop
+    Write-Log "Última atualização de acesso desativada com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Verificando tipo de plataforma do sistema..." -ConsoleOutput
+    $PlatformCheck = (Get-ComputerInfo -ErrorAction Stop).CsPCSystemType
+    Write-Log "Plataforma detectada: $PlatformCheck" -ConsoleOutput
+
+    if ($PlatformCheck -eq "Desktop") {
+      Write-Output "A plataforma é $PlatformCheck. Desativando opções de economia de energia em todos os dispositivos conectados..."
+      Write-Log "A plataforma é $PlatformCheck. Desativando opções de economia de energia em todos os dispositivos conectados..." -ConsoleOutput
+
+      Get-WmiObject MSPower_DeviceEnable -Namespace root\wmi -ErrorAction Stop | ForEach-Object { 
+        Write-Log "Desativando economia de energia para dispositivo: $($_.InstanceName)..." -ConsoleOutput
+        $_.enable = $false
+        $_.psbase.put() -ErrorAction Stop | Out-Null
+        Write-Log "Economia de energia desativada com sucesso para $($_.InstanceName)." -Level "INFO" -ConsoleOutput
+      }
+      Write-Log "Opções de economia de energia desativadas com sucesso em todos os dispositivos conectados." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Output "A plataforma é $PlatformCheck. Nenhuma edição de economia de energia foi realizada."
+      Write-Log "A plataforma é $PlatformCheck. Nenhuma edição de economia de energia foi realizada." -ConsoleOutput
+    }
+
+    Write-Log "Correções de otimização para jogos aplicadas com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função GameOptimizationFIX: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função GameOptimizationFIX." -Level "INFO" -ConsoleOutput
+  }
 }
 
-function RawMouseInput {
-  Write-Output "Enabling raw mouse input..."
-  Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSensitivity" -Type DWord -Value 20
-  Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "SmoothMouseXCurve" -Type Binary -Value ([byte[]](0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00))
-  Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "SmoothMouseYCurve" -Type Binary -Value ([byte[]](0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00))
+Function RawMouseInput {
+  Write-Log "Iniciando função RawMouseInput para forçar entrada bruta do mouse e desativar precisão aprimorada do ponteiro." -ConsoleOutput
+
+  try {
+    Write-Output "Forçando entrada bruta do mouse e desativando precisão aprimorada do ponteiro..."
+    Write-Log "Forçando entrada bruta do mouse e desativando precisão aprimorada do ponteiro..." -ConsoleOutput
+
+    Write-Log "Configurando MouseSpeed para 0 em HKCU:\Control Panel\Mouse..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Type String -Value "0" -ErrorAction Stop
+    Write-Log "MouseSpeed configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando MouseThreshold1 para 0 em HKCU:\Control Panel\Mouse..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Type String -Value "0" -ErrorAction Stop
+    Write-Log "MouseThreshold1 configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando MouseThreshold2 para 0 em HKCU:\Control Panel\Mouse..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Type String -Value "0" -ErrorAction Stop
+    Write-Log "MouseThreshold2 configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando MouseSensitivity para 10 em HKCU:\Control Panel\Mouse..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSensitivity" -Type String -Value "10" -ErrorAction Stop
+    Write-Log "MouseSensitivity configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando MouseHoverTime para 0 em HKCU:\Control Panel\Mouse..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseHoverTime" -Type String -Value "0" -ErrorAction Stop
+    Write-Log "MouseHoverTime configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Configurando MouseTrails para 0 em HKCU:\Control Panel\Mouse..." -ConsoleOutput
+    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseTrails" -Type String -Value "0" -ErrorAction Stop
+    Write-Log "MouseTrails configurado com sucesso." -Level "INFO" -ConsoleOutput
+
+    Write-Log "Entrada bruta do mouse forçada e precisão aprimorada do ponteiro desativada com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro na função RawMouseInput: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Write-Log "Finalizando função RawMouseInput." -Level "INFO" -ConsoleOutput
+  }
 }
 
-function DetectnApplyMouseFIX {
-  Write-Output "Detecting and applying mouse acceleration fix..."
-  Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Type DWord -Value 0
-  Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Type DWord -Value 0
-  Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Type DWord -Value 0
+Function DetectnApplyMouseFIX {
+  Add-Type @'
+  using System; 
+  using System.Runtime.InteropServices;
+  using System.Drawing;
+
+  public class DPI {  
+    [DllImport("gdi32.dll")]
+    static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
+
+    public enum DeviceCap {
+      VERTRES = 10,
+      DESKTOPVERTRES = 117
+    } 
+
+    public static float scaling() {
+      Graphics g = Graphics.FromHwnd(IntPtr.Zero);
+      IntPtr desktop = g.GetHdc();
+      int LogicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCap.VERTRES);
+      int PhysicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCap.DESKTOPVERTRES);
+
+      return (float)PhysicalScreenHeight / (float)LogicalScreenHeight;
+    }
+  }
+'@ -ReferencedAssemblies 'System.Drawing.dll'
+
+  $checkscreenscale = [Math]::round([DPI]::scaling(), 2) * 100
+  if ($checkscreenscale -eq "100") {
+    Write-Output "Windows screen scale is Detected as 100%, Applying Mouse Fix for it..."
+    $YourInputX = "00,00,00,00,00,00,00,00,C0,CC,0C,00,00,00,00,00,80,99,19,00,00,00,00,00,40,66,26,00,00,00,00,00,00,33,33,00,00,00,00,00"
+    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+    $RegPath = 'HKCU:\Control Panel\Mouse'
+    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+  }
+  elseif ($checkscreenscale -eq "125") {
+    Write-Output "Windows screen scale is Detected as 125%, Applying Mouse Fix for it..."
+    $YourInputX = "00,00,00,00,00,00,00,00,00,00,10,00,00,00,00,00,00,00,20,00,00,00,00,00,00,00,30,00,00,00,00,00,00,00,40,00,00,00,00,00"
+    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+    $RegPath = 'HKCU:\Control Panel\Mouse'
+    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+  }
+  elseif ($checkscreenscale -eq "150") {
+    Write-Output "Windows screen scale is Detected as 150%, Applying Mouse Fix for it..."
+    $YourInputX = "00,00,00,00,00,00,00,00,30,33,13,00,00,00,00,00,60,66,26,00,00,00,00,00,90,99,39,00,00,00,00,00,C0,CC,4C,00,00,00,00,00"
+    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+    $RegPath = 'HKCU:\Control Panel\Mouse'
+    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+  }
+  elseif ($checkscreenscale -eq "175") {
+    Write-Output "Windows screen scale is Detected as 175%, Applying Mouse Fix for it..."
+    $YourInputX = "00,00,00,00,00,00,00,00,60,66,16,00,00,00,00,00,C0,CC,2C,00,00,00,00,00,20,33,43,00,00,00,00,00,80,99,59,00,00,00,00,00"
+    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+    $RegPath = 'HKCU:\Control Panel\Mouse'
+    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+  }
+  elseif ($checkscreenscale -eq "200") {
+    Write-Output "Windows screen scale is Detected as 200%, Applying Mouse Fix for it..."
+    $YourInputX = "00,00,00,00,00,00,00,00,90,99,19,00,00,00,00,00,20,33,33,00,00,00,00,00,B0,CC,4C,00,00,00,00,00,40,66,66,00,00,00,00,00"
+    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+    $RegPath = 'HKCU:\Control Panel\Mouse'
+    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+  }
+  elseif ($checkscreenscale -eq "225") {
+    Write-Output "Windows screen scale is Detected as 225%, Applying Mouse Fix for it..."
+    $YourInputX = "00,00,00,00,00,00,00,00,C0,CC,1C,00,00,00,00,00,80,99,39,00,00,00,00,00,40,66,56,00,00,00,00,00,00,33,73,00,00,00,00,00"
+    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+    $RegPath = 'HKCU:\Control Panel\Mouse'
+    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+  }
+  elseif ($checkscreenscale -eq "250") {
+    Write-Output "Windows screen scale is Detected as 250%, Applying Mouse Fix for it..."
+    $YourInputX = "00,00,00,00,00,00,00,00,00,00,20,00,00,00,00,00,00,00,40,00,00,00,00,00,00,00,60,00,00,00,00,00,00,00,80,00,00,00,00,00"
+    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+    $RegPath = 'HKCU:\Control Panel\Mouse'
+    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+  }
+  elseif ($checkscreenscale -eq "300") {
+    Write-Output "Windows screen scale is Detected as 300%, Applying Mouse Fix for it..."
+    $YourInputX = "00,00,00,00,00,00,00,00,60,66,26,00,00,00,00,00,C0,CC,4C,00,00,00,00,00,20,33,73,00,00,00,00,00,80,99,99,00,00,00,00,00"
+    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+    $RegPath = 'HKCU:\Control Panel\Mouse'
+    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+  }
+  elseif ($checkscreenscale -eq "350") {
+    Write-Output "Windows screen scale is Detected as 350%, Applying Mouse Fix for it..."
+    $YourInputX = "00,00,00,00,00,00,00,00,C0,CC,2C,00,00,00,00,00,80,99,59,00,00,00,00,00,40,66,86,00,00,00,00,00,00,33,B3,00,00,00,00,00"
+    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+    $RegPath = 'HKCU:\Control Panel\Mouse'
+    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
+    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+  }
+  else {
+    Write-Output "HOUSTON WE HAVE A PROBLEM! screen scale is not set to traditional value, nothing has been set!"
+  }
 }
 
 function DisableHPET {
