@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.3.7 (GROK / GPT)
+# Versão: V0.7.2.3.8 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques
 # Definir página de código para suportar caracteres especiais
@@ -98,33 +98,33 @@ function Write-Colored {
 }
 
 function Verify-FileHash {
-    param (
-        [string]$FilePath,
-        [string]$ExpectedHash
-    )
+  param (
+    [string]$FilePath,
+    [string]$ExpectedHash
+  )
 
-    try {
-        $actualHash = Get-FileHash -Path $FilePath -Algorithm SHA256 -ErrorAction Stop | Select-Object -ExpandProperty Hash
-        if ($actualHash -ne $ExpectedHash) {
-            Write-Log "Hash do arquivo $FilePath não corresponde ao esperado. Download pode estar corrompido ou comprometido." -Level "ERROR" -ConsoleOutput
-            Remove-Item -Path $FilePath -Force -ErrorAction SilentlyContinue
-            throw "Falha na verificação de integridade."
-        }
-        Write-Log "Verificação de integridade do arquivo $FilePath concluída com sucesso." -Level "INFO" -ConsoleOutput
+  try {
+    $actualHash = Get-FileHash -Path $FilePath -Algorithm SHA256 -ErrorAction Stop | Select-Object -ExpandProperty Hash
+    if ($actualHash -ne $ExpectedHash) {
+      Write-Log "Hash do arquivo $FilePath não corresponde ao esperado. Download pode estar corrompido ou comprometido." -Level "ERROR" -ConsoleOutput
+      Remove-Item -Path $FilePath -Force -ErrorAction SilentlyContinue
+      throw "Falha na verificação de integridade."
     }
-    catch {
-        Write-Log "Erro ao verificar o hash do arquivo $FilePath $_" -Level "ERROR" -ConsoleOutput
-        throw
-    }
+    Write-Log "Verificação de integridade do arquivo $FilePath concluída com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    Write-Log "Erro ao verificar o hash do arquivo $FilePath $_" -Level "ERROR" -ConsoleOutput
+    throw
+  }
 }
 
 function Write-Log {
   param (
-      [string]$Message,
-      [string]$Level = "INFO", # Pode ser "INFO", "WARNING", "ERROR"
-      [switch]$ConsoleOutput = $false,
-      [int]$MaxLogSizeMB = 10, # Tamanho máximo do log em MB (padrão: 10MB)
-      [int]$MaxLogFiles = 5    # Número máximo de arquivos de log rotacionados
+    [string]$Message,
+    [string]$Level = "INFO", # Pode ser "INFO", "WARNING", "ERROR"
+    [switch]$ConsoleOutput = $false,
+    [int]$MaxLogSizeMB = 10, # Tamanho máximo do log em MB (padrão: 10MB)
+    [int]$MaxLogFiles = 5    # Número máximo de arquivos de log rotacionados
   )
 
   # Definir caminho base para logs (usando Temp do usuário)
@@ -138,35 +138,35 @@ function Write-Log {
 
   # Verificar se o diretório de logs existe e é acessível
   if (-not (Test-Path $logBasePath)) {
-      try {
-          New-Item -Path $logBasePath -ItemType Directory -Force -ErrorAction Stop | Out-Null
-          Write-Verbose "Diretório de logs criado em $logBasePath."
-      }
-      catch {
-          Write-Error "Não foi possível criar ou acessar o diretório de logs $logBasePath. Erro: $_"
-          return
-      }
+    try {
+      New-Item -Path $logBasePath -ItemType Directory -Force -ErrorAction Stop | Out-Null
+      Write-Verbose "Diretório de logs criado em $logBasePath."
+    }
+    catch {
+      Write-Error "Não foi possível criar ou acessar o diretório de logs $logBasePath. Erro: $_"
+      return
+    }
   }
 
   # Verificar e gerenciar rotação de logs
   $existingLogs = Get-ChildItem -Path $logBasePath -Filter "$logBaseName*_*$logExtension" | Sort-Object LastWriteTime -Descending
   if ($existingLogs.Count -ge $MaxLogFiles) {
-      $logsToDelete = $existingLogs | Select-Object -Skip ($MaxLogFiles - 1)
-      foreach ($log in $logsToDelete) {
-          try {
-              Remove-Item -Path $log.FullName -Force -ErrorAction Stop
-              Write-Verbose "Log antigo removido: $($log.FullName)"
-          }
-          catch {
-              Write-Warning "Não foi possível remover o log antigo $($log.FullName). Erro: $_"
-          }
+    $logsToDelete = $existingLogs | Select-Object -Skip ($MaxLogFiles - 1)
+    foreach ($log in $logsToDelete) {
+      try {
+        Remove-Item -Path $log.FullName -Force -ErrorAction Stop
+        Write-Verbose "Log antigo removido: $($log.FullName)"
       }
+      catch {
+        Write-Warning "Não foi possível remover o log antigo $($log.FullName). Erro: $_"
+      }
+    }
   }
 
   # Verificar tamanho atual do log mais recente (se existir)
   $latestLog = $existingLogs | Select-Object -First 1
   if ($latestLog -and ($latestLog.Length / 1MB) -gt $MaxLogSizeMB) {
-      Write-Verbose "Tamanho do log excedeu $MaxLogSizeMB MB. Criando novo log."
+    Write-Verbose "Tamanho do log excedeu $MaxLogSizeMB MB. Criando novo log."
   }
 
   # Formatar a entrada do log
@@ -175,46 +175,46 @@ function Write-Log {
 
   # Tentar escrever no arquivo de log
   try {
-      # Criar o arquivo se não existir
-      if (-not (Test-Path $logPath)) {
-          New-Item -Path $logPath -ItemType File -Force -ErrorAction Stop | Out-Null
-          Add-Content -Path $logPath -Value "Início do log em $logTimestamp" -ErrorAction Stop
-      }
+    # Criar o arquivo se não existir
+    if (-not (Test-Path $logPath)) {
+      New-Item -Path $logPath -ItemType File -Force -ErrorAction Stop | Out-Null
+      Add-Content -Path $logPath -Value "Início do log em $logTimestamp" -ErrorAction Stop
+    }
 
-      # Adicionar a nova entrada
-      Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
+    # Adicionar a nova entrada
+    Add-Content -Path $logPath -Value $logEntry -ErrorAction Stop
 
-      # Saída no console, se solicitado
-      if ($ConsoleOutput) {
-          switch ($Level.ToUpper()) {
-              "ERROR" {
-                  Write-Colored "$logEntry" -Color "Vermelho"
-              }
-              "WARNING" {
-                  Write-Colored "$logEntry" -Color "AmareloClaro"
-              }
-              default {
-                  Write-Colored "$logEntry" -Color "VerdeClaro"
-              }
-          }
+    # Saída no console, se solicitado
+    if ($ConsoleOutput) {
+      switch ($Level.ToUpper()) {
+        "ERROR" {
+          Write-Colored "$logEntry" -Color "Vermelho"
+        }
+        "WARNING" {
+          Write-Colored "$logEntry" -Color "AmareloClaro"
+        }
+        default {
+          Write-Colored "$logEntry" -Color "VerdeClaro"
+        }
       }
+    }
   }
   catch {
-      # Se falhar ao escrever no log, exibir mensagem de erro
-      $errorMsg = "Falha ao escrever no log $logPath. Erro: $_"
-      Write-Error $errorMsg
+    # Se falhar ao escrever no log, exibir mensagem de erro
+    $errorMsg = "Falha ao escrever no log $logPath. Erro: $_"
+    Write-Error $errorMsg
 
-      # Tentar registrar o erro em um log de emergência (se possível)
-      $emergencyLog = Join-Path -Path $logBasePath -ChildPath "emergency_log.txt"
-      try {
-          Add-Content -Path $emergencyLog -Value $errorMsg -ErrorAction Stop
-      }
-      catch {
-          Write-Error "Não foi possível registrar no log de emergência. Erro: $_"
-      }
+    # Tentar registrar o erro em um log de emergência (se possível)
+    $emergencyLog = Join-Path -Path $logBasePath -ChildPath "emergency_log.txt"
+    try {
+      Add-Content -Path $emergencyLog -Value $errorMsg -ErrorAction Stop
+    }
+    catch {
+      Write-Error "Não foi possível registrar no log de emergência. Erro: $_"
+    }
 
-      # Forçar saída no console, mesmo sem ConsoleOutput
-      Write-Colored "Erro crítico no logging: $errorMsg" -Color "Vermelho"
+    # Forçar saída no console, mesmo sem ConsoleOutput
+    Write-Colored "Erro crítico no logging: $errorMsg" -Color "Vermelho"
   }
 }
 
@@ -384,7 +384,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.3.7",
+    "                                                                                  V0.7.2.3.8",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -721,129 +721,129 @@ function Write-ColorOutput {
 }
 
 function InstallTitusProgs {
-    Write-Log "Iniciando verificação e instalação do Chocolatey e O&O ShutUp10." -ConsoleOutput
+  Write-Log "Iniciando verificação e instalação do Chocolatey e O&O ShutUp10." -ConsoleOutput
 
-    try {
-        # Verificar e instalar Chocolatey
-        Write-Log "Verificando se o Chocolatey está instalado..." -ConsoleOutput
-        if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-            Write-Log "Chocolatey não encontrado. Iniciando instalação..." -ConsoleOutput
-            Set-ExecutionPolicy Bypass -Scope Process -Force -ErrorAction Stop
-            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+  try {
+    # Verificar e instalar Chocolatey
+    Write-Log "Verificando se o Chocolatey está instalado..." -ConsoleOutput
+    if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+      Write-Log "Chocolatey não encontrado. Iniciando instalação..." -ConsoleOutput
+      Set-ExecutionPolicy Bypass -Scope Process -Force -ErrorAction Stop
+      [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
             
-            $webClient = New-Object System.Net.WebClient -ErrorAction Stop
-            $script = $webClient.DownloadString('https://chocolatey.org/install.ps1')
-            Invoke-Expression $script
+      $webClient = New-Object System.Net.WebClient -ErrorAction Stop
+      $script = $webClient.DownloadString('https://chocolatey.org/install.ps1')
+      Invoke-Expression $script
 
-            Write-Log "Chocolatey instalado com sucesso." -Level "INFO" -ConsoleOutput
-            Write-Output "Chocolatey instalado com sucesso."
-        }
-        else {
-            Write-Log "Chocolatey já está instalado." -Level "INFO" -ConsoleOutput
-            Write-Output "Chocolatey já está instalado."
-        }
-
-        # Instalar chocolatey-core.extension
-        Write-Log "Instalando chocolatey-core.extension..." -ConsoleOutput
-        choco install chocolatey-core.extension -y -ErrorAction Stop
-        Write-Log "chocolatey-core.extension instalado com sucesso." -Level "INFO" -ConsoleOutput
-
-        # Executar O&O ShutUp10 com verificação de hash
-        Write-Log "Iniciando execução do O&O ShutUp10 com configurações recomendadas..." -ConsoleOutput
-        Write-Output "Executando O&O ShutUp10 com as configurações recomendadas..."
-        Import-Module BitsTransfer -ErrorAction Stop
-
-        $configUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/ooshutup10.cfg"
-        $exeUrl = "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"
-        $configFile = "$env:TEMP\ooshutup10.cfg"
-        $exeFile = "$env:TEMP\OOSU10.exe"
-
-        # Hashes fictícios (substitua pelos reais)
-        $configExpectedHash = "C8FA1E1EECCD10230452FC3D2E08F882B0AF7710A6CCDA35DB17E97394B305C9"
-        $exeExpectedHash = "6FF124ADBD65B5C74EDCC5A60B386919542CA2A83BC4FCF95DB1274AF7963C6E"
-
-        Write-Log "Baixando arquivos de configuração e executável do O&O ShutUp10..." -ConsoleOutput
-        Start-BitsTransfer -Source $configUrl -Destination $configFile -ErrorAction Stop
-        Start-BitsTransfer -Source $exeUrl -Destination $exeFile -ErrorAction Stop
-
-        # Verificar hashes
-        Verify-FileHash -FilePath $configFile -ExpectedHash $configExpectedHash
-        Verify-FileHash -FilePath $exeFile -ExpectedHash $exeExpectedHash
-
-        Write-Log "Executando O&O ShutUp10..." -ConsoleOutput
-        & $exeFile $configFile /quiet -ErrorAction Stop
-        Start-Sleep -Seconds 10
-
-        Write-Log "Removendo arquivos temporários do O&O ShutUp10..." -ConsoleOutput
-        Remove-Item -Path $configFile, $exeFile -Force -ErrorAction Stop
-        Write-Log "O&O ShutUp10 executado e arquivos temporários removidos com sucesso." -Level "INFO" -ConsoleOutput
-        Write-Output "O&O ShutUp10 executado e arquivos temporários removidos."
+      Write-Log "Chocolatey instalado com sucesso." -Level "INFO" -ConsoleOutput
+      Write-Output "Chocolatey instalado com sucesso."
     }
-    catch {
-        $errorMessage = "Erro na função InstallTitusProgs: $_"
-        Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-        Write-Colored $errorMessage -Color "Vermelho"
-        throw  # Repropaga o erro
+    else {
+      Write-Log "Chocolatey já está instalado." -Level "INFO" -ConsoleOutput
+      Write-Output "Chocolatey já está instalado."
     }
+
+    # Instalar chocolatey-core.extension
+    Write-Log "Instalando chocolatey-core.extension..." -ConsoleOutput
+    choco install chocolatey-core.extension -y -ErrorAction Stop
+    Write-Log "chocolatey-core.extension instalado com sucesso." -Level "INFO" -ConsoleOutput
+
+    # Executar O&O ShutUp10 com verificação de hash
+    Write-Log "Iniciando execução do O&O ShutUp10 com configurações recomendadas..." -ConsoleOutput
+    Write-Output "Executando O&O ShutUp10 com as configurações recomendadas..."
+    Import-Module BitsTransfer -ErrorAction Stop
+
+    $configUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/ooshutup10.cfg"
+    $exeUrl = "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"
+    $configFile = "$env:TEMP\ooshutup10.cfg"
+    $exeFile = "$env:TEMP\OOSU10.exe"
+
+    # Hashes fictícios (substitua pelos reais)
+    $configExpectedHash = "C8FA1E1EECCD10230452FC3D2E08F882B0AF7710A6CCDA35DB17E97394B305C9"
+    $exeExpectedHash = "6FF124ADBD65B5C74EDCC5A60B386919542CA2A83BC4FCF95DB1274AF7963C6E"
+
+    Write-Log "Baixando arquivos de configuração e executável do O&O ShutUp10..." -ConsoleOutput
+    Start-BitsTransfer -Source $configUrl -Destination $configFile -ErrorAction Stop
+    Start-BitsTransfer -Source $exeUrl -Destination $exeFile -ErrorAction Stop
+
+    # Verificar hashes
+    Verify-FileHash -FilePath $configFile -ExpectedHash $configExpectedHash
+    Verify-FileHash -FilePath $exeFile -ExpectedHash $exeExpectedHash
+
+    Write-Log "Executando O&O ShutUp10..." -ConsoleOutput
+    & $exeFile $configFile /quiet -ErrorAction Stop
+    Start-Sleep -Seconds 10
+
+    Write-Log "Removendo arquivos temporários do O&O ShutUp10..." -ConsoleOutput
+    Remove-Item -Path $configFile, $exeFile -Force -ErrorAction Stop
+    Write-Log "O&O ShutUp10 executado e arquivos temporários removidos com sucesso." -Level "INFO" -ConsoleOutput
+    Write-Output "O&O ShutUp10 executado e arquivos temporários removidos."
+  }
+  catch {
+    $errorMessage = "Erro na função InstallTitusProgs: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "Vermelho"
+    throw  # Repropaga o erro
+  }
 }
 function Execute-BatchScript {
-    Write-Log "Iniciando download e execução do script em batch." -ConsoleOutput
+  Write-Log "Iniciando download e execução do script em batch." -ConsoleOutput
 
-    try {
-        $remoteUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/refs/heads/main/script-ccleaner.bat"
-        $localPath = "$env:TEMP\techremote.bat"
-        $expectedHash = "319048D53494BFAD71260B6415A2FFC90F0A83565A52856DFAE70810B40E593A"  # hash real
+  try {
+    $remoteUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/refs/heads/main/script-ccleaner.bat"
+    $localPath = "$env:TEMP\techremote.bat"
+    $expectedHash = "319048D53494BFAD71260B6415A2FFC90F0A83565A52856DFAE70810B40E593A"  # hash real
 
-        Write-Log "Baixando script em batch de $remoteUrl para $localPath..." -ConsoleOutput
-        Write-Output "Baixando e executando o script em batch..."
+    Write-Log "Baixando script em batch de $remoteUrl para $localPath..." -ConsoleOutput
+    Write-Output "Baixando e executando o script em batch..."
 
-        # Download do script
-        Invoke-WebRequest -Uri $remoteUrl -OutFile $localPath -ErrorAction Stop
+    # Download do script
+    Invoke-WebRequest -Uri $remoteUrl -OutFile $localPath -ErrorAction Stop
 
-        # Verificar hash
-        Verify-FileHash -FilePath $localPath -ExpectedHash $expectedHash
+    # Verificar hash
+    Verify-FileHash -FilePath $localPath -ExpectedHash $expectedHash
 
-        if (Test-Path $localPath) {
-            Write-Log "Download concluído com sucesso. Executando o script..." -Level "INFO" -ConsoleOutput
-            Write-Output "Download concluído. Executando o script..."
+    if (Test-Path $localPath) {
+      Write-Log "Download concluído com sucesso. Executando o script..." -Level "INFO" -ConsoleOutput
+      Write-Output "Download concluído. Executando o script..."
 
-            # Executar o script
-            Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$localPath`"" -Wait -NoNewWindow -ErrorAction Stop
-            Write-Log "Script em batch executado com sucesso." -Level "INFO" -ConsoleOutput
-            Write-Colored "Script em batch executado com sucesso." -Color "VerdeClaro"
-        }
-        else {
-            $errorMessage = "O arquivo não foi baixado corretamente."
-            Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-            Write-Colored $errorMessage -Color "VermelhoClaro"
-            throw $errorMessage  # Lança o erro
-        }
+      # Executar o script
+      Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$localPath`"" -Wait -NoNewWindow -ErrorAction Stop
+      Write-Log "Script em batch executado com sucesso." -Level "INFO" -ConsoleOutput
+      Write-Colored "Script em batch executado com sucesso." -Color "VerdeClaro"
     }
-    catch {
-        $errorMessage = "Erro ao baixar ou executar o script em batch: $_"
+    else {
+      $errorMessage = "O arquivo não foi baixado corretamente."
+      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+      Write-Colored $errorMessage -Color "VermelhoClaro"
+      throw $errorMessage  # Lança o erro
+    }
+  }
+  catch {
+    $errorMessage = "Erro ao baixar ou executar o script em batch: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw  # Repropaga o erro
+  }
+  finally {
+    if (Test-Path $localPath) {
+      Write-Log "Removendo arquivo temporário $localPath..." -ConsoleOutput
+      try {
+        Remove-Item $localPath -Force -ErrorAction Stop
+        Write-Log "Arquivo temporário removido com sucesso." -Level "INFO" -ConsoleOutput
+        Write-Output "Arquivo temporário removido."
+      }
+      catch {
+        $errorMessage = "Erro ao remover arquivo temporário $localPath $_"
         Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
         Write-Colored $errorMessage -Color "VermelhoClaro"
-        throw  # Repropaga o erro
+      }
     }
-    finally {
-        if (Test-Path $localPath) {
-            Write-Log "Removendo arquivo temporário $localPath..." -ConsoleOutput
-            try {
-                Remove-Item $localPath -Force -ErrorAction Stop
-                Write-Log "Arquivo temporário removido com sucesso." -Level "INFO" -ConsoleOutput
-                Write-Output "Arquivo temporário removido."
-            }
-            catch {
-                $errorMessage = "Erro ao remover arquivo temporário $localPath $_"
-                Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-                Write-Colored $errorMessage -Color "VermelhoClaro"
-            }
-        }
-        else {
-            Write-Log "Nenhum arquivo temporário para remover." -Level "INFO" -ConsoleOutput
-        }
-        Write-Log "Função Execute-BatchScript concluída." -Level "INFO" -ConsoleOutput
+    else {
+      Write-Log "Nenhum arquivo temporário para remover." -Level "INFO" -ConsoleOutput
     }
+    Write-Log "Função Execute-BatchScript concluída." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function Check-Windows {
@@ -2659,31 +2659,32 @@ function ShowFileOperationsDetails {
   Write-Log "Iniciando função ShowFileOperationsDetails para exibir detalhes de operações de arquivo no Explorer." -ConsoleOutput
 
   try {
-      $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager"
+    $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager"
       
-      # Verificar se o caminho existe, caso contrário, criá-lo
-      if (-not (Test-Path $regPath)) {
-          Write-Log "Caminho de registro $regPath não existe. Criando..." -ConsoleOutput
-          New-Item -Path $regPath -Force -ErrorAction Stop | Out-Null
-          Write-Log "Caminho $regPath criado com sucesso." -Level "INFO" -ConsoleOutput
-      } else {
-          Write-Log "Caminho $regPath já existe. Prosseguindo com a configuração..." -ConsoleOutput
-      }
+    # Verificar se o caminho existe, caso contrário, criá-lo
+    if (-not (Test-Path $regPath)) {
+      Write-Log "Caminho de registro $regPath não existe. Criando..." -ConsoleOutput
+      New-Item -Path $regPath -Force -ErrorAction Stop | Out-Null
+      Write-Log "Caminho $regPath criado com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Log "Caminho $regPath já existe. Prosseguindo com a configuração..." -ConsoleOutput
+    }
 
-      # Configurar a propriedade EnthusiastMode para exibir detalhes
-      Write-Log "Configurando EnthusiastMode para 1 em $regPath..." -ConsoleOutput
-      Set-ItemProperty -Path $regPath -Name "EnthusiastMode" -Type DWord -Value 1 -ErrorAction Stop
-      Write-Log "EnthusiastMode configurado com sucesso para exibir detalhes de operações de arquivo." -Level "INFO" -ConsoleOutput
-      Write-Output "Detalhes de operações de arquivo configurados para serem exibidos."
+    # Configurar a propriedade EnthusiastMode para exibir detalhes
+    Write-Log "Configurando EnthusiastMode para 1 em $regPath..." -ConsoleOutput
+    Set-ItemProperty -Path $regPath -Name "EnthusiastMode" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "EnthusiastMode configurado com sucesso para exibir detalhes de operações de arquivo." -Level "INFO" -ConsoleOutput
+    Write-Output "Detalhes de operações de arquivo configurados para serem exibidos."
   }
   catch {
-      $errorMessage = "Erro na função ShowFileOperationsDetails: $_"
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      Write-Colored "Erro ao configurar detalhes de operações de arquivo. Veja o log para detalhes." -Color "Vermelho"
-      throw  # Repropaga o erro para ser tratado externamente, se necessário
+    $errorMessage = "Erro na função ShowFileOperationsDetails: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored "Erro ao configurar detalhes de operações de arquivo. Veja o log para detalhes." -Color "Vermelho"
+    throw  # Repropaga o erro para ser tratado externamente, se necessário
   }
   finally {
-      Write-Log "Finalizando função ShowFileOperationsDetails." -Level "INFO" -ConsoleOutput
+    Write-Log "Finalizando função ShowFileOperationsDetails." -Level "INFO" -ConsoleOutput
   }
 }
 
@@ -3493,116 +3494,116 @@ function DownloadAndExtractISLC {
   Write-Log "Iniciando função DownloadAndExtractISLC para baixar e extrair o ISLC." -ConsoleOutput
 
   try {
-      # Definir o link de download e o caminho do arquivo
-      $downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
-      $downloadPath = "C:\ISLC_v1.0.3.4.exe"
-      $extractPath = "C:\"
-      $newFolderName = "ISLC"
+    # Definir o link de download e o caminho do arquivo
+    $downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
+    $downloadPath = "C:\ISLC_v1.0.3.4.exe"
+    $extractPath = "C:\"
+    $newFolderName = "ISLC"
 
-      Write-Log "Configurações definidas: URL=$downloadUrl, Caminho Download=$downloadPath, Caminho Extração=$extractPath, Nome Pasta=$newFolderName" -ConsoleOutput
+    Write-Log "Configurações definidas: URL=$downloadUrl, Caminho Download=$downloadPath, Caminho Extração=$extractPath, Nome Pasta=$newFolderName" -ConsoleOutput
 
-      # Baixar o arquivo executável
-      Write-Colored "Iniciando o download do arquivo..." "Verde"
-      Write-Log "Iniciando o download do arquivo de $downloadUrl para $downloadPath..." -ConsoleOutput
-      Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath -ErrorAction Stop
-      Write-Log "Arquivo baixado com sucesso para $downloadPath." -Level "INFO" -ConsoleOutput
-      Write-Colored "Arquivo baixado com sucesso!" "Verde"
+    # Baixar o arquivo executável
+    Write-Colored "Iniciando o download do arquivo..." "Verde"
+    Write-Log "Iniciando o download do arquivo de $downloadUrl para $downloadPath..." -ConsoleOutput
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath -ErrorAction Stop
+    Write-Log "Arquivo baixado com sucesso para $downloadPath." -Level "INFO" -ConsoleOutput
+    Write-Colored "Arquivo baixado com sucesso!" "Verde"
 
-      # Verificar se a pasta de extração existe, caso contrário, criar
-      if (-Not (Test-Path -Path $extractPath)) {
-          Write-Log "Pasta de extração $extractPath não existe. Criando..." -ConsoleOutput
-          Write-Colored "Criando a pasta de extração..." "Verde"
-          New-Item -ItemType Directory -Path $extractPath -ErrorAction Stop
-          Write-Log "Pasta de extração $extractPath criada com sucesso." -Level "INFO" -ConsoleOutput
+    # Verificar se a pasta de extração existe, caso contrário, criar
+    if (-Not (Test-Path -Path $extractPath)) {
+      Write-Log "Pasta de extração $extractPath não existe. Criando..." -ConsoleOutput
+      Write-Colored "Criando a pasta de extração..." "Verde"
+      New-Item -ItemType Directory -Path $extractPath -ErrorAction Stop
+      Write-Log "Pasta de extração $extractPath criada com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Log "Pasta de extração $extractPath já existe." -ConsoleOutput
+    }
+
+    # Caminho do 7z.exe
+    $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"  # Altere conforme o local do seu 7z.exe
+    Write-Log "Caminho do 7z.exe definido como: $sevenZipPath" -ConsoleOutput
+
+    # Verificar se o 7z está instalado
+    if (Test-Path -Path $sevenZipPath) {
+      Write-Log "7-Zip encontrado em $sevenZipPath. Extraindo o conteúdo..." -ConsoleOutput
+      Write-Colored "Extraindo o conteúdo do arquivo usando 7-Zip..." "Verde"
+
+      # Executar o 7-Zip e capturar saída e erro separadamente
+      $process = Start-Process -FilePath $sevenZipPath -ArgumentList "x", "$downloadPath", "-o$extractPath", "-y" -NoNewWindow -Wait -PassThru
+      $exitCode = $process.ExitCode
+
+      if ($exitCode -ne 0) {
+        Write-Log "Erro ao extrair o arquivo com 7-Zip. Código de saída: $exitCode" -Level "ERROR" -ConsoleOutput
+        throw "Erro ao extrair o arquivo com 7-Zip. Código de saída: $exitCode"
+      }
+
+      Write-Log "Arquivo extraído com sucesso para $extractPath." -Level "INFO" -ConsoleOutput
+      Write-Colored "Arquivo extraído com sucesso para $extractPath" "Verde"
+
+      # Renomear a pasta extraída para ISLC
+      $extractedFolderPath = Join-Path -Path $extractPath -ChildPath "ISLC v1.0.3.4"
+      if (Test-Path -Path $extractedFolderPath) {
+        Write-Log "Renomeando a pasta extraída de $extractedFolderPath para $newFolderName..." -ConsoleOutput
+        Rename-Item -Path $extractedFolderPath -NewName $newFolderName -ErrorAction Stop
+        Write-Log "Pasta renomeada com sucesso para $newFolderName." -Level "INFO" -ConsoleOutput
+        Write-Colored "Pasta renomeada para '$newFolderName'." "Verde"
       }
       else {
-          Write-Log "Pasta de extração $extractPath já existe." -ConsoleOutput
+        Write-Log "Pasta extraída $extractedFolderPath não encontrada. Verificando subpastas..." -Level "WARNING" -ConsoleOutput
+
+        # Tentar encontrar a pasta extraída manualmente
+        $foundFolder = Get-ChildItem -Path $extractPath -Directory | Where-Object { $_.Name -like "ISLC*" } | Select-Object -First 1
+        if ($foundFolder) {
+          Write-Log "Pasta encontrada: $($foundFolder.FullName). Renomeando para $newFolderName..." -Level "INFO" -ConsoleOutput
+          Rename-Item -Path $foundFolder.FullName -NewName $newFolderName -ErrorAction Stop
+          Write-Colored "Pasta renomeada para '$newFolderName'." "Verde"
+        }
+        else {
+          Write-Log "Nenhuma pasta extraída encontrada em $extractPath." -Level "ERROR" -ConsoleOutput
+          Write-Colored "Nenhuma pasta extraída encontrada." "Vermelho"
+          throw "Pasta extraída não encontrada após extração."
+        }
       }
+    }
+    else {
+      Write-Log "7-Zip não encontrado em $sevenZipPath." -Level "WARNING" -ConsoleOutput
+      Write-Colored "7-Zip não encontrado no caminho especificado." "Amarelo"
+      throw "7-Zip não instalado ou não encontrado."
+    }
 
-      # Caminho do 7z.exe
-      $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"  # Altere conforme o local do seu 7z.exe
-      Write-Log "Caminho do 7z.exe definido como: $sevenZipPath" -ConsoleOutput
+    Write-Log "Removendo o arquivo baixado $downloadPath..." -ConsoleOutput
+    Remove-Item -Path $downloadPath -Force -ErrorAction Stop
+    Write-Log "Arquivo $downloadPath excluído com sucesso." -Level "INFO" -ConsoleOutput
+    Write-Colored "Excluindo $downloadPath" "Verde"
 
-      # Verificar se o 7z está instalado
-      if (Test-Path -Path $sevenZipPath) {
-          Write-Log "7-Zip encontrado em $sevenZipPath. Extraindo o conteúdo..." -ConsoleOutput
-          Write-Colored "Extraindo o conteúdo do arquivo usando 7-Zip..." "Verde"
+    # Caminho completo do executável do programa
+    $origem = "C:\ISLC\Intelligent standby list cleaner ISLC.exe"
+    # Nome do atalho que será criado
+    $atalhoNome = "Intelligent standby list cleaner ISLC.lnk"
+    # Caminho para a pasta de Inicialização do usuário
+    $destino = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup", $atalhoNome)
+    Write-Log "Configurando atalho: Origem=$origem, Destino=$destino" -ConsoleOutput
 
-          # Executar o 7-Zip e capturar saída e erro separadamente
-          $process = Start-Process -FilePath $sevenZipPath -ArgumentList "x", "$downloadPath", "-o$extractPath", "-y" -NoNewWindow -Wait -PassThru
-          $exitCode = $process.ExitCode
-
-          if ($exitCode -ne 0) {
-              Write-Log "Erro ao extrair o arquivo com 7-Zip. Código de saída: $exitCode" -Level "ERROR" -ConsoleOutput
-              throw "Erro ao extrair o arquivo com 7-Zip. Código de saída: $exitCode"
-          }
-
-          Write-Log "Arquivo extraído com sucesso para $extractPath." -Level "INFO" -ConsoleOutput
-          Write-Colored "Arquivo extraído com sucesso para $extractPath" "Verde"
-
-          # Renomear a pasta extraída para ISLC
-          $extractedFolderPath = Join-Path -Path $extractPath -ChildPath "ISLC v1.0.3.4"
-          if (Test-Path -Path $extractedFolderPath) {
-              Write-Log "Renomeando a pasta extraída de $extractedFolderPath para $newFolderName..." -ConsoleOutput
-              Rename-Item -Path $extractedFolderPath -NewName $newFolderName -ErrorAction Stop
-              Write-Log "Pasta renomeada com sucesso para $newFolderName." -Level "INFO" -ConsoleOutput
-              Write-Colored "Pasta renomeada para '$newFolderName'." "Verde"
-          }
-          else {
-              Write-Log "Pasta extraída $extractedFolderPath não encontrada. Verificando subpastas..." -Level "WARNING" -ConsoleOutput
-
-              # Tentar encontrar a pasta extraída manualmente
-              $foundFolder = Get-ChildItem -Path $extractPath -Directory | Where-Object { $_.Name -like "ISLC*" } | Select-Object -First 1
-              if ($foundFolder) {
-                  Write-Log "Pasta encontrada: $($foundFolder.FullName). Renomeando para $newFolderName..." -Level "INFO" -ConsoleOutput
-                  Rename-Item -Path $foundFolder.FullName -NewName $newFolderName -ErrorAction Stop
-                  Write-Colored "Pasta renomeada para '$newFolderName'." "Verde"
-              }
-              else {
-                  Write-Log "Nenhuma pasta extraída encontrada em $extractPath." -Level "ERROR" -ConsoleOutput
-                  Write-Colored "Nenhuma pasta extraída encontrada." "Vermelho"
-                  throw "Pasta extraída não encontrada após extração."
-              }
-          }
-      }
-      else {
-          Write-Log "7-Zip não encontrado em $sevenZipPath." -Level "WARNING" -ConsoleOutput
-          Write-Colored "7-Zip não encontrado no caminho especificado." "Amarelo"
-          throw "7-Zip não instalado ou não encontrado."
-      }
-
-      Write-Log "Removendo o arquivo baixado $downloadPath..." -ConsoleOutput
-      Remove-Item -Path $downloadPath -Force -ErrorAction Stop
-      Write-Log "Arquivo $downloadPath excluído com sucesso." -Level "INFO" -ConsoleOutput
-      Write-Colored "Excluindo $downloadPath" "Verde"
-
-      # Caminho completo do executável do programa
-      $origem = "C:\ISLC\Intelligent standby list cleaner ISLC.exe"
-      # Nome do atalho que será criado
-      $atalhoNome = "Intelligent standby list cleaner ISLC.lnk"
-      # Caminho para a pasta de Inicialização do usuário
-      $destino = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup", $atalhoNome)
-      Write-Log "Configurando atalho: Origem=$origem, Destino=$destino" -ConsoleOutput
-
-      # Criação do objeto Shell
-      Write-Log "Criando objeto Shell para criar o atalho..." -ConsoleOutput
-      $shell = New-Object -ComObject WScript.Shell -ErrorAction Stop
-      # Criação do atalho
-      Write-Log "Criando o atalho em $destino..." -ConsoleOutput
-      $atalho = $shell.CreateShortcut($destino)
-      $atalho.TargetPath = $origem
-      $atalho.Save()
-      Write-Log "Atalho criado com sucesso em $destino." -Level "INFO" -ConsoleOutput
-      Write-Output "Atalho criado em: $destino"
+    # Criação do objeto Shell
+    Write-Log "Criando objeto Shell para criar o atalho..." -ConsoleOutput
+    $shell = New-Object -ComObject WScript.Shell -ErrorAction Stop
+    # Criação do atalho
+    Write-Log "Criando o atalho em $destino..." -ConsoleOutput
+    $atalho = $shell.CreateShortcut($destino)
+    $atalho.TargetPath = $origem
+    $atalho.Save()
+    Write-Log "Atalho criado com sucesso em $destino." -Level "INFO" -ConsoleOutput
+    Write-Output "Atalho criado em: $destino"
   }
   catch {
-      $errorMessage = "Erro na função DownloadAndExtractISLC: $_"
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      Write-Colored $errorMessage "Vermelho"
-      throw  # Repropaga o erro
+    $errorMessage = "Erro na função DownloadAndExtractISLC: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage "Vermelho"
+    throw  # Repropaga o erro
   }
   finally {
-      Write-Log "Finalizando função DownloadAndExtractISLC." -Level "INFO" -ConsoleOutput
+    Write-Log "Finalizando função DownloadAndExtractISLC." -Level "INFO" -ConsoleOutput
   }
 }
 
@@ -4103,173 +4104,174 @@ function NetworkOptimizations {
   Write-Log "Iniciando função NetworkOptimizations para otimizar a rede e aplicar ajustes de desempenho máximo." -ConsoleOutput
 
   try {
-      # Salvar e ajustar ErrorActionPreference
-      $errpref = $ErrorActionPreference
-      $ErrorActionPreference = "SilentlyContinue"
-      Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+    # Salvar e ajustar ErrorActionPreference
+    $errpref = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
 
-      Write-Output "Otimizando a rede e aplicando ajustes para máximo desempenho..."
-      Write-Log "Otimizando a rede e aplicando ajustes para máximo desempenho..." -ConsoleOutput
+    Write-Output "Otimizando a rede e aplicando ajustes para máximo desempenho..."
+    Write-Log "Otimizando a rede e aplicando ajustes para máximo desempenho..." -ConsoleOutput
 
-      # Verificar se há adaptadores de rede
-      Write-Log "Obtendo adaptadores de rede ativos..." -ConsoleOutput
-      $adapters = Get-NetAdapter -ErrorAction Stop | Where-Object { $_.Status -eq "Up" -and $_.InterfaceDescription -notmatch "Loopback" }
-      if (-not $adapters) {
-          Write-Log "Nenhum adaptador de rede ativo encontrado. Pulando otimizações..." -Level "WARNING" -ConsoleOutput
-          Write-Output "Nenhum adaptador de rede ativo encontrado. Pulando otimizações..."
-          return
+    # Verificar se há adaptadores de rede
+    Write-Log "Obtendo adaptadores de rede ativos..." -ConsoleOutput
+    $adapters = Get-NetAdapter -ErrorAction Stop | Where-Object { $_.Status -eq "Up" -and $_.InterfaceDescription -notmatch "Loopback" }
+    if (-not $adapters) {
+      Write-Log "Nenhum adaptador de rede ativo encontrado. Pulando otimizações..." -Level "WARNING" -ConsoleOutput
+      Write-Output "Nenhum adaptador de rede ativo encontrado. Pulando otimizações..."
+      return
+    }
+
+    # Criar chaves de registro se não existirem
+    $regPaths = @(
+      "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched",
+      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS",
+      "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters",
+      "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters",
+      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters",
+      "HKLM:\SYSTEM\ControlSet001\Control\Lsa",
+      "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
+    )
+
+    foreach ($path in $regPaths) {
+      if (-not (Test-Path $path)) {
+        Write-Log "Criando chave de registro $path..." -ConsoleOutput
+        New-Item -Path $path -Force -ErrorAction Stop | Out-Null
+        Write-Log "Chave $path criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
       }
+    }
 
-      # Criar chaves de registro se não existirem
-      $regPaths = @(
-          "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched",
-          "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS",
-          "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters",
-          "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters",
-          "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters",
-          "HKLM:\SYSTEM\ControlSet001\Control\Lsa",
-          "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
-      )
+    # Ajustes de Registro para otimização de rede
+    $regConfigs = @{
+      "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPER1_0SERVER" = @("explorer.exe", 10)
+      "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPERSERVER"    = @("explorer.exe", 10)
+      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider"                                     = @("LocalPriority", 4), @("HostsPriority", 5), @("DnsPriority", 6), @("NetbtPriority", 7)
+      "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched"                                                  = @("NonBestEffortlimit", 0)
+      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS"                                                 = @("Do not use NLA", "1")
+      "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"                                   = @("Size", 1), @("IRPStackSize", 20)
+      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"                                          = @("MaxUserPort", 65534), @("TcpTimedWaitDelay", 30), @("DefaultTTL", 64), @("MaxNumRssCpus", 4), @("DisableTaskOffload", 0)
+      "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters"                                                          = @("TCPNoDelay", 1)
+      "HKLM:\SYSTEM\ControlSet001\Control\Lsa"                                                            = @("LmCompatibilityLevel", 1)
+      "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"                                       = @("EnableAutoDoh", 2)
+    }
 
-      foreach ($path in $regPaths) {
-          if (-not (Test-Path $path)) {
-              Write-Log "Criando chave de registro $path..." -ConsoleOutput
-              New-Item -Path $path -Force -ErrorAction Stop | Out-Null
-              Write-Log "Chave $path criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
-          }
+    Write-Log "Configurações de registro definidas para otimização de rede." -ConsoleOutput
+
+    foreach ($path in $regConfigs.Keys) {
+      foreach ($setting in $regConfigs[$path]) {
+        Write-Log "Configurando $path - $($setting[0]) para $($setting[1])..." -ConsoleOutput
+        try {
+          Set-ItemProperty -Path $path -Name $setting[0] -Type DWord -Value $setting[1] -ErrorAction Stop
+          Write-Log "$($setting[0]) configurado com sucesso em $path." -Level "INFO" -ConsoleOutput
+        }
+        catch {
+          Write-Log "Falha ao configurar $path - $($setting[0]). Erro: $_" -Level "WARNING" -ConsoleOutput
+        }
       }
+    }
 
-      # Ajustes de Registro para otimização de rede
-      $regConfigs = @{
-          "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPER1_0SERVER" = @("explorer.exe", 10)
-          "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPERSERVER"    = @("explorer.exe", 10)
-          "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider"                                     = @("LocalPriority", 4), @("HostsPriority", 5), @("DnsPriority", 6), @("NetbtPriority", 7)
-          "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched"                                                  = @("NonBestEffortlimit", 0)
-          "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS"                                                 = @("Do not use NLA", "1")
-          "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"                                   = @("Size", 1), @("IRPStackSize", 20)
-          "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"                                          = @("MaxUserPort", 65534), @("TcpTimedWaitDelay", 30), @("DefaultTTL", 64), @("MaxNumRssCpus", 4), @("DisableTaskOffload", 0)
-          "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters"                                                          = @("TCPNoDelay", 1)
-          "HKLM:\SYSTEM\ControlSet001\Control\Lsa"                                                            = @("LmCompatibilityLevel", 1)
-          "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"                                       = @("EnableAutoDoh", 2)
-      }
+    # Ajustes de TCP/IP
+    Write-Log "Aplicando ajustes de TCP/IP..." -ConsoleOutput
+    try {
+      Set-NetTCPSetting -SettingName internet -EcnCapability disabled -ErrorAction Stop | Out-Null
+      Set-NetTCPSetting -SettingName internet -Timestamps disabled -ErrorAction Stop | Out-Null
+      Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2 -ErrorAction Stop | Out-Null
+      Set-NetTCPSetting -SettingName internet -NonSackRttResiliency disabled -ErrorAction Stop | Out-Null
+      Set-NetTCPSetting -SettingName internet -InitialRto 2000 -ErrorAction Stop | Out-Null
+      Set-NetTCPSetting -SettingName internet -MinRto 300 -ErrorAction Stop | Out-Null
+      Set-NetTCPSetting -SettingName Internet -AutoTuningLevelLocal normal -ErrorAction Stop | Out-Null
+      Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled -ErrorAction Stop | Out-Null
+      Write-Log "Ajustes de TCP/IP aplicados com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    catch {
+      Write-Log "Erro ao aplicar ajustes de TCP/IP: $_" -Level "ERROR" -ConsoleOutput
+    }
 
-      Write-Log "Configurações de registro definidas para otimização de rede." -ConsoleOutput
+    # Ajustes de Netsh
+    $netshCommands = @(
+      "int ip set global taskoffload=enabled",
+      "int tcp set global ecncapability=enabled",
+      "int tcp set global rss=enabled",
+      "int tcp set global rsc=enabled",
+      "int tcp set global dca=enabled",
+      "int tcp set global netdma=enabled",
+      "int tcp set global fastopen=enabled",
+      "int tcp set global fastopenfallback=enabled",
+      "int tcp set global prr=enabled",
+      "int tcp set global pacingprofile=always",
+      "int tcp set global hystart=enabled",
+      "int tcp set supplemental internet enablecwndrestart=enabled",
+      "int tcp set security mpp=enabled",
+      "int tcp set global autotuninglevel=normal",
+      "int tcp set supplemental internet congestionprovider=dctcp"
+    )
 
-      foreach ($path in $regConfigs.Keys) {
-          foreach ($setting in $regConfigs[$path]) {
-              Write-Log "Configurando $path - $($setting[0]) para $($setting[1])..." -ConsoleOutput
-              try {
-                  Set-ItemProperty -Path $path -Name $setting[0] -Type DWord -Value $setting[1] -ErrorAction Stop
-                  Write-Log "$($setting[0]) configurado com sucesso em $path." -Level "INFO" -ConsoleOutput
-              }
-              catch {
-                  Write-Log "Falha ao configurar $path - $($setting[0]). Erro: $_" -Level "WARNING" -ConsoleOutput
-              }
-          }
-      }
-
-      # Ajustes de TCP/IP
-      Write-Log "Aplicando ajustes de TCP/IP..." -ConsoleOutput
+    Write-Log "Executando comandos Netsh para otimizações de rede..." -ConsoleOutput
+    foreach ($cmd in $netshCommands) {
+      Write-Log "Executando comando Netsh: $cmd..." -ConsoleOutput
       try {
-          Set-NetTCPSetting -SettingName internet -EcnCapability disabled -ErrorAction Stop | Out-Null
-          Set-NetTCPSetting -SettingName internet -Timestamps disabled -ErrorAction Stop | Out-Null
-          Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2 -ErrorAction Stop | Out-Null
-          Set-NetTCPSetting -SettingName internet -NonSackRttResiliency disabled -ErrorAction Stop | Out-Null
-          Set-NetTCPSetting -SettingName internet -InitialRto 2000 -ErrorAction Stop | Out-Null
-          Set-NetTCPSetting -SettingName internet -MinRto 300 -ErrorAction Stop | Out-Null
-          Set-NetTCPSetting -SettingName Internet -AutoTuningLevelLocal normal -ErrorAction Stop | Out-Null
-          Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled -ErrorAction Stop | Out-Null
-          Write-Log "Ajustes de TCP/IP aplicados com sucesso." -Level "INFO" -ConsoleOutput
+        netsh $cmd -ErrorAction Stop | Out-Null
+        Write-Log "Comando $cmd executado com sucesso." -Level "INFO" -ConsoleOutput
       }
       catch {
-          Write-Log "Erro ao aplicar ajustes de TCP/IP: $_" -Level "ERROR" -ConsoleOutput
+        Write-Log "Falha ao executar comando Netsh $cmd. Erro: $_" -Level "WARNING" -ConsoleOutput
       }
+    }
 
-      # Ajustes de Netsh
-      $netshCommands = @(
-          "int ip set global taskoffload=enabled",
-          "int tcp set global ecncapability=enabled",
-          "int tcp set global rss=enabled",
-          "int tcp set global rsc=enabled",
-          "int tcp set global dca=enabled",
-          "int tcp set global netdma=enabled",
-          "int tcp set global fastopen=enabled",
-          "int tcp set global fastopenfallback=enabled",
-          "int tcp set global prr=enabled",
-          "int tcp set global pacingprofile=always",
-          "int tcp set global hystart=enabled",
-          "int tcp set supplemental internet enablecwndrestart=enabled",
-          "int tcp set security mpp=enabled",
-          "int tcp set global autotuninglevel=normal",
-          "int tcp set supplemental internet congestionprovider=dctcp"
-      )
+    # Ajustes globais de offload
+    Write-Log "Aplicando ajustes globais de offload..." -ConsoleOutput
+    try {
+      Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing disabled -ErrorAction Stop | Out-Null
+      Set-NetOffloadGlobalSetting -ReceiveSideScaling enabled -ErrorAction Stop | Out-Null
+      Write-Log "Ajustes globais de offload aplicados com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    catch {
+      Write-Log "Erro ao aplicar ajustes globais de offload: $_" -Level "ERROR" -ConsoleOutput
+    }
 
-      Write-Log "Executando comandos Netsh para otimizações de rede..." -ConsoleOutput
-      foreach ($cmd in $netshCommands) {
-          Write-Log "Executando comando Netsh: $cmd..." -ConsoleOutput
-          try {
-              netsh $cmd -ErrorAction Stop | Out-Null
-              Write-Log "Comando $cmd executado com sucesso." -Level "INFO" -ConsoleOutput
+    # Ajustes avançados dos adaptadores de rede
+    $advancedProperties = @(
+      "Energy-Efficient Ethernet", "Energy Efficient Ethernet", "Ultra Low Power Mode",
+      "System Idle Power Saver", "Green Ethernet", "Power Saving Mode", "Gigabit Lite",
+      "EEE", "Advanced EEE", "ARP Offload", "NS Offload", "Large Send Offload v2 (IPv4)",
+      "Large Send Offload v2 (IPv6)", "TCP Checksum Offload (IPv4)", "TCP Checksum Offload (IPv6)",
+      "UDP Checksum Offload (IPv4)", "UDP Checksum Offload (IPv6)", "Idle Power Saving",
+      "Flow Control", "Interrupt Moderation", "Reduce Speed On Power Down", "Interrupt Moderation Rate",
+      "Log Link State Event", "Packet Priority & VLAN", "Priority & VLAN",
+      "IPv4 Checksum Offload", "Jumbo Frame", "Maximum Number of RSS Queues"
+    )
+
+    Write-Log "Aplicando ajustes avançados em adaptadores de rede..." -ConsoleOutput
+    foreach ($adapter in $adapters) {
+      foreach ($prop in $advancedProperties) {
+        Write-Log "Tentando desativar propriedade avançada $prop no adaptador $($adapter.Name)..." -ConsoleOutput
+        try {
+          $existingProps = Get-NetAdapterAdvancedProperty -Name $adapter.Name -ErrorAction Stop | Where-Object { $_.DisplayName -like "*$prop*" }
+          if ($existingProps) {
+            Set-NetAdapterAdvancedProperty -Name $adapter.Name -DisplayName $prop -DisplayValue "Disabled" -ErrorAction Stop
+            Write-Log "Propriedade $prop desativada com sucesso no adaptador $($adapter.Name)." -Level "INFO" -ConsoleOutput
           }
-          catch {
-              Write-Log "Falha ao executar comando Netsh $cmd. Erro: $_" -Level "WARNING" -ConsoleOutput
+          else {
+            Write-Log "Propriedade $prop não encontrada no adaptador $($adapter.Name). Pulando..." -Level "WARNING" -ConsoleOutput
           }
+        }
+        catch {
+          Write-Log "Falha ao desativar propriedade $prop no adaptador $($adapter.Name). Erro: $_" -Level "WARNING" -ConsoleOutput
+        }
       }
+    }
 
-      # Ajustes globais de offload
-      Write-Log "Aplicando ajustes globais de offload..." -ConsoleOutput
-      try {
-          Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing disabled -ErrorAction Stop | Out-Null
-          Set-NetOffloadGlobalSetting -ReceiveSideScaling enabled -ErrorAction Stop | Out-Null
-          Write-Log "Ajustes globais de offload aplicados com sucesso." -Level "INFO" -ConsoleOutput
-      }
-      catch {
-          Write-Log "Erro ao aplicar ajustes globais de offload: $_" -Level "ERROR" -ConsoleOutput
-      }
-
-      # Ajustes avançados dos adaptadores de rede
-      $advancedProperties = @(
-          "Energy-Efficient Ethernet", "Energy Efficient Ethernet", "Ultra Low Power Mode",
-          "System Idle Power Saver", "Green Ethernet", "Power Saving Mode", "Gigabit Lite",
-          "EEE", "Advanced EEE", "ARP Offload", "NS Offload", "Large Send Offload v2 (IPv4)",
-          "Large Send Offload v2 (IPv6)", "TCP Checksum Offload (IPv4)", "TCP Checksum Offload (IPv6)",
-          "UDP Checksum Offload (IPv4)", "UDP Checksum Offload (IPv6)", "Idle Power Saving",
-          "Flow Control", "Interrupt Moderation", "Reduce Speed On Power Down", "Interrupt Moderation Rate",
-          "Log Link State Event", "Packet Priority & VLAN", "Priority & VLAN",
-          "IPv4 Checksum Offload", "Jumbo Frame", "Maximum Number of RSS Queues"
-      )
-
-      Write-Log "Aplicando ajustes avançados em adaptadores de rede..." -ConsoleOutput
-      foreach ($adapter in $adapters) {
-          foreach ($prop in $advancedProperties) {
-              Write-Log "Tentando desativar propriedade avançada $prop no adaptador $($adapter.Name)..." -ConsoleOutput
-              try {
-                  $existingProps = Get-NetAdapterAdvancedProperty -Name $adapter.Name -ErrorAction Stop | Where-Object { $_.DisplayName -like "*$prop*" }
-                  if ($existingProps) {
-                      Set-NetAdapterAdvancedProperty -Name $adapter.Name -DisplayName $prop -DisplayValue "Disabled" -ErrorAction Stop
-                      Write-Log "Propriedade $prop desativada com sucesso no adaptador $($adapter.Name)." -Level "INFO" -ConsoleOutput
-                  } else {
-                      Write-Log "Propriedade $prop não encontrada no adaptador $($adapter.Name). Pulando..." -Level "WARNING" -ConsoleOutput
-                  }
-              }
-              catch {
-                  Write-Log "Falha ao desativar propriedade $prop no adaptador $($adapter.Name). Erro: $_" -Level "WARNING" -ConsoleOutput
-              }
-          }
-      }
-
-      Write-Log "Otimizações de rede concluídas com sucesso!" -Level "INFO" -ConsoleOutput
-      Write-Output "Otimizações de rede concluídas com sucesso!"
+    Write-Log "Otimizações de rede concluídas com sucesso!" -Level "INFO" -ConsoleOutput
+    Write-Output "Otimizações de rede concluídas com sucesso!"
   }
   catch {
-      $errorMessage = "Erro na função NetworkOptimizations: $_"
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      throw  # Repropaga o erro para ser tratado externamente, se necessário
+    $errorMessage = "Erro na função NetworkOptimizations: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro para ser tratado externamente, se necessário
   }
   finally {
-      $ErrorActionPreference = $errpref
-      Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
-      Write-Log "Finalizando função NetworkOptimizations." -Level "INFO" -ConsoleOutput
+    $ErrorActionPreference = $errpref
+    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+    Write-Log "Finalizando função NetworkOptimizations." -Level "INFO" -ConsoleOutput
   }
 }
 
@@ -4555,105 +4557,106 @@ function Download-GPUFiles {
   Write-Log "Iniciando função Download-GPUFiles para identificar GPU, criar pasta e baixar arquivos." -Level "INFO" -ConsoleOutput
 
   try {
-      # Identificar a placa de vídeo ativa
-      Write-Log "Obtendo informações da placa de vídeo ativa..." -ConsoleOutput
-      $gpuInfo = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop | Where-Object { $_.CurrentBitsPerPixel -and $_.AdapterDACType } | Select-Object -First 1
-      $gpuName = $gpuInfo.Name
-      Write-Log "Placa de vídeo detectada: $gpuName" -Level "INFO" -ConsoleOutput
+    # Identificar a placa de vídeo ativa
+    Write-Log "Obtendo informações da placa de vídeo ativa..." -ConsoleOutput
+    $gpuInfo = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop | Where-Object { $_.CurrentBitsPerPixel -and $_.AdapterDACType } | Select-Object -First 1
+    $gpuName = $gpuInfo.Name
+    Write-Log "Placa de vídeo detectada: $gpuName" -Level "INFO" -ConsoleOutput
 
-      # Definir o caminho da pasta em C:\
-      $folderPath = "C:\DownloadsGPU"
-      Write-Log "Definindo caminho da pasta como: $folderPath" -ConsoleOutput
+    # Definir o caminho da pasta em C:\
+    $folderPath = "C:\DownloadsGPU"
+    Write-Log "Definindo caminho da pasta como: $folderPath" -ConsoleOutput
 
-      # Verificar se a pasta existe, caso contrário, criá-la
-      if (-not (Test-Path -Path $folderPath)) {
-          Write-Log "Pasta $folderPath não existe. Criando..." -ConsoleOutput
-          Write-Colored "Criando pasta $folderPath..." "Verde"
-          New-Item -Path $folderPath -ItemType Directory -Force -ErrorAction Stop | Out-Null
-          Write-Log "Pasta $folderPath criada com sucesso." -Level "INFO" -ConsoleOutput
+    # Verificar se a pasta existe, caso contrário, criá-la
+    if (-not (Test-Path -Path $folderPath)) {
+      Write-Log "Pasta $folderPath não existe. Criando..." -ConsoleOutput
+      Write-Colored "Criando pasta $folderPath..." "Verde"
+      New-Item -Path $folderPath -ItemType Directory -Force -ErrorAction Stop | Out-Null
+      Write-Log "Pasta $folderPath criada com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Write-Log "Pasta $folderPath já existe. Prosseguindo com os downloads..." -ConsoleOutput
+    }
+
+    # Definir os downloads base (comuns a ambas as GPUs) com hashes reais
+    $baseDownloads = @(
+      @{
+        Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/MSI_util_v3.exe"
+        FileName = "MSI_util_v3.exe"
+        Hash     = "695800AFAD96F858A3F291B7DF21C16649528F13D39B63FB7C233E5676C8DF6F"
+      },
+      @{
+        Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
+        FileName = "IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
+        Hash     = "E171C6298F8D01170668754C6625CA065AE76CCD79D6B472EE8CDC40A6942653"
       }
-      else {
-          Write-Log "Pasta $folderPath já existe. Prosseguindo com os downloads..." -ConsoleOutput
-      }
+    )
 
-      # Definir os downloads base (comuns a ambas as GPUs) com hashes reais
-      $baseDownloads = @(
-          @{
-              Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/MSI_util_v3.exe"
-              FileName = "MSI_util_v3.exe"
-              Hash     = "695800AFAD96F858A3F291B7DF21C16649528F13D39B63FB7C233E5676C8DF6F"
-          },
-          @{
-              Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
-              FileName = "IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
-              Hash     = "E171C6298F8D01170668754C6625CA065AE76CCD79D6B472EE8CDC40A6942653"
-          }
+    # Definir downloads específicos por GPU
+    if ($gpuName -like "*NVIDIA*" -or $gpuName -like "*GTX*" -or $gpuName -like "*RTX*") {
+      Write-Log "Placa NVIDIA detectada. Adicionando driver NVIDIA à lista de downloads..." -Level "INFO" -ConsoleOutput
+      $downloads = $baseDownloads + @(
+        @{
+          Url      = "https://us.download.nvidia.com/nvapp/client/11.0.3.218/NVIDIA_app_v11.0.3.218.exe"
+          FileName = "NVIDIA_app_v11.0.3.218.exe"
+          Hash     = "C19A150E53427175E5996100A25ED016F6730B627B1D6B85813811A8751C77B7"
+        }
       )
+    }
+    elseif ($gpuName -like "*AMD*" -or $gpuName -like "*Radeon*" -or $gpuName -like "*RX*") {
+      Write-Log "Placa AMD detectada. Adicionando driver AMD à lista de downloads..." -Level "INFO" -ConsoleOutput
+      $downloads = $baseDownloads + @(
+        @{
+          Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/AMD_ADRENALIN_WEB.exe"
+          FileName = "AMD_ADRENALIN_WEB.exe"
+          Hash     = "87888CE67AF3B7A1652FF134192420CA4CE644EFFB8368E570707A9E224F02F2"
+        }
+      )
+    }
+    else {
+      Write-Log "Nenhuma placa NVIDIA ou AMD reconhecida. Baixando apenas arquivos base..." -Level "WARNING" -ConsoleOutput
+      $downloads = $baseDownloads
+    }
 
-      # Definir downloads específicos por GPU
-      if ($gpuName -like "*NVIDIA*" -or $gpuName -like "*GTX*" -or $gpuName -like "*RTX*") {
-          Write-Log "Placa NVIDIA detectada. Adicionando driver NVIDIA à lista de downloads..." -Level "INFO" -ConsoleOutput
-          $downloads = $baseDownloads + @(
-              @{
-                  Url      = "https://us.download.nvidia.com/nvapp/client/11.0.3.218/NVIDIA_app_v11.0.3.218.exe"
-                  FileName = "NVIDIA_app_v11.0.3.218.exe"
-                  Hash     = "C19A150E53427175E5996100A25ED016F6730B627B1D6B85813811A8751C77B7"
-              }
-          )
+    # Corrigir a sintaxe do ForEach-Object com -join
+    Write-Log "Lista de downloads definida: $(($downloads | ForEach-Object { $_.FileName }) -join ', ')" -Level "INFO" -ConsoleOutput
+
+    # Fazer o download de cada arquivo com verificação de hash
+    foreach ($item in $downloads) {
+      $downloadUrl = $item.Url
+      $filePath = Join-Path -Path $folderPath -ChildPath $item.FileName
+      Write-Log "Iniciando download de $downloadUrl para $filePath..." -Level "INFO" -ConsoleOutput
+      Write-Colored "Baixando $item.FileName..." "Verde"
+
+      # Tentar download com Invoke-WebRequest e fallback para Start-BitsTransfer
+      try {
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $filePath -ErrorAction Stop
       }
-      elseif ($gpuName -like "*AMD*" -or $gpuName -like "*Radeon*" -or $gpuName -like "*RX*") {
-          Write-Log "Placa AMD detectada. Adicionando driver AMD à lista de downloads..." -Level "INFO" -ConsoleOutput
-          $downloads = $baseDownloads + @(
-              @{
-                  Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/AMD_ADRENALIN_WEB.exe"
-                  FileName = "AMD_ADRENALIN_WEB.exe"
-                  Hash     = "87888CE67AF3B7A1652FF134192420CA4CE644EFFB8368E570707A9E224F02F2"
-              }
-          )
-      }
-      else {
-          Write-Log "Nenhuma placa NVIDIA ou AMD reconhecida. Baixando apenas arquivos base..." -Level "WARNING" -ConsoleOutput
-          $downloads = $baseDownloads
-      }
-
-      Write-Log "Lista de downloads definida: $($downloads | ForEach-Object { $_.FileName } -join ', ')" -Level "INFO" -ConsoleOutput
-
-      # Fazer o download de cada arquivo com verificação de hash
-      foreach ($item in $downloads) {
-          $downloadUrl = $item.Url
-          $filePath = Join-Path -Path $folderPath -ChildPath $item.FileName
-          Write-Log "Iniciando download de $downloadUrl para $filePath..." -Level "INFO" -ConsoleOutput
-          Write-Colored "Baixando $item.FileName..." "Verde"
-
-          # Tentar download com Invoke-WebRequest e fallback para Start-BitsTransfer
-          try {
-              Invoke-WebRequest -Uri $downloadUrl -OutFile $filePath -ErrorAction Stop
-          }
-          catch {
-              Write-Log "Erro ao baixar $downloadUrl com Invoke-WebRequest. Tentando novamente com Start-BitsTransfer..." -Level "WARNING" -ConsoleOutput
-              Start-BitsTransfer -Source $downloadUrl -Destination $filePath -ErrorAction Stop
-          }
-
-          Write-Log "Download concluído para $filePath. Verificando hash..." -Level "INFO" -ConsoleOutput
-
-          # Verificar hash usando a função original Verify-FileHash
-          Verify-FileHash -FilePath $filePath -ExpectedHash $item.Hash
-
-          Write-Log "Download de $item.FileName concluído com sucesso em $filePath." -Level "INFO" -ConsoleOutput
-          Write-Colored "Download de $item.FileName concluído com sucesso." "Verde"
+      catch {
+        Write-Log "Erro ao baixar $downloadUrl com Invoke-WebRequest. Tentando novamente com Start-BitsTransfer..." -Level "WARNING" -ConsoleOutput
+        Start-BitsTransfer -Source $downloadUrl -Destination $filePath -ErrorAction Stop
       }
 
-      Write-Log "Todos os downloads foram concluídos com sucesso em $folderPath." -Level "INFO" -ConsoleOutput
-      Write-Output "Downloads concluídos em: $folderPath"
+      Write-Log "Download concluído para $filePath. Verificando hash..." -Level "INFO" -ConsoleOutput
+
+      # Verificar hash usando a função Verify-FileHash original
+      Verify-FileHash -FilePath $filePath -ExpectedHash $item.Hash
+
+      Write-Log "Download de $item.FileName concluído com sucesso em $filePath." -Level "INFO" -ConsoleOutput
+      Write-Colored "Download de $item.FileName concluído com sucesso." "Verde"
+    }
+
+    Write-Log "Todos os downloads foram concluídos com sucesso em $folderPath." -Level "INFO" -ConsoleOutput
+    Write-Output "Downloads concluídos em: $folderPath"
   }
   catch {
-      $errorMessage = "Erro na função Download-GPUFiles: $_"
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      Write-Colored $errorMessage "Vermelho"
-      throw  # Repropaga o erro
+    $errorMessage = "Erro na função Download-GPUFiles: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage "Vermelho"
+    throw  # Repropaga o erro
   }
   finally {
-      Write-Log "Finalizando função Download-GPUFiles." -Level "INFO" -ConsoleOutput
+    Write-Log "Finalizando função Download-GPUFiles." -Level "INFO" -ConsoleOutput
   }
 }
 
@@ -4709,29 +4712,29 @@ $totalTweaks = $tweaks.Count
 $currentStep = 0
 
 foreach ($tweak in $tweaks) {
-    $currentStep++
-    $tweakName = $tweak.Split()[0]
+  $currentStep++
+  $tweakName = $tweak.Split()[0]
     
-    Write-Log "Iniciando execução do tweak: $tweakName (Passo $currentStep de $totalTweaks)" -Level "INFO" -ConsoleOutput
-    Show-ProgressBar -CurrentStep $currentStep -TotalSteps $totalTweaks -TaskName $tweakName
+  Write-Log "Iniciando execução do tweak: $tweakName (Passo $currentStep de $totalTweaks)" -Level "INFO" -ConsoleOutput
+  Show-ProgressBar -CurrentStep $currentStep -TotalSteps $totalTweaks -TaskName $tweakName
     
-    if ($tweakFunctions.ContainsKey($tweakName)) {
-        try {
-            Invoke-Expression $tweak
-            Write-Log "Tweak $tweakName concluído com sucesso." -Level "INFO" -ConsoleOutput
-        }
-        catch {
-            Write-Log "Erro ao executar o tweak $tweakName $_" -Level "ERROR" -ConsoleOutput
-            Write-Colored "`nErro ao executar $tweakName. Veja o log para detalhes." -Color "VermelhoClaro"
-            # Continua para o próximo tweak em vez de parar
-            continue
-        }
+  if ($tweakFunctions.ContainsKey($tweakName)) {
+    try {
+      Invoke-Expression $tweak
+      Write-Log "Tweak $tweakName concluído com sucesso." -Level "INFO" -ConsoleOutput
     }
-    else {
-        Write-Log "Tweak não encontrado: $tweak" -Level "WARNING" -ConsoleOutput
-        Write-Colored "`nTweak não encontrado: $tweak" -Color "VermelhoClaro"
+    catch {
+      Write-Log "Erro ao executar o tweak $tweakName $_" -Level "ERROR" -ConsoleOutput
+      Write-Colored "`nErro ao executar $tweakName. Veja o log para detalhes." -Color "VermelhoClaro"
+      # Continua para o próximo tweak em vez de parar
+      continue
     }
+  }
+  else {
+    Write-Log "Tweak não encontrado: $tweak" -Level "WARNING" -ConsoleOutput
+    Write-Colored "`nTweak não encontrado: $tweak" -Color "VermelhoClaro"
+  }
     
-    Start-Sleep -Milliseconds 100 # Pequena pausa para visualização
+  Start-Sleep -Milliseconds 100 # Pequena pausa para visualização
 }
 Write-Host "" # Nova linha após o progresso
