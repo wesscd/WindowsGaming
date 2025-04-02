@@ -327,32 +327,39 @@ function Show-Intro {
 
   # Construir o array $intro
   $intro = @(
-    "", "", "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗",
+    "",
+    "",
+    "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗",
     "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝",
     "   ██║   █████╗  ██║     ███████║    ██████╔╝████X╗  ██╔████╔██║██║   ██║   ██║   █████╗  ",
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
     "                                                                                  V0.7.2.4.4",
-    "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
+    "",
+    "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
     "DESATIVE SEU ANTIVÍRUS e PRESSIONE QUALQUER TECLA para continuar!",
     "",
     "╔═══════════════════════════════════════╗",
     "╠══════ Informações do Computador ══════╣",
-    "║ Nome do Host: $hostName"# + (" " * $hostNamePadding),
-    "║ Sistema Operacional: $osName"# + (" " * $osNamePadding),
-    "║ Versão do Windows: $osVersion" #+ (" " * $osVersionPadding),
-    "║ Processador: $processor",
-    "║ Memória RAM: $ramGB GB"# + (" " * $ramPadding),
-    "╚═══════════════════════════════════════╝"
+    "╚═══════════════════════════════════════╝",
+    "",
+    "≫ Nome do Host: $hostName"# + (" " * $hostNamePadding),
+    "≫ Sistema Operacional: $osName"# + (" " * $osNamePadding),
+    "≫ Versão do Windows: $osVersion" #+ (" " * $osVersionPadding),
+    "≫ Processador: $processor",
+    "≫ Memória RAM: $ramGB GB"# + (" " * $ramPadding),
+    ""
   )
 
   $colors = @(
     "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", 
-    "AzulClaro", "AmareloClaro", "AmareloClaro", "VermelhoClaro", "Branco", 
-    "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro"
+    "AzulClaro",
+    "AmareloClaro", "AmareloClaro", "VermelhoClaro", "Branco", 
+    "Amarelo",
+    "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo"
   )
 
   for ($i = 0; $i -lt $intro.Length; $i++) {
