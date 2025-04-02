@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.4.3 (GROK / GPT)
+# Versão: V0.7.2.4.4 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
@@ -320,10 +320,10 @@ function Show-Intro {
   $ramGB = [math]::Round((Get-ComputerInfo).CsTotalPhysicalMemory / 1GB, 2)
 
   # Calcular o preenchimento para alinhamento (garantir que o resultado seja >= 0)
-  $hostNamePadding = [math]::Max(0, 35 - $hostName.Length)
-  $osNamePadding = [math]::Max(0, 35 - $osName.Length)
-  $osVersionPadding = [math]::Max(0, 35 - $osVersion.Length)
-  $ramPadding = [math]::Max(0, 35 - ($ramGB.ToString() + " GB").Length)
+  #$hostNamePadding = [math]::Max(0, 35 - $hostName.Length)
+  #$osNamePadding = [math]::Max(0, 35 - $osName.Length)
+  #$osVersionPadding = [math]::Max(0, 35 - $osVersion.Length)
+  #$ramPadding = [math]::Max(0, 35 - ($ramGB.ToString() + " GB").Length)
 
   # Construir o array $intro
   $intro = @(
@@ -333,7 +333,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.4.3",
+    "                                                                                  V0.7.2.4.4",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -341,11 +341,11 @@ function Show-Intro {
     "",
     "╔═══════════════════════════════════════╗",
     "╠══════ Informações do Computador ══════╣",
-    "║ Nome do Host: $hostName" + (" " * $hostNamePadding),
-    "║ Sistema Operacional: $osName" + (" " * $osNamePadding),
-    "║ Versão do Windows: $osVersion" + (" " * $osVersionPadding),
+    "║ Nome do Host: $hostName"# + (" " * $hostNamePadding),
+    "║ Sistema Operacional: $osName"# + (" " * $osNamePadding),
+    "║ Versão do Windows: $osVersion" #+ (" " * $osVersionPadding),
     "║ Processador: $processor",
-    "║ Memória RAM: $ramGB GB" + (" " * $ramPadding),
+    "║ Memória RAM: $ramGB GB"# + (" " * $ramPadding),
     "╚═══════════════════════════════════════╝"
   )
 
@@ -354,7 +354,7 @@ function Show-Intro {
     "AzulClaro", "AmareloClaro", "AmareloClaro", "VermelhoClaro", "Branco", 
     "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro"
   )
-  
+
   for ($i = 0; $i -lt $intro.Length; $i++) {
     $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
     Write-Colored $intro[$i] $color
