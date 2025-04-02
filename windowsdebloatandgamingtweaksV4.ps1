@@ -324,14 +324,14 @@ function Show-Intro {
     "Um ponto de restauração será criado antes de prosseguir.",
     "DESATIVE SEU ANTIVÍRUS e PRESSIONE QUALQUER TECLA para continuar!",
     "",
-    "╔═══════════════════════════════════════", 
-    "╠══════ Informações do Computador ══════", 
+    "╔═══════════════════════════════════════╗", 
+    "╠══════ Informações do Computador ══════╣", 
     "╠═ Nome do Host: " + [System.Environment]::MachineName,
     "╠═ Sistema Operacional: " + (Get-ComputerInfo).WindowsProductName,
     "╠═ Versão do Windows: " + (Get-ComputerInfo).WindowsVersion,
     "╠═ Processador: " + (Get-CimInstance Win32_Processor).Name,
     "╠═ Memória RAM: " + [math]::Round((Get-ComputerInfo).CsTotalPhysicalMemory / 1GB, 2) + " GB",
-    "╚═══════════════════════════════════════",
+    "╚═══════════════════════════════════════╝"
 
   )
   $colors = @("VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "AzulClaro", "AmareloClaro", "AmareloClaro", "VermelhoClaro", "Branco", "CianoClaro", "CianoClaro", "CianoClaro", "CianoClaro", "CianoClaro")
