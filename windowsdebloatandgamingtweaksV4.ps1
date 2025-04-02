@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.4.4 (GROK / GPT)
+# Versão: V0.7.2.4.5 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
@@ -335,12 +335,11 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.4.4",
+    "                                                                                  V0.7.2.4.5",
     "",
     "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
-    "DESATIVE SEU ANTIVÍRUS e PRESSIONE QUALQUER TECLA para continuar!",
     "",
     "╔═══════════════════════════════════════╗",
     "╠══════ Informações do Computador ══════╣",
@@ -351,15 +350,17 @@ function Show-Intro {
     "≫ Versão do Windows: $osVersion" #+ (" " * $osVersionPadding),
     "≫ Processador: $processor",
     "≫ Memória RAM: $ramGB GB"# + (" " * $ramPadding),
-    ""
+    "",
+    "Pressione qualquer tecla para continuar..."
   )
 
   $colors = @(
     "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", 
     "AzulClaro",
-    "AmareloClaro", "AmareloClaro", "VermelhoClaro", "Branco", 
+    "AmareloClaro", "AmareloClaro", "VermelhoClaro", 
     "Amarelo",
-    "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo"
+    "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo", "Amarelo",
+    "Verde"
   )
 
   for ($i = 0; $i -lt $intro.Length; $i++) {
