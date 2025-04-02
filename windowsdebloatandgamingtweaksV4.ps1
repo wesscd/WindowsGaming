@@ -331,16 +331,12 @@ function Show-Intro {
     "Memória RAM: " + [math]::Round((Get-ComputerInfo).CsTotalPhysicalMemory / 1GB, 2) + " GB"
   )
   $colors = @("VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "AzulClaro", "AmareloClaro", "AmareloClaro", "VermelhoClaro", "Branco", "CianoClaro", "CianoClaro", "CianoClaro", "CianoClaro", "CianoClaro")
-  
-  # Função auxiliar para escrever texto colorido (assumindo que Write-Colored existe no seu script)
-  function Write-Colored($text, $color) {
-    Write-Host $text -ForegroundColor $color
-  }
-  
+    
   for ($i = 0; $i -lt $intro.Length; $i++) {
     $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
     Write-Colored $intro[$i] $color
   }
+  
   [Console]::ReadKey($true)
 }
 
