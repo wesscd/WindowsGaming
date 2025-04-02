@@ -1126,22 +1126,6 @@ function AskXBOX {
       "Pressione qualquer tecla para continuar..."
     )
 
-    $colors = @(
-      "Branco", "Branco", 
-      "Amarelo", "Amarelo", "Amarelo", 
-      "Branco", 
-      "AmareloClaro", "VermelhoClaro", 
-      "Branco", 
-      "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-      "Branco", 
-      "Verde"
-    )
-
-    # Função auxiliar para escrever texto colorido
-    function Write-Colored($text, $color) {
-      Write-Host $text -ForegroundColor $color
-    }
-
     for ($i = 0; $i -lt $banner.Length; $i++) {
       $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
       Write-Colored $banner[$i] $color
