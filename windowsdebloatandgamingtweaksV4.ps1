@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.4.1 (GROK / GPT)
+# Versão: V0.7.2.4.2 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques
 # Definir página de código para suportar caracteres especiais
@@ -288,72 +288,6 @@ function SlowUpdatesTweaks {
   }
 }
 
-function ManagePowerProfiles {
-  Write-Log "Iniciando função ManagePowerProfiles para gerenciar perfis de energia." -ConsoleOutput
-
-  try {
-    Write-Output "Gerenciando Perfis de Energia..."
-    do {
-      Clear-Host
-      Write-Colored "" "Azul"
-      Write-Colored "================ Gerenciar Perfis de Energia ================" "Azul"
-      Write-Colored "Escolha uma opção para configurar o perfil de energia:" "Branco"
-      Write-Colored "1 - Perfil de Alto Desempenho (ideal para jogos)" "VerdeClaro"
-      Write-Colored "2 - Perfil Balanceado (padrão do Windows)" "AmareloClaro"
-      Write-Colored "3 - Perfil Econômico (economia de energia)" "CianoClaro"
-      Write-Colored "4 - Pular esta etapa" "VermelhoClaro"
-      $choice = Read-Host "Digite sua escolha (1-4)"
-      Write-Log "Usuário selecionou: $choice" -ConsoleOutput
-    } until ($choice -match "^[1-4]$")
-
-    switch ($choice) {
-      "1" {
-        Write-Log "Aplicando perfil de Alto Desempenho..." -ConsoleOutput
-        Write-Colored "Configurando perfil de Alto Desempenho..." -Color "VerdeClaro"
-        # Criar ou ativar o plano de alto desempenho
-        powercfg /duplicatescheme 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
-        powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
-        # Ajustes adicionais para desempenho máximo
-        powercfg /change standby-timeout-ac 0
-        powercfg /change hibernate-timeout-ac 0
-        powercfg /change monitor-timeout-ac 0
-        Write-Log "Perfil de Alto Desempenho aplicado com sucesso." -Level "INFO" -ConsoleOutput
-        Write-Colored "Perfil de Alto Desempenho aplicado com sucesso!" -Color "Verde"
-      }
-      "2" {
-        Write-Log "Aplicando perfil Balanceado..." -ConsoleOutput
-        Write-Colored "Configurando perfil Balanceado..." -Color "AmareloClaro"
-        powercfg /duplicatescheme 381b4222-f694-41f0-9685-ff5bb260df2e
-        powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e
-        Write-Log "Perfil Balanceado aplicado com sucesso." -Level "INFO" -ConsoleOutput
-        Write-Colored "Perfil Balanceado aplicado com sucesso!" -Color "Amarelo"
-      }
-      "3" {
-        Write-Log "Aplicando perfil Econômico..." -ConsoleOutput
-        Write-Colored "Configurando perfil Econômico..." -Color "CianoClaro"
-        powercfg /duplicatescheme a1841308-3541-4fab-bc81-f71556f20b4a
-        powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a
-        powercfg /change standby-timeout-ac 10
-        powercfg /change monitor-timeout-ac 5
-        Write-Log "Perfil Econômico aplicado com sucesso." -Level "INFO" -ConsoleOutput
-        Write-Colored "Perfil Econômico aplicado com sucesso!" -Color "Ciano"
-      }
-      "4" {
-        Write-Log "Perfil de energia não alterado (opção de pular escolhida)." -Level "INFO" -ConsoleOutput
-        Write-Colored "Configuração de perfil de energia ignorada." -Color "VermelhoClaro"
-      }
-    }
-  }
-  catch {
-    $errorMessage = "Erro ao gerenciar perfis de energia: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "Vermelho"
-  }
-  finally {
-    Write-Log "Finalizando função ManagePowerProfiles." -Level "INFO" -ConsoleOutput
-  }
-}
-
 function Show-ProgressBar {
   param (
     [int]$CurrentStep,
@@ -384,7 +318,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.4.1",
+    "                                                                                  V0.7.2.4.2",
     "", "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
@@ -519,7 +453,6 @@ $tweakFunctions = @{
   "DisableHPET"                 = { DisableHPET }
   "EnableGameMode"              = { EnableGameMode }
   "EnableHAGS"                  = { EnableHAGS }
-  "DisableCoreParking"          = { DisableCoreParking }
   "DisableDMA"                  = { DisableDMA }
   "DisablePKM"                  = { DisablePKM }
   "DisallowDIP"                 = { DisallowDIP }
@@ -685,7 +618,6 @@ $tweaks = @(
   "DisableHPET",
   "EnableGameMode",
   "EnableHAGS",
-  "DisableCoreParking",
   "DisableDMA",
   "DisablePKM",
   "DisallowDIP",
@@ -3296,11 +3228,207 @@ function EnableHAGS {
   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" -Name "HwSchMode" -Type DWord -Value 2
 }
 
-function DisableCoreParking {
-  Write-Output "Disabling CPU core parking..."
-  powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR CPMINCORES 100
-  powercfg -setactive SCHEME_CURRENT
+# Função DisableCoreParking (mantida como antes, mas ajustada para consistência)
+Function DisableCoreParking {
+  [CmdletBinding(SupportsShouldProcess = $true)]
+  Param (
+    [Parameter(Mandatory = $true)]
+    [string]$PlanGUID
+  )
+
+  Begin {
+    $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+    if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+      Write-Error "Este script deve ser executado como administrador."
+      return
+    }
+
+    try {
+      $null = Get-Command powercfg -ErrorAction Stop
+    }
+    catch {
+      Write-Error "Comando powercfg não encontrado."
+      return
+    }
+
+    Write-Output "Desativando Core Parking no plano com GUID: $PlanGUID..."
+  }
+
+  Process {
+    $success = $false
+    try {
+      # Ativar o plano
+      & powercfg /setactive $PlanGUID 2>$null
+      if ($LASTEXITCODE -ne 0) {
+        Write-Error "Falha ao ativar o plano $PlanGUID."
+        return
+      }
+      Write-Output "Plano ativado: $PlanGUID"
+
+      # Desativar Core Parking
+      & powercfg -attributes SUB_PROCESSOR CPMINCORES -ATTRIB_HIDE 2>$null
+      & powercfg -setacvalueindex $PlanGUID SUB_PROCESSOR CPMINCORES 100 2>$null
+      if ($LASTEXITCODE -ne 0) {
+        Write-Warning "Falha ao ajustar CPMINCORES."
+      }
+      else {
+        Write-Verbose "Core Parking desativado (CPMINCORES = 100)."
+      }
+
+      # Outras configurações
+      $settings = @(
+        @{ GUID = "2a737441-1930-4402-8d77-b2bebba308a3"; SubGUID = "d4e98f31-5ffe-4ce1-be31-1b38b384c009"; Value = 0 },
+        @{ GUID = "2a737441-1930-4402-8d77-b2bebba308a3"; SubGUID = "48e6b7a6-50f5-4782-a5d4-53bb8f07e226"; Value = 0 },
+        @{ GUID = "7516b95f-f776-4464-8c53-06167f40cc99"; SubGUID = "3c0bc021-c8a8-4e07-a973-6b14cbcb2b7e"; Value = 0 },
+        @{ GUID = "54533251-82be-4824-96c1-47b60b740d00"; SubGUID = "4d2b0152-7d5c-498b-88e2-34345392a2c5"; Value = 5000 }
+      )
+
+      foreach ($setting in $settings) {
+        & powercfg /setacvalueindex $PlanGUID $setting.GUID $setting.SubGUID $setting.Value 2>$null
+        if ($LASTEXITCODE -eq 0) {
+          Write-Verbose "Configuração $($setting.GUID)/$($setting.SubGUID) ajustada para $($setting.Value)."
+        }
+      }
+
+      # Reativar o plano
+      & powercfg /setactive $PlanGUID 2>$null
+      if ($LASTEXITCODE -eq 0) {
+        Write-Output "Core Parking desativado no plano $PlanGUID."
+        $success = $true
+      }
+      else {
+        Write-Error "Falha ao reativar o plano $PlanGUID."
+        return
+      }
+    }
+    catch {
+      Write-Error "Erro ao desativar Core Parking: $_"
+      return
+    }
+  }
+
+  End {
+    if ($success) {
+      Write-Output "Desativação do Core Parking concluída. Reinicie o sistema para garantir as alterações."
+    }
+  }
 }
+
+# Função ManagePowerProfiles (corrigida)
+function ManagePowerProfiles {
+  Write-Log "Iniciando função ManagePowerProfiles para gerenciar perfis de energia." -ConsoleOutput
+
+  try {
+    Write-Output "Gerenciando Perfis de Energia..."
+    do {
+      Clear-Host
+      Write-Colored "" "Azul"
+      Write-Colored "================ Gerenciar Perfis de Energia ================" "Azul"
+      Write-Colored "" "Azul"
+      Write-Colored "Escolha uma opção para configurar o perfil de energia:" "Branco"
+      Write-Colored "1 - Perfil Full Power Gaming (ideal para jogos)" "VerdeClaro"
+      Write-Colored "2 - Perfil Balanceado (padrão do Windows)" "AmareloClaro"
+      Write-Colored "3 - Perfil Econômico (economia de energia)" "CianoClaro"
+      Write-Colored "4 - Pular esta etapa" "VermelhoClaro"
+      $choice = Read-Host "Digite sua escolha (1-4)"
+      Write-Log "Usuário selecionou: $choice" -ConsoleOutput
+    } until ($choice -match "^[1-4]$")
+
+    switch ($choice) {
+      "1" {
+        Write-Log "Aplicando perfil Full Power Gaming..." -ConsoleOutput
+        Write-Colored "Configurando perfil Full Power Gaming..." -Color "VerdeClaro"
+        $fullPowerGamingGUID = "7c6f06f3-81e0-4dd7-a003-46b268fffb5a"  # GUID original
+
+        # Verificar se o GUID existe
+        $schemes = & powercfg /list | ForEach-Object {
+          if ($_ -match "(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})") {
+            $matches[1]
+          }
+        }
+
+        if ($schemes -notcontains $fullPowerGamingGUID) {
+          Write-Output "O perfil Full Power Gaming (GUID: $fullPowerGamingGUID) não existe. Criando um novo..."
+          # Criar novo plano baseado em Alto Desempenho
+          $newSchemeOutput = & powercfg /duplicatescheme 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+          if ($newSchemeOutput) {
+            $newGUID = $newSchemeOutput | Select-String -Pattern "(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})" | ForEach-Object { $_.Matches.Value }
+            if ($newGUID) {
+              & powercfg /changename $newGUID "Full Power Gaming" "Perfil otimizado para jogos" 2>$null
+              $fullPowerGamingGUID = $newGUID
+              Write-Output "Novo perfil Full Power Gaming criado com GUID: $fullPowerGamingGUID"
+            }
+            else {
+              Write-Error "Falha ao extrair o novo GUID após duplicação."
+              return
+            }
+          }
+          else {
+            Write-Error "Falha ao duplicar o plano Alto Desempenho."
+            return
+          }
+        }
+
+        # Ativar o plano (existente ou recém-criado)
+        & powercfg /setactive $fullPowerGamingGUID 2>$null
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "Falha ao ativar o perfil Full Power Gaming com GUID: $fullPowerGamingGUID"
+          return
+        }
+        Write-Output "Perfil Full Power Gaming ativado com sucesso!"
+
+        # Ajustes adicionais
+        & powercfg /change standby-timeout-ac 0 2>$null
+        & powercfg /change hibernate-timeout-ac 0 2>$null
+        & powercfg /change monitor-timeout-ac 0 2>$null
+
+        Write-Log "Perfil Full Power Gaming aplicado com sucesso." -Level "INFO" -ConsoleOutput
+        Write-Colored "Perfil Full Power Gaming aplicado com sucesso!" -Color "Verde"
+
+        # Chamar DisableCoreParking
+        Write-Output "Desativando Core Parking no perfil Full Power Gaming..."
+        DisableCoreParking -PlanGUID $fullPowerGamingGUID
+      }
+      "2" {
+        Write-Log "Aplicando perfil Balanceado..." -ConsoleOutput
+        Write-Colored "Configurando perfil Balanceado..." -Color "AmareloClaro"
+        $balancedGUID = "381b4222-f694-41f0-9685-ff5bb260df2e"
+        & powercfg /setactive $balancedGUID 2>$null
+        Write-Log "Perfil Balanceado aplicado com sucesso." -Level "INFO" -ConsoleOutput
+        Write-Colored "Perfil Balanceado aplicado com sucesso!" -Color "Amarelo"
+      }
+      "3" {
+        Write-Log "Aplicando perfil Econômico..." -ConsoleOutput
+        Write-Colored "Configurando perfil Econômico..." -Color "CianoClaro"
+        $powerSaverGUID = "a1841308-3541-4fab-bc81-f71556f20b4a"
+        & powercfg /setactive $powerSaverGUID 2>$null
+        & powercfg /change standby-timeout-ac 10 2>$null
+        & powercfg /change monitor-timeout-ac 5 2>$null
+        Write-Log "Perfil Econômico aplicado com sucesso." -Level "INFO" -ConsoleOutput
+        Write-Colored "Perfil Econômico aplicado com sucesso!" -Color "Ciano"
+      }
+      "4" {
+        Write-Log "Perfil de energia não alterado (opção de pular escolhida)." -Level "INFO" -ConsoleOutput
+        Write-Colored "Configuração de perfil de energia ignorada." -Color "VermelhoClaro"
+      }
+    }
+  }
+  catch {
+    $errorMessage = "Erro ao gerenciar perfis de energia: $_"
+    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "Vermelho"
+  }
+  finally {
+    Write-Log "Finalizando função ManagePowerProfiles." -Level "INFO" -ConsoleOutput
+  }
+}
+
+# Configuração inicial para codificação
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
+$PSDefaultParameterValues['*:Encoding'] = 'utf8'
+[System.Threading.Thread]::CurrentThread.CurrentCulture = "pt-BR"
+[System.Threading.Thread]::CurrentThread.CurrentUICulture = "pt-BR"
 
 function DisableDMA {
   Write-Output "Disabling Direct Memory Access remapping..."
