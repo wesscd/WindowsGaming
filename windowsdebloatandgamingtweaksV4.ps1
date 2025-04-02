@@ -311,6 +311,21 @@ function Show-ProgressBar {
 # Exibir introdução
 function Show-Intro {
   Clear-Host
+
+  # Obter as informações do computador
+  $hostName = [System.Environment]::MachineName
+  $osName = (Get-ComputerInfo).WindowsProductName
+  $osVersion = (Get-ComputerInfo).WindowsVersion
+  $processor = (Get-CimInstance Win32_Processor).Name
+  $ramGB = [math]::Round((Get-ComputerInfo).CsTotalPhysicalMemory / 1GB, 2)
+
+  # Calcular o preenchimento para alinhamento (garantir que o resultado seja >= 0)
+  $hostNamePadding = [math]::Max(0, 35 - $hostName.Length)
+  $osNamePadding = [math]::Max(0, 35 - $osName.Length)
+  $osVersionPadding = [math]::Max(0, 35 - $osVersion.Length)
+  $ramPadding = [math]::Max(0, 35 - ($ramGB.ToString() + " GB").Length)
+
+  # Construir o array $intro
   $intro = @(
     "", "", "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗",
     "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝",
@@ -326,13 +341,14 @@ function Show-Intro {
     "",
     "╔═══════════════════════════════════════╗",
     "╠══════ Informações do Computador ══════╣",
-    "║ Nome do Host: " + [System.Environment]::MachineName + " " * (35 - ([System.Environment]::MachineName).Length),
-    "║ Sistema Operacional: " + (Get-ComputerInfo).WindowsProductName + " " * (35 - ((Get-ComputerInfo).WindowsProductName).Length),
-    "║ Versão do Windows: " + (Get-ComputerInfo).WindowsVersion + " " * (35 - ((Get-ComputerInfo).WindowsVersion).Length),
-    "║ Processador: " + (Get-CimInstance Win32_Processor).Name,
-    "║ Memória RAM: " + [math]::Round((Get-ComputerInfo).CsTotalPhysicalMemory / 1GB, 2) + " GB" + " " * (35 - ([math]::Round((Get-ComputerInfo).CsTotalPhysicalMemory / 1GB, 2).ToString() + " GB").Length),
+    "║ Nome do Host: $hostName" + (" " * $hostNamePadding),
+    "║ Sistema Operacional: $osName" + (" " * $osNamePadding),
+    "║ Versão do Windows: $osVersion" + (" " * $osVersionPadding),
+    "║ Processador: $processor",
+    "║ Memória RAM: $ramGB GB" + (" " * $ramPadding),
     "╚═══════════════════════════════════════╝"
   )
+
   $colors = @(
     "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", "VerdeClaro", 
     "AzulClaro", "AmareloClaro", "AmareloClaro", "VermelhoClaro", "Branco", 
@@ -346,14 +362,6 @@ function Show-Intro {
 
   [Console]::ReadKey($true)
 }
-
-# Executa a função
-Show-Intro
-
-# Executa a função
-Show-Intro
-
-# (O restante do script continua como antes)
 
 # Configurar drives de registro
 New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT -ErrorAction SilentlyContinue | Out-Null
