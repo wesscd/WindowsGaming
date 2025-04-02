@@ -3250,10 +3250,36 @@ Function DetectnApplyMouseFIX {
   }
 }
 
-function DisableHPET {
-  Write-Output "Disabling High Precision Event Timer (HPET)..."
+Function DisableHPET {
+  Write-Output "Disabling High Precision Event Timer..."
+  $errpref = $ErrorActionPreference #save actual preference
+  $ErrorActionPreference = "silentlycontinue"
+  bcdedit /set x2apicpolicy Enable | Out-Null
+  bcdedit /set configaccesspolicy Default | Out-Null
+  bcdedit /set MSI Default | Out-Null
+  bcdedit /set usephysicaldestination No | Out-Null
+  bcdedit /set usefirmwarepcisettings No | Out-Null
   bcdedit /deletevalue useplatformclock | Out-Null
-  bcdedit /set disabledynamictick yes | Out-Null
+  bcdedit /deletevalue useplatformtick | Out-Null
+  bcdedit /deletevalue disabledynamictick | Out-Null
+  bcdedit /deletevalue tscsyncpolicy | Out-Null
+  bcdedit /timeout 10 | Out-Null
+  bcdedit /set nx optout | Out-Null
+  bcdedit /set bootux disabled | Out-Null
+  bcdedit /set quietboot yes | Out-Null
+  bcdedit /set { globalsettings } custom:16000067 true | Out-Null
+  bcdedit /set { globalsettings } custom:16000069 true | Out-Null
+  bcdedit /set { globalsettings } custom:16000068 true | Out-Null
+  wmic path Win32_PnPEntity where "name='High precision event timer'" call enable | Out-Null
+  if ($PlatformCheck -eq "Desktop") {
+    Write-Output "Platform is $PlatformCheck disabling dynamic tick..."
+    bcdedit /set disabledynamictick yes | Out-Null
+  }
+  else {
+    Write-Output "Platform is $PlatformCheck enabling dynamic tick..."
+    bcdedit /set disabledynamictick no
+  }
+  $ErrorActionPreference = $errpref #restore previous preference
 }
 
 function EnableGameMode {
