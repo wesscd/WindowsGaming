@@ -234,20 +234,35 @@ function Show-ProgressBar {
   param (
     [int]$CurrentStep,
     [int]$TotalSteps,
-    [string]$TaskName
+    [string]$TaskName,
+    [int]$EstimatedTimeSeconds = 5
   )
 
+  # Obter as dimensões do console
+  $consoleWidth = $Host.UI.RawUI.BufferSize.Width
+  $consoleHeight = $Host.UI.RawUI.BufferSize.Height
+
+  # Calcular posição no rodapé (última linha ou penúltima, deixando espaço para outras saídas)
+  $footerLine = $consoleHeight - 2  # Deixar uma linha acima para outras mensagens
+
+  # Calcular progresso
   $percentComplete = [math]::Round(($CurrentStep / $TotalSteps) * 100)
   $barLength = 50
   $filledLength = [math]::Round(($percentComplete / 100) * $barLength)
   $emptyLength = $barLength - $filledLength
-
   $filledBar = "█" * $filledLength
-  $emptyBar = " " * $emptyLength
-  $progressBar = "[$filledBar$emptyBar] $percentComplete%"
+  $emptyBar = "-" * $emptyLength
+  $remaining = [math]::Round(($TotalSteps - $CurrentStep) * $EstimatedTimeSeconds / 60, 2)
+  $progressBar = "[$filledBar$emptyBar] $percentComplete% (Restam ~$remaining minutos) - $TaskName"
 
-  Write-Host "`r" -NoNewline # Retorna ao início da linha
-  Write-Colored "$progressBar - Executando: $TaskName" -Color "VerdeClaro" -NoNewline
+  # Mover o cursor para o rodapé e escrever a barra
+  [Console]::SetCursorPosition(0, $footerLine)
+  Write-Host (" " * $consoleWidth) -NoNewline  # Limpar a linha anterior
+  [Console]::SetCursorPosition(0, $footerLine)
+  Write-Colored $progressBar -Color "VerdeClaro" -NoNewline
+
+  # Restaurar o cursor para a posição anterior (se necessário)
+  [Console]::SetCursorPosition(0, $consoleHeight - 1)
 }
 
 # Exibir introdução
@@ -4847,13 +4862,13 @@ Show-Intro
 $totalTweaks = $tweaks.Count
 $currentStep = 0
 
+# Exemplo de uso no loop principal
 foreach ($tweak in $tweaks) {
   $currentStep++
   $tweakName = $tweak.Split()[0]
-    
   Write-Log "Iniciando execução do tweak: $tweakName (Passo $currentStep de $totalTweaks)" -Level "INFO" -ConsoleOutput
   Show-ProgressBar -CurrentStep $currentStep -TotalSteps $totalTweaks -TaskName $tweakName
-    
+
   if ($tweakFunctions.ContainsKey($tweakName)) {
     try {
       Invoke-Expression $tweak
@@ -4862,7 +4877,6 @@ foreach ($tweak in $tweaks) {
     catch {
       Write-Log "Erro ao executar o tweak $tweakName $_" -Level "ERROR" -ConsoleOutput
       Write-Colored "`nErro ao executar $tweakName. Veja o log para detalhes." -Color "VermelhoClaro"
-      # Continua para o próximo tweak em vez de parar
       continue
     }
   }
@@ -4870,7 +4884,6 @@ foreach ($tweak in $tweaks) {
     Write-Log "Tweak não encontrado: $tweak" -Level "WARNING" -ConsoleOutput
     Write-Colored "`nTweak não encontrado: $tweak" -Color "VermelhoClaro"
   }
-    
-  Start-Sleep -Milliseconds 100 # Pequena pausa para visualização
+
+  Start-Sleep -Milliseconds 100
 }
-Write-Host "" # Nova linha após o progresso
