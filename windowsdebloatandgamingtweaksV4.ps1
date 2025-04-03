@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.4.9 (GROK / GPT)
+# Versão: V0.7.2.5.0 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
@@ -335,7 +335,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.4.9",
+    "                                                                                  V0.7.2.5.0",
     "",
     "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
@@ -5379,6 +5379,42 @@ function Finished {
   Write-Log "Iniciando função Finished para finalizar o processo de otimização." -ConsoleOutput
 
   try {
+    Write-Log "Iniciando configurações finais de OEM e personalização do sistema." -ConsoleOutput
+
+    # Baixar a imagem do logo
+    $url_logo = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/logo.bmp"
+    $destino_logo = "C:\Windows\oemlogo.bmp"
+    Write-Log "Baixando logo de $url_logo para $destino_logo..." -ConsoleOutput
+    Invoke-WebRequest -Uri $url_logo -OutFile $destino_logo -ErrorAction Stop
+    Write-Log "Logo baixado com sucesso." -Level "INFO" -ConsoleOutput
+
+    # Configurar permissões para pacotes MSI
+    Write-Log "Configurando permissões para pacotes MSI no registro..." -ConsoleOutput
+    New-Item -Path "HKCR:\Msi.Package\shell\runas\command" -Force -ErrorAction Stop | Out-Null
+    Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas" -Name "HasLUAShield" -Type String -Value "" -ErrorAction Stop | Out-Null
+    Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas\command" -Name "(Default)" -Type ExpandString -Value '"%SystemRoot%\System32\msiexec.exe" /i "%1" %*' -ErrorAction Stop | Out-Null
+    Write-Log "Permissões para pacotes MSI configuradas com sucesso." -Level "INFO" -ConsoleOutput
+
+    # Habilitar histórico da área de transferência
+    Write-Log "Habilitando histórico da área de transferência..." -ConsoleOutput
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "AllowClipboardHistory" -Type DWord -Value 1 -ErrorAction Stop
+    Write-Log "Histórico da área de transferência habilitado com sucesso." -Level "INFO" -ConsoleOutput
+
+    # Configurar informações OEM no registro
+    Write-Log "Configurando informações OEM no registro..." -ConsoleOutput
+    cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "Manufacturer" /t REG_SZ /d "PC Otimizado por Cesar Marques (Barao)" /f 2>nul' >$null
+    cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "Model" /t REG_SZ /d "Otimizacao, Hardware, Infra & Redes" /f 2>nul' >$null
+    cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportURL" /t REG_SZ /d "http://techremote.com.br" /f 2>nul' >$null
+    cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportHours" /t REG_SZ /d "Seg-Sex: 08h-18h" /f 2>nul' >$null
+    cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportPhone" /t REG_SZ /d "+55 16 99263-6487" /f 2>nul' >$null
+    cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "Logo" /t REG_SZ /d "C:\Windows\oemlogo.bmp" /f 2>nul' >$null
+    Write-Log "Informações OEM configuradas com sucesso." -Level "INFO" -ConsoleOutput
+
+    # Pequena pausa para garantir que as alterações sejam processadas
+    Start-Sleep -Seconds 5
+    Write-Log "Pausa de 5 segundos concluída." -ConsoleOutput
+
+    # Exibir mensagem final
     Clear-Host
     Write-Log "Limpando a tela para exibir mensagem de conclusão." -ConsoleOutput
 
@@ -5386,24 +5422,26 @@ function Finished {
       "",
       "",
       "╔═══════════════════════════════════════╗",
-      "╠══════ Otimização Concluída! ══════╣",
+      "╠════════ Otimização Concluída! ════════╣",
       "╚═══════════════════════════════════════╝",
       "",
       "≫ Parabéns! O processo de otimização do seu sistema foi concluído com sucesso.",
       "≫ Seu computador agora está configurado para oferecer o melhor desempenho em jogos e aplicações exigentes.",
       "≫ Durante este processo, ajustamos serviços, perfis de energia, configurações de memória virtual e outros recursos para maximizar a performance.",
+      "≫ Também adicionamos informações de suporte personalizadas (Cesar Marques - Barão) e um logo OEM para o sistema.",
       "≫ Para garantir que todas as alterações sejam aplicadas corretamente, é necessário reiniciar o computador.",
       "",
       "≫ Você pode reiniciar agora ou fazer isso manualmente mais tarde.",
-      "≫ Agradecemos por usar nosso script de otimização!",
-      ""
+      "≫ Agradecemos por usar nosso script de otimização! Não se esqueça de nos seguir em http://techremote.com.br para mais dicas e suporte.",
+      "",
+      "Pressione qualquer tecla para continuar..."
     )
 
     $colors = @(
       "Branco", "Branco", 
       "Amarelo", "Amarelo", "Amarelo", 
       "Branco", 
-      "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", 
+      "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", 
       "Branco", 
       "AmareloClaro", "AmareloClaro", 
       "Branco", 
@@ -5414,6 +5452,13 @@ function Finished {
       $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
       Write-Colored $banner[$i] $color
     }
+
+    [Console]::ReadKey($true)
+
+    # Abrir a URL no navegador
+    Write-Log "Abrindo URL de suporte http://techremote.com.br no navegador..." -ConsoleOutput
+    Start-Process "http://techremote.com.br" -ErrorAction Stop
+    Write-Log "URL aberta com sucesso." -Level "INFO" -ConsoleOutput
 
     do {
       Write-Colored "" "Branco"
