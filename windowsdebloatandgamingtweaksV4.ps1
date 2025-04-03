@@ -866,8 +866,6 @@ function Check-Windows {
         Write-Colored $banner[$i] $color
       }
 
-      [Console]::ReadKey($true)
-
       do {
         Clear-Host
         Write-Colored "" "Branco"
@@ -1171,8 +1169,6 @@ function AskXBOX {
       $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
       Write-Colored $banner[$i] $color
     }
-
-    [Console]::ReadKey($true)
 
     do {
       Clear-Host
@@ -1599,8 +1595,6 @@ function AskDefender {
       $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
       Write-Colored $banner[$i] $color
     }
-
-    [Console]::ReadKey($true)
 
     do {
       Clear-Host
@@ -3490,8 +3484,6 @@ function ManagePowerProfiles {
       Write-Colored $banner[$i] $color
     }
 
-    [Console]::ReadKey($true)
-
     do {
       Clear-Host
       Write-Colored "" "Branco"
@@ -3690,9 +3682,6 @@ function Ativar-Servicos {
     $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
     Write-Colored $banner[$i] $color
   }
-
-  [Console]::ReadKey($true)
-
   # Função interna para ativar um serviço
   function Ativar-Servico {
     param (
@@ -3799,8 +3788,6 @@ function Remove-OneDrive {
         $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
         Write-Colored $banner[$i] $color
       }
-
-      [Console]::ReadKey($true)
 
       do {
         Clear-Host
@@ -4136,8 +4123,6 @@ function Set-MemoriaVirtual-Registry {
       $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
       Write-Colored $banner[$i] $color
     }
-
-    [Console]::ReadKey($true)
 
     Write-Log "Exibindo interface de configuração da memória virtual." -ConsoleOutput
     Write-Colored "" "Branco"
@@ -5440,8 +5425,6 @@ function Finished {
       $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
       Write-Colored $banner[$i] $color
     }
-
-    [Console]::ReadKey($true)
 
     do {
       Write-Colored "" "Branco"
