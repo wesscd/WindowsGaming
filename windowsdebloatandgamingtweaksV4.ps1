@@ -829,7 +829,7 @@ function InstallChocolateyPackages {
       Write-Log "$package instalado com sucesso." -Level "INFO" -ConsoleOutput
     }
     catch {
-      Write-Log "Erro ao instalar $package: $_" -Level "ERROR" -ConsoleOutput
+      Write-Log "Erro ao instalar $package $_" -Level "ERROR" -ConsoleOutput
     }
   }
 
@@ -923,7 +923,7 @@ function DownloadFiles {
       Write-Log "$itemName baixado e verificado com sucesso." -Level "INFO" -ConsoleOutput
     }
     catch {
-      Write-Log "Erro ao baixar $itemName: $_" -Level "ERROR" -ConsoleOutput
+      Write-Log "Erro ao baixar $itemName $_" -Level "ERROR" -ConsoleOutput
       continue
     }
 
@@ -940,7 +940,7 @@ function DownloadFiles {
         Write-Log "Configuração de $itemName baixada e verificada com sucesso." -Level "INFO" -ConsoleOutput
       }
       catch {
-        Write-Log "Erro ao baixar configuração de $itemName: $_" -Level "ERROR" -ConsoleOutput
+        Write-Log "Erro ao baixar configuração de $itemName $_" -Level "ERROR" -ConsoleOutput
         continue
       }
     }
