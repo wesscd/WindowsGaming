@@ -369,6 +369,8 @@ function Show-Intro {
   }
 
   [Console]::ReadKey($true)
+
+  Clear-Host
 }
 
 # Configurar drives de registro
@@ -867,7 +869,7 @@ function Check-Windows {
       }
 
       do {
-        Clear-Host
+        
         Write-Colored "" "Branco"
         Write-Colored "Digite sua escolha (C/K/P):" "Cyan"
         $selection = Read-Host
@@ -1171,7 +1173,7 @@ function AskXBOX {
     }
 
     do {
-      Clear-Host
+      
       Write-Colored "" "Branco"
       Write-Colored "Digite sua escolha (D/H/P):" "Cyan"
       $selection = Read-Host
@@ -1597,7 +1599,7 @@ function AskDefender {
     }
 
     do {
-      Clear-Host
+      
       Write-Colored "" "Branco"
       Write-Colored "Digite sua escolha (D/H/P):" "Cyan"
       $selection = Read-Host
@@ -3485,7 +3487,7 @@ function ManagePowerProfiles {
     }
 
     do {
-      Clear-Host
+      
       Write-Colored "" "Branco"
       Write-Colored "Digite sua escolha (1-4):" "Cyan"
       $choice = Read-Host
@@ -3790,7 +3792,7 @@ function Remove-OneDrive {
       }
 
       do {
-        Clear-Host
+        
         Write-Colored "" "Branco"
         Write-Colored "Digite sua escolha (S/N):" "Cyan"
         $selection = Read-Host
