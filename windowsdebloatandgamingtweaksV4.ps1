@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.5.0 (GROK / GPT)
+# Versão: V0.7.2.5.1 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
@@ -229,64 +229,6 @@ function Write-Log {
 # Write-Log "Iniciando processo" -Level "INFO" -ConsoleOutput
 # Write-Log "Erro detectado" -Level "ERROR" -ConsoleOutput
 
-# Função SlowUpdatesTweaks definida diretamente
-
-function SlowUpdatesTweaks {
-  Write-Log "Iniciando função SlowUpdatesTweaks para melhorar o Windows Update e atrasar atualizações de recursos." -ConsoleOutput
-
-  try {
-    Write-Output "Improving Windows Update to delay Feature updates and only install Security Updates"
-    Write-Log "Melhorando o Windows Update para atrasar atualizações de recursos e instalar apenas atualizações de segurança..." -ConsoleOutput
-
-    Write-Log "Criando a chave HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate..." -ConsoleOutput
-    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Force -ErrorAction Stop | Out-Null
-    Write-Log "Chave criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
-
-    Write-Log "Configurando DeferFeatureUpdates para 1..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferFeatureUpdates" -Type DWord -Value 1 -ErrorAction Stop
-    Write-Log "DeferFeatureUpdates configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Write-Log "Configurando DeferQualityUpdates para 1..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferQualityUpdates" -Type DWord -Value 1 -ErrorAction Stop
-    Write-Log "DeferQualityUpdates configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Write-Log "Configurando DeferFeatureUpdatesPeriodInDays para 30..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferFeatureUpdatesPeriodInDays" -Type DWord -Value 30 -ErrorAction Stop
-    Write-Log "DeferFeatureUpdatesPeriodInDays configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Write-Log "Configurando DeferQualityUpdatesPeriodInDays para 4..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "DeferQualityUpdatesPeriodInDays" -Type DWord -Value 4 -ErrorAction Stop
-    Write-Log "DeferQualityUpdatesPeriodInDays configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Write-Log "Configurando PauseFeatureUpdatesStartTime para vazio..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "PauseFeatureUpdatesStartTime" -Type String -Value "" -ErrorAction Stop
-    Write-Log "PauseFeatureUpdatesStartTime configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Write-Log "Configurando PauseQualityUpdatesStartTime para vazio..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "PauseQualityUpdatesStartTime" -Type String -Value "" -ErrorAction Stop
-    Write-Log "PauseQualityUpdatesStartTime configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Write-Log "Configurando ActiveHoursEnd para 2..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ActiveHoursEnd" -Type DWord -Value 2 -ErrorAction Stop
-    Write-Log "ActiveHoursEnd configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Write-Log "Configurando ActiveHoursStart para 8..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ActiveHoursStart" -Type DWord -Value 8 -ErrorAction Stop
-    Write-Log "ActiveHoursStart configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Write-Log "Ajustes de atualização aplicados com sucesso." -Level "INFO" -ConsoleOutput
-    Write-Colored "Ajustes de atualização aplicados com sucesso." -Color "Green"
-  }
-  catch {
-    $errorMessage = "Erro ao aplicar ajustes de atualização: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "Red"
-    throw  # Repropaga o erro
-  }
-  finally {
-    Write-Log "Finalizando função SlowUpdatesTweaks." -Level "INFO" -ConsoleOutput
-  }
-}
 
 function Show-ProgressBar {
   param (
@@ -335,7 +277,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.5.0",
+    "                                                                                  V0.7.2.5.1",
     "",
     "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
@@ -393,7 +335,6 @@ $tweakFunctions = @{
   "CreateRestorePoint"          = { CreateRestorePoint }
   "InstallMVC"                  = { InstallMVC }
   "Install7Zip"                 = { Install7Zip }
-  "Write-ColorOutput"           = { Write-ColorOutput }
   "InstallTitusProgs"           = { InstallTitusProgs }
   "Check-Windows"               = { Check-Windows }
   "Execute-BatchScript"         = { Execute-BatchScript }
@@ -415,10 +356,8 @@ $tweakFunctions = @{
   "SetUnknownNetworksPrivate"   = { SetUnknownNetworksPrivate }
   "DisableNetDevicesAutoInst"   = { DisableNetDevicesAutoInst }
   "EnableF8BootMenu"            = { EnableF8BootMenu }
+  "ConfigureWindowsUpdate"      = { ConfigureWindowsUpdate }
   "DisableMeltdownCompatFlag"   = { DisableMeltdownCompatFlag }
-  "EnableUpdateMSRT"            = { EnableUpdateMSRT }
-  "EnableUpdateDriver"          = { EnableUpdateDriver }
-  "DisableUpdateRestart"        = { DisableUpdateRestart }
   "DisableHomeGroups"           = { DisableHomeGroups }
   "EnableSharedExperiences"     = { EnableSharedExperiences }
   "DisableRemoteAssistance"     = { DisableRemoteAssistance }
@@ -506,7 +445,7 @@ $tweakFunctions = @{
   "Finished"                    = { Finished }
 
   # Funções de Performance (assumidas em PerformanceTweaks.ps1)
-  "SlowUpdatesTweaks"           = { SlowUpdatesTweaks }
+  
   "Set-RamThreshold"            = { Set-RamThreshold }
   "Set-MemoriaVirtual-Registry" = { Set-MemoriaVirtual-Registry }
   "DownloadAndExtractISLC"      = { DownloadAndExtractISLC }
@@ -515,9 +454,7 @@ $tweakFunctions = @{
   "MSIMode"                     = { MSIMode }
   "NvidiaTweaks"                = { NvidiaTweaks }
   "AMDGPUTweaks"                = { AMDGPUTweaks }
-  "NetworkOptimizations"        = { NetworkOptimizations }
-  "DisableNagle"                = { DisableNagle }
-  "NetworkAdapterRSS"           = { NetworkAdapterRSS }
+  "OptimizeNetwork"             = { OptimizeNetwork }
 
   # Funções de Privacidade (assumidas em PrivacyTweaks.ps1)
   "DisableTelemetry"            = { DisableTelemetry }
@@ -544,7 +481,7 @@ $tweaks = @(
   "CreateRestorePoint",
   "InstallMVC",
   "Install7Zip",
-  "SlowUpdatesTweaks",
+  
   "InstallTitusProgs",
   "Check-Windows",
   "Execute-BatchScript",
@@ -574,15 +511,11 @@ $tweaks = @(
   "MSIMode",
   "NvidiaTweaks",
   "AMDGPUTweaks",
-  "NetworkOptimizations",
-  "DisableNagle",
-  "NetworkAdapterRSS",
-  # Continuação dos tweaks existentes
+  "OptimizeNetwork",
+  #Continuação dos tweaks existentes
   "EnableF8BootMenu",
+  "ConfigureWindowsUpdate",
   "DisableMeltdownCompatFlag",
-  "EnableUpdateMSRT",
-  "EnableUpdateDriver",
-  "DisableUpdateRestart",
   "DisableHomeGroups",
   "EnableSharedExperiences",
   "DisableRemoteAssistance",
@@ -669,25 +602,6 @@ $tweaks = @(
   "Clear-PSHistory",
   "Finished"
 )
-
-# Funções definidas no script principal
-function Write-ColorOutput {
-  [CmdletBinding()]
-  Param(
-    [Parameter(Mandatory = $False, Position = 1, ValueFromPipeline = $True, ValueFromPipelinebyPropertyName = $True)][Object] $Object,
-    [Parameter(Mandatory = $False, Position = 2, ValueFromPipeline = $True, ValueFromPipelinebyPropertyName = $True)][ConsoleColor] $ForegroundColor,
-    [Parameter(Mandatory = $False, Position = 3, ValueFromPipeline = $True, ValueFromPipelinebyPropertyName = $True)][ConsoleColor] $BackgroundColor,
-    [Switch]$NoNewline
-  )    
-  $previousForegroundColor = $host.UI.RawUI.ForegroundColor
-  $previousBackgroundColor = $host.UI.RawUI.BackgroundColor
-  if ($BackgroundColor -ne $null) { $host.UI.RawUI.BackgroundColor = $BackgroundColor }
-  if ($ForegroundColor -ne $null) { $host.UI.RawUI.ForegroundColor = $ForegroundColor }
-  if ($null -eq $Object) { $Object = "" }
-  if ($NoNewline) { [Console]::Write($Object) } else { Write-Output $Object }
-  $host.UI.RawUI.ForegroundColor = $previousForegroundColor
-  $host.UI.RawUI.BackgroundColor = $previousBackgroundColor
-}
 
 function InstallTitusProgs {
   Write-Log "Iniciando verificação e instalação do Chocolatey e O&O ShutUp10." -ConsoleOutput
@@ -1785,6 +1699,58 @@ function EnableF8BootMenu {
   }
 }
 
+function ConfigureWindowsUpdate {
+  [CmdletBinding()]
+  Param (
+    [int]$DelayFeatureUpdatesDays = 365,
+    [switch]$DisableAutoRestart = $true,
+    [switch]$EnableMSRT = $true,
+    [switch]$EnableDrivers = $true
+  )
+
+  Write-Log "Iniciando configuração do Windows Update..." -Level "INFO" -ConsoleOutput
+
+  # Caminhos do registro
+  $wuPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+  $auPath = "$wuPath\AU"
+
+  # Cria as chaves se não existirem
+  if (-not (Test-Path $wuPath)) { New-Item -Path $wuPath -Force | Out-Null }
+  if (-not (Test-Path $auPath)) { New-Item -Path $auPath -Force | Out-Null }
+
+  # Configurações de adiamento de atualizações (SlowUpdatesTweaks)
+  Write-Log "Aplicando ajustes para adiar atualizações de recursos..." -Level "INFO" -ConsoleOutput
+  Set-ItemProperty -Path $wuPath -Name "BranchReadinessLevel" -Value 16 -Type DWord -Force
+  Set-ItemProperty -Path $wuPath -Name "DeferFeatureUpdates" -Value 1 -Type DWord -Force
+  Set-ItemProperty -Path $wuPath -Name "DeferFeatureUpdatesPeriodInDays" -Value $DelayFeatureUpdatesDays -Type DWord -Force
+  Set-ItemProperty -Path $wuPath -Name "ManagePreviewBuilds" -Value 1 -Type DWord -Force
+  Set-ItemProperty -Path $wuPath -Name "ManagePreviewBuildsPolicyValue" -Value 2 -Type DWord -Force
+  Set-ItemProperty -Path $wuPath -Name "PauseFeatureUpdatesStartTime" -Value "2025-04-03" -Type String -Force
+  Set-ItemProperty -Path $wuPath -Name "PauseFeatureUpdatesEndTime" -Value "2030-04-03" -Type String -Force
+  Set-ItemProperty -Path $auPath -Name "NoAutoUpdate" -Value 0 -Type DWord -Force
+
+  # Desativar reinícios automáticos (DisableUpdateRestart)
+  if ($DisableAutoRestart) {
+    Write-Log "Desativando reinícios automáticos após atualizações..." -Level "INFO" -ConsoleOutput
+    Set-ItemProperty -Path $auPath -Name "NoAutoRebootWithLoggedOnUsers" -Value 1 -Type DWord -Force
+  }
+
+  # Habilitar MSRT (EnableUpdateMSRT)
+  if ($EnableMSRT) {
+    # MSRT é geralmente incluído em atualizações de segurança; garantimos que não seja bloqueado
+    Write-Log "Garantindo atualizações do Microsoft Malicious Software Removal Tool..." -Level "INFO" -ConsoleOutput
+    # Não há chave específica para MSRT, mas mantemos atualizações de qualidade ativas (NoAutoUpdate = 0)
+  }
+
+  # Habilitar atualizações de drivers (EnableUpdateDriver)
+  if ($EnableDrivers) {
+    Write-Log "Habilitando atualizações de drivers via Windows Update..." -Level "INFO" -ConsoleOutput
+    Set-ItemProperty -Path $wuPath -Name "ExcludeWUDriversInQualityUpdate" -Value 0 -Type DWord -Force
+  }
+
+  Write-Log "Configuração do Windows Update concluída com sucesso." -Level "INFO" -ConsoleOutput
+}
+
 function DisableMeltdownCompatFlag {
   Write-Log "Iniciando função DisableMeltdownCompatFlag para desativar o flag de compatibilidade do Meltdown (CVE-2017-5754)." -ConsoleOutput
 
@@ -1878,181 +1844,6 @@ function DisableGaming {
     $ErrorActionPreference = $errpref
     Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
     Write-Log "Finalizando função DisableGaming." -Level "INFO" -ConsoleOutput
-  }
-}
-
-function EnableUpdateMSRT {
-  Write-Log "Iniciando função EnableUpdateMSRT para habilitar a oferta da Ferramenta de Remoção de Software Malicioso." -ConsoleOutput
-
-  try {
-    Write-Output "Enabling Malicious Software Removal Tool offering..."
-    Write-Log "Habilitando a oferta da Ferramenta de Remoção de Software Malicioso..." -ConsoleOutput
-
-    # Definir o caminho do registro
-    $mrtPath = "HKLM:\SOFTWARE\Policies\Microsoft\MRT"
-
-    # Verificar se o caminho existe
-    Write-Log "Verificando se o caminho $mrtPath existe..." -ConsoleOutput
-    if (-not (Test-Path $mrtPath)) {
-      Write-Log "Caminho $mrtPath não encontrado. Nenhuma ação necessária ou caminho não aplicável." -Level "INFO" -ConsoleOutput
-    }
-    else {
-      # Verificar se a propriedade DontOfferThroughWUAU existe
-      Write-Log "Verificando se a propriedade DontOfferThroughWUAU existe no caminho $mrtPath..." -ConsoleOutput
-      if (Get-ItemProperty -Path $mrtPath -Name "DontOfferThroughWUAU" -ErrorAction SilentlyContinue) {
-        Write-Log "Removendo a propriedade DontOfferThroughWUAU do registro..." -ConsoleOutput
-        Remove-ItemProperty -Path $mrtPath -Name "DontOfferThroughWUAU" -ErrorAction Stop
-        Write-Log "Propriedade DontOfferThroughWUAU removida com sucesso." -Level "INFO" -ConsoleOutput
-      }
-      else {
-        Write-Log "Propriedade DontOfferThroughWUAU não encontrada no caminho $mrtPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
-      }
-    }
-
-    Write-Log "Oferta da Ferramenta de Remoção de Software Malicioso habilitada com sucesso." -Level "INFO" -ConsoleOutput
-  }
-  catch {
-    $errorMessage = "Erro na função EnableUpdateMSRT: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
-  }
-  finally {
-    Write-Log "Finalizando função EnableUpdateMSRT." -Level "INFO" -ConsoleOutput
-  }
-}
-
-function EnableUpdateDriver {
-  Write-Log "Iniciando função EnableUpdateDriver para habilitar a oferta de drivers pelo Windows Update." -ConsoleOutput
-
-  try {
-    Write-Output "Enabling driver offering through Windows Update..."
-    Write-Log "Habilitando a oferta de drivers pelo Windows Update..." -ConsoleOutput
-
-    # Definir os caminhos dos registros
-    $deviceMetadataPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata"
-    $driverSearchingPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching"
-    $windowsUpdatePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
-
-    # Remover PreventDeviceMetadataFromNetwork
-    Write-Log "Removendo PreventDeviceMetadataFromNetwork do registro..." -ConsoleOutput
-    if (Test-Path $deviceMetadataPath) {
-      if (Get-ItemProperty -Path $deviceMetadataPath -Name "PreventDeviceMetadataFromNetwork" -ErrorAction SilentlyContinue) {
-        Remove-ItemProperty -Path $deviceMetadataPath -Name "PreventDeviceMetadataFromNetwork" -ErrorAction Stop
-        Write-Log "PreventDeviceMetadataFromNetwork removido com sucesso." -Level "INFO" -ConsoleOutput
-      }
-      else {
-        Write-Log "Propriedade PreventDeviceMetadataFromNetwork não encontrada no caminho $deviceMetadataPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
-      }
-    }
-    else {
-      Write-Log "Caminho $deviceMetadataPath não encontrado. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
-    }
-
-    # Remover DontPromptForWindowsUpdate
-    Write-Log "Removendo DontPromptForWindowsUpdate do registro..." -ConsoleOutput
-    if (Test-Path $driverSearchingPath) {
-      if (Get-ItemProperty -Path $driverSearchingPath -Name "DontPromptForWindowsUpdate" -ErrorAction SilentlyContinue) {
-        Remove-ItemProperty -Path $driverSearchingPath -Name "DontPromptForWindowsUpdate" -ErrorAction Stop
-        Write-Log "DontPromptForWindowsUpdate removido com sucesso." -Level "INFO" -ConsoleOutput
-      }
-      else {
-        Write-Log "Propriedade DontPromptForWindowsUpdate não encontrada no caminho $driverSearchingPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
-      }
-    }
-    else {
-      Write-Log "Caminho $driverSearchingPath não encontrado. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
-    }
-
-    # Remover DontSearchWindowsUpdate
-    Write-Log "Removendo DontSearchWindowsUpdate do registro..." -ConsoleOutput
-    if (Test-Path $driverSearchingPath) {
-      if (Get-ItemProperty -Path $driverSearchingPath -Name "DontSearchWindowsUpdate" -ErrorAction SilentlyContinue) {
-        Remove-ItemProperty -Path $driverSearchingPath -Name "DontSearchWindowsUpdate" -ErrorAction Stop
-        Write-Log "DontSearchWindowsUpdate removido com sucesso." -Level "INFO" -ConsoleOutput
-      }
-      else {
-        Write-Log "Propriedade DontSearchWindowsUpdate não encontrada no caminho $driverSearchingPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
-      }
-    }
-
-    # Remover DriverUpdateWizardWuSearchEnabled
-    Write-Log "Removendo DriverUpdateWizardWuSearchEnabled do registro..." -ConsoleOutput
-    if (Test-Path $driverSearchingPath) {
-      if (Get-ItemProperty -Path $driverSearchingPath -Name "DriverUpdateWizardWuSearchEnabled" -ErrorAction SilentlyContinue) {
-        Remove-ItemProperty -Path $driverSearchingPath -Name "DriverUpdateWizardWuSearchEnabled" -ErrorAction Stop
-        Write-Log "DriverUpdateWizardWuSearchEnabled removido com sucesso." -Level "INFO" -ConsoleOutput
-      }
-      else {
-        Write-Log "Propriedade DriverUpdateWizardWuSearchEnabled não encontrada no caminho $driverSearchingPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
-      }
-    }
-
-    # Remover ExcludeWUDriversInQualityUpdate
-    Write-Log "Removendo ExcludeWUDriversInQualityUpdate do registro..." -ConsoleOutput
-    if (Test-Path $windowsUpdatePath) {
-      if (Get-ItemProperty -Path $windowsUpdatePath -Name "ExcludeWUDriversInQualityUpdate" -ErrorAction SilentlyContinue) {
-        Remove-ItemProperty -Path $windowsUpdatePath -Name "ExcludeWUDriversInQualityUpdate" -ErrorAction Stop
-        Write-Log "ExcludeWUDriversInQualityUpdate removido com sucesso." -Level "INFO" -ConsoleOutput
-      }
-      else {
-        Write-Log "Propriedade ExcludeWUDriversInQualityUpdate não encontrada no caminho $windowsUpdatePath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
-      }
-    }
-    else {
-      Write-Log "Caminho $windowsUpdatePath não encontrado. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
-    }
-
-    Write-Log "Oferta de drivers pelo Windows Update habilitada com sucesso." -Level "INFO" -ConsoleOutput
-  }
-  catch {
-    $errorMessage = "Erro na função EnableUpdateDriver: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
-  }
-  finally {
-    Write-Log "Finalizando função EnableUpdateDriver." -Level "INFO" -ConsoleOutput
-  }
-}
-
-function DisableUpdateRestart {
-  Write-Log "Iniciando função DisableUpdateRestart para desativar a reinicialização automática do Windows Update." -ConsoleOutput
-
-  try {
-    Write-Output "Disabling Windows Update automatic restart..."
-    Write-Log "Desativando a reinicialização automática do Windows Update..." -ConsoleOutput
-
-    # Definir o caminho do registro
-    $registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
-
-    # Verificar e criar a chave de registro, se necessário
-    if (-not (Test-Path $registryPath)) {
-      Write-Log "Chave $registryPath não existe. Criando..." -ConsoleOutput
-      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
-      Write-Log "Chave $registryPath criada com sucesso." -Level "INFO" -ConsoleOutput
-    }
-    else {
-      Write-Log "Chave $registryPath já existe. Prosseguindo com a configuração." -ConsoleOutput
-    }
-
-    # Configurar NoAutoRebootWithLoggedOnUsers
-    Write-Log "Configurando NoAutoRebootWithLoggedOnUsers para 1 em $registryPath..." -ConsoleOutput
-    Set-ItemProperty -Path $registryPath -Name "NoAutoRebootWithLoggedOnUsers" -Type DWord -Value 1 -ErrorAction Stop
-    Write-Log "NoAutoRebootWithLoggedOnUsers configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    # Configurar AUPowerManagement
-    Write-Log "Configurando AUPowerManagement para 0 em $registryPath..." -ConsoleOutput
-    Set-ItemProperty -Path $registryPath -Name "AUPowerManagement" -Type DWord -Value 0 -ErrorAction Stop
-    Write-Log "AUPowerManagement configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Write-Log "Reinicialização automática do Windows Update desativada com sucesso." -Level "INFO" -ConsoleOutput
-  }
-  catch {
-    $errorMessage = "Erro na função DisableUpdateRestart: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
-  }
-  finally {
-    Write-Log "Finalizando função DisableUpdateRestart." -Level "INFO" -ConsoleOutput
   }
 }
 
@@ -4814,458 +4605,104 @@ function AMDGPUTweaks {
     Write-Log "Finalizando função AMDGPUTweaks." -Level "INFO" -ConsoleOutput
   }
 }
-#Optimizing Network and applying Tweaks for no throttle and maximum speed!
-function NetworkOptimizations {
-  Write-Log "Iniciando função NetworkOptimizations para otimizar a rede e aplicar ajustes de desempenho máximo." -ConsoleOutput
 
+function OptimizeNetwork {
+  [CmdletBinding()]
+  Param (
+    [switch]$DisableNagle = $true,
+    [switch]$EnableRSS = $true,
+    [switch]$DisableLSO = $true
+  )
+
+  Write-Log "Iniciando otimizações de rede..." -Level "INFO" -ConsoleOutput
+
+  # Configurações globais de TCP/IP (sem TCPNoDelay aqui, movido para DisableNagle)
+  $tcpParams = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
+  Write-Log "Ajustando parâmetros TCP/IP globais..." -Level "INFO" -ConsoleOutput
   try {
-    # Salvar e ajustar ErrorActionPreference
-    $errpref = $ErrorActionPreference
-    $ErrorActionPreference = "SilentlyContinue"
-    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+    Set-ItemProperty -Path $tcpParams -Name "MaxUserPort" -Value 65534 -Type DWord -Force -ErrorAction Stop
+    Set-ItemProperty -Path $tcpParams -Name "TcpTimedWaitDelay" -Value 30 -Type DWord -Force -ErrorAction Stop
+    Set-ItemProperty -Path $tcpParams -Name "DefaultTTL" -Value 64 -Type DWord -Force -ErrorAction Stop
+    Set-ItemProperty -Path $tcpParams -Name "TcpMaxDataRetransmissions" -Value 5 -Type DWord -Force -ErrorAction Stop
+    Set-ItemProperty -Path $tcpParams -Name "EnableTCPA" -Value 1 -Type DWord -Force -ErrorAction Stop
+  }
+  catch {
+    Write-Log "Erro ao ajustar parâmetros TCP/IP: $_" -Level "ERROR" -ConsoleOutput
+  }
 
-    Write-Output "Otimizando a rede e aplicando ajustes para máximo desempenho..."
-    Write-Log "Otimizando a rede e aplicando ajustes para máximo desempenho..." -ConsoleOutput
+  # Configurações globais via Netsh
+  Write-Log "Aplicando configurações globais via Netsh..." -Level "INFO" -ConsoleOutput
+  try {
+    netsh int tcp set global autotuninglevel=normal | Out-Null
+    netsh int tcp set global congestionprovider=ctcp | Out-Null
+    netsh int tcp set global rss=enabled | Out-Null
+    netsh int tcp set global chimney=enabled | Out-Null
+    netsh int tcp set global dca=enabled | Out-Null
+    netsh int tcp set global ecncapability=disabled | Out-Null
+  }
+  catch {
+    Write-Log "Erro ao executar comandos Netsh: $_" -Level "ERROR" -ConsoleOutput
+  }
 
-    # Verificar se há adaptadores de rede
-    Write-Log "Obtendo adaptadores de rede ativos..." -ConsoleOutput
-    $adapters = Get-NetAdapter -ErrorAction Stop | Where-Object { $_.Status -eq "Up" -and $_.InterfaceDescription -notmatch "Loopback" }
-    if (-not $adapters) {
-      Write-Log "Nenhum adaptador de rede ativo encontrado. Pulando otimizações..." -Level "WARNING" -ConsoleOutput
-      Write-Output "Nenhum adaptador de rede ativo encontrado. Pulando otimizações..."
-      return
-    }
-
-    # Criar chaves de registro se não existirem
-    $regPaths = @(
-      "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched",
-      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS",
-      "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters",
-      "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters",
-      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters",
-      "HKLM:\SYSTEM\ControlSet001\Control\Lsa",
-      "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
-    )
-
-    foreach ($path in $regPaths) {
-      if (-not (Test-Path $path)) {
-        Write-Log "Criando chave de registro $path..." -ConsoleOutput
-        New-Item -Path $path -Force -ErrorAction Stop | Out-Null
-        Write-Log "Chave $path criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
-      }
-    }
-
-    # Ajustes de Registro para otimização de rede
-    $regConfigs = @{
-      "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPER1_0SERVER" = @("explorer.exe", 10)
-      "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPERSERVER"    = @("explorer.exe", 10)
-      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider"                                     = @("LocalPriority", 4), @("HostsPriority", 5), @("DnsPriority", 6), @("NetbtPriority", 7)
-      "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched"                                                  = @("NonBestEffortlimit", 0)
-      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS"                                                 = @("Do not use NLA", "1")
-      "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"                                   = @("Size", 1), @("IRPStackSize", 20)
-      "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"                                          = @("MaxUserPort", 65534), @("TcpTimedWaitDelay", 30), @("DefaultTTL", 64), @("MaxNumRssCpus", 4), @("DisableTaskOffload", 0)
-      "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters"                                                          = @("TCPNoDelay", 1)
-      "HKLM:\SYSTEM\ControlSet001\Control\Lsa"                                                            = @("LmCompatibilityLevel", 1)
-      "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"                                       = @("EnableAutoDoh", 2)
-    }
-
-    Write-Log "Configurações de registro definidas para otimização de rede." -ConsoleOutput
-
-    foreach ($path in $regConfigs.Keys) {
-      foreach ($setting in $regConfigs[$path]) {
-        Write-Log "Configurando $path - $($setting[0]) para $($setting[1])..." -ConsoleOutput
-        try {
-          Set-ItemProperty -Path $path -Name $setting[0] -Type DWord -Value $setting[1] -ErrorAction Stop
-          Write-Log "$($setting[0]) configurado com sucesso em $path." -Level "INFO" -ConsoleOutput
-        }
-        catch {
-          Write-Log "Falha ao configurar $path - $($setting[0]). Erro: $_" -Level "WARNING" -ConsoleOutput
-        }
-      }
-    }
-
-    # Ajustes de TCP/IP
-    Write-Log "Aplicando ajustes de TCP/IP..." -ConsoleOutput
-    try {
-      Set-NetTCPSetting -SettingName internet -EcnCapability disabled -ErrorAction Stop | Out-Null
-      Set-NetTCPSetting -SettingName internet -Timestamps disabled -ErrorAction Stop | Out-Null
-      Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2 -ErrorAction Stop | Out-Null
-      Set-NetTCPSetting -SettingName internet -NonSackRttResiliency disabled -ErrorAction Stop | Out-Null
-      Set-NetTCPSetting -SettingName internet -InitialRto 2000 -ErrorAction Stop | Out-Null
-      Set-NetTCPSetting -SettingName internet -MinRto 300 -ErrorAction Stop | Out-Null
-      Set-NetTCPSetting -SettingName Internet -AutoTuningLevelLocal normal -ErrorAction Stop | Out-Null
-      Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled -ErrorAction Stop | Out-Null
-      Write-Log "Ajustes de TCP/IP aplicados com sucesso." -Level "INFO" -ConsoleOutput
-    }
-    catch {
-      Write-Log "Erro ao aplicar ajustes de TCP/IP: $_" -Level "ERROR" -ConsoleOutput
-    }
-
-    # Ajustes de Netsh
-    $netshCommands = @(
-      "int ip set global taskoffload=enabled",
-      "int tcp set global ecncapability=enabled",
-      "int tcp set global rss=enabled",
-      "int tcp set global rsc=enabled",
-      "int tcp set global dca=enabled",
-      "int tcp set global netdma=enabled",
-      "int tcp set global fastopen=enabled",
-      "int tcp set global fastopenfallback=enabled",
-      "int tcp set global prr=enabled",
-      "int tcp set global pacingprofile=always",
-      "int tcp set global hystart=enabled",
-      "int tcp set supplemental internet enablecwndrestart=enabled",
-      "int tcp set security mpp=enabled",
-      "int tcp set global autotuninglevel=normal",
-      "int tcp set supplemental internet congestionprovider=dctcp"
-    )
-
-    Write-Log "Executando comandos Netsh para otimizações de rede..." -ConsoleOutput
-    foreach ($cmd in $netshCommands) {
-      Write-Log "Executando comando Netsh: $cmd..." -ConsoleOutput
+  # Desativar Nagle por interface
+  if ($DisableNagle) {
+    Write-Log "Desativando algoritmo de Nagle por interface..." -Level "INFO" -ConsoleOutput
+    $interfaces = Get-ChildItem "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces" -ErrorAction SilentlyContinue
+    foreach ($interface in $interfaces) {
       try {
-        netsh $cmd -ErrorAction Stop | Out-Null
-        Write-Log "Comando $cmd executado com sucesso." -Level "INFO" -ConsoleOutput
+        Set-ItemProperty -Path $interface.PSPath -Name "TcpAckFrequency" -Value 1 -Type DWord -Force -ErrorAction Stop
+        Set-ItemProperty -Path $interface.PSPath -Name "TCPNoDelay" -Value 1 -Type DWord -Force -ErrorAction Stop
       }
       catch {
-        Write-Log "Falha ao executar comando Netsh $cmd. Erro: $_" -Level "WARNING" -ConsoleOutput
+        Write-Log "Erro ao ajustar interface ${interface.PSChildName}: $_" -Level "WARNING" -ConsoleOutput
       }
     }
+  }
 
-    # Ajustes globais de offload
-    Write-Log "Aplicando ajustes globais de offload..." -ConsoleOutput
+  # Configurar RSS por adaptador
+  if ($EnableRSS) {
+    Write-Log "Configurando Receive Side Scaling (RSS) nos adaptadores..." -Level "INFO" -ConsoleOutput
+    $adapters = Get-ChildItem "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e972-e325-11ce-bfc1-08002be10318}" -ErrorAction SilentlyContinue
+    foreach ($adapter in $adapters) {
+      $desc = (Get-ItemProperty -Path $adapter.PSPath -ErrorAction SilentlyContinue).DriverDesc
+      if ($desc -and $desc -notmatch "Virtual|WAN") {
+        try {
+          Set-ItemProperty -Path $adapter.PSPath -Name "*RSS" -Value 1 -Type DWord -Force -ErrorAction Stop
+          Set-ItemProperty -Path $adapter.PSPath -Name "*NumRssQueues" -Value 4 -Type DWord -Force -ErrorAction Stop
+          Set-ItemProperty -Path $adapter.PSPath -Name "*ReceiveBuffers" -Value 2048 -Type DWord -Force -ErrorAction Stop
+          Set-ItemProperty -Path $adapter.PSPath -Name "*TransmitBuffers" -Value 2048 -Type DWord -Force -ErrorAction Stop
+        }
+        catch {
+          Write-Log "Erro ao ajustar adaptador ${desc}: $_" -Level "WARNING" -ConsoleOutput
+        }
+      }
+    }
+  }
+
+  # Desativar LSO
+  if ($DisableLSO) {
+    Write-Log "Desativando Large Send Offload (LSO)..." -Level "INFO" -ConsoleOutput
     try {
-      Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing disabled -ErrorAction Stop | Out-Null
-      Set-NetOffloadGlobalSetting -ReceiveSideScaling enabled -ErrorAction Stop | Out-Null
-      Write-Log "Ajustes globais de offload aplicados com sucesso." -Level "INFO" -ConsoleOutput
+      Disable-NetAdapterLso -Name "*" -IPv4 -IPv6 -ErrorAction Stop
     }
     catch {
-      Write-Log "Erro ao aplicar ajustes globais de offload: $_" -Level "ERROR" -ConsoleOutput
+      Write-Log "Erro ao desativar LSO: $_" -Level "WARNING" -ConsoleOutput
     }
+  }
 
-    # Ajustes avançados dos adaptadores de rede
-    $advancedProperties = @(
-      "Energy-Efficient Ethernet", "Energy Efficient Ethernet", "Ultra Low Power Mode",
-      "System Idle Power Saver", "Green Ethernet", "Power Saving Mode", "Gigabit Lite",
-      "EEE", "Advanced EEE", "ARP Offload", "NS Offload", "Large Send Offload v2 (IPv4)",
-      "Large Send Offload v2 (IPv6)", "TCP Checksum Offload (IPv4)", "TCP Checksum Offload (IPv6)",
-      "UDP Checksum Offload (IPv4)", "UDP Checksum Offload (IPv6)", "Idle Power Saving",
-      "Flow Control", "Interrupt Moderation", "Reduce Speed On Power Down", "Interrupt Moderation Rate",
-      "Log Link State Event", "Packet Priority & VLAN", "Priority & VLAN",
-      "IPv4 Checksum Offload", "Jumbo Frame", "Maximum Number of RSS Queues"
-    )
-
-    Write-Log "Aplicando ajustes avançados em adaptadores de rede..." -ConsoleOutput
-    foreach ($adapter in $adapters) {
-      foreach ($prop in $advancedProperties) {
-        Write-Log "Tentando desativar propriedade avançada $prop no adaptador $($adapter.Name)..." -ConsoleOutput
-        try {
-          $existingProps = Get-NetAdapterAdvancedProperty -Name $adapter.Name -ErrorAction Stop | Where-Object { $_.DisplayName -like "*$prop*" }
-          if ($existingProps) {
-            Set-NetAdapterAdvancedProperty -Name $adapter.Name -DisplayName $prop -DisplayValue "Disabled" -ErrorAction Stop
-            Write-Log "Propriedade $prop desativada com sucesso no adaptador $($adapter.Name)." -Level "INFO" -ConsoleOutput
-          }
-          else {
-            Write-Log "Propriedade $prop não encontrada no adaptador $($adapter.Name). Pulando..." -Level "WARNING" -ConsoleOutput
-          }
-        }
-        catch {
-          Write-Log "Falha ao desativar propriedade $prop no adaptador $($adapter.Name). Erro: $_" -Level "WARNING" -ConsoleOutput
-        }
-      }
+  # Propriedades avançadas dos adaptadores (sem LSO v2, coberto por Disable-NetAdapterLso)
+  Write-Log "Ajustando propriedades avançadas dos adaptadores..." -Level "INFO" -ConsoleOutput
+  $properties = @("FlowControl", "Energy-Efficient Ethernet", "Green Ethernet", "Interrupt Moderation")
+  foreach ($prop in $properties) {
+    try {
+      Set-NetAdapterAdvancedProperty -Name "*" -DisplayName $prop -DisplayValue "Disabled" -ErrorAction SilentlyContinue
     }
-
-    Write-Log "Otimizações de rede concluídas com sucesso!" -Level "INFO" -ConsoleOutput
-    Write-Output "Otimizações de rede concluídas com sucesso!"
-  }
-  catch {
-    $errorMessage = "Erro na função NetworkOptimizations: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro para ser tratado externamente, se necessário
-  }
-  finally {
-    $ErrorActionPreference = $errpref
-    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
-    Write-Log "Finalizando função NetworkOptimizations." -Level "INFO" -ConsoleOutput
-  }
-}
-
-function Disable-LSO {
-  Write-Log "Iniciando função Disable-LSO para desativar Large Send Offload (LSO) em adaptadores de rede." -ConsoleOutput
-
-  try {
-    Write-Log "Obtendo adaptadores de rede ativos (exceto Loopback)..." -ConsoleOutput
-    $adapters = Get-NetAdapter -ErrorAction Stop | Where-Object { $_.Status -eq "Up" -and $_.InterfaceDescription -notmatch "Loopback" }
-    Write-Log "Adaptadores de rede detectados: $($adapters.Name -join ', ')" -ConsoleOutput
-
-    foreach ($adapter in $adapters) {
-      Write-Output "Desativando Large Send Offload (LSO) para: $($adapter.Name)"
-      Write-Log "Desativando Large Send Offload (LSO) para o adaptador: $($adapter.Name)..." -ConsoleOutput
-
-      # Verifica se há suporte ao LSO antes de tentar desativar
-      Write-Log "Verificando suporte ao LSO para $($adapter.Name)..." -ConsoleOutput
-      $lsoSupport = Get-NetAdapterAdvancedProperty -Name $adapter.Name -RegistryKeyword "*LsoV2IPv4" -ErrorAction Stop
-      if ($lsoSupport) {
-        Write-Log "Suporte ao LSO detectado para $($adapter.Name). Tentando desativar..." -ConsoleOutput
-        try {
-          Write-Log "Desativando LSO para IPv4 no adaptador $($adapter.Name)..." -ConsoleOutput
-          Disable-NetAdapterLso -Name $adapter.Name -IPv4 -ErrorAction Stop
-          Write-Log "LSO para IPv4 desativado com sucesso." -Level "INFO" -ConsoleOutput
-
-          Write-Log "Desativando LSO para IPv6 no adaptador $($adapter.Name)..." -ConsoleOutput
-          Disable-NetAdapterLso -Name $adapter.Name -IPv6 -ErrorAction Stop
-          Write-Log "LSO para IPv6 desativado com sucesso." -Level "INFO" -ConsoleOutput
-
-          Write-Output "LSO desativado para: $($adapter.Name)"
-          Write-Log "LSO desativado com sucesso para o adaptador: $($adapter.Name)." -Level "INFO" -ConsoleOutput
-        }
-        catch {
-          $errorMessage = "Falha ao desativar LSO para $($adapter.Name). Motivo: $($_.Exception.Message)"
-          Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-          Write-Warning $errorMessage
-        }
-      }
-      else {
-        Write-Log "LSO não suportado para $($adapter.Name). Ignorando..." -Level "WARNING" -ConsoleOutput
-        Write-Warning "LSO não suportado para: $($adapter.Name), ignorando."
-      }
+    catch {
+      Write-Log "Erro ao ajustar propriedade ${prop}: $_" -Level "WARNING" -ConsoleOutput
     }
-
-    Write-Log "Processo de desativação de LSO concluído com sucesso para todos os adaptadores aplicáveis." -Level "INFO" -ConsoleOutput
   }
-  catch {
-    $errorMessage = "Erro na função Disable-LSO: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
-  }
-  finally {
-    Write-Log "Finalizando função Disable-LSO." -Level "INFO" -ConsoleOutput
-  }
-}
 
-# Disable Nagle's Algorithm
-Function DisableNagle {
-  Write-Log "Iniciando função DisableNagle para desativar o algoritmo de Nagle." -ConsoleOutput
-
-  try {
-    $errpref = $ErrorActionPreference
-    $ErrorActionPreference = "SilentlyContinue"
-    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
-
-    Write-Log "Obtendo IDs de interfaces de rede..." -ConsoleOutput
-    $NetworkIDS = @(
-          (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\*" -ErrorAction Stop).PSChildName
-    )
-    Write-Log "IDs de interfaces de rede detectados: $($NetworkIDS -join ', ')" -ConsoleOutput
-
-    foreach ($NetworkID in $NetworkIDS) {
-      Write-Output "Disabling Nagle's Algorithm..."
-      Write-Log "Desativando o algoritmo de Nagle para a interface: $NetworkID..." -ConsoleOutput
-
-      $regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$NetworkID"
-      Write-Log "Configurando TcpAckFrequency para 1 em $regPath..." -ConsoleOutput
-      Set-ItemProperty -Path $regPath -Name "TcpAckFrequency" -Type DWord -Value 1 -ErrorAction Stop
-      Write-Log "TcpAckFrequency configurado com sucesso para $NetworkID." -Level "INFO" -ConsoleOutput
-
-      Write-Log "Configurando TCPNoDelay para 1 em $regPath..." -ConsoleOutput
-      Set-ItemProperty -Path $regPath -Name "TCPNoDelay" -Type DWord -Value 1 -ErrorAction Stop
-      Write-Log "TCPNoDelay configurado com sucesso para $NetworkID." -Level "INFO" -ConsoleOutput
-    }
-
-    Write-Log "Algoritmo de Nagle desativado com sucesso para todas as interfaces de rede." -Level "INFO" -ConsoleOutput
-  }
-  catch {
-    $errorMessage = "Erro na função DisableNagle: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
-  }
-  finally {
-    $ErrorActionPreference = $errpref
-    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
-    Write-Log "Finalizando função DisableNagle." -Level "INFO" -ConsoleOutput
-  }
-}
-
-#setting network adabter optimal rss
-Function NetworkAdapterRSS {
-  Write-Log "Iniciando função NetworkAdapterRSS para configurar RSS em adaptadores de rede." -ConsoleOutput
-
-  try {
-    $errpref = $ErrorActionPreference
-    $ErrorActionPreference = "SilentlyContinue"
-    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
-
-    Write-Output "Setting network adapter RSS..."
-    Write-Log "Configurando RSS para adaptadores de rede..." -ConsoleOutput
-
-    Write-Log "Obtendo adaptadores físicos de rede..." -ConsoleOutput
-    $PhysicalAdapters = Get-WmiObject -Class Win32_NetworkAdapter -ErrorAction Stop | Where-Object { 
-      $_.PNPDeviceID -notlike "ROOT\*" -and 
-      $_.Manufacturer -ne "Microsoft" -and 
-      $_.ConfigManagerErrorCode -eq 0 -and 
-      $_.ConfigManagerErrorCode -ne 22 
-    }
-    Write-Log "Adaptadores físicos detectados: $($PhysicalAdapters.Name -join ', ')" -ConsoleOutput
-
-    foreach ($PhysicalAdapter in $PhysicalAdapters) {
-      $DeviceID = $PhysicalAdapter.DeviceID
-      Write-Log "Processando adaptador com DeviceID: $DeviceID..." -ConsoleOutput
-
-      If ([Int32]$DeviceID -lt 10) {
-        $AdapterDeviceNumber = "000" + $DeviceID
-      }
-      Else {
-        $AdapterDeviceNumber = "00" + $DeviceID
-      }
-      Write-Log "Número do dispositivo ajustado para: $AdapterDeviceNumber" -ConsoleOutput
-
-      $KeyPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002bE10318}\$AdapterDeviceNumber"
-      $KeyPath2 = "$KeyPath\Ndi\params\*RSS\Enum"
-      $KeyPath3 = "$KeyPath\Ndi\params\*RSS"
-      $KeyPath4 = "$KeyPath\Ndi\params\*NumRssQueues\Enum"
-      $KeyPath5 = "$KeyPath\Ndi\params\*NumRssQueues"
-      $KeyPath6 = "$KeyPath\Ndi\params\*ReceiveBuffers"
-      $KeyPath7 = "$KeyPath\Ndi\params\*TransmitBuffers"
-
-      If (Test-Path -Path $KeyPath) {
-        Write-Log "Caminho $KeyPath encontrado. Aplicando configurações RSS..." -ConsoleOutput
-
-        Write-Log "Criando subchave $KeyPath2..." -ConsoleOutput
-        New-Item -Path $KeyPath2 -Force -ErrorAction Stop | Out-Null
-        Write-Log "Subchave $KeyPath2 criada com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Criando subchave $KeyPath4..." -ConsoleOutput
-        New-Item -Path $KeyPath4 -Force -ErrorAction Stop | Out-Null
-        Write-Log "Subchave $KeyPath4 criada com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando *NumRssQueues para 2 em $KeyPath..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath -Name "*NumRssQueues" -Type String -Value 2 -ErrorAction Stop | Out-Null
-        Write-Log "*NumRssQueues configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando *RSS para 1 em $KeyPath..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath -Name "*RSS" -Type String -Value 1 -ErrorAction Stop | Out-Null
-        Write-Log "*RSS configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando *RSSProfile para 4 em $KeyPath..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath -Name "*RSSProfile" -Type String -Value 4 -ErrorAction Stop | Out-Null
-        Write-Log "*RSSProfile configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando *RssBaseProcNumber para 2 em $KeyPath..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath -Name "*RssBaseProcNumber" -Type String -Value 2 -ErrorAction Stop | Out-Null
-        Write-Log "*RssBaseProcNumber configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando *MaxRssProcessors para 4 em $KeyPath..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath -Name "*MaxRssProcessors" -Type String -Value 4 -ErrorAction Stop | Out-Null
-        Write-Log "*MaxRssProcessors configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando *NumaNodeId para 0 em $KeyPath..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath -Name "*NumaNodeId" -Type String -Value 0 -ErrorAction Stop | Out-Null
-        Write-Log "*NumaNodeId configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando *RssBaseProcGroup para 0 em $KeyPath..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath -Name "*RssBaseProcGroup" -Type String -Value 0 -ErrorAction Stop | Out-Null
-        Write-Log "*RssBaseProcGroup configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando *RssMaxProcNumber para 4 em $KeyPath..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath -Name "*RssMaxProcNumber" -Type String -Value 4 -ErrorAction Stop | Out-Null
-        Write-Log "*RssMaxProcNumber configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando *RssMaxProcGroup para 0 em $KeyPath..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath -Name "*RssMaxProcGroup" -Type String -Value 0 -ErrorAction Stop | Out-Null
-        Write-Log "*RssMaxProcGroup configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando *ReceiveBuffers para 2048 em $KeyPath..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath -Name "*ReceiveBuffers" -Type String -Value 2048 -ErrorAction Stop | Out-Null
-        Write-Log "*ReceiveBuffers configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando *TransmitBuffers para 4096 em $KeyPath..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath -Name "*TransmitBuffers" -Type String -Value 4096 -ErrorAction Stop | Out-Null
-        Write-Log "*TransmitBuffers configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Criando propriedade 'default' em $KeyPath3 com valor 1..." -ConsoleOutput
-        New-ItemProperty -Path $KeyPath3 -Name "default" -Type String -Value 1 -ErrorAction Stop | Out-Null
-        Write-Log "Propriedade 'default' criada com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Criando propriedade 'ParamDesc' em $KeyPath3 com valor 'Receive Side Scaling'..." -ConsoleOutput
-        New-ItemProperty -Path $KeyPath3 -Name "ParamDesc" -Type String -Value "Receive Side Scaling" -ErrorAction Stop | Out-Null
-        Write-Log "Propriedade 'ParamDesc' criada com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Criando propriedade 'type' em $KeyPath3 com valor 'enum'..." -ConsoleOutput
-        New-ItemProperty -Path $KeyPath3 -Name "type" -Type String -Value "enum" -ErrorAction Stop | Out-Null
-        Write-Log "Propriedade 'type' criada com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Criando propriedade '0' em $KeyPath2 com valor 'Disabled'..." -ConsoleOutput
-        New-ItemProperty -Path $KeyPath2 -Name "0" -Type String -Value "Disabled" -ErrorAction Stop | Out-Null
-        Write-Log "Propriedade '0' criada com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Criando propriedade '1' em $KeyPath2 com valor 'Enabled'..." -ConsoleOutput
-        New-ItemProperty -Path $KeyPath2 -Name "1" -Type String -Value "Enabled" -ErrorAction Stop | Out-Null
-        Write-Log "Propriedade '1' criada com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Criando propriedade '1' em $KeyPath4 com valor '1 Queue'..." -ConsoleOutput
-        New-ItemProperty -Path $KeyPath4 -Name "1" -Type String -Value "1 Queue" -ErrorAction Stop | Out-Null
-        Write-Log "Propriedade '1' criada com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Criando propriedade '2' em $KeyPath4 com valor '2 Queue'..." -ConsoleOutput
-        New-ItemProperty -Path $KeyPath4 -Name "2" -Type String -Value "2 Queue" -ErrorAction Stop | Out-Null
-        Write-Log "Propriedade '2' criada com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Criando propriedade '3' em $KeyPath4 com valor '3 Queue'..." -ConsoleOutput
-        New-ItemProperty -Path $KeyPath4 -Name "3" -Type String -Value "3 Queue" -ErrorAction Stop | Out-Null
-        Write-Log "Propriedade '3' criada com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Criando propriedade '4' em $KeyPath4 com valor '4 Queue'..." -ConsoleOutput
-        New-ItemProperty -Path $KeyPath4 -Name "4" -Type String -Value "4 Queue" -ErrorAction Stop | Out-Null
-        Write-Log "Propriedade '4' criada com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Criando propriedade 'default' em $KeyPath5 com valor '2'..." -ConsoleOutput
-        New-ItemProperty -Path $KeyPath5 -Name "default" -Type String -Value "2" -ErrorAction Stop | Out-Null
-        Write-Log "Propriedade 'default' criada com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Criando propriedade 'ParamDesc' em $KeyPath5 com valor 'Maximum Number of RSS Queues'..." -ConsoleOutput
-        New-ItemProperty -Path $KeyPath5 -Name "ParamDesc" -Type String -Value "Maximum Number of RSS Queues" -ErrorAction Stop | Out-Null
-        Write-Log "Propriedade 'ParamDesc' criada com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Criando propriedade 'type' em $KeyPath5 com valor 'enum'..." -ConsoleOutput
-        New-ItemProperty -Path $KeyPath5 -Name "type" -Type String -Value "enum" -ErrorAction Stop | Out-Null
-        Write-Log "Propriedade 'type' criada com sucesso." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando 'Max' para 6144 em $KeyPath6..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath6 -Name "Max" -Type String -Value 6144 -ErrorAction Stop | Out-Null
-        Write-Log "'Max' configurado com sucesso em $KeyPath6." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando 'Default' para 2048 em $KeyPath6..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath6 -Name "Default" -Type String -Value 2048 -ErrorAction Stop | Out-Null
-        Write-Log "'Default' configurado com sucesso em $KeyPath6." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando 'Max' para 6144 em $KeyPath7..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath7 -Name "Max" -Type String -Value 6144 -ErrorAction Stop | Out-Null
-        Write-Log "'Max' configurado com sucesso em $KeyPath7." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurando 'Default' para 4096 em $KeyPath7..." -ConsoleOutput
-        Set-ItemProperty -Path $KeyPath7 -Name "Default" -Type String -Value 4096 -ErrorAction Stop | Out-Null
-        Write-Log "'Default' configurado com sucesso em $KeyPath7." -Level "INFO" -ConsoleOutput
-
-        Write-Log "Configurações RSS aplicadas com sucesso para o adaptador $AdapterDeviceNumber." -Level "INFO" -ConsoleOutput
-      }
-      else {
-        Write-Log "Caminho $KeyPath não encontrado para o adaptador $AdapterDeviceNumber." -Level "WARNING" -ConsoleOutput
-        Write-Colored "Caminho ($KeyPath) Não encontrado." "Vermelho"
-      }
-    }
-
-    Write-Log "Configuração RSS concluída para todos os adaptadores físicos aplicáveis." -Level "INFO" -ConsoleOutput
-  }
-  catch {
-    $errorMessage = "Erro na função NetworkAdapterRSS: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
-  }
-  finally {
-    $ErrorActionPreference = $errpref
-    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
-    Write-Log "Finalizando função NetworkAdapterRSS." -Level "INFO" -ConsoleOutput
-  }
+  Write-Log "Otimização de rede concluída com sucesso." -Level "INFO" -ConsoleOutput
 }
 
 function Download-GPUFiles {
