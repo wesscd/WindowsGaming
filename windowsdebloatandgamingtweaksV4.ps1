@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.5.1 (GROK / GPT)
+# Versão: V0.7.2.5.2 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
@@ -277,7 +277,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.5.1",
+    "                                                                                  V0.7.2.5.2",
     "",
     "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
@@ -332,10 +332,9 @@ function RequireAdmin {
 $tweakFunctions = @{
   # Funções gerais
   "RequireAdmin"                = { RequireAdmin }
-  "CreateRestorePoint"          = { CreateRestorePoint }
-  "InstallMVC"                  = { InstallMVC }
-  "Install7Zip"                 = { Install7Zip }
-  "InstallTitusProgs"           = { InstallTitusProgs }
+  "CreateRestorePoint"          = { CreateRestore }
+  "InstallChocolateyPackages"   = { InstallChocolateyPackages }
+  "DownloadFiles"               = { DownloadFiles }
   "Check-Windows"               = { Check-Windows }
   "Execute-BatchScript"         = { Execute-BatchScript }
   "InstallChocoUpdates"         = { InstallChocoUpdates }
@@ -479,14 +478,11 @@ $tweakFunctions = @{
 $tweaks = @(
   "RequireAdmin",
   "CreateRestorePoint",
-  "InstallMVC",
-  "Install7Zip",
-  
-  "InstallTitusProgs",
+  "InstallChocolateyPackages",
+  "DownloadFiles",
   "Check-Windows",
   "Execute-BatchScript",
   "InstallChocoUpdates",
-  "Download-GPUFiles",
   "EnableUltimatePower",
   "ManagePowerProfiles",
   "AskDefender",
@@ -603,72 +599,6 @@ $tweaks = @(
   "Finished"
 )
 
-function InstallTitusProgs {
-  Write-Log "Iniciando verificação e instalação do Chocolatey e O&O ShutUp10." -ConsoleOutput
-
-  try {
-    # Verificar e instalar Chocolatey
-    Write-Log "Verificando se o Chocolatey está instalado..." -ConsoleOutput
-    if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-      Write-Log "Chocolatey não encontrado. Iniciando instalação..." -ConsoleOutput
-      Set-ExecutionPolicy Bypass -Scope Process -Force -ErrorAction Stop
-      [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-            
-      $webClient = New-Object System.Net.WebClient -ErrorAction Stop
-      $script = $webClient.DownloadString('https://chocolatey.org/install.ps1')
-      Invoke-Expression $script
-
-      Write-Log "Chocolatey instalado com sucesso." -Level "INFO" -ConsoleOutput
-      Write-Output "Chocolatey instalado com sucesso."
-    }
-    else {
-      Write-Log "Chocolatey já está instalado." -Level "INFO" -ConsoleOutput
-      Write-Output "Chocolatey já está instalado."
-    }
-
-    # Instalar chocolatey-core.extension
-    Write-Log "Instalando chocolatey-core.extension..." -ConsoleOutput
-    choco install chocolatey-core.extension -y -ErrorAction Stop
-    Write-Log "chocolatey-core.extension instalado com sucesso." -Level "INFO" -ConsoleOutput
-
-    # Executar O&O ShutUp10 com verificação de hash
-    Write-Log "Iniciando execução do O&O ShutUp10 com configurações recomendadas..." -ConsoleOutput
-    Write-Output "Executando O&O ShutUp10 com as configurações recomendadas..."
-    Import-Module BitsTransfer -ErrorAction Stop
-
-    $configUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/ooshutup10.cfg"
-    $exeUrl = "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"
-    $configFile = "$env:TEMP\ooshutup10.cfg"
-    $exeFile = "$env:TEMP\OOSU10.exe"
-
-    # Hashes fictícios (substitua pelos reais)
-    $configExpectedHash = "C8FA1E1EECCD10230452FC3D2E08F882B0AF7710A6CCDA35DB17E97394B305C9"
-    $exeExpectedHash = "6FF124ADBD65B5C74EDCC5A60B386919542CA2A83BC4FCF95DB1274AF7963C6E"
-
-    Write-Log "Baixando arquivos de configuração e executável do O&O ShutUp10..." -ConsoleOutput
-    Start-BitsTransfer -Source $configUrl -Destination $configFile -ErrorAction Stop
-    Start-BitsTransfer -Source $exeUrl -Destination $exeFile -ErrorAction Stop
-
-    # Verificar hashes
-    Verify-FileHash -FilePath $configFile -ExpectedHash $configExpectedHash
-    Verify-FileHash -FilePath $exeFile -ExpectedHash $exeExpectedHash
-
-    Write-Log "Executando O&O ShutUp10..." -ConsoleOutput
-    & $exeFile $configFile /quiet -ErrorAction Stop
-    Start-Sleep -Seconds 10
-
-    Write-Log "Removendo arquivos temporários do O&O ShutUp10..." -ConsoleOutput
-    Remove-Item -Path $configFile, $exeFile -Force -ErrorAction Stop
-    Write-Log "O&O ShutUp10 executado e arquivos temporários removidos com sucesso." -Level "INFO" -ConsoleOutput
-    Write-Output "O&O ShutUp10 executado e arquivos temporários removidos."
-  }
-  catch {
-    $errorMessage = "Erro na função InstallTitusProgs: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "Vermelho"
-    throw  # Repropaga o erro
-  }
-}
 function Execute-BatchScript {
   Write-Log "Iniciando download e execução do script em batch." -ConsoleOutput
 
@@ -867,125 +797,173 @@ function Check-Windows {
   }
 }
 
+function InstallChocolateyPackages {
+  [CmdletBinding()]
+  Param (
+    [string[]]$Packages = @("vcredist2010", "7zip")
+  )
 
-function InstallMVC {
-  Write-Log "Iniciando instalação do Microsoft Visual C++ 2010 Redistributable." -ConsoleOutput
+  Write-Log "Iniciando instalação de pacotes via Chocolatey..." -Level "INFO" -ConsoleOutput
 
-  try {
-    # Verificar se o Chocolatey está instalado
-    Write-Log "Verificando se o Chocolatey está instalado..." -ConsoleOutput
-    if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-      $errorMessage = "Chocolatey não está instalado. Instale-o primeiro usando InstallTitusProgs."
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      Write-Colored $errorMessage -Color "Vermelho"
-      throw $errorMessage
+  if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+    Write-Log "Chocolatey não encontrado. Instalando..." -Level "INFO" -ConsoleOutput
+    try {
+      Set-ExecutionPolicy Bypass -Scope Process -Force
+      [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
+      Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+      Write-Log "Chocolatey instalado com sucesso." -Level "INFO" -ConsoleOutput
     }
-
-    # Verificar permissões administrativas
-    $currentUser = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
-    if (-not $currentUser.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-      $errorMessage = "Esta função requer privilégios administrativos. Execute como administrador."
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      Write-Colored $errorMessage -Color "Vermelho"
-      throw $errorMessage
-    }
-
-    # Verificar se o pacote já está instalado
-    Write-Log "Verificando se o vcredist2010 já está instalado..." -ConsoleOutput
-    $installedPackages = choco list --local-only | Select-String "vcredist2010"
-    if ($installedPackages) {
-      Write-Log "vcredist2010 já está instalado. Verificando atualizações..." -Level "INFO" -ConsoleOutput
-      choco upgrade vcredist2010 -y -ErrorAction Stop | Out-Null
-      Write-Log "vcredist2010 atualizado com sucesso (se houver atualizações)." -Level "INFO" -ConsoleOutput
-      Write-Colored "Microsoft Visual C++ 2010 Redistributable já estava instalado e foi atualizado, se necessário." -Color "VerdeClaro"
+    catch {
+      Write-Log "Erro ao instalar Chocolatey: $_" -Level "ERROR" -ConsoleOutput
       return
     }
+  }
+  else {
+    Write-Log "Chocolatey já instalado." -Level "INFO" -ConsoleOutput
+  }
 
-    # Instalar o pacote
-    Write-Log "Iniciando instalação do vcredist2010 via Chocolatey..." -ConsoleOutput
-    Write-Output "Instalando Microsoft Visual C++ 2010 Redistributable..."
-    $installResult = choco install -y vcredist2010 -r --force --limitoutput --no-progress | Out-String -ErrorAction Stop
-
-    if ($LASTEXITCODE -eq 0) {
-      Write-Log "Microsoft Visual C++ 2010 Redistributable instalado com sucesso." -Level "INFO" -ConsoleOutput
-      Write-Colored "Microsoft Visual C++ 2010 Redistributable instalado com sucesso." -Color "VerdeClaro"
+  foreach ($package in $Packages) {
+    Write-Log "Instalando/atualizando $package..." -Level "INFO" -ConsoleOutput
+    try {
+      choco install $package -y --force | Out-Null
+      Write-Log "$package instalado com sucesso." -Level "INFO" -ConsoleOutput
     }
-    else {
-      $errorMessage = "Falha ao instalar vcredist2010. Saída: $installResult"
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      Write-Colored "Erro ao instalar o Microsoft Visual C++ 2010 Redistributable." -Color "Vermelho"
-      throw $errorMessage
+    catch {
+      Write-Log "Erro ao instalar $package: $_" -Level "ERROR" -ConsoleOutput
     }
   }
-  catch {
-    $errorMessage = "Erro durante a instalação do Microsoft Visual C++ 2010 Redistributable: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "Vermelho"
-    throw  # Repropaga o erro
-  }
-  finally {
-    Write-Log "Finalizando instalação do Microsoft Visual C++ 2010 Redistributable." -Level "INFO" -ConsoleOutput
-  }
+
+  Write-Log "Instalação de pacotes concluída." -Level "INFO" -ConsoleOutput
 }
 
-function Install7Zip {
-  Write-Log "Iniciando instalação do 7-Zip via Chocolatey." -ConsoleOutput
+function DownloadFiles {
+  [CmdletBinding()]
+  Param (
+    [hashtable]$BaseItems = @{
+      "MSI_Util"            = @{
+        Url         = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/MSI_util_v3.exe"
+        Hash        = "695800AFAD96F858A3F291B7DF21C16649528F13D39B63FB7C233E5676C8DF6F"
+        Destination = "$env:TEMP\GPU\MSI_util_v3.exe"
+        Execute     = $false
+      }
+      "IObit_DriverBooster" = @{
+        Url         = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
+        Hash        = "E171C6298F8D01170668754C6625CA065AE76CCD79D6B472EE8CDC40A6942653"
+        Destination = "$env:TEMP\GPU\IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
+        Execute     = $false
+      }
+    },
+    [hashtable]$GpuItems = @{
+      "OOSU10"        = @{
+        Url               = "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"
+        Hash              = "6FF124ADBD65B5C74EDCC5A60B386919542CA2A83BC4FCF95DB1274AF7963C6E"
+        Destination       = "$env:TEMP\OOSU10.exe"
+        ConfigUrl         = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/ooshutup10.cfg"
+        ConfigHash        = "C8FA1E1EECCD10230452FC3D2E08F882B0AF7710A6CCDA35DB17E97394B305C9"
+        ConfigDestination = "$env:TEMP\ooshutup10.cfg"
+        Execute           = $true
+        Args              = "$env:TEMP\ooshutup10.cfg /quiet /nosrp"
+      }
+      "NVIDIA_Driver" = @{
+        Url         = "https://us.download.nvidia.com/nvapp/client/11.0.3.218/NVIDIA_app_v11.0.3.218.exe"
+        Hash        = "C19A150E53427175E5996100A25ED016F6730B627B1D6B85813811A8751C77B7"
+        Destination = "$env:TEMP\GPU\NVIDIA_app_v11.0.3.218.exe"
+        Execute     = $false
+      }
+      "AMD_Driver"    = @{
+        Url         = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/AMD_ADRENALIN_WEB.exe"
+        Hash        = "87888CE67AF3B7A1652FF134192420CA4CE644EFFB8368E570707A9E224F02F2"
+        Destination = "$env:TEMP\GPU\AMD_ADRENALIN_WEB.exe"
+        Execute     = $false
+      }
+    }
+  )
 
-  try {
-    # Verificar se o Chocolatey está instalado
-    Write-Log "Verificando se o Chocolatey está instalado..." -ConsoleOutput
-    if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-      $errorMessage = "Chocolatey não está instalado. Instale-o primeiro usando InstallTitusProgs."
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      Write-Colored $errorMessage -Color "Vermelho"
-      throw $errorMessage
+  Write-Log "Iniciando download de arquivos..." -Level "INFO" -ConsoleOutput
+
+  # Criar pasta GPU
+  $gpuPath = "$env:TEMP\GPU"
+  if (-not (Test-Path $gpuPath)) { New-Item -Path $gpuPath -ItemType Directory -Force | Out-Null }
+
+  # Detectar GPU
+  $gpuName = (Get-CimInstance Win32_VideoController).Name
+  Write-Log "GPU detectada: $gpuName" -Level "INFO" -ConsoleOutput
+  $isNvidia = $gpuName -like "*NVIDIA*" -or $gpuName -like "*GTX*" -or $gpuName -like "*RTX*"
+  $isAMD = $gpuName -like "*AMD*" -or $gpuName -like "*Radeon*" -or $gpuName -like "*RX*"
+
+  # Definir downloads base
+  $downloads = @{}
+  foreach ($key in $BaseItems.Keys) {
+    $downloads[$key] = $BaseItems[$key]
+  }
+
+  # Adicionar downloads específicos por GPU
+  $downloads["OOSU10"] = $GpuItems["OOSU10"]  # Sempre incluído
+  if ($isNvidia) {
+    Write-Log "Placa NVIDIA detectada. Adicionando driver NVIDIA..." -Level "INFO" -ConsoleOutput
+    $downloads["NVIDIA_Driver"] = $GpuItems["NVIDIA_Driver"]
+  }
+  elseif ($isAMD) {
+    Write-Log "Placa AMD detectada. Adicionando driver AMD..." -Level "INFO" -ConsoleOutput
+    $downloads["AMD_Driver"] = $GpuItems["AMD_Driver"]
+  }
+
+  foreach ($itemName in $downloads.Keys) {
+    $item = $downloads[$itemName]
+
+    # Baixar arquivo principal
+    Write-Log "Baixando $itemName de $($item.Url)..." -Level "INFO" -ConsoleOutput
+    try {
+      Invoke-WebRequest -Uri $item.Url -OutFile $item.Destination -ErrorAction Stop
+      $hash = (Get-FileHash -Path $item.Destination -Algorithm SHA256).Hash
+      if ($hash -ne $item.Hash) {
+        Write-Log "Hash de $itemName não corresponde. Esperado: $($item.Hash), Obtido: $hash" -Level "ERROR" -ConsoleOutput
+        continue
+      }
+      Write-Log "$itemName baixado e verificado com sucesso." -Level "INFO" -ConsoleOutput
+    }
+    catch {
+      Write-Log "Erro ao baixar $itemName: $_" -Level "ERROR" -ConsoleOutput
+      continue
     }
 
-    # Verificar permissões administrativas
-    $currentUser = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
-    if (-not $currentUser.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-      $errorMessage = "Esta função requer privilégios administrativos. Execute como administrador."
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      Write-Colored $errorMessage -Color "Vermelho"
-      throw $errorMessage
+    # Baixar arquivo de configuração (se aplicável)
+    if ($item.ConfigUrl) {
+      Write-Log "Baixando configuração de $itemName de $($item.ConfigUrl)..." -Level "INFO" -ConsoleOutput
+      try {
+        Invoke-WebRequest -Uri $item.ConfigUrl -OutFile $item.ConfigDestination -ErrorAction Stop
+        $configHash = (Get-FileHash -Path $item.ConfigDestination -Algorithm SHA256).Hash
+        if ($configHash -ne $item.ConfigHash) {
+          Write-Log "Hash da configuração de $itemName não corresponde. Esperado: $($item.ConfigHash), Obtido: $configHash" -Level "ERROR" -ConsoleOutput
+          continue
+        }
+        Write-Log "Configuração de $itemName baixada e verificada com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      catch {
+        Write-Log "Erro ao baixar configuração de $itemName: $_" -Level "ERROR" -ConsoleOutput
+        continue
+      }
     }
 
-    # Verificar se o 7-Zip já está instalado
-    Write-Log "Verificando se o 7-Zip já está instalado..." -ConsoleOutput
-    $installedPackages = choco list --local-only | Select-String "7zip"
-    if ($installedPackages) {
-      Write-Log "7-Zip já está instalado. Verificando atualizações..." -Level "INFO" -ConsoleOutput
-      choco upgrade 7zip -y -ErrorAction Stop | Out-Null
-      Write-Log "7-Zip atualizado com sucesso (se houver atualizações)." -Level "INFO" -ConsoleOutput
-      Write-Colored "7-Zip já estava instalado e foi atualizado, se necessário." -Color "VerdeClaro"
-      return
-    }
-
-    # Instalar o 7-Zip
-    Write-Log "Iniciando instalação do 7-Zip via Chocolatey..." -ConsoleOutput
-    Write-Output "Instalando 7-Zip..."
-    $installResult = choco install -y 7zip -r --force --limitoutput --no-progress | Out-String -ErrorAction Stop
-
-    if ($LASTEXITCODE -eq 0) {
-      Write-Log "7-Zip instalado com sucesso." -Level "INFO" -ConsoleOutput
-      Write-Colored "7-Zip instalado com sucesso." -Color "VerdeClaro"
-    }
-    else {
-      $errorMessage = "Falha ao instalar 7-Zip. Saída: $installResult"
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      Write-Colored "Erro ao instalar o 7-Zip." -Color "Vermelho"
-      throw $errorMessage
+    # Executar (se aplicável)
+    if ($item.Execute) {
+      # Trecho original de execução do O&O ShutUp10
+      Write-Log "Executando O&O ShutUp10..." -ConsoleOutput
+      try {
+        & $item.Destination $item.ConfigDestination /quiet -ErrorAction Stop  # Substitui Start-Process conforme original
+        Start-Sleep -Seconds 10  # Atraso de 10 segundos conforme original
+        Write-Log "Removendo arquivos temporários do O&O ShutUp10..." -ConsoleOutput
+        Remove-Item -Path $item.ConfigDestination, $item.Destination -Force -ErrorAction Stop
+        Write-Log "O&O ShutUp10 executado e arquivos temporários removidos com sucesso." -Level "INFO" -ConsoleOutput
+        Write-Output "O&O ShutUp10 executado e arquivos temporários removidos."
+      }
+      catch {
+        Write-Log "Erro ao executar ou limpar O&O ShutUp10: $_" -Level "ERROR" -ConsoleOutput
+      }
     }
   }
-  catch {
-    $errorMessage = "Erro durante a instalação do 7-Zip: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "Vermelho"
-    throw  # Repropaga o erro
-  }
-  finally {
-    Write-Log "Finalizando instalação do 7-Zip." -Level "INFO" -ConsoleOutput
-  }
+
+  Write-Log "Download de arquivos concluído." -Level "INFO" -ConsoleOutput
 }
 
 function InstallChocoUpdates {
@@ -4705,112 +4683,6 @@ function OptimizeNetwork {
   Write-Log "Otimização de rede concluída com sucesso." -Level "INFO" -ConsoleOutput
 }
 
-function Download-GPUFiles {
-  Write-Log "Iniciando função Download-GPUFiles para identificar GPU, criar pasta e baixar arquivos." -Level "INFO" -ConsoleOutput
-
-  try {
-    # Identificar a placa de vídeo ativa
-    Write-Log "Obtendo informações da placa de vídeo ativa..." -ConsoleOutput
-    $gpuInfo = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop | Where-Object { $_.CurrentBitsPerPixel -and $_.AdapterDACType } | Select-Object -First 1
-    $gpuName = $gpuInfo.Name
-    Write-Log "Placa de vídeo detectada: $gpuName" -Level "INFO" -ConsoleOutput
-
-    # Definir o caminho da pasta em C:\
-    $folderPath = "C:\DownloadsGPU"
-    Write-Log "Definindo caminho da pasta como: $folderPath" -ConsoleOutput
-
-    # Verificar se a pasta existe, caso contrário, criá-la
-    if (-not (Test-Path -Path $folderPath)) {
-      Write-Log "Pasta $folderPath não existe. Criando..." -ConsoleOutput
-      Write-Colored "Criando pasta $folderPath..." "Verde"
-      New-Item -Path $folderPath -ItemType Directory -Force -ErrorAction Stop | Out-Null
-      Write-Log "Pasta $folderPath criada com sucesso." -Level "INFO" -ConsoleOutput
-    }
-    else {
-      Write-Log "Pasta $folderPath já existe. Prosseguindo com os downloads..." -ConsoleOutput
-    }
-
-    # Definir os downloads base (comuns a ambas as GPUs) com hashes reais
-    $baseDownloads = @(
-      @{
-        Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/MSI_util_v3.exe"
-        FileName = "MSI_util_v3.exe"
-        Hash     = "695800AFAD96F858A3F291B7DF21C16649528F13D39B63FB7C233E5676C8DF6F"
-      },
-      @{
-        Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
-        FileName = "IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
-        Hash     = "E171C6298F8D01170668754C6625CA065AE76CCD79D6B472EE8CDC40A6942653"
-      }
-    )
-
-    # Definir downloads específicos por GPU
-    if ($gpuName -like "*NVIDIA*" -or $gpuName -like "*GTX*" -or $gpuName -like "*RTX*") {
-      Write-Log "Placa NVIDIA detectada. Adicionando driver NVIDIA à lista de downloads..." -Level "INFO" -ConsoleOutput
-      $downloads = $baseDownloads + @(
-        @{
-          Url      = "https://us.download.nvidia.com/nvapp/client/11.0.3.218/NVIDIA_app_v11.0.3.218.exe"
-          FileName = "NVIDIA_app_v11.0.3.218.exe"
-          Hash     = "C19A150E53427175E5996100A25ED016F6730B627B1D6B85813811A8751C77B7"
-        }
-      )
-    }
-    elseif ($gpuName -like "*AMD*" -or $gpuName -like "*Radeon*" -or $gpuName -like "*RX*") {
-      Write-Log "Placa AMD detectada. Adicionando driver AMD à lista de downloads..." -Level "INFO" -ConsoleOutput
-      $downloads = $baseDownloads + @(
-        @{
-          Url      = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/AMD_ADRENALIN_WEB.exe"
-          FileName = "AMD_ADRENALIN_WEB.exe"
-          Hash     = "87888CE67AF3B7A1652FF134192420CA4CE644EFFB8368E570707A9E224F02F2"
-        }
-      )
-    }
-    else {
-      Write-Log "Nenhuma placa NVIDIA ou AMD reconhecida. Baixando apenas arquivos base..." -Level "WARNING" -ConsoleOutput
-      $downloads = $baseDownloads
-    }
-
-    # Corrigir a sintaxe do ForEach-Object com -join
-    Write-Log "Lista de downloads definida: $(($downloads | ForEach-Object { $_.FileName }) -join ', ')" -Level "INFO" -ConsoleOutput
-
-    # Fazer o download de cada arquivo com verificação de hash
-    foreach ($item in $downloads) {
-      $downloadUrl = $item.Url
-      $filePath = Join-Path -Path $folderPath -ChildPath $item.FileName
-      Write-Log "Iniciando download de $downloadUrl para $filePath..." -Level "INFO" -ConsoleOutput
-      Write-Colored "Baixando $item.FileName..." "Verde"
-
-      # Tentar download com Invoke-WebRequest e fallback para Start-BitsTransfer
-      try {
-        Invoke-WebRequest -Uri $downloadUrl -OutFile $filePath -ErrorAction Stop
-      }
-      catch {
-        Write-Log "Erro ao baixar $downloadUrl com Invoke-WebRequest. Tentando novamente com Start-BitsTransfer..." -Level "WARNING" -ConsoleOutput
-        Start-BitsTransfer -Source $downloadUrl -Destination $filePath -ErrorAction Stop
-      }
-
-      Write-Log "Download concluído para $filePath. Verificando hash..." -Level "INFO" -ConsoleOutput
-
-      # Verificar hash usando a função Verify-FileHash original
-      Verify-FileHash -FilePath $filePath -ExpectedHash $item.Hash
-
-      Write-Log "Download de $item.FileName concluído com sucesso em $filePath." -Level "INFO" -ConsoleOutput
-      Write-Colored "Download de $item.FileName concluído com sucesso." "Verde"
-    }
-
-    Write-Log "Todos os downloads foram concluídos com sucesso em $folderPath." -Level "INFO" -ConsoleOutput
-    Write-Output "Downloads concluídos em: $folderPath"
-  }
-  catch {
-    $errorMessage = "Erro na função Download-GPUFiles: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage "Vermelho"
-    throw  # Repropaga o erro
-  }
-  finally {
-    Write-Log "Finalizando função Download-GPUFiles." -Level "INFO" -ConsoleOutput
-  }
-}
 
 function Finished {
   Write-Log "Iniciando função Finished para finalizar o processo de otimização." -ConsoleOutput
