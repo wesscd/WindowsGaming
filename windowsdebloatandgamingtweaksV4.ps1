@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.5.2 (GROK / GPT)
+# Versão: V0.7.2.5.3 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
@@ -277,7 +277,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.5.2",
+    "                                                                                  V0.7.2.5.3",
     "",
     "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
@@ -451,8 +451,7 @@ $tweakFunctions = @{
   "UpdateISLCConfig"            = { UpdateISLCConfig }
   "ApplyPCOptimizations"        = { ApplyPCOptimizations }
   "MSIMode"                     = { MSIMode }
-  "NvidiaTweaks"                = { NvidiaTweaks }
-  "AMDGPUTweaks"                = { AMDGPUTweaks }
+  "OptimizeGPUTweaks"           = { OptimizeGPUTweaks }
   "OptimizeNetwork"             = { OptimizeNetwork }
 
   # Funções de Privacidade (assumidas em PrivacyTweaks.ps1)
@@ -505,8 +504,7 @@ $tweaks = @(
   "UpdateISLCConfig",
   "ApplyPCOptimizations",
   "MSIMode",
-  "NvidiaTweaks",
-  "AMDGPUTweaks",
+  "OptimizeGPUTweaks",
   "OptimizeNetwork",
   #Continuação dos tweaks existentes
   "EnableF8BootMenu",
@@ -800,7 +798,9 @@ function Check-Windows {
 function InstallChocolateyPackages {
   [CmdletBinding()]
   Param (
-    [string[]]$Packages = @("vcredist2010", "7zip")
+    # Lista de pacotes a serem instalados via Chocolatey
+    [string[]]$Packages = @("vcredist2010", "7zip", "vcredist140", "vcredist2013", "directx")
+
   )
 
   Write-Log "Iniciando instalação de pacotes via Chocolatey..." -Level "INFO" -ConsoleOutput
@@ -4226,103 +4226,180 @@ function MSIMode {
   }
 }
 
-function NvidiaTweaks {
-  Write-Log "Iniciando função NvidiaTweaks para aplicar otimizações em GPUs NVIDIA GTX/RTX." -Level "INFO" -ConsoleOutput
+function OptimizeGPUTweaks {
+  [CmdletBinding()]
+  Param ()
 
+  Write-Log "Iniciando otimizações de GPU..." -Level "INFO" -ConsoleOutput
+
+  # Detectar GPU
+  $gpuName = (Get-CimInstance Win32_VideoController).Name
+  Write-Log "GPU detectada: $gpuName" -Level "INFO" -ConsoleOutput
+  $isNvidia = $gpuName -like "*NVIDIA*" -or $gpuName -like "*GTX*" -or $gpuName -like "*RTX*"
+  $isAMD = $gpuName -like "*AMD*" -or $gpuName -like "*Radeon*" -or $gpuName -like "*RX*"
+
+  if (-not $isNvidia -and -not $isAMD) {
+    Write-Log "Nenhuma GPU NVIDIA ou AMD detectada. Pulando otimizações." -Level "WARNING" -ConsoleOutput
+    return
+  }
+
+  # Tweaks comuns (NVIDIA e AMD)
   try {
-    # Verificar se o script está rodando como administrador
-    $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-    if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-      Write-Log "Este script requer privilégios administrativos para acessar o registro e arquivos do sistema. Por favor, execute como administrador." -Level "ERROR" -ConsoleOutput
-      Write-Output "Erro: Privilégios administrativos necessários. Execute o script como administrador."
-      return
-    }
-    Write-Log "Script em execução com privilégios administrativos confirmados." -Level "INFO" -ConsoleOutput
+    # Desativar telemetria genérica
+    Stop-Service -Name "NvTelemetryContainer" -ErrorAction SilentlyContinue
+    Set-Service -Name "NvTelemetryContainer" -StartupType Disabled -ErrorAction SilentlyContinue
+    Write-Log "Telemetria genérica desativada (se aplicável)." -Level "INFO" -ConsoleOutput
 
-    # Salvar a preferência de erro original
-    $errpref = $ErrorActionPreference
-    $ErrorActionPreference = "SilentlyContinue"
-    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+    # Priorizar desempenho no plano de energia
+    powercfg -setactive SCHEME_MIN  # Máximo desempenho
+    Write-Log "Plano de energia ajustado para máximo desempenho." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    Write-Log "Erro ao aplicar tweaks comuns: $_" -Level "ERROR" -ConsoleOutput
+  }
 
-    # Identificar GPUs NVIDIA usando CIM/WMI
-    Write-Log "Obtendo informações de GPUs via CIM/WMI..." -ConsoleOutput
-    $gpuInfo = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop | Where-Object { $_.CurrentBitsPerPixel -and $_.AdapterDACType }
-    $nvidiaGPUs = $gpuInfo | Where-Object { $_.Name -match "nvidia|gtx|rtx" -and $_.Status -eq "OK" }
+  # Tweaks específicos para NVIDIA
+  if ($isNvidia) {
+    Write-Log "Aplicando otimizações para NVIDIA..." -Level "INFO" -ConsoleOutput
+    Write-Log "Iniciando função NvidiaTweaks para aplicar otimizações em GPUs NVIDIA GTX/RTX." -Level "INFO" -ConsoleOutput
 
-    if (-not $nvidiaGPUs) {
-      Write-Output "No NVIDIA GPU detected via CIM/WMI! Checking registry as fallback..."
-      Write-Log "Nenhuma GPU NVIDIA detectada via CIM/WMI. Verificando registro como fallback..." -Level "INFO" -ConsoleOutput
-    }
-    else {
-      Write-Log "GPUs NVIDIA detectadas via CIM/WMI: $($nvidiaGPUs.Name -join ', ')" -Level "INFO" -ConsoleOutput
-    }
-
-    # Aplicar otimizações de energia se NVIDIA for detectada via CIM/WMI
-    if ($nvidiaGPUs) {
-      Write-Output "NVIDIA GTX/RTX Card Detected! Applying Nvidia Power Tweaks..."
-      Write-Log "Placa NVIDIA GTX/RTX detectada! Aplicando otimizações de energia..." -ConsoleOutput
-
-      $url_base = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/BaseProfile.nip"
-      $url_nvidiaprofile = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/nvidiaProfileInspector.exe"
-      $system32Path = "$Env:windir\system32"
-
-      Write-Log "Baixando BaseProfile.nip de $url_base para $system32Path\BaseProfile.nip..." -ConsoleOutput
-      Invoke-WebRequest -Uri $url_base -OutFile "$system32Path\BaseProfile.nip" -ErrorAction Stop
-      Write-Log "BaseProfile.nip baixado com sucesso." -Level "INFO" -ConsoleOutput
-
-      Write-Log "Baixando nvidiaProfileInspector.exe de $url_nvidiaprofile para $system32Path\nvidiaProfileInspector.exe..." -ConsoleOutput
-      Invoke-WebRequest -Uri $url_nvidiaprofile -OutFile "$system32Path\nvidiaProfileInspector.exe" -ErrorAction Stop
-      Write-Log "nvidiaProfileInspector.exe baixado com sucesso." -Level "INFO" -ConsoleOutput
-
-      Write-Log "Mudando diretório para $system32Path para executar o nvidiaProfileInspector..." -ConsoleOutput
-      Push-Location
-      Set-Location $system32Path
-      Write-Log "Executando nvidiaProfileInspector.exe com o perfil BaseProfile.nip..." -ConsoleOutput
-      & "nvidiaProfileInspector.exe" /s -load "BaseProfile.nip" -ErrorAction Stop
-      Write-Log "Perfil BaseProfile.nip aplicado com sucesso pelo nvidiaProfileInspector." -Level "INFO" -ConsoleOutput
-      Pop-Location
-      Write-Log "Diretório restaurado." -ConsoleOutput
-    }
-
-    # Buscar dinamicamente todas as subchaves de dispositivos de vídeo no registro
-    $baseRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}"
-    Write-Log "Verificando entradas de registro em $baseRegPath..." -ConsoleOutput
-    $subKeys = $null
     try {
-      # Tentar ajustar permissões para o administrador atual
-      $regKey = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey("SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}", [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree, [System.Security.AccessControl.RegistryRights]::ChangePermissions)
-      if ($regKey) {
-        $acl = $regKey.GetAccessControl()
-        $rule = New-Object System.Security.AccessControl.RegistryAccessRule (
-          [System.Security.Principal.WindowsIdentity]::GetCurrent().Name,
-          "FullControl",
-          "Allow"
-        )
-        $acl.SetAccessRule($rule)
-        $regKey.SetAccessControl($acl)
-        Write-Log "Permissões ajustadas para $baseRegPath." -Level "INFO" -ConsoleOutput
-        $regKey.Close()
+      # Verificar se o script está rodando como administrador
+      $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+      if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+        Write-Log "Este script requer privilégios administrativos para acessar o registro e arquivos do sistema. Por favor, execute como administrador." -Level "ERROR" -ConsoleOutput
+        Write-Output "Erro: Privilégios administrativos necessários. Execute o script como administrador."
+        return
       }
-      $subKeys = Get-ChildItem -Path $baseRegPath -ErrorAction Stop | Where-Object { $_.PSChildName -match '^\d{4}$' }
-    }
-    catch {
-      Write-Log "Falha ao listar subchaves ou ajustar permissões em $baseRegPath $_" -Level "WARNING" -ConsoleOutput
-      Write-Output "Aviso: Não foi possível acessar o registro de dispositivos de vídeo. Continuando com base em CIM/WMI..."
-    }
+      Write-Log "Script em execução com privilégios administrativos confirmados." -Level "INFO" -ConsoleOutput
 
-    $foundNvidia = $false
-    if ($subKeys) {
-      foreach ($key in $subKeys) {
-        $regPath = $key.PSPath
-        $driverDesc = (Get-ItemProperty -Path $regPath -ErrorAction SilentlyContinue).DriverDesc
+      # Salvar a preferência de erro original
+      $errpref = $ErrorActionPreference
+      $ErrorActionPreference = "SilentlyContinue"
+      Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
 
-        if ($driverDesc -and ($driverDesc -match "nvidia|gtx|rtx" -or ($nvidiaGPUs -and $nvidiaGPUs.Name -contains $driverDesc))) {
-          $subKeyName = $key.PSChildName
-          Write-Output "NVIDIA GTX/RTX Card Registry Path $subKeyName Detected! Applying Nvidia Latency Tweaks..."
-          Write-Log "Placa NVIDIA GTX/RTX detectada no caminho de registro $subKeyName (DriverDesc: $driverDesc)! Aplicando otimizações de latência..." -ConsoleOutput
-          $foundNvidia = $true
+      # Identificar GPUs NVIDIA usando CIM/WMI
+      Write-Log "Obtendo informações de GPUs via CIM/WMI..." -ConsoleOutput
+      $gpuInfo = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop | Where-Object { $_.CurrentBitsPerPixel -and $_.AdapterDACType }
+      $nvidiaGPUs = $gpuInfo | Where-Object { $_.Name -match "nvidia|gtx|rtx" -and $_.Status -eq "OK" }
 
-          Write-Log "Aplicando ajustes de latência no caminho $regPath..." -ConsoleOutput
+      if (-not $nvidiaGPUs) {
+        Write-Output "No NVIDIA GPU detected via CIM/WMI! Checking registry as fallback..."
+        Write-Log "Nenhuma GPU NVIDIA detectada via CIM/WMI. Verificando registro como fallback..." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Write-Log "GPUs NVIDIA detectadas via CIM/WMI: $($nvidiaGPUs.Name -join ', ')" -Level "INFO" -ConsoleOutput
+      }
+
+      # Aplicar otimizações de energia se NVIDIA for detectada via CIM/WMI
+      if ($nvidiaGPUs) {
+        Write-Output "NVIDIA GTX/RTX Card Detected! Applying Nvidia Power Tweaks..."
+        Write-Log "Placa NVIDIA GTX/RTX detectada! Aplicando otimizações de energia..." -ConsoleOutput
+
+        $url_base = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/BaseProfile.nip"
+        $url_nvidiaprofile = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/nvidiaProfileInspector.exe"
+        $system32Path = "$Env:windir\system32"
+
+        Write-Log "Baixando BaseProfile.nip de $url_base para $system32Path\BaseProfile.nip..." -ConsoleOutput
+        Invoke-WebRequest -Uri $url_base -OutFile "$system32Path\BaseProfile.nip" -ErrorAction Stop
+        Write-Log "BaseProfile.nip baixado com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Baixando nvidiaProfileInspector.exe de $url_nvidiaprofile para $system32Path\nvidiaProfileInspector.exe..." -ConsoleOutput
+        Invoke-WebRequest -Uri $url_nvidiaprofile -OutFile "$system32Path\nvidiaProfileInspector.exe" -ErrorAction Stop
+        Write-Log "nvidiaProfileInspector.exe baixado com sucesso." -Level "INFO" -ConsoleOutput
+
+        Write-Log "Mudando diretório para $system32Path para executar o nvidiaProfileInspector..." -ConsoleOutput
+        Push-Location
+        Set-Location $system32Path
+        Write-Log "Executando nvidiaProfileInspector.exe com o perfil BaseProfile.nip..." -ConsoleOutput
+        & "nvidiaProfileInspector.exe" /s -load "BaseProfile.nip" -ErrorAction Stop
+        Write-Log "Perfil BaseProfile.nip aplicado com sucesso pelo nvidiaProfileInspector." -Level "INFO" -ConsoleOutput
+        Pop-Location
+        Write-Log "Diretório restaurado." -ConsoleOutput
+      }
+
+      # Buscar dinamicamente todas as subchaves de dispositivos de vídeo no registro
+      $baseRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}"
+      Write-Log "Verificando entradas de registro em $baseRegPath..." -ConsoleOutput
+      $subKeys = $null
+      try {
+        # Tentar ajustar permissões para o administrador atual
+        $regKey = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey("SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}", [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree, [System.Security.AccessControl.RegistryRights]::ChangePermissions)
+        if ($regKey) {
+          $acl = $regKey.GetAccessControl()
+          $rule = New-Object System.Security.AccessControl.RegistryAccessRule (
+            [System.Security.Principal.WindowsIdentity]::GetCurrent().Name,
+            "FullControl",
+            "Allow"
+          )
+          $acl.SetAccessRule($rule)
+          $regKey.SetAccessControl($acl)
+          Write-Log "Permissões ajustadas para $baseRegPath." -Level "INFO" -ConsoleOutput
+          $regKey.Close()
+        }
+        $subKeys = Get-ChildItem -Path $baseRegPath -ErrorAction Stop | Where-Object { $_.PSChildName -match '^\d{4}$' }
+      }
+      catch {
+        Write-Log "Falha ao listar subchaves ou ajustar permissões em $baseRegPath $_" -Level "WARNING" -ConsoleOutput
+        Write-Output "Aviso: Não foi possível acessar o registro de dispositivos de vídeo. Continuando com base em CIM/WMI..."
+      }
+
+      $foundNvidia = $false
+      if ($subKeys) {
+        foreach ($key in $subKeys) {
+          $regPath = $key.PSPath
+          $driverDesc = (Get-ItemProperty -Path $regPath -ErrorAction SilentlyContinue).DriverDesc
+
+          if ($driverDesc -and ($driverDesc -match "nvidia|gtx|rtx" -or ($nvidiaGPUs -and $nvidiaGPUs.Name -contains $driverDesc))) {
+            $subKeyName = $key.PSChildName
+            Write-Output "NVIDIA GTX/RTX Card Registry Path $subKeyName Detected! Applying Nvidia Latency Tweaks..."
+            Write-Log "Placa NVIDIA GTX/RTX detectada no caminho de registro $subKeyName (DriverDesc: $driverDesc)! Aplicando otimizações de latência..." -ConsoleOutput
+            $foundNvidia = $true
+
+            Write-Log "Aplicando ajustes de latência no caminho $regPath..." -ConsoleOutput
+            $properties = @{
+              "D3PCLatency"                        = 1
+              "F1TransitionLatency"                = 1
+              "LOWLATENCY"                         = 1
+              "Node3DLowLatency"                   = 1
+              "PciLatencyTimerControl"             = "0x00000020"
+              "RMDeepL1EntryLatencyUsec"           = 1
+              "RmGspcMaxFtuS"                      = 1
+              "RmGspcMinFtuS"                      = 1
+              "RmGspcPerioduS"                     = 1
+              "RMLpwrEiIdleThresholdUs"            = 1
+              "RMLpwrGrIdleThresholdUs"            = 1
+              "RMLpwrGrRgIdleThresholdUs"          = 1
+              "RMLpwrMsIdleThresholdUs"            = 1
+              "VRDirectFlipDPCDelayUs"             = 1
+              "VRDirectFlipTimingMarginUs"         = 1
+              "VRDirectJITFlipMsHybridFlipDelayUs" = 1
+              "vrrCursorMarginUs"                  = 1
+              "vrrDeflickerMarginUs"               = 1
+              "vrrDeflickerMaxUs"                  = 1
+            }
+
+            foreach ($prop in $properties.GetEnumerator()) {
+              try {
+                Set-ItemProperty -Path $regPath -Name $prop.Name -Type DWord -Value $prop.Value -ErrorAction Stop
+                Write-Log "Propriedade $($prop.Name) configurada com sucesso em $regPath." -Level "DEBUG" -ConsoleOutput
+              }
+              catch {
+                Write-Log "Falha ao configurar $($prop.Name) em $regPath $_" -Level "WARNING" -ConsoleOutput
+              }
+            }
+            Write-Log "Otimizações de latência NVIDIA aplicadas com sucesso no caminho $subKeyName." -Level "INFO" -ConsoleOutput
+          }
+        }
+      }
+
+      # Se nenhuma GPU foi encontrada no registro, mas CIM/WMI detectou NVIDIA, tentar aplicar otimizações em uma chave padrão
+      if (-not $foundNvidia -and $nvidiaGPUs) {
+        Write-Log "Nenhum registro acessível encontrado, mas GPU NVIDIA detectada via CIM/WMI. Tentando chave padrão..." -Level "INFO" -ConsoleOutput
+        $defaultRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000"
+        if (Test-Path $defaultRegPath) {
+          Write-Output "Tentando aplicar otimizações na chave padrão 0000 para GPU NVIDIA..."
+          Write-Log "Aplicando ajustes de latência no caminho padrão $defaultRegPath..." -ConsoleOutput
           $properties = @{
             "D3PCLatency"                        = 1
             "F1TransitionLatency"                = 1
@@ -4347,149 +4424,149 @@ function NvidiaTweaks {
 
           foreach ($prop in $properties.GetEnumerator()) {
             try {
-              Set-ItemProperty -Path $regPath -Name $prop.Name -Type DWord -Value $prop.Value -ErrorAction Stop
-              Write-Log "Propriedade $($prop.Name) configurada com sucesso em $regPath." -Level "DEBUG" -ConsoleOutput
+              Set-ItemProperty -Path $defaultRegPath -Name $prop.Name -Type DWord -Value $prop.Value -ErrorAction Stop
+              Write-Log "Propriedade $($prop.Name) configurada com sucesso em $defaultRegPath." -Level "DEBUG" -ConsoleOutput
             }
             catch {
-              Write-Log "Falha ao configurar $($prop.Name) em $regPath $_" -Level "WARNING" -ConsoleOutput
+              Write-Log "Falha ao configurar $($prop.Name) em $defaultRegPath $_" -Level "WARNING" -ConsoleOutput
             }
           }
-          Write-Log "Otimizações de latência NVIDIA aplicadas com sucesso no caminho $subKeyName." -Level "INFO" -ConsoleOutput
+          Write-Log "Otimizações de latência NVIDIA aplicadas com sucesso no caminho padrão 0000." -Level "INFO" -ConsoleOutput
+          $foundNvidia = $true
         }
       }
-    }
 
-    # Se nenhuma GPU foi encontrada no registro, mas CIM/WMI detectou NVIDIA, tentar aplicar otimizações em uma chave padrão
-    if (-not $foundNvidia -and $nvidiaGPUs) {
-      Write-Log "Nenhum registro acessível encontrado, mas GPU NVIDIA detectada via CIM/WMI. Tentando chave padrão..." -Level "INFO" -ConsoleOutput
-      $defaultRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000"
-      if (Test-Path $defaultRegPath) {
-        Write-Output "Tentando aplicar otimizações na chave padrão 0000 para GPU NVIDIA..."
-        Write-Log "Aplicando ajustes de latência no caminho padrão $defaultRegPath..." -ConsoleOutput
-        $properties = @{
-          "D3PCLatency"                        = 1
-          "F1TransitionLatency"                = 1
-          "LOWLATENCY"                         = 1
-          "Node3DLowLatency"                   = 1
-          "PciLatencyTimerControl"             = "0x00000020"
-          "RMDeepL1EntryLatencyUsec"           = 1
-          "RmGspcMaxFtuS"                      = 1
-          "RmGspcMinFtuS"                      = 1
-          "RmGspcPerioduS"                     = 1
-          "RMLpwrEiIdleThresholdUs"            = 1
-          "RMLpwrGrIdleThresholdUs"            = 1
-          "RMLpwrGrRgIdleThresholdUs"          = 1
-          "RMLpwrMsIdleThresholdUs"            = 1
-          "VRDirectFlipDPCDelayUs"             = 1
-          "VRDirectFlipTimingMarginUs"         = 1
-          "VRDirectJITFlipMsHybridFlipDelayUs" = 1
-          "vrrCursorMarginUs"                  = 1
-          "vrrDeflickerMarginUs"               = 1
-          "vrrDeflickerMaxUs"                  = 1
-        }
-
-        foreach ($prop in $properties.GetEnumerator()) {
-          try {
-            Set-ItemProperty -Path $defaultRegPath -Name $prop.Name -Type DWord -Value $prop.Value -ErrorAction Stop
-            Write-Log "Propriedade $($prop.Name) configurada com sucesso em $defaultRegPath." -Level "DEBUG" -ConsoleOutput
-          }
-          catch {
-            Write-Log "Falha ao configurar $($prop.Name) em $defaultRegPath $_" -Level "WARNING" -ConsoleOutput
-          }
-        }
-        Write-Log "Otimizações de latência NVIDIA aplicadas com sucesso no caminho padrão 0000." -Level "INFO" -ConsoleOutput
-        $foundNvidia = $true
+      if (-not $foundNvidia -and -not $nvidiaGPUs) {
+        Write-Output "No NVIDIA GTX/RTX Card Registry entry Found or Accessible! Skipping..."
+        Write-Log "Nenhuma entrada de registro NVIDIA GTX/RTX encontrada ou acessível! Pulando otimizações..." -Level "INFO" -ConsoleOutput
       }
-    }
-
-    if (-not $foundNvidia -and -not $nvidiaGPUs) {
-      Write-Output "No NVIDIA GTX/RTX Card Registry entry Found or Accessible! Skipping..."
-      Write-Log "Nenhuma entrada de registro NVIDIA GTX/RTX encontrada ou acessível! Pulando otimizações..." -Level "INFO" -ConsoleOutput
-    }
-  }
-  catch {
-    $errorMessage = "Erro na função NvidiaTweaks: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
-  }
-  finally {
-    $ErrorActionPreference = $errpref
-    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
-    Write-Log "Finalizando função NvidiaTweaks." -Level "INFO" -ConsoleOutput
-  }
-}
-
-#Applying AMD Tweaks If Detected!
-function AMDGPUTweaks {
-  Write-Log "Iniciando função AMDGPUTweaks para aplicar otimizações em GPUs AMD." -Level "INFO" -ConsoleOutput
-
-  try {
-    # Verificar se o script está rodando como administrador
-    $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-    if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-      Write-Log "Este script requer privilégios administrativos para acessar o registro. Por favor, execute como administrador." -Level "ERROR" -ConsoleOutput
-      Write-Output "Erro: Privilégios administrativos necessários. Execute o script como administrador."
-      return
-    }
-    Write-Log "Script em execução com privilégios administrativos confirmados." -Level "INFO" -ConsoleOutput
-
-    # Salvar a preferência de erro original
-    $errpref = $ErrorActionPreference
-    $ErrorActionPreference = "SilentlyContinue"
-    Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
-
-    # Identificar GPUs AMD usando CIM/WMI
-    Write-Log "Obtendo informações de GPUs via CIM/WMI..." -ConsoleOutput
-    $gpuInfo = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop | Where-Object { $_.CurrentBitsPerPixel -and $_.AdapterDACType }
-    $amdGPUs = $gpuInfo | Where-Object { $_.Name -match "amd|radeon|rx|vega" -and $_.Status -eq "OK" }
-
-    if (-not $amdGPUs) {
-      Write-Output "No AMD GPU detected via CIM/WMI! Checking registry as fallback..."
-      Write-Log "Nenhuma GPU AMD detectada via CIM/WMI. Verificando registro como fallback..." -Level "INFO" -ConsoleOutput
-    }
-    else {
-      Write-Log "GPUs AMD detectadas via CIM/WMI: $($amdGPUs.Name -join ', ')" -Level "INFO" -ConsoleOutput
-    }
-
-    # Buscar dinamicamente todas as subchaves de dispositivos de vídeo no registro
-    $baseRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}"
-    Write-Log "Verificando entradas de registro em $baseRegPath..." -ConsoleOutput
-    $subKeys = $null
-    try {
-      # Tentar ajustar permissões para o administrador atual
-      $regKey = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey("SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}", [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree, [System.Security.AccessControl.RegistryRights]::ChangePermissions)
-      if ($regKey) {
-        $acl = $regKey.GetAccessControl()
-        $rule = New-Object System.Security.AccessControl.RegistryAccessRule (
-          [System.Security.Principal.WindowsIdentity]::GetCurrent().Name,
-          "FullControl",
-          "Allow"
-        )
-        $acl.SetAccessRule($rule)
-        $regKey.SetAccessControl($acl)
-        Write-Log "Permissões ajustadas para $baseRegPath." -Level "INFO" -ConsoleOutput
-        $regKey.Close()
-      }
-      $subKeys = Get-ChildItem -Path $baseRegPath -ErrorAction Stop | Where-Object { $_.PSChildName -match '^\d{4}$' }
     }
     catch {
-      Write-Log "Falha ao listar subchaves ou ajustar permissões em $baseRegPath $_" -Level "WARNING" -ConsoleOutput
-      Write-Output "Aviso: Não foi possível acessar o registro de dispositivos de vídeo. Continuando com base em CIM/WMI..."
+      $errorMessage = "Erro na função NvidiaTweaks: $_"
+      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+      throw  # Repropaga o erro
     }
+    finally {
+      $ErrorActionPreference = $errpref
+      Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+      Write-Log "Finalizando função NvidiaTweaks." -Level "INFO" -ConsoleOutput
+    }
+  }
 
-    $foundAMD = $false
-    if ($subKeys) {
-      foreach ($key in $subKeys) {
-        $regPath = $key.PSPath
-        $driverDesc = (Get-ItemProperty -Path $regPath -ErrorAction SilentlyContinue).DriverDesc
+  # Tweaks específicos para AMD
+  if ($isAMD) {
+    Write-Log "Aplicando otimizações para AMD..." -Level "INFO" -ConsoleOutput
+    Write-Log "Iniciando função AMDGPUTweaks para aplicar otimizações em GPUs AMD." -Level "INFO" -ConsoleOutput
 
-        if ($driverDesc -and ($driverDesc -match "amd|radeon|rx|vega" -or ($amdGPUs -and $amdGPUs.Name -contains $driverDesc))) {
-          $subKeyName = $key.PSChildName
-          Write-Output "AMD GPU Registry Path $subKeyName Detected! Applying AMD Latency Tweaks..."
-          Write-Log "GPU AMD detectada no caminho de registro $subKeyName (DriverDesc: $driverDesc)! Aplicando otimizações de latência..." -ConsoleOutput
-          $foundAMD = $true
+    try {
+      # Verificar se o script está rodando como administrador
+      $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+      if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+        Write-Log "Este script requer privilégios administrativos para acessar o registro. Por favor, execute como administrador." -Level "ERROR" -ConsoleOutput
+        Write-Output "Erro: Privilégios administrativos necessários. Execute o script como administrador."
+        return
+      }
+      Write-Log "Script em execução com privilégios administrativos confirmados." -Level "INFO" -ConsoleOutput
 
-          Write-Log "Aplicando ajustes de latência no caminho $regPath..." -ConsoleOutput
+      # Salvar a preferência de erro original
+      $errpref = $ErrorActionPreference
+      $ErrorActionPreference = "SilentlyContinue"
+      Write-Log "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+
+      # Identificar GPUs AMD usando CIM/WMI
+      Write-Log "Obtendo informações de GPUs via CIM/WMI..." -ConsoleOutput
+      $gpuInfo = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop | Where-Object { $_.CurrentBitsPerPixel -and $_.AdapterDACType }
+      $amdGPUs = $gpuInfo | Where-Object { $_.Name -match "amd|radeon|rx|vega" -and $_.Status -eq "OK" }
+
+      if (-not $amdGPUs) {
+        Write-Output "No AMD GPU detected via CIM/WMI! Checking registry as fallback..."
+        Write-Log "Nenhuma GPU AMD detectada via CIM/WMI. Verificando registro como fallback..." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Write-Log "GPUs AMD detectadas via CIM/WMI: $($amdGPUs.Name -join ', ')" -Level "INFO" -ConsoleOutput
+      }
+
+      # Buscar dinamicamente todas as subchaves de dispositivos de vídeo no registro
+      $baseRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}"
+      Write-Log "Verificando entradas de registro em $baseRegPath..." -ConsoleOutput
+      $subKeys = $null
+      try {
+        # Tentar ajustar permissões para o administrador atual
+        $regKey = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey("SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}", [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree, [System.Security.AccessControl.RegistryRights]::ChangePermissions)
+        if ($regKey) {
+          $acl = $regKey.GetAccessControl()
+          $rule = New-Object System.Security.AccessControl.RegistryAccessRule (
+            [System.Security.Principal.WindowsIdentity]::GetCurrent().Name,
+            "FullControl",
+            "Allow"
+          )
+          $acl.SetAccessRule($rule)
+          $regKey.SetAccessControl($acl)
+          Write-Log "Permissões ajustadas para $baseRegPath." -Level "INFO" -ConsoleOutput
+          $regKey.Close()
+        }
+        $subKeys = Get-ChildItem -Path $baseRegPath -ErrorAction Stop | Where-Object { $_.PSChildName -match '^\d{4}$' }
+      }
+      catch {
+        Write-Log "Falha ao listar subchaves ou ajustar permissões em $baseRegPath $_" -Level "WARNING" -ConsoleOutput
+        Write-Output "Aviso: Não foi possível acessar o registro de dispositivos de vídeo. Continuando com base em CIM/WMI..."
+      }
+
+      $foundAMD = $false
+      if ($subKeys) {
+        foreach ($key in $subKeys) {
+          $regPath = $key.PSPath
+          $driverDesc = (Get-ItemProperty -Path $regPath -ErrorAction SilentlyContinue).DriverDesc
+
+          if ($driverDesc -and ($driverDesc -match "amd|radeon|rx|vega" -or ($amdGPUs -and $amdGPUs.Name -contains $driverDesc))) {
+            $subKeyName = $key.PSChildName
+            Write-Output "AMD GPU Registry Path $subKeyName Detected! Applying AMD Latency Tweaks..."
+            Write-Log "GPU AMD detectada no caminho de registro $subKeyName (DriverDesc: $driverDesc)! Aplicando otimizações de latência..." -ConsoleOutput
+            $foundAMD = $true
+
+            Write-Log "Aplicando ajustes de latência no caminho $regPath..." -ConsoleOutput
+            $properties = @{
+              "LTRSnoopL1Latency"               = 1
+              "LTRSnoopL0Latency"               = 1
+              "LTRNoSnoopL1Latency"             = 1
+              "LTRMaxNoSnoopLatency"            = 1
+              "KMD_RpmComputeLatency"           = 1
+              "DalUrgentLatencyNs"              = 1
+              "memClockSwitchLatency"           = 1
+              "PP_RTPMComputeF1Latency"         = 1
+              "PP_DGBMMMaxTransitionLatencyUvd" = 1
+              "PP_DGBPMMaxTransitionLatencyGfx" = 1
+              "DalNBLatencyForUnderFlow"        = 1
+              "DalDramClockChangeLatencyNs"     = 1
+              "BGM_LTRSnoopL1Latency"           = 1
+              "BGM_LTRSnoopL0Latency"           = 1
+              "BGM_LTRNoSnoopL1Latency"         = 1
+              "BGM_LTRNoSnoopL0Latency"         = 1
+              "BGM_LTRMaxSnoopLatencyValue"     = 1
+              "BGM_LTRMaxNoSnoopLatencyValue"   = 1
+            }
+
+            foreach ($prop in $properties.GetEnumerator()) {
+              try {
+                Set-ItemProperty -Path $regPath -Name $prop.Name -Type DWord -Value $prop.Value -ErrorAction Stop
+                Write-Log "Propriedade $($prop.Name) configurada com sucesso em $regPath." -Level "DEBUG" -ConsoleOutput
+              }
+              catch {
+                Write-Log "Falha ao configurar $($prop.Name) em $regPath $_" -Level "WARNING" -ConsoleOutput
+              }
+            }
+            Write-Log "Otimizações de latência AMD aplicadas com sucesso no caminho $subKeyName." -Level "INFO" -ConsoleOutput
+          }
+        }
+      }
+
+      # Se nenhuma GPU foi encontrada no registro, mas CIM/WMI detectou AMD, tentar aplicar otimizações em uma chave padrão
+      if (-not $foundAMD -and $amdGPUs) {
+        Write-Log "Nenhum registro acessível encontrado, mas GPU AMD detectada via CIM/WMI. Tentando chave padrão..." -Level "INFO" -ConsoleOutput
+        $defaultRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000"
+        if (Test-Path $defaultRegPath) {
+          Write-Output "Tentando aplicar otimizações na chave padrão 0000 para GPU AMD..."
+          Write-Log "Aplicando ajustes de latência no caminho padrão $defaultRegPath..." -ConsoleOutput
           $properties = @{
             "LTRSnoopL1Latency"               = 1
             "LTRSnoopL0Latency"               = 1
@@ -4513,75 +4590,36 @@ function AMDGPUTweaks {
 
           foreach ($prop in $properties.GetEnumerator()) {
             try {
-              Set-ItemProperty -Path $regPath -Name $prop.Name -Type DWord -Value $prop.Value -ErrorAction Stop
-              Write-Log "Propriedade $($prop.Name) configurada com sucesso em $regPath." -Level "DEBUG" -ConsoleOutput
+              Set-ItemProperty -Path $defaultRegPath -Name $prop.Name -Type DWord -Value $prop.Value -ErrorAction Stop
+              Write-Log "Propriedade $($prop.Name) configurada com sucesso em $defaultRegPath." -Level "DEBUG" -ConsoleOutput
             }
             catch {
-              Write-Log "Falha ao configurar $($prop.Name) em $regPath $_" -Level "WARNING" -ConsoleOutput
+              Write-Log "Falha ao configurar $($prop.Name) em $defaultRegPath $_" -Level "WARNING" -ConsoleOutput
             }
           }
-          Write-Log "Otimizações de latência AMD aplicadas com sucesso no caminho $subKeyName." -Level "INFO" -ConsoleOutput
+          Write-Log "Otimizações de latência AMD aplicadas com sucesso no caminho padrão 0000." -Level "INFO" -ConsoleOutput
+          $foundAMD = $true
         }
       }
-    }
 
-    # Se nenhuma GPU foi encontrada no registro, mas CIM/WMI detectou AMD, tentar aplicar otimizações em uma chave padrão
-    if (-not $foundAMD -and $amdGPUs) {
-      Write-Log "Nenhum registro acessível encontrado, mas GPU AMD detectada via CIM/WMI. Tentando chave padrão..." -Level "INFO" -ConsoleOutput
-      $defaultRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000"
-      if (Test-Path $defaultRegPath) {
-        Write-Output "Tentando aplicar otimizações na chave padrão 0000 para GPU AMD..."
-        Write-Log "Aplicando ajustes de latência no caminho padrão $defaultRegPath..." -ConsoleOutput
-        $properties = @{
-          "LTRSnoopL1Latency"               = 1
-          "LTRSnoopL0Latency"               = 1
-          "LTRNoSnoopL1Latency"             = 1
-          "LTRMaxNoSnoopLatency"            = 1
-          "KMD_RpmComputeLatency"           = 1
-          "DalUrgentLatencyNs"              = 1
-          "memClockSwitchLatency"           = 1
-          "PP_RTPMComputeF1Latency"         = 1
-          "PP_DGBMMMaxTransitionLatencyUvd" = 1
-          "PP_DGBPMMaxTransitionLatencyGfx" = 1
-          "DalNBLatencyForUnderFlow"        = 1
-          "DalDramClockChangeLatencyNs"     = 1
-          "BGM_LTRSnoopL1Latency"           = 1
-          "BGM_LTRSnoopL0Latency"           = 1
-          "BGM_LTRNoSnoopL1Latency"         = 1
-          "BGM_LTRNoSnoopL0Latency"         = 1
-          "BGM_LTRMaxSnoopLatencyValue"     = 1
-          "BGM_LTRMaxNoSnoopLatencyValue"   = 1
-        }
-
-        foreach ($prop in $properties.GetEnumerator()) {
-          try {
-            Set-ItemProperty -Path $defaultRegPath -Name $prop.Name -Type DWord -Value $prop.Value -ErrorAction Stop
-            Write-Log "Propriedade $($prop.Name) configurada com sucesso em $defaultRegPath." -Level "DEBUG" -ConsoleOutput
-          }
-          catch {
-            Write-Log "Falha ao configurar $($prop.Name) em $defaultRegPath $_" -Level "WARNING" -ConsoleOutput
-          }
-        }
-        Write-Log "Otimizações de latência AMD aplicadas com sucesso no caminho padrão 0000." -Level "INFO" -ConsoleOutput
-        $foundAMD = $true
+      if (-not $foundAMD) {
+        Write-Output "No AMD GPU Registry entry Found or Accessible! Skipping..."
+        Write-Log "Nenhuma entrada de registro AMD GPU encontrada ou acessível! Pulando otimizações de latência..." -Level "INFO" -ConsoleOutput
       }
     }
-
-    if (-not $foundAMD) {
-      Write-Output "No AMD GPU Registry entry Found or Accessible! Skipping..."
-      Write-Log "Nenhuma entrada de registro AMD GPU encontrada ou acessível! Pulando otimizações de latência..." -Level "INFO" -ConsoleOutput
+    catch {
+      $errorMessage = "Erro na função AMDGPUTweaks: $_"
+      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+      throw  # Repropaga o erro
+    }
+    finally {
+      $ErrorActionPreference = $errpref
+      Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+      Write-Log "Finalizando função AMDGPUTweaks." -Level "INFO" -ConsoleOutput
     }
   }
-  catch {
-    $errorMessage = "Erro na função AMDGPUTweaks: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
-  }
-  finally {
-    $ErrorActionPreference = $errpref
-    Write-Log "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
-    Write-Log "Finalizando função AMDGPUTweaks." -Level "INFO" -ConsoleOutput
-  }
+
+  Write-Log "Otimização de GPU concluída." -Level "INFO" -ConsoleOutput
 }
 
 function OptimizeNetwork {
