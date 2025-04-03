@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.4.7 (GROK / GPT)
+# Versão: V0.7.2.4.8 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
@@ -335,15 +335,15 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.4.7",
+    "                                                                                  V0.7.2.4.8",
     "",
     "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
     "",
-    "╔═══════════════════════════════════════╗",
-    "╠══════ Informações do Computador ══════╣",
-    "╚═══════════════════════════════════════╝",
+    "╔═════════════════════════════════════════════════════════════════════════════════════════╗",
+    "╠═══════════════════════════════ Informações do Computador ═══════════════════════════════╣",
+    "╚═════════════════════════════════════════════════════════════════════════════════════════╝",
     "",
     "≫ Nome do Host: $hostName"# + (" " * $hostNamePadding),
     "≫ Sistema Operacional: $osName"# + (" " * $osNamePadding),
@@ -406,7 +406,6 @@ $tweakFunctions = @{
   "RemoveBloatRegistry"         = { RemoveBloatRegistry }
   "Remove-OneDrive"             = { Remove-OneDrive }
   "UninstallMsftBloat"          = { UninstallMsftBloat }
-  "DisableXboxFeatures"         = { DisableXboxFeatures }
   "DisableNewsFeed"             = { DisableNewsFeed }
   "SetUACLow"                   = { SetUACLow }
   "DisableSMB1"                 = { DisableSMB1 }
@@ -558,7 +557,6 @@ $tweaks = @(
   "RemoveBloatRegistry",
   "Remove-OneDrive -AskUser",
   "UninstallMsftBloat",
-  "DisableXboxFeatures",
   "DisableNewsFeed",
   "SetUACLow",
   "DisableSMB1",
@@ -1205,12 +1203,12 @@ function AskXBOX {
           Write-Log "Adicionando Microsoft.XboxGamingOverlay à lista para Windows 11." -ConsoleOutput
         }
 
-        Write-Log "Removendo aplicativos do Xbox..." -ConsoleOutput
+        Write-Log "Removendo aplicativos do Xbox para todos os usuários..." -ConsoleOutput
         foreach ($app in $xboxApps) {
-          $pkg = Get-AppxPackage $app -ErrorAction Stop
-          if ($pkg) {
+          $pkgs = Get-AppxPackage -Name $app -AllUsers -ErrorAction Stop
+          if ($pkgs) {
             Write-Log "Removendo aplicativo: $app" -ConsoleOutput
-            $pkg | Remove-AppxPackage -ErrorAction Stop
+            $pkgs | Remove-AppxPackage -ErrorAction Stop
           }
           else {
             Write-Log "Aplicativo $app não encontrado, ignorando." -Level "INFO" -ConsoleOutput
@@ -1261,10 +1259,10 @@ function AskXBOX {
 
         Write-Log "Reinstalando aplicativos do Xbox..." -ConsoleOutput
         foreach ($app in $xboxApps) { 
-          $pkg = Get-AppxPackage -AllUsers $app -ErrorAction Stop
-          if ($pkg) {
+          $pkgs = Get-AppxPackage -AllUsers $app -ErrorAction Stop
+          if ($pkgs) {
             Write-Log "Reinstalando aplicativo: $app" -ConsoleOutput
-            $pkg | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml" -ErrorAction Stop }
+            $pkgs | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml" -ErrorAction Stop }
           }
           else {
             Write-Log "Aplicativo $app não encontrado para reinstalação, ignorando." -Level "WARNING" -ConsoleOutput
@@ -1567,16 +1565,48 @@ function AskDefender {
     Write-Log "Lista de tarefas do Defender carregada: $($tasks -join ', ')" -ConsoleOutput
 
     # Solicitar escolha do usuário
+    Clear-Host
+    Write-Log "Exibindo menu de opções para o Microsoft Windows Defender." -ConsoleOutput
+    $banner = @(
+      "",
+      "",
+      "╔══════════════════════════════════════════╗",
+      "╠═══════ Gerenciar Windows Defender ═══════╣",
+      "╚══════════════════════════════════════════╝",
+      "",
+      "≫ Este menu permite gerenciar o Microsoft Windows Defender.",
+      "≫ Você pode desabilitar ou habilitar o Defender e suas tarefas associadas.",
+      "",
+      "≫ Pressione 'D' para desabilitar o Microsoft Windows Defender.",
+      "≫ Pressione 'H' para habilitar o Microsoft Windows Defender.",
+      "≫ Pressione 'P' para pular esta etapa.",
+      "",
+      "Pressione qualquer tecla para continuar..."
+    )
+
+    $colors = @(
+      "Branco", "Branco", 
+      "Amarelo", "Amarelo", "Amarelo", 
+      "Branco", 
+      "AmareloClaro", "AmareloClaro", 
+      "Branco", 
+      "AmareloClaro", "AmareloClaro", "AmareloClaro", 
+      "Branco", 
+      "Verde"
+    )
+
+    for ($i = 0; $i -lt $banner.Length; $i++) {
+      $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
+      Write-Colored $banner[$i] $color
+    }
+
+    [Console]::ReadKey($true)
+
     do {
       Clear-Host
-      Write-Log "Exibindo menu de opções para o Microsoft Windows Defender." -ConsoleOutput
-      Write-Colored "" "Azul"
-      Write-Colored "================ Desabilitar o Microsoft Windows Defender? ================" "Azul"
-      Write-Colored "" "Azul"
-      Write-Colored "Pressione 'D' para desabilitar o Microsoft Windows Defender." "Azul"
-      Write-Colored "Pressione 'H' para habilitar o Microsoft Windows Defender." "Azul"
-      Write-Colored "Pressione 'P' para pular isso." "Azul"
-      $selection = Read-Host "Por favor, escolha."
+      Write-Colored "" "Branco"
+      Write-Colored "Digite sua escolha (D/H/P):" "Cyan"
+      $selection = Read-Host
       Write-Log "Usuário selecionou: $selection" -ConsoleOutput
     } until ($selection -match "(?i)^(d|h|p)$")
 
@@ -1656,6 +1686,7 @@ function AskDefender {
       }
 
       Write-Log "Microsoft Windows Defender desativado com sucesso." -Level "INFO" -ConsoleOutput
+      Write-Colored "Microsoft Windows Defender desativado com sucesso." -Color "VerdeClaro"
     }
     elseif ($selection -match "(?i)^h$") {
       Write-Log "Opção escolhida: Habilitar o Microsoft Windows Defender." -ConsoleOutput
@@ -1687,7 +1718,9 @@ function AskDefender {
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -Type ExpandString -Value "`"%ProgramFiles%\Windows Defender\MSASCuiL.exe`"" -ErrorAction Stop
         Write-Log "WindowsDefender configurado com sucesso." -Level "INFO" -ConsoleOutput
       }
-      elseif ($osVersion.Build -ge 15063) {
+      elseif ($osVersion.Build -ge 150
+
+        63) {
         Write-Log "Configurando SecurityHealth no registro para Build >= 15063..." -ConsoleOutput
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "SecurityHealth" -Type ExpandString -Value "%windir%\system32\SecurityHealthSystray.exe" -ErrorAction Stop
         Write-Log "SecurityHealth configurado com sucesso." -Level "INFO" -ConsoleOutput
@@ -1722,20 +1755,24 @@ function AskDefender {
       }
 
       Write-Log "Microsoft Windows Defender habilitado com sucesso." -Level "INFO" -ConsoleOutput
+      Write-Colored "Microsoft Windows Defender habilitado com sucesso." -Color "VerdeClaro"
     }
     else {
       Write-Log "Opção escolhida: Pular gerenciamento do Microsoft Windows Defender." -Level "INFO" -ConsoleOutput
+      Write-Colored "Gerenciamento do Microsoft Windows Defender foi pulado." -Color "AmareloClaro"
     }
   }
   catch {
     $errorMessage = "Erro na função AskDefender: $_"
     Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
     throw  # Repropaga o erro
   }
   finally {
     Write-Log "Finalizando função AskDefender." -Level "INFO" -ConsoleOutput
   }
 }
+
 
 function EnableF8BootMenu {
   Write-Log "Iniciando função EnableF8BootMenu para habilitar as opções do menu de inicialização F8." -ConsoleOutput
@@ -3420,17 +3457,48 @@ function ManagePowerProfiles {
 
   try {
     Write-Output "Gerenciando Perfis de Energia..."
+    Clear-Host
+    Write-Log "Exibindo menu de opções para gerenciar perfis de energia." -ConsoleOutput
+    $banner = @(
+      "",
+      "",
+      "╔═══════════════════════════════════════════╗",
+      "╠════════ Gerenciar Perfis de Energia ══════╣",
+      "╚═══════════════════════════════════════════╝",
+      "",
+      "≫ Escolha uma opção para configurar o perfil de energia:",
+      "",
+      "≫ 1 - Perfil Full Power Gaming (ideal para jogos)",
+      "≫ 2 - Perfil Balanceado (padrão do Windows)",
+      "≫ 3 - Perfil Econômico (economia de energia)",
+      "≫ 4 - Pular esta etapa",
+      "",
+      "Pressione qualquer tecla para continuar..."
+    )
+
+    $colors = @(
+      "Branco", "Branco", 
+      "Amarelo", "Amarelo", "Amarelo", 
+      "Branco", 
+      "AmareloClaro", 
+      "Branco", 
+      "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", 
+      "Branco", 
+      "Verde"
+    )
+
+    for ($i = 0; $i -lt $banner.Length; $i++) {
+      $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
+      Write-Colored $banner[$i] $color
+    }
+
+    [Console]::ReadKey($true)
+
     do {
       Clear-Host
-      Write-Colored "" "Azul"
-      Write-Colored "================ Gerenciar Perfis de Energia ================" "Azul"
-      Write-Colored "" "Azul"
-      Write-Colored "Escolha uma opção para configurar o perfil de energia:" "Branco"
-      Write-Colored "1 - Perfil Full Power Gaming (ideal para jogos)" "VerdeClaro"
-      Write-Colored "2 - Perfil Balanceado (padrão do Windows)" "AmareloClaro"
-      Write-Colored "3 - Perfil Econômico (economia de energia)" "CianoClaro"
-      Write-Colored "4 - Pular esta etapa" "VermelhoClaro"
-      $choice = Read-Host "Digite sua escolha (1-4)"
+      Write-Colored "" "Branco"
+      Write-Colored "Digite sua escolha (1-4):" "Cyan"
+      $choice = Read-Host
       Write-Log "Usuário selecionou: $choice" -ConsoleOutput
     } until ($choice -match "^[1-4]$")
 
@@ -3535,10 +3603,15 @@ function DisableDMA {
   bcdedit /set configaccesspolicy DisallowMmConfig | Out-Null
 }
 
-function DisablePKM {
-  Write-Output "Disabling Power Key Management..."
-  powercfg -setacvalueindex SCHEME_CURRENT SUB_BUTTONS PBUTTONPOWER 0
-  powercfg -setactive SCHEME_CURRENT
+Function DisablePKM {
+  Write-Output "Disabling Process and Kernel Mitigations..."
+  $errpref = $ErrorActionPreference #save actual preference
+  $ErrorActionPreference = "silentlycontinue"
+  ForEach ($v in (Get-Command -Name "Set-ProcessMitigation").Parameters["Disable"].Attributes.ValidValues) { Set-ProcessMitigation -System -Disable $v.ToString() -ErrorAction SilentlyContinue }
+  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "DisableExceptionChainValidation" -Type DWord -Value 1
+  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "KernelSEHOPEnabled" -Type DWord -Value 0
+  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "EnableCfg" -Type DWord -Value 0
+  $ErrorActionPreference = $errpref #restore previous preference
 }
 
 function DisallowDIP {
@@ -3967,58 +4040,6 @@ function UninstallMsftBloat {
   }
 }
 
-function DisableXboxFeatures {
-  Write-Log "Iniciando função DisableXboxFeatures para desativar recursos do Xbox." -ConsoleOutput
-
-  try {
-    Write-Output "Disabling Xbox features...(tudo porcaria)"
-    Write-Log "Desativando recursos do Xbox...(tudo porcaria)" -ConsoleOutput
-
-    $xboxApps = @(
-      "Microsoft.XboxApp",
-      "Microsoft.XboxIdentityProvider",
-      "Microsoft.XboxSpeechToTextOverlay",
-      "Microsoft.XboxGameOverlay",
-      "Microsoft.Xbox.TCUI",
-      "Microsoft.XboxGamingOverlay"
-    )
-    Write-Log "Lista de aplicativos Xbox carregada: $($xboxApps -join ', ')" -ConsoleOutput
-
-    foreach ($app in $xboxApps) {
-      Write-Log "Removendo o aplicativo Xbox $app para todos os usuários..." -ConsoleOutput
-      Get-AppxPackage -Name $app -AllUsers -ErrorAction Stop | Remove-AppxPackage -ErrorAction Stop
-      Write-Log "Aplicativo $app removido com sucesso." -Level "INFO" -ConsoleOutput
-    }
-
-    Write-Log "Configurando GameDVR_Enabled para 0 em HKCU:\System\GameConfigStore..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 0 -ErrorAction Stop
-    Write-Log "GameDVR_Enabled configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    $registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR"
-    if (-not (Test-Path $registryPath)) {
-      Write-Log "Chave $registryPath não existe. Criando..." -ConsoleOutput
-      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
-      Write-Log "Chave $registryPath criada com sucesso." -Level "INFO" -ConsoleOutput
-    }
-    else {
-      Write-Log "Chave $registryPath já existe. Prosseguindo com a configuração." -ConsoleOutput
-    }
-
-    Write-Log "Configurando AllowGameDVR para 0 em $registryPath..." -ConsoleOutput
-    Set-ItemProperty -Path $registryPath -Name "AllowGameDVR" -Type DWord -Value 0 -ErrorAction Stop
-    Write-Log "AllowGameDVR configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Write-Log "Recursos do Xbox desativados com sucesso." -Level "INFO" -ConsoleOutput
-  }
-  catch {
-    $errorMessage = "Erro na função DisableXboxFeatures: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
-  }
-  finally {
-    Write-Log "Finalizando função DisableXboxFeatures." -Level "INFO" -ConsoleOutput
-  }
-}
 
 function EnableUltimatePower {
   Write-Output "Enabling Ultimate Performance power plan..."
@@ -5388,28 +5409,59 @@ function Finished {
     Clear-Host
     Write-Log "Limpando a tela para exibir mensagem de conclusão." -ConsoleOutput
 
-    Write-Colored "" "Azul"
-    Write-Colored "================ Otimização Concluída ================" "Verde"
-    Write-Colored "O sistema foi otimizado para desempenho em jogos." "Azul"
-    Write-Colored "Reinicie o computador para aplicar todas as alterações." "Amarelo"
-    Write-Log "Exibindo mensagem de conclusão: Otimização concluída e instruções para reiniciar." -ConsoleOutput
+    $banner = @(
+      "",
+      "",
+      "╔═══════════════════════════════════════╗",
+      "╠══════ Otimização Concluída! ══════╣",
+      "╚═══════════════════════════════════════╝",
+      "",
+      "≫ Parabéns! O processo de otimização do seu sistema foi concluído com sucesso.",
+      "≫ Seu computador agora está configurado para oferecer o melhor desempenho em jogos e aplicações exigentes.",
+      "≫ Durante este processo, ajustamos serviços, perfis de energia, configurações de memória virtual e outros recursos para maximizar a performance.",
+      "≫ Para garantir que todas as alterações sejam aplicadas corretamente, é necessário reiniciar o computador.",
+      "",
+      "≫ Você pode reiniciar agora ou fazer isso manualmente mais tarde.",
+      "≫ Agradecemos por usar nosso script de otimização!",
+      "",
+      "Pressione qualquer tecla para continuar..."
+    )
+
+    $colors = @(
+      "Branco", "Branco", 
+      "Amarelo", "Amarelo", "Amarelo", 
+      "Branco", 
+      "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", 
+      "Branco", 
+      "AmareloClaro", "AmareloClaro", 
+      "Branco", 
+      "Verde"
+    )
+
+    for ($i = 0; $i -lt $banner.Length; $i++) {
+      $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
+      Write-Colored $banner[$i] $color
+    }
+
+    [Console]::ReadKey($true)
 
     do {
-      Write-Colored "Deseja reiniciar agora? (S/N)" "Azul"
+      Write-Colored "" "Branco"
+      Write-Colored "Deseja reiniciar agora? (S/N):" "Cyan"
       Write-Log "Solicitando escolha do usuário para reiniciar (S/N)..." -ConsoleOutput
-      $resposta = Read-Host "Digite 'S' para reiniciar agora ou 'N' para sair"
+      $resposta = Read-Host
       $resposta = $resposta.Trim().ToUpper()
       Write-Log "Usuário respondeu: $resposta" -ConsoleOutput
     } while ($resposta -ne 'S' -and $resposta -ne 'N')
 
     if ($resposta -eq 'S') {
-      Write-Colored "Reiniciando o computador..." "Vermelho"
+      Write-Colored "Reiniciando o computador..." "VermelhoClaro"
       Write-Log "Usuário escolheu reiniciar. Reiniciando o computador..." -ConsoleOutput
       Restart-Computer -Force -ErrorAction Stop
       Write-Log "Comando de reinicialização executado com sucesso." -Level "INFO" -ConsoleOutput
     }
     else {
-      Write-Colored "Pressione qualquer tecla para sair..." "Azul"
+      Write-Colored "Pressione qualquer tecla para sair..." "Verde"
       Write-Log "Usuário escolheu não reiniciar. Aguardando pressionamento de tecla para sair..." -ConsoleOutput
       [Console]::ReadKey($true) | Out-Null
       Write-Log "Tecla pressionada. Encerrando função." -Level "INFO" -ConsoleOutput
@@ -5418,6 +5470,7 @@ function Finished {
   catch {
     $errorMessage = "Erro na função Finished: $_"
     Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
     throw  # Repropaga o erro
   }
   finally {
