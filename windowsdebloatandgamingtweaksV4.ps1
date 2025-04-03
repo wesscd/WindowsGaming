@@ -1718,9 +1718,7 @@ function AskDefender {
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -Type ExpandString -Value "`"%ProgramFiles%\Windows Defender\MSASCuiL.exe`"" -ErrorAction Stop
         Write-Log "WindowsDefender configurado com sucesso." -Level "INFO" -ConsoleOutput
       }
-      elseif ($osVersion.Build -ge 150
-
-        63) {
+      elseif ($osVersion.Build -ge 15063) {
         Write-Log "Configurando SecurityHealth no registro para Build >= 15063..." -ConsoleOutput
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "SecurityHealth" -Type ExpandString -Value "%windir%\system32\SecurityHealthSystray.exe" -ErrorAction Stop
         Write-Log "SecurityHealth configurado com sucesso." -Level "INFO" -ConsoleOutput
