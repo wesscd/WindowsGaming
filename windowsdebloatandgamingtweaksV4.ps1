@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.4.8 (GROK / GPT)
+# Versão: V0.7.2.4.9 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
@@ -335,7 +335,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.4.8",
+    "                                                                                  V0.7.2.4.9",
     "",
     "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
@@ -848,8 +848,8 @@ function Check-Windows {
         "≫ Pressione 'C' para inserir uma nova chave de produto.",
         "≫ Pressione 'K' para ativar via KMS.",
         "≫ Pressione 'P' para pular a ativação.",
-        "",
-        "Pressione qualquer tecla para continuar..."
+        ""
+        
       )
 
       $colors = @(
@@ -859,8 +859,7 @@ function Check-Windows {
         "AmareloClaro", "AmareloClaro", 
         "Branco", 
         "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-        "Branco", 
-        "Verde"
+        "Branco"
       )
 
       for ($i = 0; $i -lt $banner.Length; $i++) {
@@ -1152,8 +1151,8 @@ function AskXBOX {
       "≫ Pressione 'D' para desabilitar os recursos do Xbox.",
       "≫ Pressione 'H' para habilitar os recursos do Xbox.",
       "≫ Pressione 'P' para pular esta etapa.",
-      "",
-      "Pressione qualquer tecla para continuar..."
+      ""
+      
     )
 
     $colors = @(
@@ -1163,8 +1162,7 @@ function AskXBOX {
       "AmareloClaro", "AmareloClaro", 
       "Branco", 
       "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-      "Branco", 
-      "Verde"
+      "Branco"
     )
 
     for ($i = 0; $i -lt $banner.Length; $i++) {
@@ -1578,8 +1576,7 @@ function AskDefender {
       "≫ Pressione 'D' para desabilitar o Microsoft Windows Defender.",
       "≫ Pressione 'H' para habilitar o Microsoft Windows Defender.",
       "≫ Pressione 'P' para pular esta etapa.",
-      "",
-      "Pressione qualquer tecla para continuar..."
+      ""
     )
 
     $colors = @(
@@ -1589,8 +1586,7 @@ function AskDefender {
       "AmareloClaro", "AmareloClaro", 
       "Branco", 
       "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-      "Branco", 
-      "Verde"
+      "Branco"
     )
 
     for ($i = 0; $i -lt $banner.Length; $i++) {
@@ -3466,8 +3462,7 @@ function ManagePowerProfiles {
       "≫ 2 - Perfil Balanceado (padrão do Windows)",
       "≫ 3 - Perfil Econômico (economia de energia)",
       "≫ 4 - Pular esta etapa",
-      "",
-      "Pressione qualquer tecla para continuar..."
+      ""
     )
 
     $colors = @(
@@ -3477,8 +3472,7 @@ function ManagePowerProfiles {
       "AmareloClaro", 
       "Branco", 
       "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-      "Branco", 
-      "Verde"
+      "Branco"
     )
 
     for ($i = 0; $i -lt $banner.Length; $i++) {
@@ -3665,8 +3659,7 @@ function Ativar-Servicos {
     "≫ SysMain: O SysMain, anteriormente conhecido como Superfetch, é um serviço do Windows que preenche a memória RAM com aplicativos frequentemente usados para acelerar o carregamento dos programas mais utilizados.",
     "≫ PcaSvc: O PcaSvc (Program Compatibility Assistant Service) é um serviço que detecta problemas de compatibilidade em programas legados e aplica correções para melhorar a estabilidade do sistema.",
     "≫ DiagTrack: O DiagTrack (Connected User Experiences and Telemetry) coleta e envia dados de diagnóstico e uso para a Microsoft, auxiliando na melhoria dos serviços e na resolução de problemas.",
-    "",
-    "Pressione qualquer tecla para continuar..."
+    ""
   )
 
   $colors = @(
@@ -3676,8 +3669,7 @@ function Ativar-Servicos {
     "AmareloClaro", 
     "Branco", 
     "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-    "Branco", 
-    "Verde"
+    "Branco"
   )
 
   for ($i = 0; $i -lt $banner.Length; $i++) {
@@ -3771,8 +3763,7 @@ function Remove-OneDrive {
         "",
         "≫ Pressione 'S' para desinstalar o OneDrive.",
         "≫ Pressione 'N' para pular esta etapa.",
-        "",
-        "Pressione qualquer tecla para continuar..."
+        ""
       )
 
       $colors = @(
@@ -3782,8 +3773,7 @@ function Remove-OneDrive {
         "AmareloClaro", "AmareloClaro", "AmareloClaro", 
         "Branco", 
         "AmareloClaro", "AmareloClaro", 
-        "Branco", 
-        "Verde"
+        "Branco"
       )
 
       for ($i = 0; $i -lt $banner.Length; $i++) {
@@ -4108,8 +4098,7 @@ function Set-MemoriaVirtual-Registry {
       "≫ Tamanho inicial: 9081 MB (fixo).",
       "≫ Tamanho máximo: 1,5x a RAM total.",
       "≫ O sistema desativará a gestão automática da memória virtual.",
-      "",
-      "Pressione qualquer tecla para continuar..."
+      ""
     )
 
     $colors = @(
@@ -4117,8 +4106,7 @@ function Set-MemoriaVirtual-Registry {
       "Amarelo", "Amarelo", "Amarelo", 
       "Branco", 
       "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-      "Branco", 
-      "Verde"
+      "Branco"
     )
 
     for ($i = 0; $i -lt $banner.Length; $i++) {
@@ -5408,8 +5396,7 @@ function Finished {
       "",
       "≫ Você pode reiniciar agora ou fazer isso manualmente mais tarde.",
       "≫ Agradecemos por usar nosso script de otimização!",
-      "",
-      "Pressione qualquer tecla para continuar..."
+      ""
     )
 
     $colors = @(
