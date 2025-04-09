@@ -769,8 +769,10 @@ function Check-Windows {
             Write-Log "Conectando ao servidor KMS para ativação..." -ConsoleOutput
             Write-Colored "Conectando ao servidor KMS para ativação..." -Color "AmareloClaro"
 
-            $Xscript = Invoke-RestMethod -Uri "https://get.activated.win" -ErrorAction Stop
-            Write-Host $Xscript  # Exibe o conteúdo antes de executar
+            #$Xscript = Invoke-RestMethod -Uri "https://get.activated.win" -ErrorAction Stop
+            #Write-Host $Xscript  # Exibe o conteúdo antes de executar
+            
+            irm https://get.activated.win | iex
 
             # Verifica novamente após tentativa de ativação
             $postActivation = cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /dli | Out-String -ErrorAction Stop
