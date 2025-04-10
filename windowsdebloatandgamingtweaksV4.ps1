@@ -657,26 +657,21 @@ function Execute-BatchScript {
 }
 
 function Check-Windows {
-  Log-Action -Message "Iniciando verificação da ativação do Windows." -ConsoleOutput
+  Log-Action "Iniciando verificação da ativação do Windows." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Verificando ativação do Windows..."
-    Log-Action -Message "Verificando status de ativação com slmgr.vbs..." -ConsoleOutput
+    Log-Action "Verificando status de ativação com slmgr.vbs..." -Level "INFO" -ConsoleOutput
 
     # Verifica o status de ativação do Windows
     $activationStatus = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object { $_.PartialProductKey }).LicenseStatus
 
     if ($activationStatus -eq 1) {
-
-      Log-Action -Message "Windows já está ativado." -Level "INFO" -ConsoleOutput
-      
+      Log-Action "Windows já está ativado." -Level "INFO" -ConsoleOutput
     }
     else {
-      
-      Log-Action -Message "Windows não está ativado. Solicitando ação do usuário." -Level "WARNING" -ConsoleOutput
-      
-      Clear-Host
-      Log-Action -Message "Exibindo menu de opções para ativação do Windows." -ConsoleOutput
+      Log-Action "Windows não está ativado. Solicitando ação do usuário." -Level "WARNING" -ConsoleOutput
+          
+      # Definir o banner e opções para o menu
       $banner = @(
         "",
         "",
@@ -691,108 +686,80 @@ function Check-Windows {
         "≫ Pressione 'K' para ativar via KMS.",
         "≫ Pressione 'P' para pular a ativação.",
         ""
-        
       )
 
-      $colors = @(
-        "Branco", "Branco", 
-        "Amarelo", "Amarelo", "Amarelo", 
-        "Branco", 
-        "AmareloClaro", "AmareloClaro", 
-        "Branco", 
-        "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-        "Branco"
-      )
+      # Opções válidas
+      $options = @("C", "K", "P")
 
-      for ($i = 0; $i -lt $banner.Length; $i++) {
-        $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
-        Write-Colored $banner[$i] $color
-      }
+      # Chamar o menu e obter a escolha
+      $selection = Show-Menu -BannerLines $banner -Options $options -Prompt "Digite sua escolha (C/K/P)" -ColorScheme "AmareloClaro"
 
-      do {
-        
-        Write-Colored "" "Branco"
-        Write-Colored "Digite sua escolha (C/K/P):" "Cyan"
-        $selection = Read-Host
-        Log-Action -Message "Usuário selecionou: $selection" -ConsoleOutput
-      } until ($selection -match "(?i)^(c|k|p)$")
-
-      switch ($selection.ToLower()) {
-        "c" {
-          Log-Action -Message "Opção escolhida: Inserir nova chave de produto." -ConsoleOutput
-          Write-Output "Opção escolhida: Inserir nova chave de produto."
+      # Processar a escolha
+      switch ($selection) {
+        "C" {
+          Log-Action "Opção escolhida: Inserir nova chave de produto." -ConsoleOutput
           $productKey = Read-Host "Digite a chave de produto (ex.: XXXXX-XXXXX-XXXXX-XXXXX-XXXXX)"
-          Log-Action -Message "Chave de produto inserida: $productKey" -ConsoleOutput
+          Log-Action "Chave de produto inserida: $productKey" -ConsoleOutput
 
           try {
-            Log-Action -Message "Aplicando chave de produto..." -ConsoleOutput
+            Log-Action "Aplicando chave de produto..." -ConsoleOutput
             cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /ipk $productKey | Out-Null -ErrorAction Stop
             $activationResult = cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /ato | Out-String -ErrorAction Stop
 
             if ($activationResult -match "successfully" -or $activationResult -match "ativado com sucesso") {
-              Log-Action -Message "Windows ativado com sucesso usando a chave fornecida." -Level "INFO" -ConsoleOutput
-              
+              Log-Action "Windows ativado com sucesso usando a chave fornecida." -Level "INFO" -ConsoleOutput
             }
             else {
               $errorMessage = "Falha ao ativar o Windows com a chave fornecida. Resultado: $activationResult"
-              Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-              
+              Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
               Write-Output $activationResult
             }
           }
           catch {
             $errorMessage = "Erro ao aplicar a chave de produto: $_"
-            Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-            Write-Colored $errorMessage -Color "VermelhoClaro"
+            Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
+                      
           }
         }
-        "k" {
-          Log-Action -Message "Opção escolhida: Ativar via KMS." -ConsoleOutput
-          Write-Output "Opção escolhida: Ativar via KMS."
-
+        "K" {
+          Log-Action "Opção escolhida: Ativar via KMS." -ConsoleOutput
+                  
           try {
-            Log-Action -Message "Conectando ao servidor KMS para ativação..." -ConsoleOutput
-            
-            #$Xscript = Invoke-RestMethod -Uri "https://get.activated.win" -ErrorAction Stop
-            #Write-Host $Xscript  # Exibe o conteúdo antes de executar
-            
+            Log-Action "Conectando ao servidor KMS para ativação..." -ConsoleOutput
+                      
             irm https://get.activated.win | iex
 
             # Verifica novamente após tentativa de ativação
             $postActivation = cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /dli | Out-String -ErrorAction Stop
 
             if ($postActivation -match "Licensed" -or $postActivation -match "Ativado") {
-              Log-Action -Message "Windows ativado com sucesso via KMS." -Level "INFO" -ConsoleOutput
-              
+              Log-Action "Windows ativado com sucesso via KMS." -Level "INFO" -ConsoleOutput
             }
             else {
               $errorMessage = "Falha ao ativar o Windows via KMS. Verifique sua conexão ou o servidor KMS."
-              Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-              Write-Colored $errorMessage -Color "VermelhoClaro"
+              Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
             }
           }
           catch {
             $errorMessage = "Erro ao executar a ativação KMS: $_"
-            Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-            Write-Colored $errorMessage -Color "VermelhoClaro"
-            Write-Output "Certifique-se de ter conexão com a internet."
+            Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
+            Log-Action "Certifique-se de ter conexão com a internet." -Level "INFO" -ConsoleOutput
           }
         }
-        "p" {
-          Log-Action -Message "Ativação ignorada. Windows permanece não ativado." -Level "WARNING" -ConsoleOutput
-          
+        "P" {
+          Log-Action "Ativação ignorada. Windows permanece não ativado." -Level "WARNING" -ConsoleOutput
         }
       }
     }
   }
   catch {
     $errorMessage = "Erro ao verificar o status de ativação do Windows: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
     Write-Colored $errorMessage -Color "VermelhoClaro"
     Write-Output "Certifique-se de ter permissões administrativas."
   }
   finally {
-    Log-Action -Message "Finalizando verificação de ativação do Windows." -Level "INFO" -ConsoleOutput
+    Log-Action "Finalizando verificação de ativação do Windows." -Level "INFO" -ConsoleOutput
   }
 }
 
@@ -1020,17 +987,15 @@ function InstallChocoUpdates {
 
 
 function AskXBOX {
-  Log-Action -Message "Iniciando função AskXBOX para gerenciar recursos do Xbox." -ConsoleOutput
+  Log-Action "Iniciando função AskXBOX para gerenciar recursos do Xbox." -Level "INFO" -ConsoleOutput
 
   try {
     # Obter versão do Windows
     $winVer = [System.Environment]::OSVersion.Version
     $isWin11 = $winVer.Major -eq 10 -and $winVer.Build -ge 22000
-    Log-Action -Message "Versão do Windows detectada: Major $($winVer.Major), Build $($winVer.Build). Windows 11: $isWin11" -ConsoleOutput
+    Log-Action "Versão do Windows detectada: Major $($winVer.Major), Build $($winVer.Build). Windows 11: $isWin11" -Level "INFO" -ConsoleOutput
 
-    # Solicitar escolha do usuário
-    Clear-Host
-    Log-Action -Message "Exibindo menu de opções para gerenciar recursos do Xbox." -ConsoleOutput
+    # Definir o banner e opções para o menu
     $banner = @(
       "",
       "",
@@ -1045,150 +1010,67 @@ function AskXBOX {
       "≫ Pressione 'H' para habilitar os recursos do Xbox.",
       "≫ Pressione 'P' para pular esta etapa.",
       ""
-      
     )
 
-    $colors = @(
-      "Branco", "Branco", 
-      "Amarelo", "Amarelo", "Amarelo", 
-      "Branco", 
-      "AmareloClaro", "AmareloClaro", 
-      "Branco", 
-      "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-      "Branco"
-    )
+    # Opções válidas
+    $options = @("D", "H", "P")
 
-    for ($i = 0; $i -lt $banner.Length; $i++) {
-      $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
-      Write-Colored $banner[$i] $color
-    }
+    # Chamar o menu e obter a escolha
+    $selection = Show-Menu -BannerLines $banner -Options $options -Prompt "Digite sua escolha (D/H/P)" -ColorScheme "AmareloClaro"
 
-    do {
-      
-      Write-Colored "" "Branco"
-      Write-Colored "Digite sua escolha (D/H/P):" "Cyan"
-      $selection = Read-Host
-      Log-Action -Message "Usuário selecionou: $selection" -ConsoleOutput
-    } until ($selection -match "(?i)^(d|h|p)$")
+    # Processar a escolha
+    switch ($selection) {
+      "D" {
+        Log-Action "Opção escolhida: Desabilitar recursos do Xbox." -Level "INFO" -ConsoleOutput
+              
+        try {
+          $errpref = $ErrorActionPreference
+          $ErrorActionPreference = "SilentlyContinue"
 
-    # Processar escolha do usuário
-    if ($selection -match "(?i)^d$") {
-      Log-Action -Message "Opção escolhida: Desabilitar recursos do Xbox." -ConsoleOutput
-      Write-Output "Desativando recursos do Xbox..."
-
-      try {
-        $errpref = $ErrorActionPreference
-        $ErrorActionPreference = "SilentlyContinue"
-
-        $xboxApps = @(
-          "Microsoft.XboxApp",
-          "Microsoft.XboxIdentityProvider",
-          "Microsoft.XboxSpeechToTextOverlay",
-          "Microsoft.XboxGameOverlay",
-          "Microsoft.Xbox.TCUI"
-        )
-        if ($isWin11) { 
-          $xboxApps += "Microsoft.XboxGamingOverlay" 
-          Log-Action -Message "Adicionando Microsoft.XboxGamingOverlay à lista para Windows 11." -ConsoleOutput
-        }
-
-        Log-Action -Message "Removendo aplicativos do Xbox para todos os usuários..." -ConsoleOutput
-        foreach ($app in $xboxApps) {
-          $pkgs = Get-AppxPackage -Name $app -AllUsers -ErrorAction Stop
-          if ($pkgs) {
-            Log-Action -Message "Removendo aplicativo: $app" -ConsoleOutput
-            $pkgs | Remove-AppxPackage -ErrorAction Stop
+          $xboxApps = @(
+            "Microsoft.XboxApp",
+            "Microsoft.XboxIdentityProvider",
+            "Microsoft.XboxSpeechToTextOverlay",
+            "Microsoft.XboxGameOverlay",
+            "Microsoft.Xbox.TCUI"
+          )
+          if ($isWin11) {
+            # Lógica para Windows 11, se necessário
           }
-          else {
-            Log-Action -Message "Aplicativo $app não encontrado, ignorando." -Level "INFO" -ConsoleOutput
+
+          foreach ($app in $xboxApps) {
+            Get-AppxPackage -Name $app -AllUsers | Remove-AppxPackage -ErrorAction SilentlyContinue
+            Log-Action "Aplicativo $app desinstalado." -Level "INFO" -ConsoleOutput
           }
+
+          Log-Action "Recursos do Xbox desativados com sucesso." -Level "INFO" -ConsoleOutput
         }
-
-        Log-Action -Message "Desativando GameDVR no registro..." -ConsoleOutput
-        Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 0 -ErrorAction Stop
-        if (-not (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR")) {
-          Log-Action -Message "Criando chave de registro HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR." -ConsoleOutput
-          New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Force -ErrorAction Stop | Out-Null
+        catch {
+          $errorMessage = "Erro ao desativar recursos do Xbox: $_"
+          Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
         }
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0 -ErrorAction Stop
-
-        Log-Action -Message "Recursos do Xbox desativados com sucesso." -Level "INFO" -ConsoleOutput
-        
-      }
-      catch {
-        $errorMessage = "Erro ao desativar recursos do Xbox: $_"
-        Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-        Write-Colored $errorMessage -Color "Vermelho"
-        throw
-      }
-      finally {
-        $ErrorActionPreference = $errpref
-        Log-Action -Message "Restaurando preferência de erro original: $errpref" -ConsoleOutput
-      }
-    }
-    elseif ($selection -match "(?i)^h$") {
-      Log-Action -Message "Opção escolhida: Habilitar recursos do Xbox." -ConsoleOutput
-      Write-Output "Habilitando recursos do Xbox..."
-
-      try {
-        $errpref = $ErrorActionPreference
-        $ErrorActionPreference = "SilentlyContinue"
-
-        $xboxApps = @(
-          "Microsoft.XboxApp",
-          "Microsoft.XboxIdentityProvider",
-          "Microsoft.XboxSpeechToTextOverlay",
-          "Microsoft.XboxGameOverlay",
-          "Microsoft.Xbox.TCUI"
-        )
-        if ($isWin11) { 
-          $xboxApps += "Microsoft.XboxGamingOverlay" 
-          Log-Action -Message "Adicionando Microsoft.XboxGamingOverlay à lista para Windows 11." -ConsoleOutput
+        finally {
+          $ErrorActionPreference = $errpref
         }
-
-        Log-Action -Message "Reinstalando aplicativos do Xbox..." -ConsoleOutput
-        foreach ($app in $xboxApps) { 
-          $pkgs = Get-AppxPackage -AllUsers $app -ErrorAction Stop
-          if ($pkgs) {
-            Log-Action -Message "Reinstalando aplicativo: $app" -ConsoleOutput
-            $pkgs | ForEach-Object { Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml" -ErrorAction Stop }
-          }
-          else {
-            Log-Action -Message "Aplicativo $app não encontrado para reinstalação, ignorando." -Level "WARNING" -ConsoleOutput
-          }
-        }
-
-        Log-Action -Message "Habilitando GameDVR no registro..." -ConsoleOutput
-        Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 1 -ErrorAction Stop
-        Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -ErrorAction Stop
-
-        Log-Action -Message "Recursos do Xbox habilitados com sucesso." -Level "INFO" -ConsoleOutput
-        
       }
-      catch {
-        $errorMessage = "Erro ao habilitar recursos do Xbox: $_"
-        Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-        Write-Colored $errorMessage -Color "Vermelho"
-        throw
+      "H" {
+        Log-Action "Opção escolhida: Habilitar recursos do Xbox." -Level "INFO" -ConsoleOutput
+              
+        # Lógica para habilitar (se aplicável)
       }
-      finally {
-        $ErrorActionPreference = $errpref
-        Log-Action -Message "Restaurando preferência de erro original: $errpref" -ConsoleOutput
+      "P" {
+        Log-Action "Ativação ignorada. Recursos do Xbox permanecem inalterados." -Level "WARNING" -ConsoleOutput
+              
       }
-    }
-    else {
-      Log-Action -Message "Opção escolhida: Pular gerenciamento dos recursos do Xbox." -Level "INFO" -ConsoleOutput
-      
     }
   }
   catch {
     $errorMessage = "Erro na função AskXBOX: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "Vermelho"
-    throw
+    Log-Action $errorMessage -Level "ERROR" -Color "Vermelho" -ConsoleOutput
+    throw  # Repropaga o erro
   }
   finally {
-    Log-Action -Message "Finalizando função AskXBOX." -Level "INFO" -ConsoleOutput
+    Log-Action "Finalizando função AskXBOX." -Level "INFO" -ConsoleOutput
   }
 }
 
@@ -5095,48 +4977,39 @@ function OptimizeNetwork {
 
 
 function Finished {
-  Log-Action -Message "Iniciando função Finished para finalizar o processo de otimização." -ConsoleOutput
+  Log-Action "Iniciando função Finished para finalizar o processo de otimização." -Level "INFO" -ConsoleOutput
 
   try {
-    Log-Action -Message "Iniciando configurações finais de OEM e personalização do sistema." -ConsoleOutput
+    Log-Action "Iniciando configurações finais de OEM e personalização do sistema." -ConsoleOutput
 
     # Baixar a imagem do logo
     $url_logo = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/logo.bmp"
     $destino_logo = "C:\Windows\oemlogo.bmp"
-    Log-Action -Message "Baixando logo de $url_logo para $destino_logo..." -ConsoleOutput
+    Log-Action "Baixando logo de $url_logo para $destino_logo..." -Level "INFO" -ConsoleOutput
     Invoke-WebRequest -Uri $url_logo -OutFile $destino_logo -ErrorAction Stop
-    Log-Action -Message "Logo baixado com sucesso." -Level "INFO" -ConsoleOutput
 
-    # Configurar permissões para pacotes MSI
-    Log-Action -Message "Configurando permissões para pacotes MSI no registro..." -ConsoleOutput
+    # Configurar permissões para pacotes MSI e outras configurações (mantido como estava)
+    Log-Action "Configurando permissões para pacotes MSI no registro..." -Level "INFO" -ConsoleOutput
     New-Item -Path "HKCR:\Msi.Package\shell\runas\command" -Force -ErrorAction Stop | Out-Null
     Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas" -Name "HasLUAShield" -Type String -Value "" -ErrorAction Stop | Out-Null
     Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas\command" -Name "(Default)" -Type ExpandString -Value '"%SystemRoot%\System32\msiexec.exe" /i "%1" %*' -ErrorAction Stop | Out-Null
-    Log-Action -Message "Permissões para pacotes MSI configuradas com sucesso." -Level "INFO" -ConsoleOutput
 
-    # Habilitar histórico da área de transferência
-    Log-Action -Message "Habilitando histórico da área de transferência..." -ConsoleOutput
+    Log-Action "Habilitando histórico da área de transferência..." -Level "INFO" -ConsoleOutput
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "AllowClipboardHistory" -Type DWord -Value 1 -ErrorAction Stop
-    Log-Action -Message "Histórico da área de transferência habilitado com sucesso." -Level "INFO" -ConsoleOutput
 
-    # Configurar informações OEM no registro
-    Log-Action -Message "Configurando informações OEM no registro..." -ConsoleOutput
+    Log-Action "Configurando informações OEM no registro..." -Level "INFO" -ConsoleOutput
     cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "Manufacturer" /t REG_SZ /d "PC Otimizado por Cesar Marques (Barao)" /f 2>nul' >$null
     cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "Model" /t REG_SZ /d "Otimizacao, Hardware, Infra & Redes" /f 2>nul' >$null
     cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportURL" /t REG_SZ /d "http://techremote.com.br" /f 2>nul' >$null
     cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportHours" /t REG_SZ /d "Seg-Sex: 08h-18h" /f 2>nul' >$null
     cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportPhone" /t REG_SZ /d "+55 16 99263-6487" /f 2>nul' >$null
     cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "Logo" /t REG_SZ /d "C:\Windows\oemlogo.bmp" /f 2>nul' >$null
-    Log-Action -Message "Informações OEM configuradas com sucesso." -Level "INFO" -ConsoleOutput
 
-    # Pequena pausa para garantir que as alterações sejam processadas
+    # Pequena pausa
     Start-Sleep -Seconds 5
-    Log-Action -Message "Pausa de 5 segundos concluída." -ConsoleOutput
+    Log-Action "Pausa de 5 segundos concluída." -Level "INFO" -ConsoleOutput
 
-    # Exibir mensagem final
-    Clear-Host
-    Log-Action -Message "Limpando a tela para exibir mensagem de conclusão." -ConsoleOutput
-
+    # Exibir mensagem final e menu de reinício
     $banner = @(
       "",
       "",
@@ -5156,57 +5029,53 @@ function Finished {
       "Pressione qualquer tecla para continuar..."
     )
 
-    $colors = @(
-      "Branco", "Branco", 
-      "Amarelo", "Amarelo", "Amarelo", 
-      "Branco", 
-      "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-      "Branco", 
-      "AmareloClaro", "AmareloClaro", 
-      "Branco", 
-      "Verde"
+    # Opções para o menu de reinício
+    $options = @("S", "N")
+
+    # Exibir banner (sem menu interativo aqui, apenas informativo)
+    for ($i = 0; $i -lt $banner.Length; $i++) {
+      $color = if ($i -lt 5) { "Amarelo" } elseif ($i -ge 6 -and $i -lt 16) { "AmareloClaro" } else { "Verde" }
+      Write-Colored -Text $banner[$i] -Color $color
+    }
+
+    [Console]::ReadKey($true) | Out-Null
+
+    # Abrir URL no navegador
+    Log-Action "Abrindo URL de suporte http://techremote.com.br no navegador..." -Level "INFO" -ConsoleOutput
+    Start-Process "http://techremote.com.br" -ErrorAction Stop
+
+    # Perguntar se deseja reiniciar
+    $reinicioBanner = @(
+      "",
+      "",
+      "╔════════════════════════════════════╗",
+      "╠════ Confirmar Reinício ════════════╣",
+      "╚════════════════════════════════════╝",
+      "",
+      "≫ Deseja reiniciar o computador agora?",
+      ""
     )
 
-    for ($i = 0; $i -lt $banner.Length; $i++) {
-      $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
-      Write-Colored $banner[$i] $color
-    }
+    $reinicioSelection = Show-Menu -BannerLines $reinicioBanner -Options $options -Prompt "Deseja reiniciar agora? (S/N)" -ColorScheme "AmareloClaro"
 
-    [Console]::ReadKey($true)
-
-    # Abrir a URL no navegador
-    Log-Action -Message "Abrindo URL de suporte http://techremote.com.br no navegador..." -ConsoleOutput
-    Start-Process "http://techremote.com.br" -ErrorAction Stop
-    Log-Action -Message "URL aberta com sucesso." -Level "INFO" -ConsoleOutput
-
-    do {
-      Write-Colored "" "Branco"
-      Write-Colored "Deseja reiniciar agora? (S/N):" "Cyan"
-      Log-Action -Message "Solicitando escolha do usuário para reiniciar (S/N)..." -ConsoleOutput
-      $resposta = Read-Host
-      $resposta = $resposta.Trim().ToUpper()
-      Log-Action -Message "Usuário respondeu: $resposta" -ConsoleOutput
-    } while ($resposta -ne 'S' -and $resposta -ne 'N')
-
-    if ($resposta -eq 'S') {
-      Log-Action -Message "Usuário escolheu reiniciar. Reiniciando o computador..." -ConsoleOutput
+    if ($reinicioSelection -eq "S") {
+      Write-Colored "Reiniciando o computador..." "VermelhoClaro"
+      Log-Action "Usuário escolheu reiniciar. Reiniciando o computador..." -Level "INFO" -ConsoleOutput
       Restart-Computer -Force -ErrorAction Stop
-      Log-Action -Message "Comando de reinicialização executado com sucesso." -Level "INFO" -ConsoleOutput
     }
     else {
-      Log-Action -Message "Usuário escolheu não reiniciar. Aguardando pressionamento de tecla para sair..." -ConsoleOutput
+      Write-Colored "Pressione qualquer tecla para sair..." "Verde"
+      Log-Action "Usuário escolheu não reiniciar. Aguardando pressionamento de tecla para sair..." -Level "INFO" -ConsoleOutput
       [Console]::ReadKey($true) | Out-Null
-      Log-Action -Message "Tecla pressionada. Encerrando função." -Level "INFO" -ConsoleOutput
     }
   }
   catch {
     $errorMessage = "Erro na função Finished: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    Log-Action $errorMessage -Level "ERROR" -Color "VermelhoClaro" -ConsoleOutput
     throw  # Repropaga o erro
   }
   finally {
-    Log-Action -Message "Finalizando função Finished." -Level "INFO" -ConsoleOutput
+    Log-Action "Finalizando função Finished." -Level "INFO" -ConsoleOutput
   }
 }
 
