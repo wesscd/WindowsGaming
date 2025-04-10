@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.5.7 (GROK / GPT)
+# Versão: V0.7.2.5.8 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
@@ -231,7 +231,7 @@ function Show-Menu {
   # Solicitar entrada do usuário em loop até uma opção válida
   do {
     Write-Colored "" "Branco"  # Linha em branco
-    Write-Colored "$Prompt" "Cyan"
+    Write-Colored "${Prompt}:" "Cyan"  # Correção aplicada aqui
     $selection = Read-Host
     Log-Action -Message "Usuário selecionou: $selection" -Level "INFO" -ConsoleOutput
   } until ($Options -contains $selection.ToUpper())
@@ -303,7 +303,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.5.7",
+    "                                                                                  V0.7.2.5.8",
     "",
     "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
