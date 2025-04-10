@@ -1,9 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.5.8 (GROK / GPT)
+# Versão: V0.7.2.5.9 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
+
+$versao = "V0.7.2.5.9 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -221,6 +223,9 @@ function Show-Menu {
   # Limpar a tela
   Clear-Host
 
+  # Emitir um bipe para alertar o usuário (frequência: 1000 Hz, duração: 500 ms)
+  [Console]::Beep(1000, 500)
+
   # Exibir o banner com cores
   $colors = @("Branco", "Branco", $ColorScheme, $ColorScheme, $ColorScheme, "Branco", $ColorScheme, $ColorScheme, "Branco")
   for ($i = 0; $i -lt $BannerLines.Length; $i++) {
@@ -303,7 +308,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.5.8",
+    "                                                                                  $versao",
     "",
     "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
@@ -3154,69 +3159,94 @@ function Ativar-Servicos {
     [string[]]$Servicos = @('SysMain', 'PcaSvc', 'DiagTrack')
   )
 
-  # Exibir banner informativo
-  Clear-Host
-  $banner = @(
-    "",
-    "",
-    "╔═══════════════════════════════════════╗",
-    "╠══════ Ativar Serviços Essenciais ══════╣",
-    "╚═══════════════════════════════════════╝",
-    "",
-    "≫ Este menu auxilia na ativação dos seguintes serviços, essenciais para investigação forense de cheats em servidores de Minecraft, DayZ e FIVEM GTA5 que utilizam o Echo AntiCheat:",
-    "",
-    "≫ SysMain: O SysMain, anteriormente conhecido como Superfetch, é um serviço do Windows que preenche a memória RAM com aplicativos frequentemente usados para acelerar o carregamento dos programas mais utilizados.",
-    "≫ PcaSvc: O PcaSvc (Program Compatibility Assistant Service) é um serviço que detecta problemas de compatibilidade em programas legados e aplica correções para melhorar a estabilidade do sistema.",
-    "≫ DiagTrack: O DiagTrack (Connected User Experiences and Telemetry) coleta e envia dados de diagnóstico e uso para a Microsoft, auxiliando na melhoria dos serviços e na resolução de problemas.",
-    ""
-  )
+  Log-Action -Message "Iniciando função Ativar-Servicos para ativar serviços essenciais." -Level "INFO" -ConsoleOutput
 
-  $colors = @(
-    "Branco", "Branco", 
-    "Amarelo", "Amarelo", "Amarelo", 
-    "Branco", 
-    "AmareloClaro", 
-    "Branco", 
-    "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-    "Branco"
-  )
-
-  for ($i = 0; $i -lt $banner.Length; $i++) {
-    $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
-    Write-Colored $banner[$i] $color
-  }
-  # Função interna para ativar um serviço
-  function Ativar-Servico {
-    param (
-      [string]$NomeServico
+  try {
+    # Exibir banner informativo inicial usando Show-Menu (sem opções ainda, apenas informativo)
+    $banner = @(
+      "",
+      "",
+      "╔════════════════════════════════════════╗",
+      "╠══════ Ativar Serviços Essenciais ══════╣",
+      "╚════════════════════════════════════════╝",
+      "",
+      "≫ Este menu auxilia na ativação dos seguintes serviços, essenciais para investigação forense de cheats em servidores de Minecraft, DayZ e FIVEM GTA5 que utilizam o Echo AntiCheat:",
+      "",
+      "≫ SysMain: O SysMain, anteriormente conhecido como Superfetch, é um serviço do Windows que preenche a memória RAM com aplicativos frequentemente usados para acelerar o carregamento dos programas mais utilizados.",
+      "≫ PcaSvc: O PcaSvc (Program Compatibility Assistant Service) é um serviço que detecta problemas de compatibilidade em programas legados e aplica correções para melhorar a estabilidade do sistema.",
+      "≫ DiagTrack: O DiagTrack (Connected User Experiences and Telemetry) coleta e envia dados de diagnóstico e uso para a Microsoft, auxiliando na melhoria dos serviços e na resolução de problemas.",
+      "",
+      "Pressione qualquer tecla para continuar..."
     )
-    $servico = Get-Service -Name $NomeServico -ErrorAction SilentlyContinue
-    if ($null -eq $servico) {
-      Log-Action -Message "Serviço '$NomeServico' não encontrado." -Level "ERROR" -ConsoleOutput
-      return
+
+    # Exibir o banner inicial (sem opções interativas, apenas informativo)
+    Clear-Host
+    $colors = @("Branco", "Branco", "Amarelo", "Amarelo", "Amarelo", "Branco", "AmareloClaro", "Branco", "AmareloClaro", "AmareloClaro", "AmareloClaro", "Verde")
+    for ($i = 0; $i -lt $banner.Length; $i++) {
+      $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
+      Write-Colored -Text $banner[$i] -Color $color
     }
-    # Verifica se o serviço já está em execução
-    Log-Action -Message "Serviço encontrado: $($servico.DisplayName) ($($servico.Name))" -Level "INFO" -ConsoleOutput
-    if ($servico.Status -eq 'Running') {
-      Log-Action -Message "Serviço '$($servico.Name)' já está em execução." -Level "INFO" -ConsoleOutput
+    [Console]::ReadKey($true) | Out-Null
+
+    # Função interna para ativar um serviço (mantida como está)
+    function Ativar-Servico {
+      param (
+        [string]$NomeServico
+      )
+      $servico = Get-Service -Name $NomeServico -ErrorAction SilentlyContinue
+      if ($null -eq $servico) {
+        Log-Action -Message "Serviço '$NomeServico' não encontrado." -Level "ERROR" -ConsoleOutput
+        return
+      }
+      # Verifica se o serviço já está em execução
+      Log-Action -Message "Serviço encontrado: $($servico.DisplayName) ($($servico.Name))" -Level "INFO" -ConsoleOutput
+      if ($servico.Status -eq 'Running') {
+        Log-Action -Message "Serviço '$($servico.Name)' já está em execução." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Start-Service -Name $servico.Name -ErrorAction Stop
+        Set-Service -Name $servico.Name -StartupType Automatic -ErrorAction Stop
+        Log-Action -Message "Serviço '$($servico.Name)' ativado com sucesso." -Level "INFO" -ConsoleOutput
+      }
     }
-    else {
-      Start-Service -Name $servico.Name
-      Set-Service -Name $servico.Name -StartupType Automatic
-      Log-Action -Message "Serviço '$($servico.Name)' ativado com sucesso." -Level "INFO" -ConsoleOutput
+
+    # Loop para cada serviço com Show-Menu
+    foreach ($nomeServico in $Servicos) {
+      $serviceBanner = @(
+        "",
+        "",
+        "╔═══════════════════════════════════════╗",
+        "╠════ Ativar Serviço: $nomeServico ═════╣",
+        "╚═══════════════════════════════════════╝",
+        "",
+        "≫ Deseja ativar o serviço '$nomeServico'?",
+        "",
+        "≫ Pressione 'S' para ativar o serviço.",
+        "≫ Pressione 'N' para não ativar o serviço.",
+        ""
+      )
+
+      # Opções válidas
+      $options = @("S", "N")
+
+      # Chamar o menu e obter a escolha
+      $resposta = Show-Menu -BannerLines $serviceBanner -Options $options -Prompt "Deseja ativar o serviço '$nomeServico'? (S/N)" -ColorScheme "AmareloClaro"
+
+      if ($resposta -eq 'S') {
+        Ativar-Servico -NomeServico $nomeServico
+      }
+      else {
+        Log-Action -Message "Serviço '$nomeServico' não foi ativado." -Level "INFO" -ConsoleOutput
+      }
     }
   }
-
-  # Loop para cada serviço
-  foreach ($nomeServico in $Servicos) {
-    $pergunta = "Deseja ativar o serviço '$nomeServico'? (S/N): "
-    $resposta = Read-Host -Prompt $pergunta
-    if ($resposta.ToUpper() -eq 'S') {
-      Ativar-Servico -NomeServico $nomeServico
-    }
-    else {
-      Log-Action -Message "Serviço '$nomeServico' não foi ativado." -Level "INFO" -ConsoleOutput
-    }
+  catch {
+    $errorMessage = "Erro na função Ativar-Servicos: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+  }
+  finally {
+    Log-Action -Message "Finalizando função Ativar-Servicos." -Level "INFO" -ConsoleOutput
   }
 }
 
