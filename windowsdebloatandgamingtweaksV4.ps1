@@ -679,14 +679,17 @@ function Check-Windows {
     Write-Output "Verificando ativação do Windows..."
     Write-Log "Verificando status de ativação com slmgr.vbs..." -ConsoleOutput
 
-    # Verifica o status de ativação com slmgr.vbs
-    $slmgrOutput = cscript //NoLogo "$env:SystemRoot\System32\slmgr.vbs" /dli | Out-String -ErrorAction Stop
+    # Verifica o status de ativação do Windows
+    $activationStatus = (Get-CimInstance -ClassName SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object { $_.PartialProductKey }).LicenseStatus
 
-    if ($slmgrOutput -match "Licensed" -or $slmgrOutput -match "Ativado") {
+    if ($activationStatus -eq 1) {
+
       Write-Log "Windows já está ativado." -Level "INFO" -ConsoleOutput
       Write-Colored "O Windows já está ativado." -Color "VerdeClaro"
+
     }
     else {
+      
       Write-Log "Windows não está ativado. Solicitando ação do usuário." -Level "WARNING" -ConsoleOutput
       Write-Colored "O Windows não está ativado." -Color "AmareloClaro"
 
