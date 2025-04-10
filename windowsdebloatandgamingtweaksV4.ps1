@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.5.6 (GROK / GPT)
+# Versão: V0.7.2.5.7 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
@@ -210,6 +210,36 @@ function Log-Action {
   }
 }
 
+function Show-Menu {
+  param (
+    [string[]]$BannerLines, # Array de linhas para o banner (titulos, mensagens, opções)
+    [string[]]$Options, # Array de opções válidas (ex.: "D", "H", "P")
+    [string]$Prompt = "Digite sua escolha", # Mensagem de prompt para o usuário
+    [string]$ColorScheme = "AmareloClaro"   # Cor padrão para o banner (pode ser ajustada)
+  )
+
+  # Limpar a tela
+  Clear-Host
+
+  # Exibir o banner com cores
+  $colors = @("Branco", "Branco", $ColorScheme, $ColorScheme, $ColorScheme, "Branco", $ColorScheme, $ColorScheme, "Branco")
+  for ($i = 0; $i -lt $BannerLines.Length; $i++) {
+    $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
+    Write-Colored -Text $BannerLines[$i] -Color $color
+  }
+
+  # Solicitar entrada do usuário em loop até uma opção válida
+  do {
+    Write-Colored "" "Branco"  # Linha em branco
+    Write-Colored "$Prompt:" "Cyan"
+    $selection = Read-Host
+    Log-Action -Message "Usuário selecionou: $selection" -Level "INFO" -ConsoleOutput
+  } until ($Options -contains $selection.ToUpper())
+
+  # Retornar a escolha (em maiúsculas para consistência)
+  return $selection.ToUpper()
+}
+
 
 function Show-ProgressBar {
   param (
@@ -273,7 +303,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.5.6",
+    "                                                                                  V0.7.2.5.7",
     "",
     "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
