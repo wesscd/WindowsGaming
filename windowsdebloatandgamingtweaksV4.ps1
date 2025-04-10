@@ -2980,19 +2980,17 @@ function ManagePowerProfiles {
             if ($newGUID) {
               & powercfg /changename $newGUID "Full Power Gaming" "Perfil otimizado para jogos" 2>$null
               $fullPowerGamingGUID = $newGUID
-              Write-Output "Novo perfil Full Power Gaming criado com GUID: $fullPowerGamingGUID"
+              Log-Action -Message "Novo perfil Full Power Gaming criado com GUID: $fullPowerGamingGUID" -Level "INFO" -ConsoleOutput
             }
             else {
               $errorMessage = "Falha ao extrair o novo GUID após duplicação."
               Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-              Write-Colored $errorMessage -Color "VermelhoClaro"
               return
             }
           }
           else {
             $errorMessage = "Falha ao duplicar o plano Alto Desempenho."
             Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-            Write-Colored $errorMessage -Color "VermelhoClaro"
             return
           }
         }
@@ -3002,21 +3000,19 @@ function ManagePowerProfiles {
         if ($LASTEXITCODE -ne 0) {
           $errorMessage = "Falha ao ativar o perfil Full Power Gaming com GUID: $fullPowerGamingGUID"
           Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-          Write-Colored $errorMessage -Color "VermelhoClaro"
           return
         }
-        Write-Output "Perfil Full Power Gaming ativado com sucesso!"
-
+        Log-Action -Message "Perfil Full Power Gaming ativado com sucesso." -Level "INFO" -ConsoleOutput
+        
         # Ajustes adicionais
         & powercfg /change standby-timeout-ac 0 2>$null
         & powercfg /change hibernate-timeout-ac 0 2>$null
         & powercfg /change monitor-timeout-ac 0 2>$null
 
         Log-Action -Message "Perfil Full Power Gaming aplicado com sucesso." -Level "INFO" -ConsoleOutput
-        Write-Colored "Perfil Full Power Gaming aplicado com sucesso!" -Color "VerdeClaro"
-
+        
         # Chamar DisableCoreParking
-        Write-Output "Desativando Core Parking no perfil Full Power Gaming..."
+        Log-Action -Message "Desativando Core Parking no perfil Full Power Gaming..." -Level "INFO" -ConsoleOutput
         DisableCoreParking -PlanGUID $fullPowerGamingGUID
       }
       "B" {
@@ -3026,11 +3022,9 @@ function ManagePowerProfiles {
         if ($LASTEXITCODE -ne 0) {
           $errorMessage = "Falha ao ativar o perfil Balanceado com GUID: $balancedGUID"
           Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-          Write-Colored $errorMessage -Color "VermelhoClaro"
           return
         }
         Log-Action -Message "Perfil Balanceado aplicado com sucesso." -Level "INFO" -ConsoleOutput
-        Write-Colored "Perfil Balanceado aplicado com sucesso!" -Color "AmareloClaro"
       }
       "E" {
         Log-Action -Message "Aplicando perfil Econômico..." -Level "INFO" -ConsoleOutput
@@ -3039,24 +3033,23 @@ function ManagePowerProfiles {
         if ($LASTEXITCODE -ne 0) {
           $errorMessage = "Falha ao ativar o perfil Econômico com GUID: $powerSaverGUID"
           Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-          Write-Colored $errorMessage -Color "VermelhoClaro"
           return
         }
         & powercfg /change standby-timeout-ac 10 2>$null
         & powercfg /change monitor-timeout-ac 5 2>$null
         Log-Action -Message "Perfil Econômico aplicado com sucesso." -Level "INFO" -ConsoleOutput
-        Write-Colored "Perfil Econômico aplicado com sucesso!" -Color "VerdeClaro"
+        
       }
       "P" {
         Log-Action -Message "Perfil de energia não alterado (opção de pular escolhida)." -Level "INFO" -ConsoleOutput
-        Write-Colored "Perfil de energia não alterado." -Color "AmareloClaro"
+        
       }
     }
   }
   catch {
     $errorMessage = "Erro ao gerenciar perfis de energia: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
   }
   finally {
     Log-Action -Message "Finalizando função ManagePowerProfiles." -Level "INFO" -ConsoleOutput
