@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.5.5 (GROK / GPT)
+# Versão: V0.7.2.5.6 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
@@ -273,7 +273,7 @@ function Show-Intro {
     "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
     "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
     "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  V0.7.2.5.5",
+    "                                                                                  V0.7.2.5.6",
     "",
     "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
@@ -1301,240 +1301,75 @@ function DisableNetDevicesAutoInst {
   }
 }
 
-
 function AskDefender {
-  Log-Action -Message "Iniciando função AskDefender para gerenciar o Microsoft Windows Defender." -ConsoleOutput
+  Log-Action "Iniciando função AskDefender para gerenciar o Windows Defender." -Level "INFO" -ConsoleOutput
 
   try {
-    # Obter versão do sistema operacional
-    $osVersion = [System.Environment]::OSVersion.Version
-    $isWindows11 = $osVersion.Build -ge 22000
-    Log-Action -Message "Versão do SO detectada: Build $($osVersion.Build). Windows 11: $isWindows11" -ConsoleOutput
-
-    # Função interna para verificar privilégios administrativos
-    function Test-Admin {
-      $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-      $principal = New-Object Security.Principal.WindowsPrincipal $currentUser
-      return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    }
-
-    # Verificar privilégios administrativos
-    if (-not (Test-Admin)) {
-      Log-Action -Message "Script não está sendo executado como administrador. Interrompendo." -Level "ERROR" -ConsoleOutput
-      
-      break
-    }
-    Log-Action -Message "Privilégios administrativos confirmados." -Level "INFO" -ConsoleOutput
-
-    # Lista de tarefas do Defender
-    $tasks = @(
-      "\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance",
-      "\Microsoft\Windows\Windows Defender\Windows Defender Cleanup",
-      "\Microsoft\Windows\Windows Defender\Windows Defender Scheduled Scan",
-      "\Microsoft\Windows\Windows Defender\Windows Defender Verification"
-    )
-    Log-Action -Message "Lista de tarefas do Defender carregada: $($tasks -join ', ')" -ConsoleOutput
-
-    # Solicitar escolha do usuário
-    Clear-Host
-    Log-Action -Message "Exibindo menu de opções para o Microsoft Windows Defender." -ConsoleOutput
+    # Definir o banner e opções para o menu
     $banner = @(
       "",
       "",
-      "╔══════════════════════════════════════════╗",
-      "╠═══════ Gerenciar Windows Defender ═══════╣",
-      "╚══════════════════════════════════════════╝",
+      "╔════════════════════════════════════╗",
+      "╠════ Gerenciar Windows Defender ════╣",
+      "╚════════════════════════════════════╝",
       "",
-      "≫ Este menu permite gerenciar o Microsoft Windows Defender.",
-      "≫ Você pode desabilitar ou habilitar o Defender e suas tarefas associadas.",
+      "≫ Este menu permite gerenciar o Windows Defender.",
+      "≫ Desativar o Defender pode melhorar o desempenho, mas reduz a segurança.",
       "",
-      "≫ Pressione 'D' para desabilitar o Microsoft Windows Defender.",
-      "≫ Pressione 'H' para habilitar o Microsoft Windows Defender.",
+      "≫ Pressione 'D' para desativar o Windows Defender.",
+      "≫ Pressione 'M' para manter o Windows Defender ativo.",
       "≫ Pressione 'P' para pular esta etapa.",
       ""
     )
 
-    $colors = @(
-      "Branco", "Branco", 
-      "Amarelo", "Amarelo", "Amarelo", 
-      "Branco", 
-      "AmareloClaro", "AmareloClaro", 
-      "Branco", 
-      "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-      "Branco"
-    )
+    # Opções válidas
+    $options = @("D", "M", "P")
 
-    for ($i = 0; $i -lt $banner.Length; $i++) {
-      $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
-      Write-Colored $banner[$i] $color
-    }
+    # Chamar o menu e obter a escolha
+    $selection = Show-Menu -BannerLines $banner -Options $options -Prompt "Digite sua escolha (D/M/P)" -ColorScheme "AmareloClaro"
 
-    do {
-      
-      Write-Colored "" "Branco"
-      Write-Colored "Digite sua escolha (D/H/P):" "Cyan"
-      $selection = Read-Host
-      Log-Action -Message "Usuário selecionou: $selection" -ConsoleOutput
-    } until ($selection -match "(?i)^(d|h|p)$")
-
-    # Processar escolha do usuário
-    if ($selection -match "(?i)^d$") {
-      Log-Action -Message "Opção escolhida: Desativar o Microsoft Windows Defender." -ConsoleOutput
-      Write-Output "Desativando Microsoft Windows Defender e processos relacionados..."
-
-      # Configurações do Firewall
-      if (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile") {
-        Log-Action -Message "Configurando EnableFirewall para 0 em HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile..." -ConsoleOutput
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Name "EnableFirewall" -Type DWord -Value 0 -ErrorAction Stop
-        Log-Action -Message "EnableFirewall configurado com sucesso." -Level "INFO" -ConsoleOutput
-      }
-
-      # Criar chave do Defender se não existir
-      $defenderPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender"
-      if (-not (Test-Path $defenderPath)) {
-        Log-Action -Message "Chave $defenderPath não existe. Criando..." -ConsoleOutput
-        New-Item -Path $defenderPath -Force -ErrorAction Stop | Out-Null
-        Log-Action -Message "Chave criada com sucesso." -Level "INFO" -ConsoleOutput
-      }
-
-      # Desativar AntiSpyware
-      Log-Action -Message "Configurando DisableAntiSpyware para 1..." -ConsoleOutput
-      Set-ItemProperty -Path $defenderPath -Name "DisableAntiSpyware" -Type DWord -Value 1 -ErrorAction Stop
-      Log-Action -Message "DisableAntiSpyware configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-      # Remover ou configurar propriedades baseadas na versão
-      if ($osVersion.Build -eq 14393) {
-        Log-Action -Message "Removendo WindowsDefender do registro para Build 14393..." -ConsoleOutput
-        Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -ErrorAction Stop
-        Log-Action -Message "WindowsDefender removido com sucesso." -Level "INFO" -ConsoleOutput
-      }
-      elseif ($osVersion.Build -ge 15063) {
-        Log-Action -Message "Removendo SecurityHealth do registro para Build >= 15063..." -ConsoleOutput
-        Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "SecurityHealth" -ErrorAction Stop
-        Log-Action -Message "SecurityHealth removido com sucesso." -Level "INFO" -ConsoleOutput
-      }
-
-      # Tratar Spynet
-      $spynetPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet"
-      if (-not (Test-Path $spynetPath)) {
-        Log-Action -Message "Chave $spynetPath não existe. Criando..." -ConsoleOutput
-        New-Item -Path $spynetPath -Force -ErrorAction Stop | Out-Null
-        Log-Action -Message "Chave criada com sucesso." -Level "INFO" -ConsoleOutput
-      }
-
-      Log-Action -Message "Configurando SpynetReporting para 0..." -ConsoleOutput
-      Set-ItemProperty -Path $spynetPath -Name "SpynetReporting" -Type DWord -Value 0 -ErrorAction Stop
-      Log-Action -Message "SpynetReporting configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-      Log-Action -Message "Configurando SubmitSamplesConsent para 2..." -ConsoleOutput
-      Set-ItemProperty -Path $spynetPath -Name "SubmitSamplesConsent" -Type DWord -Value 2 -ErrorAction Stop
-      Log-Action -Message "SubmitSamplesConsent configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-      # Remover PUAProtection
-      Log-Action -Message "Removendo PUAProtection..." -ConsoleOutput
-      if (Get-ItemProperty -Path $defenderPath -Name "PUAProtection" -ErrorAction SilentlyContinue) {
-        Remove-ItemProperty -Path $defenderPath -Name "PUAProtection" -ErrorAction Stop
-        Log-Action -Message "PUAProtection removido com sucesso." -Level "INFO" -ConsoleOutput
-      }
-      else {
-        Log-Action -Message "Propriedade PUAProtection não encontrada. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
-      }
-
-      # Desativar Controlled Folder Access
-      Log-Action -Message "Desativando Controlled Folder Access..." -ConsoleOutput
-      Set-MpPreference -EnableControlledFolderAccess Disabled -ErrorAction Stop
-      Log-Action -Message "Controlled Folder Access desativado com sucesso." -Level "INFO" -ConsoleOutput
-
-      # Desativar tarefas agendadas
-      foreach ($task in $tasks) {
-        Log-Action -Message "Desativando tarefa agendada: $task..." -ConsoleOutput
-        Disable-ScheduledTask -TaskName $task -ErrorAction Stop
-        Log-Action -Message "Tarefa $task desativada com sucesso." -Level "INFO" -ConsoleOutput
-      }
-
-      Log-Action -Message "Microsoft Windows Defender desativado com sucesso." -Level "INFO" -ConsoleOutput
-      
-    }
-    elseif ($selection -match "(?i)^h$") {
-      Log-Action -Message "Opção escolhida: Habilitar o Microsoft Windows Defender." -ConsoleOutput
-      Write-Output "Ativando Microsoft Windows Defender e processos relacionados..."
-
-      # Remover EnableFirewall
-      if (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile") {
-        Log-Action -Message "Removendo EnableFirewall do registro..." -ConsoleOutput
-        Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\StandardProfile" -Name "EnableFirewall" -ErrorAction Stop
-        Log-Action -Message "EnableFirewall removido com sucesso." -Level "INFO" -ConsoleOutput
-      }
-
-      # Remover DisableAntiSpyware
-      $defenderPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender"
-      $propertyName = "DisableAntiSpyware"
-      if (Test-Path $defenderPath) {
-        if (Get-ItemProperty -Path $defenderPath -Name $propertyName -ErrorAction SilentlyContinue) {
-          Remove-ItemProperty -Path $defenderPath -Name $propertyName -ErrorAction Stop
-          Log-Action -Message "$propertyName removido com sucesso." -Level "INFO" -ConsoleOutput
+    # Processar a escolha
+    switch ($selection) {
+      "D" {
+        Log-Action "Opção escolhida: Desativar o Windows Defender." -Level "INFO" -ConsoleOutput
+              
+        try {
+          Set-MpPreference -DisableRealtimeMonitoring $true -ErrorAction Stop
+          Log-Action "Windows Defender desativado com sucesso." -Level "INFO" -ConsoleOutput
+                  
         }
-        else {
-          Log-Action -Message "Propriedade $propertyName não encontrada no caminho $defenderPath. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+        catch {
+          $errorMessage = "Erro ao desativar o Windows Defender: $_"
+          Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
+                  
         }
       }
-
-      # Configurar propriedades baseadas na versão
-      if ($osVersion.Build -eq 14393) {
-        Log-Action -Message "Configurando WindowsDefender no registro para Build 14393..." -ConsoleOutput
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "WindowsDefender" -Type ExpandString -Value "`"%ProgramFiles%\Windows Defender\MSASCuiL.exe`"" -ErrorAction Stop
-        Log-Action -Message "WindowsDefender configurado com sucesso." -Level "INFO" -ConsoleOutput
-      }
-      elseif ($osVersion.Build -ge 15063) {
-        Log-Action -Message "Configurando SecurityHealth no registro para Build >= 15063..." -ConsoleOutput
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "SecurityHealth" -Type ExpandString -Value "%windir%\system32\SecurityHealthSystray.exe" -ErrorAction Stop
-        Log-Action -Message "SecurityHealth configurado com sucesso." -Level "INFO" -ConsoleOutput
-      }
-
-      # Remover SpynetReporting e SubmitSamplesConsent
-      $spynetPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet"
-      if (Test-Path $spynetPath) {
-        if (Get-ItemProperty -Path $spynetPath -Name "SpynetReporting" -ErrorAction SilentlyContinue) {
-          Remove-ItemProperty -Path $spynetPath -Name "SpynetReporting" -ErrorAction Stop
-          Log-Action -Message "SpynetReporting removido com sucesso." -Level "INFO" -ConsoleOutput
+      "M" {
+        Log-Action "Opção escolhida: Manter o Windows Defender ativo." -Level "INFO" -ConsoleOutput
+              
+        try {
+          Set-MpPreference -DisableRealtimeMonitoring $false -ErrorAction Stop
+          Log-Action "Windows Defender mantido ativo." -Level "INFO" -ConsoleOutput
+                  
         }
-        if (Get-ItemProperty -Path $spynetPath -Name "SubmitSamplesConsent" -ErrorAction SilentlyContinue) {
-          Remove-ItemProperty -Path $spynetPath -Name "SubmitSamplesConsent" -ErrorAction Stop
-          Log-Action -Message "SubmitSamplesConsent removido com sucesso." -Level "INFO" -ConsoleOutput
+        catch {
+          $errorMessage = "Erro ao manter o Windows Defender ativo: $_"
+          Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
+                  
         }
       }
-      else {
-        Log-Action -Message "Caminho $spynetPath não encontrado. Nenhuma ação necessária." -Level "INFO" -ConsoleOutput
+      "P" {
+        Log-Action "Ação ignorada. Configuração do Windows Defender permanece inalterada." -Level "WARNING" -ConsoleOutput
+              
       }
-
-      # Configurar PUAProtection
-      Log-Action -Message "Configurando PUAProtection para 1..." -ConsoleOutput
-      Set-ItemProperty -Path $defenderPath -Name "PUAProtection" -Type DWord -Value 1 -ErrorAction Stop
-      Log-Action -Message "PUAProtection configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-      # Ativar tarefas agendadas
-      foreach ($task in $tasks) {
-        Log-Action -Message "Ativando tarefa agendada: $task..." -ConsoleOutput
-        Enable-ScheduledTask -TaskName $task -ErrorAction Stop
-        Log-Action -Message "Tarefa $task ativada com sucesso." -Level "INFO" -ConsoleOutput
-      }
-
-      Log-Action -Message "Microsoft Windows Defender habilitado com sucesso." -Level "INFO" -ConsoleOutput
-      
-    }
-    else {
-      Log-Action -Message "Opção escolhida: Pular gerenciamento do Microsoft Windows Defender." -Level "INFO" -ConsoleOutput
-      
     }
   }
   catch {
     $errorMessage = "Erro na função AskDefender: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
-    throw  # Repropaga o erro
+    Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
   }
   finally {
-    Log-Action -Message "Finalizando função AskDefender." -Level "INFO" -ConsoleOutput
+    Log-Action "Finalizando função AskDefender." -Level "INFO" -ConsoleOutput
   }
 }
 
@@ -3095,12 +2930,12 @@ Function DisableCoreParking {
 
 # Função ManagePowerProfiles (corrigida)
 function ManagePowerProfiles {
-  Log-Action -Message "Iniciando função ManagePowerProfiles para gerenciar perfis de energia." -ConsoleOutput
+  Log-Action -Message "Iniciando função ManagePowerProfiles para gerenciar perfis de energia." -Level "INFO" -ConsoleOutput
 
   try {
     Write-Output "Gerenciando Perfis de Energia..."
-    Clear-Host
-    Log-Action -Message "Exibindo menu de opções para gerenciar perfis de energia." -ConsoleOutput
+
+    # Definir o banner e opções para o menu
     $banner = @(
       "",
       "",
@@ -3110,39 +2945,23 @@ function ManagePowerProfiles {
       "",
       "≫ Escolha uma opção para configurar o perfil de energia:",
       "",
-      "≫ 1 - Perfil Full Power Gaming (ideal para jogos)",
-      "≫ 2 - Perfil Balanceado (padrão do Windows)",
-      "≫ 3 - Perfil Econômico (economia de energia)",
-      "≫ 4 - Pular esta etapa",
+      "≫ F - Perfil Full Power Gaming (ideal para jogos)",
+      "≫ B - Perfil Balanceado (padrão do Windows)",
+      "≫ E - Perfil Econômico (economia de energia)",
+      "≫ P - Pular esta etapa",
       ""
     )
 
-    $colors = @(
-      "Branco", "Branco", 
-      "Amarelo", "Amarelo", "Amarelo", 
-      "Branco", 
-      "AmareloClaro", 
-      "Branco", 
-      "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-      "Branco"
-    )
+    # Opções válidas
+    $options = @("F", "B", "E", "P")
 
-    for ($i = 0; $i -lt $banner.Length; $i++) {
-      $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
-      Write-Colored $banner[$i] $color
-    }
+    # Chamar o menu e obter a escolha
+    $choice = Show-Menu -BannerLines $banner -Options $options -Prompt "Digite sua escolha (1-4)" -ColorScheme "AmareloClaro"
 
-    do {
-      
-      Write-Colored "" "Branco"
-      Write-Colored "Digite sua escolha (1-4):" "Cyan"
-      $choice = Read-Host
-      Log-Action -Message "Usuário selecionou: $choice" -ConsoleOutput
-    } until ($choice -match "^[1-4]$")
-
+    # Processar a escolha
     switch ($choice) {
-      "1" {
-        Log-Action -Message "Aplicando perfil Full Power Gaming..." -ConsoleOutput
+      "F" {
+        Log-Action -Message "Aplicando perfil Full Power Gaming..." -Level "INFO" -ConsoleOutput
         $fullPowerGamingGUID = "7c6f06f3-81e0-4dd7-a003-46b268fffb5a"  # GUID original
 
         # Verificar se o GUID existe
@@ -3164,12 +2983,16 @@ function ManagePowerProfiles {
               Write-Output "Novo perfil Full Power Gaming criado com GUID: $fullPowerGamingGUID"
             }
             else {
-              Write-Error "Falha ao extrair o novo GUID após duplicação."
+              $errorMessage = "Falha ao extrair o novo GUID após duplicação."
+              Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+              Write-Colored $errorMessage -Color "VermelhoClaro"
               return
             }
           }
           else {
-            Write-Error "Falha ao duplicar o plano Alto Desempenho."
+            $errorMessage = "Falha ao duplicar o plano Alto Desempenho."
+            Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+            Write-Colored $errorMessage -Color "VermelhoClaro"
             return
           }
         }
@@ -3177,7 +3000,9 @@ function ManagePowerProfiles {
         # Ativar o plano (existente ou recém-criado)
         & powercfg /setactive $fullPowerGamingGUID 2>$null
         if ($LASTEXITCODE -ne 0) {
-          Write-Error "Falha ao ativar o perfil Full Power Gaming com GUID: $fullPowerGamingGUID"
+          $errorMessage = "Falha ao ativar o perfil Full Power Gaming com GUID: $fullPowerGamingGUID"
+          Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+          Write-Colored $errorMessage -Color "VermelhoClaro"
           return
         }
         Write-Output "Perfil Full Power Gaming ativado com sucesso!"
@@ -3188,35 +3013,50 @@ function ManagePowerProfiles {
         & powercfg /change monitor-timeout-ac 0 2>$null
 
         Log-Action -Message "Perfil Full Power Gaming aplicado com sucesso." -Level "INFO" -ConsoleOutput
-        
+        Write-Colored "Perfil Full Power Gaming aplicado com sucesso!" -Color "VerdeClaro"
+
         # Chamar DisableCoreParking
         Write-Output "Desativando Core Parking no perfil Full Power Gaming..."
         DisableCoreParking -PlanGUID $fullPowerGamingGUID
       }
-      "2" {
-        Log-Action -Message "Aplicando perfil Balanceado..." -ConsoleOutput
+      "B" {
+        Log-Action -Message "Aplicando perfil Balanceado..." -Level "INFO" -ConsoleOutput
         $balancedGUID = "381b4222-f694-41f0-9685-ff5bb260df2e"
         & powercfg /setactive $balancedGUID 2>$null
+        if ($LASTEXITCODE -ne 0) {
+          $errorMessage = "Falha ao ativar o perfil Balanceado com GUID: $balancedGUID"
+          Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+          Write-Colored $errorMessage -Color "VermelhoClaro"
+          return
+        }
         Log-Action -Message "Perfil Balanceado aplicado com sucesso." -Level "INFO" -ConsoleOutput
-        Write-Colored "Perfil Balanceado aplicado com sucesso!" -Color "Amarelo"
+        Write-Colored "Perfil Balanceado aplicado com sucesso!" -Color "AmareloClaro"
       }
-      "3" {
-        Log-Action -Message "Aplicando perfil Econômico..." -ConsoleOutput
+      "E" {
+        Log-Action -Message "Aplicando perfil Econômico..." -Level "INFO" -ConsoleOutput
         $powerSaverGUID = "a1841308-3541-4fab-bc81-f71556f20b4a"
         & powercfg /setactive $powerSaverGUID 2>$null
+        if ($LASTEXITCODE -ne 0) {
+          $errorMessage = "Falha ao ativar o perfil Econômico com GUID: $powerSaverGUID"
+          Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+          Write-Colored $errorMessage -Color "VermelhoClaro"
+          return
+        }
         & powercfg /change standby-timeout-ac 10 2>$null
         & powercfg /change monitor-timeout-ac 5 2>$null
         Log-Action -Message "Perfil Econômico aplicado com sucesso." -Level "INFO" -ConsoleOutput
+        Write-Colored "Perfil Econômico aplicado com sucesso!" -Color "VerdeClaro"
       }
-      "4" {
+      "P" {
         Log-Action -Message "Perfil de energia não alterado (opção de pular escolhida)." -Level "INFO" -ConsoleOutput
+        Write-Colored "Perfil de energia não alterado." -Color "AmareloClaro"
       }
     }
   }
   catch {
     $errorMessage = "Erro ao gerenciar perfis de energia: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "Vermelho"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
   }
   finally {
     Log-Action -Message "Finalizando função ManagePowerProfiles." -Level "INFO" -ConsoleOutput
@@ -3386,116 +3226,80 @@ function Clear-PSHistory {
 }
 
 function Remove-OneDrive {
-  [CmdletBinding()]
-  param (
-    [switch]$AskUser
-  )
-
-  Log-Action -Message "Iniciando função Remove-OneDrive para desinstalar o OneDrive." -ConsoleOutput
+  Log-Action "Iniciando função Remove-OneDrive para remover o OneDrive." -Level "INFO" -ConsoleOutput
 
   try {
-    if ($AskUser) {
-      Clear-Host
-      Log-Action -Message "Exibindo menu de opções para desinstalar o OneDrive." -ConsoleOutput
-      $banner = @(
-        "",
-        "",
-        "╔════════════════════════════════════════╗",
-        "╠════════ Desinstalar o OneDrive ════════╣",
-        "╚════════════════════════════════════════╝",
-        "",
-        "≫ Este menu permite desinstalar o OneDrive do sistema.",
-        "≫ O processo encerrará o OneDrive, desinstalará o programa e removerá pastas associadas.",
-        "≫ Atenção: Certifique-se de que todos os arquivos importantes foram sincronizados ou movidos antes de prosseguir.",
-        "",
-        "≫ Pressione 'S' para desinstalar o OneDrive.",
-        "≫ Pressione 'N' para pular esta etapa.",
-        ""
-      )
+    # Definir o banner e opções para o menu
+    $banner = @(
+      "",
+      "",
+      "╔════════════════════════════════════╗",
+      "╠════ Remover o OneDrive ════════════╣",
+      "╚════════════════════════════════════╝",
+      "",
+      "≫ Este menu permite remover o OneDrive do sistema.",
+      "≫ Remover o OneDrive pode liberar recursos, mas desativa a sincronização de arquivos na nuvem.",
+      "",
+      "≫ Pressione 'R' para remover o OneDrive.",
+      "≫ Pressione 'M' para manter o OneDrive.",
+      "≫ Pressione 'P' para pular esta etapa.",
+      ""
+    )
 
-      $colors = @(
-        "Branco", "Branco", 
-        "Amarelo", "Amarelo", "Amarelo", 
-        "Branco", 
-        "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-        "Branco", 
-        "AmareloClaro", "AmareloClaro", 
-        "Branco"
-      )
+    # Opções válidas
+    $options = @("R", "M", "P")
 
-      for ($i = 0; $i -lt $banner.Length; $i++) {
-        $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
-        Write-Colored $banner[$i] $color
+    # Chamar o menu e obter a escolha
+    $selection = Show-Menu -BannerLines $banner -Options $options -Prompt "Digite sua escolha (R/M/P)" -ColorScheme "AmareloClaro"
+
+    # Processar a escolha
+    switch ($selection) {
+      "R" {
+        Log-Action "Opção escolhida: Remover o OneDrive." -Level "INFO" -ConsoleOutput
+        Write-Output "Removendo o OneDrive..."
+
+        try {
+          # Parar o processo do OneDrive
+          Stop-Process -Name "OneDrive" -Force -ErrorAction SilentlyContinue
+
+          # Desinstalar o OneDrive
+          $oneDrivePath = "$env:SystemRoot\SysWOW64\OneDriveSetup.exe"
+          if (Test-Path $oneDrivePath) {
+            Start-Process -FilePath $oneDrivePath -ArgumentList "/uninstall" -NoNewWindow -Wait -ErrorAction Stop
+          }
+
+          # Remover atalhos e arquivos residuais
+          Remove-Item -Path "$env:USERPROFILE\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk" -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path "$env:USERPROFILE\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
+
+          Log-Action "OneDrive removido com sucesso." -Level "INFO" -ConsoleOutput
+          Write-Colored "OneDrive removido com sucesso." -Color "VerdeClaro"
+        }
+        catch {
+          $errorMessage = "Erro ao remover o OneDrive: $_"
+          Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
+          Write-Colored $errorMessage -Color "VermelhoClaro"
+        }
       }
-
-      do {
-        
-        Write-Colored "" "Branco"
-        Write-Colored "Digite sua escolha (S/N):" "Cyan"
-        $selection = Read-Host
-        Log-Action -Message "Usuário selecionou: $selection" -ConsoleOutput
-      } until ($selection -match "(?i)^(s|n)$")
-
-      if ($selection -match "(?i)^n$") {
-        Log-Action -Message "Desinstalação do OneDrive ignorada pelo usuário." -Level "INFO" -ConsoleOutput
-        Write-Colored "Desinstalação do OneDrive ignorada." -Color "AmareloClaro"
-        return
+      "M" {
+        Log-Action "Opção escolhida: Manter o OneDrive." -Level "INFO" -ConsoleOutput
+        Write-Output "Mantendo o OneDrive..."
+        Log-Action "OneDrive mantido no sistema." -Level "INFO" -ConsoleOutput
+        Write-Colored "OneDrive mantido no sistema." -Color "VerdeClaro"
+      }
+      "P" {
+        Log-Action "Remoção do OneDrive ignorada." -Level "WARNING" -ConsoleOutput
+        Write-Colored "Remoção do OneDrive ignorada." -Color "AmareloClaro"
       }
     }
-
-    Write-Output "Desinstalando o OneDrive..."
-    Log-Action -Message "Iniciando desinstalação do OneDrive..." -ConsoleOutput
-
-    Log-Action -Message "Verificando se o processo OneDrive está em execução..." -ConsoleOutput
-    $onedriveProcess = Get-Process -Name "OneDrive" -ErrorAction SilentlyContinue
-
-    if ($onedriveProcess) {
-      Log-Action -Message "Processo OneDrive encontrado. Encerrando..." -ConsoleOutput
-      Stop-Process -Name "OneDrive" -Force -ErrorAction Stop
-      Log-Action -Message "Processo OneDrive parado com sucesso." -Level "INFO" -ConsoleOutput
-      Start-Sleep -Seconds 2
-    }
-    else {
-      Log-Action -Message "Processo OneDrive não encontrado. Continuando a desinstalação..." -Level "WARNING" -ConsoleOutput
-    }
-
-    $onedrivePath = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
-    if (Test-Path $onedrivePath) {
-      Log-Action -Message "Executando $onedrivePath /uninstall para desinstalar o OneDrive..." -ConsoleOutput
-      Start-Process -FilePath $onedrivePath -ArgumentList "/uninstall" -Wait -NoNewWindow -ErrorAction Stop
-      Log-Action -Message "OneDrive desinstalado via OneDriveSetup.exe com sucesso." -Level "INFO" -ConsoleOutput
-    }
-    else {
-      Log-Action -Message "OneDriveSetup.exe não encontrado em $onedrivePath. Pode já estar desinstalado." -Level "WARNING" -ConsoleOutput
-      Write-Output "OneDriveSetup.exe não encontrado em $onedrivePath. Pode já estar desinstalado."
-    }
-
-    Log-Action -Message "Removendo pasta $env:USERPROFILE\OneDrive..." -ConsoleOutput
-    Remove-Item "$env:USERPROFILE\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-    Log-Action -Message "Pasta $env:USERPROFILE\OneDrive removida com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Removendo pasta $env:LOCALAPPDATA\Microsoft\OneDrive..." -ConsoleOutput
-    Remove-Item "$env:LOCALAPPDATA\Microsoft\OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-    Log-Action -Message "Pasta $env:LOCALAPPDATA\Microsoft\OneDrive removida com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Removendo pasta $env:PROGRAMDATA\Microsoft OneDrive..." -ConsoleOutput
-    Remove-Item "$env:PROGRAMDATA\Microsoft OneDrive" -Force -Recurse -ErrorAction SilentlyContinue
-    Log-Action -Message "Pasta $env:PROGRAMDATA\Microsoft OneDrive removida com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Removendo $env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe..." -ConsoleOutput
-    Remove-Item "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe" -Force -ErrorAction SilentlyContinue
-    Log-Action -Message "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe removido com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "OneDrive desinstalado com sucesso." -Level "INFO" -ConsoleOutput
   }
   catch {
-    $errorMessage = "Erro ao desinstalar o OneDrive: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    $errorMessage = "Erro na função Remove-OneDrive: $_"
+    Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
     Write-Colored $errorMessage -Color "VermelhoClaro"
-    throw  # Repropaga o erro
   }
   finally {
-    Log-Action -Message "Finalizando função Remove-OneDrive." -Level "INFO" -ConsoleOutput
+    Log-Action "Finalizando função Remove-OneDrive." -Level "INFO" -ConsoleOutput
   }
 }
 
@@ -4118,81 +3922,80 @@ function Set-RamThreshold {
 }
 
 function Set-MemoriaVirtual-Registry {
-  Log-Action -Message "Iniciando função Set-MemoriaVirtual-Registry para configurar a memória virtual." -ConsoleOutput
+  Log-Action "Iniciando função Set-MemoriaVirtual-Registry para configurar memória virtual." -Level "INFO" -ConsoleOutput
 
   try {
-    Clear-Host
+    # Definir o banner e opções para o menu
     $banner = @(
       "",
       "",
-      "╔══════════════════════════════════════════╗",
-      "╠═══════ Configurar Memória Virtual ═══════╣",
-      "╚══════════════════════════════════════════╝",
+      "╔═══════════════════════════════════════╗",
+      "╠════ Configurar Memória Virtual ══════╣",
+      "╚═══════════════════════════════════════╝",
       "",
       "≫ Este menu permite configurar a memória virtual do sistema.",
-      "≫ A memória virtual será ajustada com base na RAM total detectada.",
-      "≫ Tamanho inicial: 9081 MB (fixo).",
-      "≫ Tamanho máximo: 1,5x a RAM total.",
-      "≫ O sistema desativará a gestão automática da memória virtual.",
+      "≫ Ajustar manualmente pode otimizar o desempenho em jogos.",
+      "",
+      "≫ Pressione 'M' para definir manualmente a memória virtual.",
+      "≫ Pressione 'A' para configurar automaticamente pelo Windows.",
+      "≫ Pressione 'P' para pular esta configuração.",
       ""
     )
 
-    $colors = @(
-      "Branco", "Branco", 
-      "Amarelo", "Amarelo", "Amarelo", 
-      "Branco", 
-      "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", "AmareloClaro", 
-      "Branco"
-    )
+    # Opções válidas
+    $options = @("M", "A", "P")
 
-    for ($i = 0; $i -lt $banner.Length; $i++) {
-      $color = if ($i -lt $colors.Length) { $colors[$i] } else { "Branco" }
-      Write-Colored $banner[$i] $color
+    # Chamar o menu e obter a escolha
+    $selection = Show-Menu -BannerLines $banner -Options $options -Prompt "Digite sua escolha (M/A/P)" -ColorScheme "AmareloClaro"
+
+    # Processar a escolha
+    switch ($selection) {
+      "M" {
+        Log-Action "Opção escolhida: Definir memória virtual manualmente." -Level "INFO" -ConsoleOutput
+      
+        $ramGB = [math]::Round((Get-ComputerInfo).CsTotalPhysicalMemory / 1GB, 2)
+        $initialSize = [math]::Round($ramGB * 1024 * 1.5)  # 1.5x RAM em MB
+        $maxSize = [math]::Round($ramGB * 1024 * 3)        # 3x RAM em MB
+
+        try {
+          Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "PagingFiles" -Value "C:\pagefile.sys $initialSize $maxSize" -ErrorAction Stop
+          Log-Action "Memória virtual definida manualmente: Inicial=$initialSize MB, Máximo=$maxSize MB." -Level "INFO" -ConsoleOutput
+      
+        }
+        catch {
+          $errorMessage = "Erro ao definir memória virtual manualmente: $_"
+          Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
+      
+        }
+      }
+      "A" {
+        Log-Action "Opção escolhida: Configurar memória virtual automaticamente." -Level "INFO" -ConsoleOutput
+      
+
+        try {
+          Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "PagingFiles" -Value "" -ErrorAction Stop
+          Log-Action "Memória virtual configurada para gerenciamento automático pelo Windows." -Level "INFO" -ConsoleOutput
+      
+        }
+        catch {
+          $errorMessage = "Erro ao configurar memória virtual automaticamente: $_"
+          Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
+      
+        }
+      }
+      "P" {
+        Log-Action "Configuração de memória virtual ignorada." -Level "WARNING" -ConsoleOutput
+      
+      }
     }
-
-    Log-Action -Message "Exibindo interface de configuração da memória virtual." -ConsoleOutput
-    Write-Colored "" "Branco"
-    Write-Colored -Text "Informe a letra do drive (ex: C) para configurar a memória virtual:" -Color "Cyan"
-    $Drive = Read-Host
-    $DrivePath = "${Drive}:"
-    Log-Action -Message "Usuário informou o drive: $DrivePath" -ConsoleOutput
-
-    # Validação do drive
-    if (-not (Test-Path $DrivePath)) {
-      $errorMessage = "Drive $DrivePath não encontrado."
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      Write-Colored -Text $errorMessage -Color "Red"
-      return
-    }
-    Log-Action -Message "Drive $DrivePath validado com sucesso." -Level "INFO" -ConsoleOutput
-
-    # Cálculo da memória RAM total em MB
-    $TotalRAM = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1MB)
-    $InitialSize = 9081  # Valor fixo inicial
-    $MaxSize = [math]::Round($TotalRAM * 1.5)  # Máximo como 1,5x a RAM
-    $RegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
-    Log-Action -Message "RAM total detectada: $TotalRAM MB. Configurando memória virtual com inicial: $InitialSize MB, máximo: $MaxSize MB." -ConsoleOutput
-
-    Log-Action -Message "Configurando PagingFiles em $RegPath..." -ConsoleOutput
-    Set-ItemProperty -Path $RegPath -Name "PagingFiles" -Value "$DrivePath\pagefile.sys $InitialSize $MaxSize" -ErrorAction Stop
-    Log-Action -Message "PagingFiles configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando AutomaticManagedPagefile para 0 em $RegPath..." -ConsoleOutput
-    Set-ItemProperty -Path $RegPath -Name "AutomaticManagedPagefile" -Value 0 -ErrorAction Stop
-    Log-Action -Message "AutomaticManagedPagefile configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Memória virtual configurada com sucesso para $DrivePath com inicial $InitialSize MB e máximo $MaxSize MB." -Level "INFO" -ConsoleOutput
-    Write-Colored -Text "Memória virtual configurada para $DrivePath com inicial $InitialSize MB e máximo $MaxSize MB." -Color "Green"
-    Write-Colored -Text "Reinicie o computador para aplicar as mudanças." -Color "Green"
   }
   catch {
-    $errorMessage = "Erro ao configurar memória virtual: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored -Text $errorMessage -Color "Red"
-    throw  # Repropaga o erro
+    $errorMessage = "Erro na função Set-MemoriaVirtual-Registry: $_"
+    Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
+      
   }
   finally {
-    Log-Action -Message "Finalizando função Set-MemoriaVirtual-Registry." -Level "INFO" -ConsoleOutput
+    Log-Action "Finalizando função Set-MemoriaVirtual-Registry." -Level "INFO" -ConsoleOutput
   }
 }
 
