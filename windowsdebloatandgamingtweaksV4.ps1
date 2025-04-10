@@ -231,7 +231,7 @@ function Show-Menu {
   # Solicitar entrada do usuário em loop até uma opção válida
   do {
     Write-Colored "" "Branco"  # Linha em branco
-    Write-Colored "$Prompt:" "Cyan"
+    Write-Colored "$Prompt" "Cyan"
     $selection = Read-Host
     Log-Action -Message "Usuário selecionou: $selection" -Level "INFO" -ConsoleOutput
   } until ($Options -contains $selection.ToUpper())
