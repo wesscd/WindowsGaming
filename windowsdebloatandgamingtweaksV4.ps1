@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.6.0 (GROK / GPT)
+# Versão: V0.7.2.6.1 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.6.0 (GROK / GPT)"
+$versao = "V0.7.2.6.1 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -407,6 +407,46 @@ function Get-GPUType {
       Name   = "Erro ao detectar GPU"
       PNPIds = $null
     }
+  }
+}
+
+# Função para definir valores no registro
+function Set-RegistryValue {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory = $true)]
+    [string]$Path, # Caminho do registro (ex.: "HKLM:\SOFTWARE\...")
+    [Parameter(Mandatory = $true)]
+    [string]$Name, # Nome da propriedade
+    [Parameter(Mandatory = $true)]
+    $Value, # Valor a ser definido
+    [string]$Type = "DWord", # Tipo do valor (DWord, String, etc.)
+    [switch]$Force = $false     # Forçar a criação do caminho se não existir
+  )
+
+  Log-Action -Message "Iniciando configuração do registro em $Path\$Name com valor $Value." -Level "INFO" -ConsoleOutput
+
+  try {
+    # Verificar se o caminho existe; criar se necessário e $Force estiver ativado
+    if (-not (Test-Path $Path)) {
+      if ($Force) {
+        New-Item -Path $Path -Force -ErrorAction Stop | Out-Null
+        Log-Action -Message "Caminho $Path criado com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        throw "Caminho $Path não existe e -Force não foi especificado."
+      }
+    }
+
+    # Definir o valor no registro
+    Set-ItemProperty -Path $Path -Name $Name -Value $Value -Type $Type -Force -ErrorAction Stop
+    Log-Action -Message "Propriedade $Name configurada com sucesso em $Path com valor $Value." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro ao configurar o registro em $Path\$Name: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw  # Repropaga o erro para a função chamadora
   }
 }
 
@@ -1172,83 +1212,21 @@ function AskXBOX {
 }
 
 function DisableNewsFeed {
-  Log-Action -Message "Iniciando função DisableNewsFeed para desativar o News Feed." -ConsoleOutput
+  Log-Action -Message "Iniciando função DisableNewsFeed para desativar o feed de notícias." -Level "INFO" -ConsoleOutput
 
   try {
-    # Obter versão do sistema operacional
-    $osVersion = [System.Environment]::OSVersion.Version
-    Log-Action -Message "Versão do sistema operacional detectada: Major $($osVersion.Major), Build $($osVersion.Build)" -ConsoleOutput
+    # Desativar o feed de notícias na barra de tarefas
+    $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds"
+    Set-RegistryValue -Path $regPath -Name "ShellFeedsTaskbarViewMode" -Value 2 -Type "DWord" -Force
 
-    # Verificar se é Windows 10 ou superior
-    if ($osVersion.Major -eq 10) {
-      Log-Action -Message "Windows 10 detectado. Prosseguindo com a desativação do News and Interests Feed." -ConsoleOutput
-      Write-Output "Disabling Windows 10 News and Interests Feed..."
-
-      # Verificar e criar chave de registro HKLM, se necessário
-      $registryPathHKLM = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds"
-      if (-not (Test-Path $registryPathHKLM)) {
-        Log-Action -Message "Chave $registryPathHKLM não existe. Criando..." -ConsoleOutput
-        New-Item -Path $registryPathHKLM -Force -ErrorAction Stop | Out-Null
-        Log-Action -Message "Chave $registryPathHKLM criada com sucesso." -Level "INFO" -ConsoleOutput
-      }
-      else {
-        Log-Action -Message "Chave $registryPathHKLM já existe. Prosseguindo com a configuração." -ConsoleOutput
-      }
-
-      # Configurar propriedade EnableFeeds
-      Log-Action -Message "Configurando EnableFeeds para 0 em $registryPathHKLM..." -ConsoleOutput
-      Set-ItemProperty -Path $registryPathHKLM -Name "EnableFeeds" -Type DWord -Value 0 -ErrorAction Stop
-      Log-Action -Message "EnableFeeds configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-      # Verificar e configurar chave HKCU
-      $registryPathHKCU = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds"
-      $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-
-      # Verificar se o script tem permissão para modificar HKCU
-      try {
-        if (-not (Test-Path $registryPathHKCU)) {
-          Log-Action -Message "Chave $registryPathHKCU não existe. Criando..." -ConsoleOutput
-          New-Item -Path $registryPathHKCU -Force -ErrorAction Stop | Out-Null
-          Log-Action -Message "Chave $registryPathHKCU criada com sucesso." -Level "INFO" -ConsoleOutput
-        }
-        else {
-          Log-Action -Message "Chave $registryPathHKCU já existe. Prosseguindo com a configuração." -ConsoleOutput
-        }
-
-        # Tentar configurar a propriedade com tratamento de erro adicional
-        Log-Action -Message "Configurando ShellFeedsTaskbarViewMode para 2 em $registryPathHKCU..." -ConsoleOutput
-        Set-ItemProperty -Path $registryPathHKCU -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2 -ErrorAction Stop
-        Log-Action -Message "ShellFeedsTaskbarViewMode configurado com sucesso." -Level "INFO" -ConsoleOutput
-      }
-      catch [System.UnauthorizedAccessException] {
-        Log-Action -Message "Sem permissão para modificar $registryPathHKCU. Tente executar o script como o usuário atual ou com permissões elevadas." -Level "WARNING" -ConsoleOutput
-        
-      }
-      catch {
-        $errorMessage = "Erro ao configurar $registryPathHKCU $_" #comentando para atualizar........................
-        Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-        Write-Colored $errorMessage -Color "Vermelho"
-        throw
-      }
-
-      Log-Action -Message "News and Interests Feed desativado com sucesso no Windows 10." -Level "INFO" -ConsoleOutput
-      
-    }
-    elseif ($osVersion.Major -eq 6) {
-      Log-Action -Message "Sistema operacional anterior ao Windows 10 detectado (Major $($osVersion.Major)). News Feed não aplicável." -Level "WARNING" -ConsoleOutput
-      
-    }
-    else {
-      # Assumindo Windows 11 ou superior (Major > 10 ou build específico)
-      Log-Action -Message "Windows 11 ou superior detectado. Pulando desativação do News Feed." -Level "INFO" -ConsoleOutput
-      Write-Output "Windows 11 detectado, pulando desativação do News Feed."
-    }
+    Log-Action -Message "Feed de notícias desativado com sucesso." -Level "INFO" -ConsoleOutput
+    Write-Colored "Feed de notícias desativado com sucesso." -Color "VerdeClaro"
   }
   catch {
-    $errorMessage = "Erro na função DisableNewsFeed: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "Vermelho"
-    throw  # Repropaga o erro
+    $errorMessage = "Erro ao desativar o feed de notícias: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw
   }
   finally {
     Log-Action -Message "Finalizando função DisableNewsFeed." -Level "INFO" -ConsoleOutput
@@ -1256,26 +1234,23 @@ function DisableNewsFeed {
 }
 
 function SetUACLow {
-  Log-Action -Message "Iniciando função SetUACLow para reduzir o nível do UAC." -ConsoleOutput
+  Log-Action -Message "Iniciando função SetUACLow para configurar UAC em nível baixo." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Lowering UAC level..."
-    Log-Action -Message "Reduzindo o nível do Controle de Conta de Usuário (UAC)..." -ConsoleOutput
+    $regPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+    Set-RegistryValue -Path $regPath -Name "ConsentPromptBehaviorAdmin" -Value 0 -Type "DWord"
+    Set-RegistryValue -Path $regPath -Name "ConsentPromptBehaviorUser" -Value 0 -Type "DWord"
+    Set-RegistryValue -Path $regPath -Name "EnableLUA" -Value 1 -Type "DWord"
+    Set-RegistryValue -Path $regPath -Name "PromptOnSecureDesktop" -Value 0 -Type "DWord"
 
-    Log-Action -Message "Configurando ConsentPromptBehaviorAdmin para 0..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorAdmin" -Type DWord -Value 0 -ErrorAction Stop
-    Log-Action -Message "ConsentPromptBehaviorAdmin configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando PromptOnSecureDesktop para 0..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "PromptOnSecureDesktop" -Type DWord -Value 0 -ErrorAction Stop
-    Log-Action -Message "PromptOnSecureDesktop configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Nível do UAC reduzido com sucesso." -Level "INFO" -ConsoleOutput
+    Log-Action -Message "UAC configurado para nível baixo com sucesso." -Level "INFO" -ConsoleOutput
+    Write-Colored "UAC configurado para nível baixo com sucesso." -Color "VerdeClaro"
   }
   catch {
-    $errorMessage = "Erro na função SetUACLow: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
+    $errorMessage = "Erro ao configurar UAC em nível baixo: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw
   }
   finally {
     Log-Action -Message "Finalizando função SetUACLow." -Level "INFO" -ConsoleOutput
@@ -1283,20 +1258,24 @@ function SetUACLow {
 }
 
 function DisableSMB1 {
-  Log-Action -Message "Iniciando função DisableSMB1 para desativar o protocolo SMB 1.0." -ConsoleOutput
+  Log-Action -Message "Iniciando função DisableSMB1 para desativar o protocolo SMB1." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Disabling SMB 1.0 protocol..."
-    Log-Action -Message "Desativando o protocolo SMB 1.0..." -ConsoleOutput
+    # Desativar SMB1 via registro
+    $regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
+    Set-RegistryValue -Path $regPath -Name "SMB1" -Value 0 -Type "DWord"
 
-    Log-Action -Message "Executando Set-SmbServerConfiguration para desativar SMB1..." -ConsoleOutput
-    Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force -ErrorAction Stop
-    Log-Action -Message "Protocolo SMB 1.0 desativado com sucesso." -Level "INFO" -ConsoleOutput
+    # Desativar SMB1 via recursos do Windows
+    Disable-WindowsOptionalFeature -Online -FeatureName "SMB1Protocol" -NoRestart -ErrorAction Stop
+
+    Log-Action -Message "Protocolo SMB1 desativado com sucesso." -Level "INFO" -ConsoleOutput
+    Write-Colored "Protocolo SMB1 desativado com sucesso." -Color "VerdeClaro"
   }
   catch {
-    $errorMessage = "Erro na função DisableSMB1: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
+    $errorMessage = "Erro ao desativar o protocolo SMB1: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw
   }
   finally {
     Log-Action -Message "Finalizando função DisableSMB1." -Level "INFO" -ConsoleOutput
@@ -1304,20 +1283,28 @@ function DisableSMB1 {
 }
 
 function SetCurrentNetworkPrivate {
-  Log-Action -Message "Iniciando função SetCurrentNetworkPrivate para definir o perfil de rede atual como privado." -ConsoleOutput
+  Log-Action -Message "Iniciando função SetCurrentNetworkPrivate para definir a rede atual como privada." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Setting current network profile to private..."
-    Log-Action -Message "Definindo o perfil de rede atual como privado..." -ConsoleOutput
+    $networkProfiles = Get-NetConnectionProfile -ErrorAction Stop
+    foreach ($profile in $networkProfiles) {
+      if ($profile.NetworkCategory -ne "Private") {
+        Set-NetConnectionProfile -InterfaceIndex $profile.InterfaceIndex -NetworkCategory Private -ErrorAction Stop
+        Log-Action -Message "Rede '$($profile.Name)' definida como privada com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      else {
+        Log-Action -Message "Rede '$($profile.Name)' já está definida como privada." -Level "INFO" -ConsoleOutput
+      }
+    }
 
-    Log-Action -Message "Executando Set-NetConnectionProfile para alterar o perfil de rede..." -ConsoleOutput
-    Set-NetConnectionProfile -NetworkCategory Private -ErrorAction Stop
-    Log-Action -Message "Perfil de rede atual definido como privado com sucesso." -Level "INFO" -ConsoleOutput
+    Log-Action -Message "Redes atuais definidas como privadas com sucesso." -Level "INFO" -ConsoleOutput
+    Write-Colored "Redes atuais definidas como privadas com sucesso." -Color "VerdeClaro"
   }
   catch {
-    $errorMessage = "Erro na função SetCurrentNetworkPrivate: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
+    $errorMessage = "Erro ao definir a rede atual como privada: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw
   }
   finally {
     Log-Action -Message "Finalizando função SetCurrentNetworkPrivate." -Level "INFO" -ConsoleOutput
@@ -1325,36 +1312,21 @@ function SetCurrentNetworkPrivate {
 }
 
 function SetUnknownNetworksPrivate {
-  Log-Action -Message "Iniciando função SetUnknownNetworksPrivate para definir redes desconhecidas como privadas." -ConsoleOutput
+  Log-Action -Message "Iniciando função SetUnknownNetworksPrivate para definir redes desconhecidas como privadas." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Setting unknown networks profile to private..."
-    Log-Action -Message "Definindo o perfil de redes desconhecidas como privado..." -ConsoleOutput
+    $regPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\CurrentVersion\NetworkList\Signatures\010103"
+    #$registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\CurrentVersion\NetworkList\Signatures\010103000F0000F0010000000F0000F0C967A3643C3AD745950DA7859209176EF5B87C875FA20DF21951640E807D7C24"
+    Set-RegistryValue -Path $regPath -Name "Category" -Value 1 -Type "DWord" -Force
 
-    # Definir o caminho do registro
-    $registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\CurrentVersion\NetworkList\Signatures\010103000F0000F0010000000F0000F0C967A3643C3AD745950DA7859209176EF5B87C875FA20DF21951640E807D7C24"
-
-    # Verificar e criar a chave de registro, se necessário
-    if (-not (Test-Path $registryPath)) {
-      Log-Action -Message "Chave $registryPath não existe. Criando..." -ConsoleOutput
-      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
-      Log-Action -Message "Chave $registryPath criada com sucesso." -Level "INFO" -ConsoleOutput
-    }
-    else {
-      Log-Action -Message "Chave $registryPath já existe. Prosseguindo com a configuração." -ConsoleOutput
-    }
-
-    # Configurar a propriedade Category
-    Log-Action -Message "Configurando Category para 1 em $registryPath..." -ConsoleOutput
-    Set-ItemProperty -Path $registryPath -Name "Category" -Type DWord -Value 1 -ErrorAction Stop
-    Log-Action -Message "Category configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Perfil de redes desconhecidas definido como privado com sucesso." -Level "INFO" -ConsoleOutput
+    Log-Action -Message "Redes desconhecidas definidas como privadas com sucesso." -Level "INFO" -ConsoleOutput
+    Write-Colored "Redes desconhecidas definidas como privadas com sucesso." -Color "VerdeClaro"
   }
   catch {
-    $errorMessage = "Erro na função SetUnknownNetworksPrivate: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
+    $errorMessage = "Erro ao definir redes desconhecidas como privadas: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw
   }
   finally {
     Log-Action -Message "Finalizando função SetUnknownNetworksPrivate." -Level "INFO" -ConsoleOutput
@@ -1362,36 +1334,21 @@ function SetUnknownNetworksPrivate {
 }
 
 function DisableNetDevicesAutoInst {
-  Log-Action -Message "Iniciando função DisableNetDevicesAutoInst para desativar a instalação automática de dispositivos de rede." -ConsoleOutput
+  Log-Action -Message "Iniciando função DisableNetDevicesAutoInst para desativar a instalação automática de dispositivos de rede." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Disabling automatic installation of network devices..."
-    Log-Action -Message "Desativando a instalação automática de dispositivos de rede..." -ConsoleOutput
-
-    # Definir o caminho do registro
-    $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private"
-
-    # Verificar e criar a chave de registro, se necessário
-    if (-not (Test-Path $registryPath)) {
-      Log-Action -Message "Chave $registryPath não existe. Criando..." -ConsoleOutput
-      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
-      Log-Action -Message "Chave $registryPath criada com sucesso." -Level "INFO" -ConsoleOutput
-    }
-    else {
-      Log-Action -Message "Chave $registryPath já existe. Prosseguindo com a configuração." -ConsoleOutput
-    }
-
-    # Configurar a propriedade AutoSetup
-    Log-Action -Message "Configurando AutoSetup para 0 em $registryPath..." -ConsoleOutput
-    Set-ItemProperty -Path $registryPath -Name "AutoSetup" -Type DWord -Value 0 -ErrorAction Stop
-    Log-Action -Message "AutoSetup configurado com sucesso." -Level "INFO" -ConsoleOutput
+    $regPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{A5A2C63F-3909-4C83-BADB-1E93F38BE6DD}"
+    #$registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private"
+    Set-RegistryValue -Path $regPath -Name "Value" -Value "Deny" -Type "String" -Force
 
     Log-Action -Message "Instalação automática de dispositivos de rede desativada com sucesso." -Level "INFO" -ConsoleOutput
+    Write-Colored "Instalação automática de dispositivos de rede desativada com sucesso." -Color "VerdeClaro"
   }
   catch {
-    $errorMessage = "Erro na função DisableNetDevicesAutoInst: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
+    $errorMessage = "Erro ao desativar a instalação automática de dispositivos de rede: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw
   }
   finally {
     Log-Action -Message "Finalizando função DisableNetDevicesAutoInst." -Level "INFO" -ConsoleOutput
@@ -1503,45 +1460,49 @@ function ConfigureWindowsUpdate {
 
   Log-Action -Message "Iniciando configuração do Windows Update..." -Level "INFO" -ConsoleOutput
 
-  # Caminhos do registro
-  $wuPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
-  $auPath = "$wuPath\AU"
+  try {
+    # Caminhos do registro
+    $wuPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+    $auPath = "$wuPath\AU"
 
-  # Cria as chaves se não existirem
-  if (-not (Test-Path $wuPath)) { New-Item -Path $wuPath -Force | Out-Null }
-  if (-not (Test-Path $auPath)) { New-Item -Path $auPath -Force | Out-Null }
+    # Configurações de adiamento de atualizações (SlowUpdatesTweaks)
+    Log-Action -Message "Aplicando ajustes para adiar atualizações de recursos..." -Level "INFO" -ConsoleOutput
+    Set-RegistryValue -Path $wuPath -Name "BranchReadinessLevel" -Value 16 -Type "DWord" -Force
+    Set-RegistryValue -Path $wuPath -Name "DeferFeatureUpdates" -Value 1 -Type "DWord" -Force
+    Set-RegistryValue -Path $wuPath -Name "DeferFeatureUpdatesPeriodInDays" -Value $DelayFeatureUpdatesDays -Type "DWord" -Force
+    Set-RegistryValue -Path $wuPath -Name "ManagePreviewBuilds" -Value 1 -Type "DWord" -Force
+    Set-RegistryValue -Path $wuPath -Name "ManagePreviewBuildsPolicyValue" -Value 2 -Type "DWord" -Force
+    Set-RegistryValue -Path $wuPath -Name "PauseFeatureUpdatesStartTime" -Value "2025-04-03" -Type "String" -Force
+    Set-RegistryValue -Path $wuPath -Name "PauseFeatureUpdatesEndTime" -Value "2030-04-03" -Type "String" -Force
+    Set-RegistryValue -Path $auPath -Name "NoAutoUpdate" -Value 0 -Type "DWord" -Force
 
-  # Configurações de adiamento de atualizações (SlowUpdatesTweaks)
-  Log-Action -Message "Aplicando ajustes para adiar atualizações de recursos..." -Level "INFO" -ConsoleOutput
-  Set-ItemProperty -Path $wuPath -Name "BranchReadinessLevel" -Value 16 -Type DWord -Force
-  Set-ItemProperty -Path $wuPath -Name "DeferFeatureUpdates" -Value 1 -Type DWord -Force
-  Set-ItemProperty -Path $wuPath -Name "DeferFeatureUpdatesPeriodInDays" -Value $DelayFeatureUpdatesDays -Type DWord -Force
-  Set-ItemProperty -Path $wuPath -Name "ManagePreviewBuilds" -Value 1 -Type DWord -Force
-  Set-ItemProperty -Path $wuPath -Name "ManagePreviewBuildsPolicyValue" -Value 2 -Type DWord -Force
-  Set-ItemProperty -Path $wuPath -Name "PauseFeatureUpdatesStartTime" -Value "2025-04-03" -Type String -Force
-  Set-ItemProperty -Path $wuPath -Name "PauseFeatureUpdatesEndTime" -Value "2030-04-03" -Type String -Force
-  Set-ItemProperty -Path $auPath -Name "NoAutoUpdate" -Value 0 -Type DWord -Force
+    # Desativar reinícios automáticos (DisableUpdateRestart)
+    if ($DisableAutoRestart) {
+      Log-Action -Message "Desativando reinícios automáticos após atualizações..." -Level "INFO" -ConsoleOutput
+      Set-RegistryValue -Path $auPath -Name "NoAutoRebootWithLoggedOnUsers" -Value 1 -Type "DWord" -Force
+    }
 
-  # Desativar reinícios automáticos (DisableUpdateRestart)
-  if ($DisableAutoRestart) {
-    Log-Action -Message "Desativando reinícios automáticos após atualizações..." -Level "INFO" -ConsoleOutput
-    Set-ItemProperty -Path $auPath -Name "NoAutoRebootWithLoggedOnUsers" -Value 1 -Type DWord -Force
+    # Habilitar MSRT (EnableUpdateMSRT)
+    if ($EnableMSRT) {
+      Log-Action -Message "Garantindo atualizações do Microsoft Malicious Software Removal Tool..." -Level "INFO" -ConsoleOutput
+      # MSRT depende de atualizações de qualidade; NoAutoUpdate já está em 0
+    }
+
+    # Habilitar atualizações de drivers (EnableUpdateDriver)
+    if ($EnableDrivers) {
+      Log-Action -Message "Habilitando atualizações de drivers via Windows Update..." -Level "INFO" -ConsoleOutput
+      Set-RegistryValue -Path $wuPath -Name "ExcludeWUDriversInQualityUpdate" -Value 0 -Type "DWord" -Force
+    }
+
+    Log-Action -Message "Configuração do Windows Update concluída com sucesso." -Level "INFO" -ConsoleOutput
+    Write-Colored "Configuração do Windows Update concluída com sucesso." -Color "VerdeClaro"
   }
-
-  # Habilitar MSRT (EnableUpdateMSRT)
-  if ($EnableMSRT) {
-    # MSRT é geralmente incluído em atualizações de segurança; garantimos que não seja bloqueado
-    Log-Action -Message "Garantindo atualizações do Microsoft Malicious Software Removal Tool..." -Level "INFO" -ConsoleOutput
-    # Não há chave específica para MSRT, mas mantemos atualizações de qualidade ativas (NoAutoUpdate = 0)
+  catch {
+    $errorMessage = "Erro na função ConfigureWindowsUpdate: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw
   }
-
-  # Habilitar atualizações de drivers (EnableUpdateDriver)
-  if ($EnableDrivers) {
-    Log-Action -Message "Habilitando atualizações de drivers via Windows Update..." -Level "INFO" -ConsoleOutput
-    Set-ItemProperty -Path $wuPath -Name "ExcludeWUDriversInQualityUpdate" -Value 0 -Type DWord -Force
-  }
-
-  Log-Action -Message "Configuração do Windows Update concluída com sucesso." -Level "INFO" -ConsoleOutput
 }
 
 function DisableMeltdownCompatFlag {
@@ -1751,64 +1712,55 @@ function EnableSharedExperiences {
 }
 
 function EnableRemoteDesktop {
-  Log-Action -Message "Iniciando função EnableRemoteDesktop para habilitar a Área de Trabalho Remota sem autenticação de nível de rede." -ConsoleOutput
+  Log-Action -Message "Iniciando função EnableRemoteDesktop para habilitar a Área de Trabalho Remota sem autenticação de nível de rede." -Level "INFO" -ConsoleOutput
 
   try {
     Write-Output "Enabling Remote Desktop w/o Network Level Authentication..."
-    Log-Action -Message "Habilitando a Área de Trabalho Remota sem autenticação de nível de rede..." -ConsoleOutput
 
     $errpref = $ErrorActionPreference
     $ErrorActionPreference = "SilentlyContinue"
-    Log-Action -Message "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+    Log-Action -Message "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -Level "INFO" -ConsoleOutput
 
-    Log-Action -Message "Configurando fDenyTSConnections para 0..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Type DWord -Value 0 -ErrorAction Stop
-    Log-Action -Message "fDenyTSConnections configurado com sucesso." -Level "INFO" -ConsoleOutput
+    Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 0 -Type "DWord"
+    Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Value 0 -Type "DWord"
 
-    Log-Action -Message "Configurando UserAuthentication para 0..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Type DWord -Value 0 -ErrorAction Stop
-    Log-Action -Message "UserAuthentication configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Habilitando regras de firewall para RemoteDesktop..." -ConsoleOutput
+    Log-Action -Message "Habilitando regras de firewall para RemoteDesktop..." -Level "INFO" -ConsoleOutput
     Enable-NetFirewallRule -Name "RemoteDesktop*" -ErrorAction Stop | Out-Null
-    Log-Action -Message "Regras de firewall para RemoteDesktop habilitadas com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Área de Trabalho Remota habilitada com sucesso sem autenticação de nível de rede." -Level "INFO" -ConsoleOutput
+    Write-Colored "Área de Trabalho Remota habilitada com sucesso." -Color "VerdeClaro"
   }
   catch {
     $errorMessage = "Erro na função EnableRemoteDesktop: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw
   }
   finally {
     $ErrorActionPreference = $errpref
-    Log-Action -Message "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+    Log-Action -Message "Restaurando ErrorActionPreference para $errpref." -Level "INFO" -ConsoleOutput
     Log-Action -Message "Finalizando função EnableRemoteDesktop." -Level "INFO" -ConsoleOutput
   }
 }
 
 #Disabling Windows Remote Assistance.
 function DisableRemoteAssistance {
-  Log-Action -Message "Iniciando função DisableRemoteAssistance para desativar a Assistência Remota do Windows." -ConsoleOutput
+  Log-Action -Message "Iniciando função DisableRemoteAssistance para desativar a Assistência Remota do Windows." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Disabling Windows Remote Assistance..."
     Log-Action -Message "Desativando a Assistência Remota do Windows..." -ConsoleOutput
-
-    Log-Action -Message "Configurando fAllowFullControl para 0..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowFullControl" -Type DWord -Value 0 -ErrorAction Stop
-    Log-Action -Message "fAllowFullControl configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando fAllowToGetHelp para 0..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 0 -ErrorAction Stop
-    Log-Action -Message "fAllowToGetHelp configurado com sucesso." -Level "INFO" -ConsoleOutput
+      
+    $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance"
+    Set-RegistryValue -Path $regPath -Name "fAllowFullControl" -Value 0 -Type "DWord"
+    Set-RegistryValue -Path $regPath -Name "fAllowToGetHelp" -Value 0 -Type "DWord"
 
     Log-Action -Message "Assistência Remota do Windows desativada com sucesso." -Level "INFO" -ConsoleOutput
+      
   }
   catch {
     $errorMessage = "Erro na função DisableRemoteAssistance: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    throw
   }
   finally {
     Log-Action -Message "Finalizando função DisableRemoteAssistance." -Level "INFO" -ConsoleOutput
@@ -1816,22 +1768,21 @@ function DisableRemoteAssistance {
 }
 
 function DisableAutoplay {
-  Log-Action -Message "Iniciando função DisableAutoplay para desativar a Reprodução Automática." -ConsoleOutput
+  Log-Action -Message "Iniciando função DisableAutoplay para desativar a Reprodução Automática." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Disabling Autoplay..."
     Log-Action -Message "Desativando a Reprodução Automática..." -ConsoleOutput
 
-    Log-Action -Message "Configurando DisableAutoplay para 1 em HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Name "DisableAutoplay" -Type DWord -Value 1 -ErrorAction Stop
-    Log-Action -Message "DisableAutoplay configurado com sucesso." -Level "INFO" -ConsoleOutput
+    Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers" -Name "DisableAutoplay" -Value 1 -Type "DWord"
 
     Log-Action -Message "Reprodução Automática desativada com sucesso." -Level "INFO" -ConsoleOutput
+      
   }
   catch {
     $errorMessage = "Erro na função DisableAutoplay: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+      
+    throw
   }
   finally {
     Log-Action -Message "Finalizando função DisableAutoplay." -Level "INFO" -ConsoleOutput
@@ -1839,36 +1790,22 @@ function DisableAutoplay {
 }
 
 function DisableAutorun {
-  Log-Action -Message "Iniciando função DisableAutorun para desativar o Autorun." -ConsoleOutput
+  Log-Action -Message "Iniciando função DisableAutorun para desativar o Autorun." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Disabling Autorun..."
     Log-Action -Message "Desativando o Autorun..." -ConsoleOutput
 
-    # Definir o caminho do registro
     $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"
-
-    # Verificar e criar a chave de registro, se necessário
-    if (-not (Test-Path $registryPath)) {
-      Log-Action -Message "Chave $registryPath não existe. Criando..." -ConsoleOutput
-      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
-      Log-Action -Message "Chave $registryPath criada com sucesso." -Level "INFO" -ConsoleOutput
-    }
-    else {
-      Log-Action -Message "Chave $registryPath já existe. Prosseguindo com a configuração." -ConsoleOutput
-    }
-
-    # Configurar NoDriveTypeAutoRun
-    Log-Action -Message "Configurando NoDriveTypeAutoRun para 255 em $registryPath..." -ConsoleOutput
-    Set-ItemProperty -Path $registryPath -Name "NoDriveTypeAutoRun" -Type DWord -Value 255 -ErrorAction Stop
-    Log-Action -Message "NoDriveTypeAutoRun configurado com sucesso." -Level "INFO" -ConsoleOutput
+    Set-RegistryValue -Path $registryPath -Name "NoDriveTypeAutoRun" -Value 255 -Type "DWord" -Force
 
     Log-Action -Message "Autorun desativado com sucesso." -Level "INFO" -ConsoleOutput
+      
   }
   catch {
     $errorMessage = "Erro na função DisableAutorun: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+  
+    throw
   }
   finally {
     Log-Action -Message "Finalizando função DisableAutorun." -Level "INFO" -ConsoleOutput
@@ -1876,36 +1813,22 @@ function DisableAutorun {
 }
 
 function DisableStorageSense {
-  Log-Action -Message "Iniciando função DisableStorageSense para desativar o Storage Sense." -ConsoleOutput
+  Log-Action -Message "Iniciando função DisableStorageSense para desativar o Storage Sense." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Disabling Storage Sense..."
     Log-Action -Message "Desativando o Storage Sense..." -ConsoleOutput
 
-    # Definir o caminho do registro
     $registryPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy"
-
-    # Verificar e criar a chave de registro, se necessário
-    if (-not (Test-Path $registryPath)) {
-      Log-Action -Message "Chave $registryPath não existe. Criando..." -ConsoleOutput
-      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
-      Log-Action -Message "Chave $registryPath criada com sucesso." -Level "INFO" -ConsoleOutput
-    }
-    else {
-      Log-Action -Message "Chave $registryPath já existe. Prosseguindo com a configuração." -ConsoleOutput
-    }
-
-    # Configurar a propriedade 01
-    Log-Action -Message "Configurando a propriedade '01' para 0 em $registryPath..." -ConsoleOutput
-    Set-ItemProperty -Path $registryPath -Name "01" -Type DWord -Value 0 -ErrorAction Stop
-    Log-Action -Message "Propriedade '01' configurada com sucesso." -Level "INFO" -ConsoleOutput
+    Set-RegistryValue -Path $registryPath -Name "01" -Value 0 -Type "DWord" -Force
 
     Log-Action -Message "Storage Sense desativado com sucesso." -Level "INFO" -ConsoleOutput
+      
   }
   catch {
     $errorMessage = "Erro na função DisableStorageSense: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+      
+    throw
   }
   finally {
     Log-Action -Message "Finalizando função DisableStorageSense." -Level "INFO" -ConsoleOutput
@@ -1913,36 +1836,22 @@ function DisableStorageSense {
 }
 
 function DisableDefragmentation {
-  Log-Action -Message "Iniciando função DisableDefragmentation para desativar a desfragmentação." -ConsoleOutput
+  Log-Action -Message "Iniciando função DisableDefragmentation para desativar a desfragmentação." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Disabling Defragmentation..."
     Log-Action -Message "Desativando a desfragmentação..." -ConsoleOutput
 
-    # Definir o caminho do registro
     $registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Defrag"
-
-    # Verificar e criar a chave de registro, se necessário
-    if (-not (Test-Path $registryPath)) {
-      Log-Action -Message "Chave $registryPath não existe. Criando..." -ConsoleOutput
-      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
-      Log-Action -Message "Chave $registryPath criada com sucesso." -Level "INFO" -ConsoleOutput
-    }
-    else {
-      Log-Action -Message "Chave $registryPath já existe. Prosseguindo com a configuração." -ConsoleOutput
-    }
-
-    # Configurar a propriedade EnableDefrag
-    Log-Action -Message "Configurando EnableDefrag para 0 em $registryPath..." -ConsoleOutput
-    Set-ItemProperty -Path $registryPath -Name "EnableDefrag" -Type DWord -Value 0 -ErrorAction Stop
-    Log-Action -Message "EnableDefrag configurado com sucesso." -Level "INFO" -ConsoleOutput
+    Set-RegistryValue -Path $registryPath -Name "EnableDefrag" -Value 0 -Type "DWord" -Force
 
     Log-Action -Message "Desfragmentação desativada com sucesso." -Level "INFO" -ConsoleOutput
+      
   }
   catch {
     $errorMessage = "Erro na função DisableDefragmentation: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+      
+    throw
   }
   finally {
     Log-Action -Message "Finalizando função DisableDefragmentation." -Level "INFO" -ConsoleOutput
@@ -1953,7 +1862,7 @@ function EnableIndexing {
   Log-Action -Message "Iniciando função EnableIndexing para habilitar a indexação." -ConsoleOutput
 
   try {
-    Write-Output "Enabling Indexing..."
+    
     Log-Action -Message "Habilitando a indexação..." -ConsoleOutput
 
     Log-Action -Message "Configurando o serviço WSearch para inicialização automática..." -ConsoleOutput
@@ -1968,7 +1877,7 @@ function EnableIndexing {
   }
   catch {
     $errorMessage = "Erro na função EnableIndexing: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
     throw  # Repropaga o erro
   }
   finally {
@@ -1980,18 +1889,20 @@ function SetBIOSTimeUTC {
   Log-Action -Message "Iniciando função SetBIOSTimeUTC para definir o tempo do BIOS como UTC." -ConsoleOutput
 
   try {
-    Write-Output "Setting BIOS time to UTC..."
+    
     Log-Action -Message "Definindo o tempo do BIOS como UTC..." -ConsoleOutput
 
     Log-Action -Message "Configurando RealTimeIsUniversal para 1 em HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "RealTimeIsUniversal" -Type DWord -Value 1 -ErrorAction Stop
+    Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "RealTimeIsUniversal" -Value 1 -Type "DWord" -Force
+    
     Log-Action -Message "RealTimeIsUniversal configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Tempo do BIOS definido como UTC com sucesso." -Level "INFO" -ConsoleOutput
   }
   catch {
     $errorMessage = "Erro na função SetBIOSTimeUTC: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -2024,18 +1935,19 @@ function EnableSleepButton {
   Log-Action -Message "Iniciando função EnableSleepButton para habilitar o botão de suspensão." -ConsoleOutput
 
   try {
-    Write-Output "Enabling Sleep Button..."
+    
     Log-Action -Message "Habilitando o botão de suspensão..." -ConsoleOutput
 
     Log-Action -Message "Configurando SleepButtonEnabled para 1 em HKLM:\SYSTEM\CurrentControlSet\Control\Power..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "SleepButtonEnabled" -Type DWord -Value 1 -ErrorAction Stop
+    Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "SleepButtonEnabled" -Value 1 -Type "DWord" -Force
     Log-Action -Message "SleepButtonEnabled configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Botão de suspensão habilitado com sucesso." -Level "INFO" -ConsoleOutput
   }
   catch {
     $errorMessage = "Erro na função EnableSleepButton: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+
     throw  # Repropaga o erro
   }
   finally {
@@ -2074,18 +1986,20 @@ function DisableFastStartup {
   Log-Action -Message "Iniciando função DisableFastStartup para desativar a inicialização rápida." -ConsoleOutput
 
   try {
-    Write-Output "Disabling Fast Startup..."
+    
     Log-Action -Message "Desativando a inicialização rápida..." -ConsoleOutput
 
     Log-Action -Message "Configurando HiberbootEnabled para 0 em HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 0 -ErrorAction Stop
+    Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Value 0 -Type "DWord" -Force
+    
     Log-Action -Message "HiberbootEnabled configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Inicialização rápida desativada com sucesso." -Level "INFO" -ConsoleOutput
   }
   catch {
     $errorMessage = "Erro na função DisableFastStartup: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -2097,7 +2011,7 @@ function PowerThrottlingOff {
   Log-Action -Message "Iniciando função PowerThrottlingOff para desativar o Power Throttling." -ConsoleOutput
 
   try {
-    Write-Output "Disabling Power Throttling..."
+    
     Log-Action -Message "Desativando o Power Throttling..." -ConsoleOutput
 
     # Definir o caminho do registro
@@ -2115,14 +2029,16 @@ function PowerThrottlingOff {
 
     # Configurar a propriedade PowerThrottlingOff
     Log-Action -Message "Configurando PowerThrottlingOff para 1 em $registryPath..." -ConsoleOutput
-    Set-ItemProperty -Path $registryPath -Name "PowerThrottlingOff" -Type DWord -Value 1 -ErrorAction Stop
+    Set-RegistryValue -Path $registryPath -Name "PowerThrottlingOff" -Value 1 -Type "DWord" -Force
+    
     Log-Action -Message "PowerThrottlingOff configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Power Throttling desativado com sucesso." -Level "INFO" -ConsoleOutput
   }
   catch {
     $errorMessage = "Erro na função PowerThrottlingOff: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -2138,14 +2054,16 @@ function Win32PrioritySeparation {
     Log-Action -Message "Otimizando a separação de prioridade Win32 para jogos..." -ConsoleOutput
 
     Log-Action -Message "Configurando Win32PrioritySeparation para 38 em HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "Win32PrioritySeparation" -Type DWord -Value 38 -ErrorAction Stop
+    Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "Win32PrioritySeparation" -Value 38 -Type "DWord" -Force
+    
     Log-Action -Message "Win32PrioritySeparation configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Separação de prioridade Win32 otimizada para jogos com sucesso." -Level "INFO" -ConsoleOutput
   }
   catch {
     $errorMessage = "Erro na função Win32PrioritySeparation: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -2157,18 +2075,20 @@ function DisableAERO {
   Log-Action -Message "Iniciando função DisableAERO para desativar os efeitos AERO." -ConsoleOutput
 
   try {
-    Write-Output "Disabling AERO effects..."
+    
     Log-Action -Message "Desativando os efeitos AERO..." -ConsoleOutput
 
     Log-Action -Message "Configurando EnableAeroPeek para 0 em HKCU:\Software\Microsoft\Windows\DWM..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Type DWord -Value 0 -ErrorAction Stop
+    Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Value 0 -Type "DWord" -Force
+    
     Log-Action -Message "EnableAeroPeek configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Efeitos AERO desativados com sucesso." -Level "INFO" -ConsoleOutput
   }
   catch {
     $errorMessage = "Erro na função DisableAERO: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -2180,18 +2100,20 @@ function BSODdetails {
   Log-Action -Message "Iniciando função BSODdetails para habilitar informações detalhadas do BSOD." -ConsoleOutput
 
   try {
-    Write-Output "Enabling detailed BSOD information..."
+    
     Log-Action -Message "Habilitando informações detalhadas do BSOD..." -ConsoleOutput
 
     Log-Action -Message "Configurando DisplayParameters para 1 em HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl" -Name "DisplayParameters" -Type DWord -Value 1 -ErrorAction Stop
+    Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl" -Name "DisplayParameters" -Value 1 -Type "DWord" -Force
+    
     Log-Action -Message "DisplayParameters configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Informações detalhadas do BSOD habilitadas com sucesso." -Level "INFO" -ConsoleOutput
   }
   catch {
     $errorMessage = "Erro na função BSODdetails: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -2204,52 +2126,62 @@ function DisableliveTiles {
   If (!(Test-Path "HKCU:\Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications")) {
     New-Item -Path "HKCU:\Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" -Force | Out-Null
   }
-  Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "NoTileApplicationNotification" -Type DWord -Value 1
+  Set-RegistryValue -Path "HKCU:\Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "NoTileApplicationNotification" -Value 1 -Type "DWord" -Force
+  
 }
 
 function WallpaperQuality {
   Write-Output "Setting wallpaper quality to maximum..."
-  Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "JPEGImportQuality" -Type DWord -Value 100
+  Set-RegistryValue -Path "HKCU:\Control Panel\Desktop" -Name "JPEGImportQuality" -Value 100 -Type "DWord" -Force
+  
 }
 
 function DisableShistory {
   Write-Output "Disabling Shell history..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackDocs" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "Shell Folders" -Value 0 -Type "DWord" -Force
+  
 }
 
 function DisableShortcutWord {
   Write-Output "Removing 'Shortcut' word from new shortcuts..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "link" -Type Binary -Value ([byte[]](0, 0, 0, 0))
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "link" -Value ([byte[]](0, 0, 0, 0)) -Type "Binary" -Force
+  
 }
 
 function DisableMouseKKS {
   Write-Output "Disabling mouse keys..."
-  Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\MouseKeys" -Name "Flags" -Type String -Value "0"
+  Set-RegistryValue -Path "HKCU:\Control Panel\Accessibility\MouseKeys" -Name "Flags" -Value 0 -Type "DWord" -Force
+  
 }
 
 function DisableTransparency {
   Write-Output "Disabling transparency effects..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "EnableTransparency" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "EnableTransparency" -Value 0 -Type "DWord" -Force
+  
 }
 
 function TurnOffSafeSearch {
   Write-Output "Turning off Safe Search..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "SafeSearch" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SafeSearch" -Value 0 -Type "DWord" -Force
+  
 }
 
 function DisableCloudSearch {
   Write-Output "Disabling cloud search..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "CortanaConsent" -Value 0 -Type "DWord" -Force
+  
 }
 
 function DisableDeviceHistory {
   Write-Output "Disabling device history..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace" -Name "DelegateFolders" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\DeviceAccess" -Name "DeviceHistory" -Value 0 -Type "DWord" -Force
+  
 }
 
 function DisableSearchHistory {
   Write-Output "Disabling search history..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "HistoryViewEnabled" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "HistoryEnabled" -Value 0 -Type "DWord" -Force
+  
 }
 
 function RemoveMeet {
@@ -2257,7 +2189,8 @@ function RemoveMeet {
   If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer")) {
     New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Force | Out-Null
   }
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -Type DWord -Value 1
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -Value 1 -Type "DWord" -Force
+  
 }
 
 function EnableActionCenter {
@@ -2272,12 +2205,14 @@ function EnableLockScreen {
 
 function EnableLockScreenRS1 {
   Write-Output "Enabling Lock Screen (RS1 compatibility)..."
-  Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI" -Name "LockScreenEnabled" -Type DWord -Value 1
+  Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI" -Name "LockScreenEnabled" -Value 1 -Type "DWord" -Force
+  
 }
 
 function DisableStickyKeys {
   Write-Output "Disabling Sticky Keys..."
-  Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Type String -Value "506"
+  Set-RegistryValue -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Value 506 -Type "DWord" -Force
+  
 }
 
 function ShowTaskManagerDetails {
@@ -2293,7 +2228,9 @@ function ShowTaskManagerDetails {
   }
 
   # Define a propriedade "Preferences"
-  Set-ItemProperty -Path $regPath -Name "Preferences" -Type Binary -Value ([byte[]](0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00))
+  Set-RegistryValue -Path $regPath -Name "Preferences" -Value ([byte[]](0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00)) -Type "Binary" -Force
+
+  #Set-ItemProperty -Path $regPath -Name "Preferences" -Type Binary -Value ([byte[]](0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00))
   
   Write-Output "Configuração do Gerenciador de Tarefas aplicada com sucesso."
 }
@@ -2316,7 +2253,8 @@ function ShowFileOperationsDetails {
 
     # Configurar a propriedade EnthusiastMode para exibir detalhes
     Log-Action -Message "Configurando EnthusiastMode para 1 em $regPath..." -ConsoleOutput
-    Set-ItemProperty -Path $regPath -Name "EnthusiastMode" -Type DWord -Value 1 -ErrorAction Stop
+    Set-RegistryValue -Path $regPath -Name "EnthusiastMode" -Value 1 -Type "DWord" -Force
+    #Set-ItemProperty -Path $regPath -Name "EnthusiastMode" -Type DWord -Value 1 -ErrorAction Stop
     Log-Action -Message "EnthusiastMode configurado com sucesso para exibir detalhes de operações de arquivo." -Level "INFO" -ConsoleOutput
     Write-Output "Detalhes de operações de arquivo configurados para serem exibidos."
   }
@@ -2333,17 +2271,20 @@ function ShowFileOperationsDetails {
 
 function DisableFileDeleteConfirm {
   Write-Output "Disabling file delete confirmation..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "ConfirmFileDelete" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "ConfirmFileDelete" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "ConfirmFileDelete" -Type DWord -Value 0
 }
 
 function HideTaskbarSearch {
   Write-Output "Hiding taskbar search..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 0
 }
 
 function HideTaskView {
   Write-Output "Hiding Task View button..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0
 }
 
 function HideTaskbarPeopleIcon {
@@ -2351,7 +2292,8 @@ function HideTaskbarPeopleIcon {
   If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People")) {
     New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Force | Out-Null
   }
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type DWord -Value 0
 }
 
 function DisableSearchAppInStore {
@@ -2364,47 +2306,56 @@ function DisableSearchAppInStore {
 
 function DisableNewAppPrompt {
   Write-Output "Disabling new app installed prompt..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_NotifyNewApps" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_NotifyNewApps" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_NotifyNewApps" -Type DWord -Value 0
 }
 
 function SetVisualFXPerformance {
   Write-Output "Setting visual effects for performance..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Type DWord -Value 2
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Value 2 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Type DWord -Value 2
 }
 
 function EnableNumlock {
   Write-Output "Enabling Num Lock on startup..."
-  Set-ItemProperty -Path "HKCU:\Control Panel\Keyboard" -Name "InitialKeyboardIndicators" -Type DWord -Value 2
+  Set-RegistryValue -Path "HKCU:\Control Panel\Keyboard" -Name "InitialKeyboardIndicators" -Value 2 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Control Panel\Keyboard" -Name "InitialKeyboardIndicators" -Type DWord -Value 2
 }
 
 function EnableDarkMode {
   Write-Output "Enabling Dark Mode..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0
 }
 
 function ShowKnownExtensions {
   Write-Output "Showing known file extensions..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 1 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
 }
 
 function HideHiddenFiles {
   Write-Output "Hiding hidden files..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 2
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value 2 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 2
 }
 
 function HideSyncNotifications {
   Write-Output "Hiding sync provider notifications..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSyncProviderNotifications" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSyncProviderNotifications" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSyncProviderNotifications" -Type DWord -Value 0
 }
 
 function HideRecentShortcuts {
   Write-Output "Hiding recent shortcuts..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackDocs" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackDocs" -Type DWord -Value 0
 }
 
 function SetExplorerThisPC {
   Write-Output "Setting Explorer to open This PC..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 1 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
 }
 
 function ShowThisPCOnDesktop {
@@ -2433,12 +2384,14 @@ function Hide3DObjectsFromExplorer {
 
 function EnableThumbnails {
   Write-Output "Enabling thumbnails..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "IconsOnly" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "IconsOnly" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "IconsOnly" -Type DWord -Value 0
 }
 
 function EnableThumbsDB {
   Write-Output "Enabling Thumbs.db on network folders..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisableThumbnailCache" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisableThumbnailCache" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisableThumbnailCache" -Type DWord -Value 0
 }
 
 function UninstallInternetExplorer {
@@ -2480,7 +2433,8 @@ function SetPhotoViewerAssociation {
     If (!(Test-Path "HKCR:\$ext")) {
       New-Item -Path "HKCR:\$ext" -Force | Out-Null
     }
-    Set-ItemProperty -Path "HKCR:\$ext" -Name "(Default)" -Value "PhotoViewer.FileAssoc.Tiff"
+    Set-RegistryValue -Path "HKCR:\$ext" -Name "(Default)" -Value "PhotoViewer.FileAssoc.Tiff" -Type "String" -Force
+    #Set-ItemProperty -Path "HKCR:\$ext" -Name "(Default)" -Value "PhotoViewer.FileAssoc.Tiff"
   }
 }
 
@@ -2489,11 +2443,13 @@ function AddPhotoViewerOpenWith {
   If (!(Test-Path "HKCR:\Applications\photoviewer.dll\shell\open")) {
     New-Item -Path "HKCR:\Applications\photoviewer.dll\shell\open" -Force | Out-Null
   }
-  Set-ItemProperty -Path "HKCR:\Applications\photoviewer.dll\shell\open" -Name "(Default)" -Value "Open"
+  Set-RegistryValue -Path "HKCR:\Applications\photoviewer.dll\shell\open" -Name "(Default)" -Value "Open with Photo Viewer" -Type "String" -Force
+  #Set-ItemProperty -Path "HKCR:\Applications\photoviewer.dll\shell\open" -Name "(Default)" -Value "Open"
   If (!(Test-Path "HKCR:\Applications\photoviewer.dll\shell\open\command")) {
     New-Item -Path "HKCR:\Applications\photoviewer.dll\shell\open\command" -Force | Out-Null
   }
-  Set-ItemProperty -Path "HKCR:\Applications\photoviewer.dll\shell\open\command" -Name "(Default)" -Type ExpandString -Value "%SystemRoot%\System32\rundll32.exe `"%ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll`", ImageView_Fullscreen %1"
+  Set-RegistryValue -Path "HKCR:\Applications\photoviewer.dll\shell\open\command" -Name "(Default)" -Value "%SystemRoot%\System32\rundll32.exe `"%ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll`", ImageView_Fullscreen %1" -Type "String" -Force
+  #Set-ItemProperty -Path "HKCR:\Applications\photoviewer.dll\shell\open\command" -Name "(Default)" -Type ExpandString -Value "%SystemRoot%\System32\rundll32.exe `"%ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll`", ImageView_Fullscreen %1"
 }
 
 function InstallPDFPrinter {
@@ -2503,7 +2459,8 @@ function InstallPDFPrinter {
 
 function SVCHostTweak {
   Write-Output "Tweaking SVCHost process priority..."
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Type DWord -Value 4194304
+  Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Value 4194304 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Type DWord -Value 4194304
 }
 
 function UnpinStartMenuTiles {
@@ -2530,27 +2487,32 @@ Function QOL {
     Log-Action -Message "Chave HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando ScoobeSystemSettingEnabled para 0 para desativar 'Aproveite ainda mais o Windows'..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Type DWord -Value 0 -ErrorAction Stop | Out-Null
+    Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Value 0 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Type DWord -Value 0 -ErrorAction Stop | Out-Null
     Log-Action -Message "ScoobeSystemSettingEnabled configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando DynamicScrollbars para 0 para desativar ocultar barras de rolagem..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility" -Name "DynamicScrollbars" -Type DWord -Value 0 -ErrorAction Stop
+    Set-RegistryValue -Path "HKCU:\Control Panel\Accessibility" -Name "DynamicScrollbars" -Value 0 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility" -Name "DynamicScrollbars" -Type DWord -Value 0 -ErrorAction Stop
     Log-Action -Message "DynamicScrollbars configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando SmoothScroll para 0 para desativar rolagem suave..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "SmoothScroll" -Type DWord -Value 0 -ErrorAction Stop
+    Set-RegistryValue -Path "HKCU:\Control Panel\Desktop" -Name "SmoothScroll" -Value 0 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "SmoothScroll" -Type DWord -Value 0 -ErrorAction Stop
     Log-Action -Message "SmoothScroll configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     $osBuild = [System.Environment]::OSVersion.Version.Build
     Log-Action -Message "Verificando versão do SO (Build: $osBuild) para aplicar NoInstrumentation..." -ConsoleOutput
     If ($osBuild -ge 22000) {
       Log-Action -Message "Configurando NoInstrumentation para 1 no Windows 11 ou superior para desativar rastreamento de usuário da Microsoft..." -ConsoleOutput
-      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Type DWord -Value 1 -ErrorAction Stop
+      Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Value 1 -Type "DWord" -Force
+      #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Type DWord -Value 1 -ErrorAction Stop
       Log-Action -Message "NoInstrumentation configurado com sucesso para Windows 11 ou superior." -Level "INFO" -ConsoleOutput
     }
     Else {
       Log-Action -Message "Configurando NoInstrumentation para 1 em versões anteriores ao Windows 11 para desativar rastreamento de usuário da Microsoft..." -ConsoleOutput
-      Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Type DWord -Value 1 -ErrorAction Stop
+      Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Value 1 -Type "DWord" -Force
+      #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Type DWord -Value 1 -ErrorAction Stop
       Log-Action -Message "NoInstrumentation configurado com sucesso para versões anteriores ao Windows 11." -Level "INFO" -ConsoleOutput
     }
 
@@ -2563,7 +2525,8 @@ Function QOL {
     Log-Action -Message "TaskbarNoMultimon removido com sucesso de HKLM." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando MMTaskbarMode para 2 para mostrar botões da barra de tarefas apenas onde a janela está aberta..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "MMTaskbarMode" -Type DWord -Value 2 -ErrorAction Stop
+    Set-RegistryValue -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "MMTaskbarMode" -Value 2 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "MMTaskbarMode" -Type DWord -Value 2 -ErrorAction Stop
     Log-Action -Message "MMTaskbarMode configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Ajustes de qualidade de vida aplicados com sucesso." -Level "INFO" -ConsoleOutput
@@ -2591,47 +2554,58 @@ Function FullscreenOptimizationFIX {
     Log-Action -Message "Desativando otimizações de tela cheia..." -ConsoleOutput
 
     Log-Action -Message "Configurando GameDVR_FSEBehaviorMode para 2 em HKCU:\System\GameConfigStore..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehaviorMode" -Type DWord -Value 2 -ErrorAction Stop
+    Set-RegistryValue -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehaviorMode" -Value 2 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehaviorMode" -Type DWord -Value 2 -ErrorAction Stop
     Log-Action -Message "GameDVR_FSEBehaviorMode configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando GameDVR_HonorUserFSEBehaviorMode para 1 em HKCU:\System\GameConfigStore..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_HonorUserFSEBehaviorMode" -Type DWord -Value 1 -ErrorAction Stop
+    Set-RegistryValue -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_HonorUserFSEBehaviorMode" -Value 1 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_HonorUserFSEBehaviorMode" -Type DWord -Value 1 -ErrorAction Stop
     Log-Action -Message "GameDVR_HonorUserFSEBehaviorMode configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando GameDVR_FSEBehavior para 2 em HKCU:\System\GameConfigStore..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehavior" -Type DWord -Value 2 -ErrorAction Stop
+    Set-RegistryValue -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehavior" -Value 2 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehavior" -Type DWord -Value 2 -ErrorAction Stop
     Log-Action -Message "GameDVR_FSEBehavior configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando GameDVR_DXGIHonorFSEWindowsCompatible para 1 em HKCU:\System\GameConfigStore..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DXGIHonorFSEWindowsCompatible" -Type DWord -Value 1 -ErrorAction Stop
+    Set-RegistryValue -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DXGIHonorFSEWindowsCompatible" -Value 1 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DXGIHonorFSEWindowsCompatible" -Type DWord -Value 1 -ErrorAction Stop
     Log-Action -Message "GameDVR_DXGIHonorFSEWindowsCompatible configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando GameDVR_EFSEFeatureFlags para 0 em HKCU:\System\GameConfigStore..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_EFSEFeatureFlags" -Type DWord -Value 0 -ErrorAction Stop
+    Set-RegistryValue -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_EFSEFeatureFlags" -Value 0 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_EFSEFeatureFlags" -Type DWord -Value 0 -ErrorAction Stop
     Log-Action -Message "GameDVR_EFSEFeatureFlags configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando GameDVR_DSEBehavior para 2 em HKCU:\System\GameConfigStore..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DSEBehavior" -Type DWord -Value 2 -ErrorAction Stop
+    Set-RegistryValue -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DSEBehavior" -Value 2 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DSEBehavior" -Type DWord -Value 2 -ErrorAction Stop
     Log-Action -Message "GameDVR_DSEBehavior configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando AppCaptureEnabled para 0 em HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Type DWord -Value 0 -ErrorAction Stop
+    Set-RegistryValue -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Value 0 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Type DWord -Value 0 -ErrorAction Stop
     Log-Action -Message "AppCaptureEnabled configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando SwapEffectUpgradeCache para 1 em HKCU:\Software\Microsoft\DirectX\GraphicsSettings..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\DirectX\GraphicsSettings" -Name "SwapEffectUpgradeCache" -Type DWord -Value 1 -ErrorAction Stop
+    Set-RegistryValue -Path "HKCU:\Software\Microsoft\DirectX\GraphicsSettings" -Name "SwapEffectUpgradeCache" -Value 1 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKCU:\Software\Microsoft\DirectX\GraphicsSettings" -Name "SwapEffectUpgradeCache" -Type DWord -Value 1 -ErrorAction Stop
     Log-Action -Message "SwapEffectUpgradeCache configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando DirectXUserGlobalSettings para 'SwapEffectUpgradeEnable=1;' em HKCU:\Software\Microsoft\DirectX\UserGpuPreferences..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\DirectX\UserGpuPreferences" -Name "DirectXUserGlobalSettings" -Type String -Value 'SwapEffectUpgradeEnable=1;' -ErrorAction Stop
+    Set-RegistryValue -Path "HKCU:\Software\Microsoft\DirectX\UserGpuPreferences" -Name "DirectXUserGlobalSettings" -Value 'SwapEffectUpgradeEnable=1;' -Type "String" -Force
+    #Set-ItemProperty -Path "HKCU:\Software\Microsoft\DirectX\UserGpuPreferences" -Name "DirectXUserGlobalSettings" -Type String -Value 'SwapEffectUpgradeEnable=1;' -ErrorAction Stop    
     Log-Action -Message "DirectXUserGlobalSettings configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando InactivityShutdownDelay para 4294967295 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform" -Name "InactivityShutdownDelay" -Type DWord -Value 4294967295 -ErrorAction Stop
+    Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform" -Name "InactivityShutdownDelay" -Value 4294967295 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform" -Name "InactivityShutdownDelay" -Type DWord -Value 4294967295 -ErrorAction Stop
     Log-Action -Message "InactivityShutdownDelay configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando OverlayTestMode para 5 em HKLM:\SOFTWARE\Microsoft\Windows\Dwm..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Dwm" -Name "OverlayTestMode" -Type DWord -Value 5 -ErrorAction Stop
+    Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows\Dwm" -Name "OverlayTestMode" -Value 5 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Dwm" -Name "OverlayTestMode" -Type DWord -Value 5 -ErrorAction Stop
     Log-Action -Message "OverlayTestMode configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Desativando compressão de memória via MMAgent..." -ConsoleOutput
@@ -2660,23 +2634,28 @@ Function GameOptimizationFIX {
     Log-Action -Message "Aplicando correções de otimização para jogos..." -ConsoleOutput
 
     Log-Action -Message "Configurando GPU Priority para 8 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "GPU Priority" -Type DWord -Value 8 -ErrorAction Stop
+    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "GPU Priority" -Type DWord -Value 8 -ErrorAction Stop
+    Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "GPU Priority" -Value 8 -Type "DWord" -Force
     Log-Action -Message "GPU Priority configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando Priority para 6 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Priority" -Type DWord -Value 6 -ErrorAction Stop
+    Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Priority" -Value 6 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Priority" -Type DWord -Value 6 -ErrorAction Stop
     Log-Action -Message "Priority configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando Scheduling Category para 'High' em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Scheduling Category" -Type String -Value "High" -ErrorAction Stop
+    Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Scheduling Category" -Value "High" -Type "String" -Force
+    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Scheduling Category" -Type String -Value "High" -ErrorAction Stop
     Log-Action -Message "Scheduling Category configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando SFIO Priority para 'High' em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "SFIO Priority" -Type String -Value "High" -ErrorAction Stop
+    Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "SFIO Priority" -Value "High" -Type "String" -Force
+    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "SFIO Priority" -Type String -Value "High" -ErrorAction Stop
     Log-Action -Message "SFIO Priority configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Configurando IRQ8Priority para 1 em HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "IRQ8Priority" -Type DWord -Value 1 -ErrorAction Stop
+    Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "IRQ8Priority" -Value 1 -Type "DWord" -Force
+    #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "IRQ8Priority" -Type DWord -Value 1 -ErrorAction Stop
     Log-Action -Message "IRQ8Priority configurado com sucesso." -Level "INFO" -ConsoleOutput
 
     Log-Action -Message "Adicionando CpuPriorityClass para 4 em HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions..." -ConsoleOutput
@@ -2728,168 +2707,163 @@ Function GameOptimizationFIX {
   }
 }
 
-Function RawMouseInput {
-  Log-Action -Message "Iniciando função RawMouseInput para forçar entrada bruta do mouse e desativar precisão aprimorada do ponteiro." -ConsoleOutput
+function RawMouseInput {
+  Log-Action -Message "Iniciando função RawMouseInput para forçar entrada bruta do mouse e desativar precisão aprimorada do ponteiro." -Level "INFO" -ConsoleOutput
 
   try {
     Write-Output "Forçando entrada bruta do mouse e desativando precisão aprimorada do ponteiro..."
-    Log-Action -Message "Forçando entrada bruta do mouse e desativando precisão aprimorada do ponteiro..." -ConsoleOutput
 
-    Log-Action -Message "Configurando MouseSpeed para 0 em HKCU:\Control Panel\Mouse..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Type String -Value "0" -ErrorAction Stop
-    Log-Action -Message "MouseSpeed configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando MouseThreshold1 para 0 em HKCU:\Control Panel\Mouse..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Type String -Value "0" -ErrorAction Stop
-    Log-Action -Message "MouseThreshold1 configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando MouseThreshold2 para 0 em HKCU:\Control Panel\Mouse..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Type String -Value "0" -ErrorAction Stop
-    Log-Action -Message "MouseThreshold2 configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando MouseSensitivity para 10 em HKCU:\Control Panel\Mouse..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSensitivity" -Type String -Value "10" -ErrorAction Stop
-    Log-Action -Message "MouseSensitivity configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando MouseHoverTime para 0 em HKCU:\Control Panel\Mouse..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseHoverTime" -Type String -Value "0" -ErrorAction Stop
-    Log-Action -Message "MouseHoverTime configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando MouseTrails para 0 em HKCU:\Control Panel\Mouse..." -ConsoleOutput
-    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseTrails" -Type String -Value "0" -ErrorAction Stop
-    Log-Action -Message "MouseTrails configurado com sucesso." -Level "INFO" -ConsoleOutput
+    $registryPath = "HKCU:\Control Panel\Mouse"
+    Set-RegistryValue -Path $registryPath -Name "MouseSpeed" -Value "0" -Type "String"
+    Set-RegistryValue -Path $registryPath -Name "MouseThreshold1" -Value "0" -Type "String"
+    Set-RegistryValue -Path $registryPath -Name "MouseThreshold2" -Value "0" -Type "String"
+    Set-RegistryValue -Path $registryPath -Name "MouseSensitivity" -Value "10" -Type "String"
+    Set-RegistryValue -Path $registryPath -Name "MouseHoverTime" -Value "0" -Type "String"
+    Set-RegistryValue -Path $registryPath -Name "MouseTrails" -Value "0" -Type "String"
 
     Log-Action -Message "Entrada bruta do mouse forçada e precisão aprimorada do ponteiro desativada com sucesso." -Level "INFO" -ConsoleOutput
+    Write-Colored "Entrada bruta do mouse forçada e precisão aprimorada do ponteiro desativada com sucesso." -Color "VerdeClaro"
   }
   catch {
     $errorMessage = "Erro na função RawMouseInput: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw
   }
   finally {
     Log-Action -Message "Finalizando função RawMouseInput." -Level "INFO" -ConsoleOutput
   }
 }
 
-Function DetectnApplyMouseFIX {
+function DetectnApplyMouseFIX {
   Add-Type @'
   using System; 
   using System.Runtime.InteropServices;
   using System.Drawing;
 
   public class DPI {  
-    [DllImport("gdi32.dll")]
-    static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
+      [DllImport("gdi32.dll")]
+      static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
 
-    public enum DeviceCap {
-      VERTRES = 10,
-      DESKTOPVERTRES = 117
-    } 
+      public enum DeviceCap {
+          VERTRES = 10,
+          DESKTOPVERTRES = 117
+      } 
 
-    public static float scaling() {
-      Graphics g = Graphics.FromHwnd(IntPtr.Zero);
-      IntPtr desktop = g.GetHdc();
-      int LogicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCap.VERTRES);
-      int PhysicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCap.DESKTOPVERTRES);
+      public static float scaling() {
+          Graphics g = Graphics.FromHwnd(IntPtr.Zero);
+          IntPtr desktop = g.GetHdc();
+          int LogicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCap.VERTRES);
+          int PhysicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCap.DESKTOPVERTRES);
 
-      return (float)PhysicalScreenHeight / (float)LogicalScreenHeight;
-    }
+          return (float)PhysicalScreenHeight / (float)LogicalScreenHeight;
+      }
   }
 '@ -ReferencedAssemblies 'System.Drawing.dll'
 
-  $checkscreenscale = [Math]::round([DPI]::scaling(), 2) * 100
-  if ($checkscreenscale -eq "100") {
-    Write-Output "Windows screen scale is Detected as 100%, Applying Mouse Fix for it..."
-    $YourInputX = "00,00,00,00,00,00,00,00,C0,CC,0C,00,00,00,00,00,80,99,19,00,00,00,00,00,40,66,26,00,00,00,00,00,00,33,33,00,00,00,00,00"
-    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-    $RegPath = 'HKCU:\Control Panel\Mouse'
-    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
-    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+  Log-Action -Message "Iniciando função DetectnApplyMouseFIX para detectar e aplicar correção de mouse." -Level "INFO" -ConsoleOutput
+
+  try {
+    $checkscreenscale = [Math]::Round([DPI]::scaling(), 2) * 100
+    $regPath = "HKCU:\Control Panel\Mouse"
+
+    if ($checkscreenscale -eq "100") {
+      Write-Output "Windows screen scale is Detected as 100%, Applying Mouse Fix for it..."
+      $YourInputX = "00,00,00,00,00,00,00,00,C0,CC,0C,00,00,00,00,00,80,99,19,00,00,00,00,00,40,66,26,00,00,00,00,00,00,33,33,00,00,00,00,00"
+      $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+      $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+      $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseXCurve" -Value ([byte[]]$hexifiedX) -Type "Binary"
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
+    }
+    elseif ($checkscreenscale -eq "125") {
+      Write-Output "Windows screen scale is Detected as 125%, Applying Mouse Fix for it..."
+      $YourInputX = "00,00,00,00,00,00,00,00,00,00,10,00,00,00,00,00,00,00,20,00,00,00,00,00,00,00,30,00,00,00,00,00,00,00,40,00,00,00,00,00"
+      $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+      $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+      $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseXCurve" -Value ([byte[]]$hexifiedX) -Type "Binary"
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
+    }
+    elseif ($checkscreenscale -eq "150") {
+      Write-Output "Windows screen scale is Detected as 150%, Applying Mouse Fix for it..."
+      $YourInputX = "00,00,00,00,00,00,00,00,30,33,13,00,00,00,00,00,60,66,26,00,00,00,00,00,90,99,39,00,00,00,00,00,C0,CC,4C,00,00,00,00,00"
+      $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+      $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+      $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseXCurve" -Value ([byte[]]$hexifiedX) -Type "Binary"
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
+    }
+    elseif ($checkscreenscale -eq "175") {
+      Write-Output "Windows screen scale is Detected as 175%, Applying Mouse Fix for it..."
+      $YourInputX = "00,00,00,00,00,00,00,00,60,66,16,00,00,00,00,00,C0,CC,2C,00,00,00,00,00,20,33,43,00,00,00,00,00,80,99,59,00,00,00,00,00"
+      $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+      $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+      $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseXCurve" -Value ([byte[]]$hexifiedX) -Type "Binary"
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
+    }
+    elseif ($checkscreenscale -eq "200") {
+      Write-Output "Windows screen scale is Detected as 200%, Applying Mouse Fix for it..."
+      $YourInputX = "00,00,00,00,00,00,00,00,90,99,19,00,00,00,00,00,20,33,33,00,00,00,00,00,B0,CC,4C,00,00,00,00,00,40,66,66,00,00,00,00,00"
+      $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+      $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+      $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseXCurve" -Value ([byte[]]$hexifiedX) -Type "Binary"
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
+    }
+    elseif ($checkscreenscale -eq "225") {
+      Write-Output "Windows screen scale is Detected as 225%, Applying Mouse Fix for it..."
+      $YourInputX = "00,00,00,00,00,00,00,00,C0,CC,1C,00,00,00,00,00,80,99,39,00,00,00,00,00,40,66,56,00,00,00,00,00,00,33,73,00,00,00,00,00"
+      $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+      $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+      $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseXCurve" -Value ([byte[]]$hexifiedX) -Type "Binary"
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
+    }
+    elseif ($checkscreenscale -eq "250") {
+      Write-Output "Windows screen scale is Detected as 250%, Applying Mouse Fix for it..."
+      $YourInputX = "00,00,00,00,00,00,00,00,00,00,20,00,00,00,00,00,00,00,40,00,00,00,00,00,00,00,60,00,00,00,00,00,00,00,80,00,00,00,00,00"
+      $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+      $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+      $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseXCurve" -Value ([byte[]]$hexifiedX) -Type "Binary"
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
+    }
+    elseif ($checkscreenscale -eq "300") {
+      Write-Output "Windows screen scale is Detected as 300%, Applying Mouse Fix for it..."
+      $YourInputX = "00,00,00,00,00,00,00,00,60,66,26,00,00,00,00,00,C0,CC,4C,00,00,00,00,00,20,33,73,00,00,00,00,00,80,99,99,00,00,00,00,00"
+      $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+      $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+      $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseXCurve" -Value ([byte[]]$hexifiedX) -Type "Binary"
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
+    }
+    elseif ($checkscreenscale -eq "350") {
+      Write-Output "Windows screen scale is Detected as 350%, Applying Mouse Fix for it..."
+      $YourInputX = "00,00,00,00,00,00,00,00,C0,CC,2C,00,00,00,00,00,80,99,59,00,00,00,00,00,40,66,86,00,00,00,00,00,00,33,B3,00,00,00,00,00"
+      $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
+      $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
+      $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseXCurve" -Value ([byte[]]$hexifiedX) -Type "Binary"
+      Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
+    }
+    else {
+      Write-Output "HOUSTON WE HAVE A PROBLEM! screen scale is not set to traditional value, nothing has been set!"
+      Log-Action -Message "Escala de tela não tradicional detectada ($checkscreenscale%). Nenhuma correção aplicada." -Level "WARNING" -ConsoleOutput
+    }
+
+    Log-Action -Message "Correção de mouse aplicada com sucesso para escala $checkscreenscale%." -Level "INFO" -ConsoleOutput
+    Write-Colored "Correção de mouse aplicada com sucesso." -Color "VerdeClaro"
   }
-  elseif ($checkscreenscale -eq "125") {
-    Write-Output "Windows screen scale is Detected as 125%, Applying Mouse Fix for it..."
-    $YourInputX = "00,00,00,00,00,00,00,00,00,00,10,00,00,00,00,00,00,00,20,00,00,00,00,00,00,00,30,00,00,00,00,00,00,00,40,00,00,00,00,00"
-    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-    $RegPath = 'HKCU:\Control Panel\Mouse'
-    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
-    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
+  catch {
+    $errorMessage = "Erro na função DetectnApplyMouseFIX: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw
   }
-  elseif ($checkscreenscale -eq "150") {
-    Write-Output "Windows screen scale is Detected as 150%, Applying Mouse Fix for it..."
-    $YourInputX = "00,00,00,00,00,00,00,00,30,33,13,00,00,00,00,00,60,66,26,00,00,00,00,00,90,99,39,00,00,00,00,00,C0,CC,4C,00,00,00,00,00"
-    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-    $RegPath = 'HKCU:\Control Panel\Mouse'
-    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
-    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-  }
-  elseif ($checkscreenscale -eq "175") {
-    Write-Output "Windows screen scale is Detected as 175%, Applying Mouse Fix for it..."
-    $YourInputX = "00,00,00,00,00,00,00,00,60,66,16,00,00,00,00,00,C0,CC,2C,00,00,00,00,00,20,33,43,00,00,00,00,00,80,99,59,00,00,00,00,00"
-    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-    $RegPath = 'HKCU:\Control Panel\Mouse'
-    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
-    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-  }
-  elseif ($checkscreenscale -eq "200") {
-    Write-Output "Windows screen scale is Detected as 200%, Applying Mouse Fix for it..."
-    $YourInputX = "00,00,00,00,00,00,00,00,90,99,19,00,00,00,00,00,20,33,33,00,00,00,00,00,B0,CC,4C,00,00,00,00,00,40,66,66,00,00,00,00,00"
-    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-    $RegPath = 'HKCU:\Control Panel\Mouse'
-    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
-    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-  }
-  elseif ($checkscreenscale -eq "225") {
-    Write-Output "Windows screen scale is Detected as 225%, Applying Mouse Fix for it..."
-    $YourInputX = "00,00,00,00,00,00,00,00,C0,CC,1C,00,00,00,00,00,80,99,39,00,00,00,00,00,40,66,56,00,00,00,00,00,00,33,73,00,00,00,00,00"
-    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-    $RegPath = 'HKCU:\Control Panel\Mouse'
-    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
-    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-  }
-  elseif ($checkscreenscale -eq "250") {
-    Write-Output "Windows screen scale is Detected as 250%, Applying Mouse Fix for it..."
-    $YourInputX = "00,00,00,00,00,00,00,00,00,00,20,00,00,00,00,00,00,00,40,00,00,00,00,00,00,00,60,00,00,00,00,00,00,00,80,00,00,00,00,00"
-    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-    $RegPath = 'HKCU:\Control Panel\Mouse'
-    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
-    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-  }
-  elseif ($checkscreenscale -eq "300") {
-    Write-Output "Windows screen scale is Detected as 300%, Applying Mouse Fix for it..."
-    $YourInputX = "00,00,00,00,00,00,00,00,60,66,26,00,00,00,00,00,C0,CC,4C,00,00,00,00,00,20,33,73,00,00,00,00,00,80,99,99,00,00,00,00,00"
-    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-    $RegPath = 'HKCU:\Control Panel\Mouse'
-    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
-    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-  }
-  elseif ($checkscreenscale -eq "350") {
-    Write-Output "Windows screen scale is Detected as 350%, Applying Mouse Fix for it..."
-    $YourInputX = "00,00,00,00,00,00,00,00,C0,CC,2C,00,00,00,00,00,80,99,59,00,00,00,00,00,40,66,86,00,00,00,00,00,00,33,B3,00,00,00,00,00"
-    $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
-    $RegPath = 'HKCU:\Control Panel\Mouse'
-    $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
-    $hexifiedY = $YourInputY.Split(',') | ForEach-Object { "0x$_" }
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseXCurve" -Type Binary -Value (([byte[]]$hexifiedX))
-    Set-ItemProperty -Path "$RegPath" -Name "SmoothMouseYCurve" -Type Binary -Value (([byte[]]$hexifiedY))
-  }
-  else {
-    Write-Output "HOUSTON WE HAVE A PROBLEM! screen scale is not set to traditional value, nothing has been set!"
+  finally {
+    Log-Action -Message "Finalizando função DetectnApplyMouseFIX." -Level "INFO" -ConsoleOutput
   }
 }
 
@@ -2926,17 +2900,50 @@ Function DisableHPET {
 }
 
 function EnableGameMode {
-  Write-Output "Enabling Game Mode..."
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\GameBar" -Name "AllowAutoGameMode" -Type DWord -Value 1
-  Set-ItemProperty -Path "HKCU:\Software\Microsoft\GameBar" -Name "AutoGameModeEnabled" -Type DWord -Value 1
+  Log-Action -Message "Iniciando função EnableGameMode para habilitar o Modo de Jogo." -Level "INFO" -ConsoleOutput
+
+  try {
+    Log-Action -Message "Habilitando Modo de Jogo..." -ConsoleOutput
+      
+    $registryPath = "HKCU:\Software\Microsoft\GameBar"
+    Set-RegistryValue -Path $registryPath -Name "AllowAutoGameMode" -Value 1 -Type "DWord"
+    Set-RegistryValue -Path $registryPath -Name "AutoGameModeEnabled" -Value 1 -Type "DWord"
+
+    Log-Action -Message "Modo de Jogo habilitado com sucesso." -Level "INFO" -ConsoleOutput
+      
+  }
+  catch {
+    $errorMessage = "Erro na função EnableGameMode: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+      
+    throw
+  }
+  finally {
+    Log-Action -Message "Finalizando função EnableGameMode." -Level "INFO" -ConsoleOutput
+  }
 }
 
 function EnableHAGS {
-  Write-Output "Enabling Hardware-Accelerated GPU Scheduling..."
-  If (!(Test-Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers")) {
-    New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" -Force | Out-Null
+  Log-Action -Message "Iniciando função EnableHAGS para habilitar o Agendamento de GPU Acelerado por Hardware." -Level "INFO" -ConsoleOutput
+
+  try {
+    Log-Action -Message "Habilitando Agendamento de GPU Acelerado por Hardware..." -ConsoleOutput
+      
+    $registryPath = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"
+    Set-RegistryValue -Path $registryPath -Name "HwSchMode" -Value 2 -Type "DWord" -Force
+
+    Log-Action -Message "Agendamento de GPU Acelerado por Hardware habilitado com sucesso." -Level "INFO" -ConsoleOutput
+      
   }
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" -Name "HwSchMode" -Type DWord -Value 2
+  catch {
+    $errorMessage = "Erro na função EnableHAGS: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+      
+    throw
+  }
+  finally {
+    Log-Action -Message "Finalizando função EnableHAGS." -Level "INFO" -ConsoleOutput
+  }
 }
 
 # Função DisableCoreParking (mantida como antes, mas ajustada para consistência)
@@ -3170,9 +3177,12 @@ Function DisablePKM {
   $errpref = $ErrorActionPreference #save actual preference
   $ErrorActionPreference = "silentlycontinue"
   ForEach ($v in (Get-Command -Name "Set-ProcessMitigation").Parameters["Disable"].Attributes.ValidValues) { Set-ProcessMitigation -System -Disable $v.ToString() -ErrorAction SilentlyContinue }
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "DisableExceptionChainValidation" -Type DWord -Value 1
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "KernelSEHOPEnabled" -Type DWord -Value 0
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "EnableCfg" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Kernel" -Name "DisableExceptionChainValidation" -Value 1 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "DisableExceptionChainValidation" -Type DWord -Value 1
+  Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "KernelSEHOPEnabled" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" -Name "KernelSEHOPEnabled" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "EnableCfg" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "EnableCfg" -Type DWord -Value 0
   $ErrorActionPreference = $errpref #restore previous preference
 }
 
@@ -3189,7 +3199,8 @@ function DisallowDIP {
   }
 
   # Define a propriedade "PromptOnNewDevice"
-  Set-ItemProperty -Path $regPath -Name "PromptOnNewDevice" -Type DWord -Value 0
+  Set-RegistryValue -Path $regPath -Name "PromptOnNewDevice" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path $regPath -Name "PromptOnNewDevice" -Type DWord -Value 0
 
   Write-Output "Configuração aplicada com sucesso."
 }
@@ -3206,14 +3217,19 @@ function ForceContiguousM {
 
 function DecreaseMKBuffer {
   Write-Output "Decreasing mouse/keyboard buffer size..."
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" -Name "KeyboardDataQueueSize" -Type DWord -Value 50
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" -Name "MouseDataQueueSize" -Type DWord -Value 50
+  Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" -Name "MouseDataQueueSize" -Value 50 -Type "DWord" -Force
+  Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" -Name "KeyboardDataQueueSize" -Value 50 -Type "DWord" -Force
+   
+  #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" -Name "KeyboardDataQueueSize" -Type DWord -Value 50
+  #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" -Name "MouseDataQueueSize" -Type DWord -Value 50
 }
 
 function StophighDPC {
   Write-Output "Reducing high DPC latency..."
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "ExitLatency" -Type DWord -Value 0
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "ExitLatencyCheckEnabled" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "ExitLatency" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "ExitLatency" -Type DWord -Value 0
+  Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "ExitLatencyCheckEnabled" -Value 0 -Type "DWord" -Force
+  #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "ExitLatencyCheckEnabled" -Type DWord -Value 0
 }
 
 function Ativar-Servicos {
@@ -3324,7 +3340,8 @@ function FixURLext {
   If (!(Test-Path "HKCR:\.url")) {
     New-Item -Path "HKCR:\.url" -Force | Out-Null
   }
-  Set-ItemProperty -Path "HKCR:\.url" -Name "(Default)" -Value "InternetShortcut"
+  Set-RegistryValue -Path "HKCR:\.url" -Name "(Default)" -Value "InternetShortcut" -Type "String" -Force
+  #Set-ItemProperty -Path "HKCR:\.url" -Name "(Default)" -Value "InternetShortcut"
 }
 
 function UltimateCleaner {
@@ -3430,11 +3447,13 @@ function Windows11Extras {
       Log-Action -Message "Aplicando ajustes específicos do Windows 11..." -ConsoleOutput
 
       Log-Action -Message "Configurando TaskbarAl para 0 em HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced..." -ConsoleOutput
-      Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type DWord -Value 0 -ErrorAction Stop
+      Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 0 -Type "DWord" -Force
+      #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Type DWord -Value 0 -ErrorAction Stop
       Log-Action -Message "TaskbarAl configurado com sucesso para centralizar a barra de tarefas." -Level "INFO" -ConsoleOutput
 
       Log-Action -Message "Configurando SearchboxTaskbarMode para 1 em HKCU:\Software\Microsoft\Windows\CurrentVersion\Search..." -ConsoleOutput
-      Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 1 -ErrorAction Stop
+      Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 1 -Type "DWord" -Force
+      #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 1 -ErrorAction Stop
       Log-Action -Message "SearchboxTaskbarMode configurado com sucesso para mostrar busca na barra." -Level "INFO" -ConsoleOutput
 
       Log-Action -Message "Ajustes específicos do Windows 11 aplicados com sucesso." -Level "INFO" -ConsoleOutput
@@ -4022,7 +4041,8 @@ function Set-RamThreshold {
     $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control"
     $regName = "SvcHostSplitThresholdInKB"
     Log-Action -Message "Configurando $regName para $value em $regPath..." -ConsoleOutput
-    Set-ItemProperty -Path $regPath -Name $regName -Value $value -Type DWord -ErrorAction Stop
+    Set-RegistryValue -Path $regPath -Name $regName -Value $value -Type DWord -ErrorAction Stop
+    #Set-ItemProperty -Path $regPath -Name $regName -Value $value -Type DWord -ErrorAction Stop
     Log-Action -Message "Registro $regName atualizado com sucesso para $value KB." -Level "INFO" -ConsoleOutput
   }
   catch {
@@ -4073,7 +4093,8 @@ function Set-MemoriaVirtual-Registry {
         $maxSize = [math]::Round($ramGB * 1024 * 3)        # 3x RAM em MB
 
         try {
-          Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "PagingFiles" -Value "C:\pagefile.sys $initialSize $maxSize" -ErrorAction Stop
+          Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "PagingFiles" -Value "C:\pagefile.sys $initialSize $maxSize" -Type String -ErrorAction Stop
+          #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "PagingFiles" -Value "C:\pagefile.sys $initialSize $maxSize" -ErrorAction Stop
           Log-Action "Memória virtual definida manualmente: Inicial=$initialSize MB, Máximo=$maxSize MB." -Level "INFO" -ConsoleOutput
       
         }
@@ -4088,7 +4109,8 @@ function Set-MemoriaVirtual-Registry {
       
 
         try {
-          Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "PagingFiles" -Value "" -ErrorAction Stop
+          Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "PagingFiles" -Value "" -Type String -ErrorAction Stop
+          #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "PagingFiles" -Value "" -ErrorAction Stop
           Log-Action "Memória virtual configurada para gerenciamento automático pelo Windows." -Level "INFO" -ConsoleOutput
       
         }
@@ -4288,38 +4310,27 @@ function UpdateISLCConfig {
 }
 
 function ApplyPCOptimizations {
-  Log-Action -Message "Iniciando função ApplyPCOptimizations para aplicar otimizações no PC." -ConsoleOutput
+  Log-Action -Message "Iniciando função ApplyPCOptimizations para aplicar otimizações no PC." -Level "INFO" -ConsoleOutput
 
   try {
     Write-Output "Aplicando otimizações..."
-    Log-Action -Message "Aplicando otimizações..." -ConsoleOutput
 
-    Log-Action -Message "Configurando SystemResponsiveness para 0 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "SystemResponsiveness" -Type DWord -Value 0 -ErrorAction Stop
-    Log-Action -Message "SystemResponsiveness configurado com sucesso." -Level "INFO" -ConsoleOutput
+    $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
 
-    Log-Action -Message "Configurando NetworkThrottlingIndex para 10 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 10 -ErrorAction Stop
-    Log-Action -Message "NetworkThrottlingIndex configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando AlwaysOn para 1 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "AlwaysOn" -Type DWord -Value 1 -ErrorAction Stop
-    Log-Action -Message "AlwaysOn configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando LazyMode para 1 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "LazyMode" -Type DWord -Value 1 -ErrorAction Stop
-    Log-Action -Message "LazyMode configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando LazyModeTimeout para 25000 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile..." -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "LazyModeTimeout" -Type DWord -Value 25000 -ErrorAction Stop
-    Log-Action -Message "LazyModeTimeout configurado com sucesso." -Level "INFO" -ConsoleOutput
+    # Configurar otimizações usando Set-RegistryValue
+    Set-RegistryValue -Path $registryPath -Name "SystemResponsiveness" -Value 0 -Type "DWord"
+    Set-RegistryValue -Path $registryPath -Name "NetworkThrottlingIndex" -Value 10 -Type "DWord"
+    Set-RegistryValue -Path $registryPath -Name "AlwaysOn" -Value 1 -Type "DWord"
+    Set-RegistryValue -Path $registryPath -Name "LazyMode" -Value 1 -Type "DWord"
+    Set-RegistryValue -Path $registryPath -Name "LazyModeTimeout" -Value 25000 -Type "DWord"
 
     Log-Action -Message "Otimizações aplicadas com sucesso." -Level "INFO" -ConsoleOutput
+    Write-Colored "Otimizações aplicadas com sucesso." -Color "VerdeClaro"
   }
   catch {
     $errorMessage = "Erro ao aplicar otimizações: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "Red"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
     throw  # Repropaga o erro
   }
   finally {
@@ -4328,75 +4339,67 @@ function ApplyPCOptimizations {
 }
 
 function MSIMode {
-  Log-Action -Message "Iniciando função MSIMode para habilitar o modo MSI em GPUs compatíveis." -ConsoleOutput
+  Log-Action -Message "Iniciando função MSIMode para habilitar o modo MSI em GPUs compatíveis." -Level "INFO" -ConsoleOutput
 
   try {
     $errpref = $ErrorActionPreference
     $ErrorActionPreference = "SilentlyContinue"
-    Log-Action -Message "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
+    Log-Action -Message "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -Level "INFO" -ConsoleOutput
 
-    # Usar Get-CimInstance para obter os IDs PNP das placas de vídeo
-    $gpu = Get-GPUType -IncludePNPIds
-    $GPUIDS = $gpu.PNPIds
-    # A verificação de tipo pode ser feita diretamente com $gpu.Type
-
-    if ($null -eq $GPUIDS -or $GPUIDS.Count -eq 0) {
-      Log-Action -Message "Nenhuma placa de vídeo detectada. Pulando configuração do modo MSI." -Level "WARNING" -ConsoleOutput
-      'No Video Controllers Found! Skipping...'
+    # Usar Get-GPUType para obter informações da GPU, incluindo PNPDeviceID
+    $gpus = Get-GPUType -IncludePNPIds
+    if ($gpus.Type -eq "Nenhum" -or $gpus.Type -eq "Erro") {
+      Log-Action -Message "Nenhuma placa de vídeo detectada ou erro na detecção. Pulando configuração do modo MSI." -Level "WARNING" -ConsoleOutput
+      Write-Output "No Video Controllers Found! Skipping..."
       return
     }
 
-    Log-Action -Message "IDs de GPUs detectados: $($GPUIDS -join ', ')" -ConsoleOutput
-
-    foreach ($GPUID in $GPUIDS) {
+    foreach ($gpu in $gpus) {
+      $GPUID = $gpu.PNPIds
       if ([string]::IsNullOrWhiteSpace($GPUID)) {
-        Log-Action -Message "ID de GPU inválido encontrado. Pulando..." -Level "WARNING" -ConsoleOutput
+        Log-Action -Message "ID de GPU inválido encontrado ($($gpu.Name)). Pulando..." -Level "WARNING" -ConsoleOutput
         continue
       }
 
-      Log-Action -Message "Verificando descrição do dispositivo para GPUID: $GPUID..." -ConsoleOutput
+      Log-Action -Message "Verificando descrição do dispositivo para GPUID: $GPUID..." -Level "INFO" -ConsoleOutput
 
-      # Obter a descrição do dispositivo a partir do registro
+      # Obter descrição do dispositivo a partir do registro
       $registryPath = "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID"
       if (Test-Path $registryPath) {
         $CheckDeviceDes = Get-ItemProperty -Path $registryPath -ErrorAction Stop | Select-Object -ExpandProperty DeviceDesc
-        Log-Action -Message "Descrição do dispositivo obtida: $CheckDeviceDes" -ConsoleOutput
+        Log-Action -Message "Descrição do dispositivo obtida: $CheckDeviceDes" -Level "INFO" -ConsoleOutput
       }
       else {
         Log-Action -Message "Caminho do registro $registryPath não encontrado para GPUID: $GPUID. Pulando..." -Level "WARNING" -ConsoleOutput
         continue
       }
 
-      if ($CheckDeviceDes -like "*GTX*" -or $CheckDeviceDes -like "*RTX*" -or $CheckDeviceDes -like "*AMD*") {
-        Log-Action -Message "Placa compatível GTX/RTX/AMD encontrada! Habilitando modo MSI..." -ConsoleOutput
-        'GTX/RTX/AMD Compatible Card Found! Enabling MSI Mode...'
+      # Verificar se a GPU é compatível (NVIDIA GTX/RTX ou AMD)
+      if ($gpu.Type -eq "NVIDIA" -or $gpu.Type -eq "AMD") {
+        Log-Action -Message "Placa compatível ($($gpu.Type)) encontrada! Habilitando modo MSI para $($gpu.Name)..." -Level "INFO" -ConsoleOutput
+        Write-Output "$($gpu.Type) Compatible Card Found! Enabling MSI Mode..."
 
         $msiRegistryPath = "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties"
-        if (-not (Test-Path $msiRegistryPath)) {
-          Log-Action -Message "Caminho $msiRegistryPath não existe. Criando..." -ConsoleOutput
-          New-Item -Path $msiRegistryPath -Force -ErrorAction Stop | Out-Null
-          Log-Action -Message "Chave $msiRegistryPath criada com sucesso." -Level "INFO" -ConsoleOutput
-        }
 
-        Log-Action -Message "Configurando MSISupported para 1 em $msiRegistryPath..." -ConsoleOutput
-        Set-ItemProperty -Path $msiRegistryPath -Name "MSISupported" -Type DWord -Value 1 -ErrorAction Stop
-        Log-Action -Message "MSISupported configurado com sucesso." -Level "INFO" -ConsoleOutput
+        # Usar Set-RegistryValue para configurar MSISupported
+        Set-RegistryValue -Path $msiRegistryPath -Name "MSISupported" -Value 1 -Type "DWord" -Force
 
         Log-Action -Message "Modo MSI habilitado com sucesso para a GPU compatível ($GPUID)." -Level "INFO" -ConsoleOutput
       }
       else {
-        Log-Action -Message "Placa $GPUID não é compatível (GTX/RTX/AMD). Pulando..." -Level "INFO" -ConsoleOutput
+        Log-Action -Message "Placa $($gpu.Name) não é compatível (não é GTX/RTX/AMD). Pulando..." -Level "INFO" -ConsoleOutput
       }
     }
   }
   catch {
     $errorMessage = "Erro na função MSIMode: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
     throw  # Repropaga o erro
   }
   finally {
     $ErrorActionPreference = $errpref
-    Log-Action -Message "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
+    Log-Action -Message "Restaurando ErrorActionPreference para $errpref." -Level "INFO" -ConsoleOutput
     Log-Action -Message "Finalizando função MSIMode." -Level "INFO" -ConsoleOutput
   }
 }
@@ -4554,14 +4557,9 @@ function OptimizeGPUTweaks {
             }
 
             foreach ($prop in $properties.GetEnumerator()) {
-              try {
-                Set-ItemProperty -Path $regPath -Name $prop.Name -Type DWord -Value $prop.Value -ErrorAction Stop
-                Log-Action -Message "Propriedade $($prop.Name) configurada com sucesso em $regPath." -Level "DEBUG" -ConsoleOutput
-              }
-              catch {
-                Log-Action -Message "Falha ao configurar $($prop.Name) em $regPath $_" -Level "WARNING" -ConsoleOutput
-              }
+              Set-RegistryValue -Path $defaultRegPath -Name $prop.Name -Value $prop.Value -Type "DWord"
             }
+
             Log-Action -Message "Otimizações de latência NVIDIA aplicadas com sucesso no caminho $subKeyName." -Level "INFO" -ConsoleOutput
           }
         }
@@ -4597,14 +4595,9 @@ function OptimizeGPUTweaks {
           }
 
           foreach ($prop in $properties.GetEnumerator()) {
-            try {
-              Set-ItemProperty -Path $defaultRegPath -Name $prop.Name -Type DWord -Value $prop.Value -ErrorAction Stop
-              Log-Action -Message "Propriedade $($prop.Name) configurada com sucesso em $defaultRegPath." -Level "DEBUG" -ConsoleOutput
-            }
-            catch {
-              Log-Action -Message "Falha ao configurar $($prop.Name) em $defaultRegPath $_" -Level "WARNING" -ConsoleOutput
-            }
+            Set-RegistryValue -Path $defaultRegPath -Name $prop.Name -Value $prop.Value -Type "DWord"
           }
+          
           Log-Action -Message "Otimizações de latência NVIDIA aplicadas com sucesso no caminho padrão 0000." -Level "INFO" -ConsoleOutput
           $foundNvidia = $true
         }
@@ -4721,14 +4714,9 @@ function OptimizeGPUTweaks {
             }
 
             foreach ($prop in $properties.GetEnumerator()) {
-              try {
-                Set-ItemProperty -Path $regPath -Name $prop.Name -Type DWord -Value $prop.Value -ErrorAction Stop
-                Log-Action -Message "Propriedade $($prop.Name) configurada com sucesso em $regPath." -Level "DEBUG" -ConsoleOutput
-              }
-              catch {
-                Log-Action -Message "Falha ao configurar $($prop.Name) em $regPath $_" -Level "WARNING" -ConsoleOutput
-              }
+              Set-RegistryValue -Path $regPath -Name $prop.Name -Value $prop.Value -Type "DWord"
             }
+
             Log-Action -Message "Otimizações de latência AMD aplicadas com sucesso no caminho $subKeyName." -Level "INFO" -ConsoleOutput
           }
         }
@@ -4763,14 +4751,9 @@ function OptimizeGPUTweaks {
           }
 
           foreach ($prop in $properties.GetEnumerator()) {
-            try {
-              Set-ItemProperty -Path $defaultRegPath -Name $prop.Name -Type DWord -Value $prop.Value -ErrorAction Stop
-              Log-Action -Message "Propriedade $($prop.Name) configurada com sucesso em $defaultRegPath." -Level "DEBUG" -ConsoleOutput
-            }
-            catch {
-              Log-Action -Message "Falha ao configurar $($prop.Name) em $defaultRegPath $_" -Level "WARNING" -ConsoleOutput
-            }
+            Set-RegistryValue -Path $defaultRegPath -Name $prop.Name -Value $prop.Value -Type "DWord"
           }
+
           Log-Action -Message "Otimizações de latência AMD aplicadas com sucesso no caminho padrão 0000." -Level "INFO" -ConsoleOutput
           $foundAMD = $true
         }
@@ -4806,130 +4789,117 @@ function OptimizeNetwork {
 
   Log-Action -Message "Iniciando otimizações de rede..." -Level "INFO" -ConsoleOutput
 
-  # Configurações globais de TCP/IP (sem TCPNoDelay aqui, movido para DisableNagle)
-  $tcpParams = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
-  Log-Action -Message "Ajustando parâmetros TCP/IP globais..." -Level "INFO" -ConsoleOutput
   try {
-    Set-ItemProperty -Path $tcpParams -Name "MaxUserPort" -Value 65534 -Type DWord -Force -ErrorAction Stop
-    Set-ItemProperty -Path $tcpParams -Name "TcpTimedWaitDelay" -Value 30 -Type DWord -Force -ErrorAction Stop
-    Set-ItemProperty -Path $tcpParams -Name "DefaultTTL" -Value 64 -Type DWord -Force -ErrorAction Stop
-    Set-ItemProperty -Path $tcpParams -Name "TcpMaxDataRetransmissions" -Value 5 -Type DWord -Force -ErrorAction Stop
-    Set-ItemProperty -Path $tcpParams -Name "EnableTCPA" -Value 1 -Type DWord -Force -ErrorAction Stop
-  }
-  catch {
-    Log-Action -Message "Erro ao ajustar parâmetros TCP/IP: $_" -Level "ERROR" -ConsoleOutput
-  }
+    # Configurações globais de TCP/IP
+    $tcpParams = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
+    Log-Action -Message "Ajustando parâmetros TCP/IP globais..." -Level "INFO" -ConsoleOutput
+    Set-RegistryValue -Path $tcpParams -Name "MaxUserPort" -Value 65534 -Type "DWord"
+    Set-RegistryValue -Path $tcpParams -Name "TcpTimedWaitDelay" -Value 30 -Type "DWord"
+    Set-RegistryValue -Path $tcpParams -Name "DefaultTTL" -Value 64 -Type "DWord"
+    Set-RegistryValue -Path $tcpParams -Name "TcpMaxDataRetransmissions" -Value 5 -Type "DWord"
+    Set-RegistryValue -Path $tcpParams -Name "EnableTCPA" -Value 1 -Type "DWord"
 
-  # Configurações globais via Netsh
-  Log-Action -Message "Aplicando configurações globais via Netsh..." -Level "INFO" -ConsoleOutput
-  try {
+    # Configurações globais via Netsh
+    Log-Action -Message "Aplicando configurações globais via Netsh..." -Level "INFO" -ConsoleOutput
     netsh int tcp set global autotuninglevel=normal | Out-Null
     netsh int tcp set global congestionprovider=ctcp | Out-Null
     netsh int tcp set global rss=enabled | Out-Null
     netsh int tcp set global chimney=enabled | Out-Null
     netsh int tcp set global dca=enabled | Out-Null
     netsh int tcp set global ecncapability=disabled | Out-Null
-  }
-  catch {
-    Log-Action -Message "Erro ao executar comandos Netsh: $_" -Level "ERROR" -ConsoleOutput
-  }
 
-  # Desativar Nagle por interface
-  if ($DisableNagle) {
-    Log-Action -Message "Desativando algoritmo de Nagle por interface..." -Level "INFO" -ConsoleOutput
-    $interfaces = Get-ChildItem "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces" -ErrorAction SilentlyContinue
-    foreach ($interface in $interfaces) {
+    # Desativar Nagle por interface
+    if ($DisableNagle) {
+      Log-Action -Message "Desativando algoritmo de Nagle por interface..." -Level "INFO" -ConsoleOutput
+      $interfaces = Get-ChildItem "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces" -ErrorAction SilentlyContinue
+      foreach ($interface in $interfaces) {
+        Set-RegistryValue -Path $interface.PSPath -Name "TcpAckFrequency" -Value 1 -Type "DWord"
+        Set-RegistryValue -Path $interface.PSPath -Name "TCPNoDelay" -Value 1 -Type "DWord"
+      }
+    }
+
+    # Configurar RSS por adaptador
+    if ($EnableRSS) {
+      Log-Action -Message "Configurando Receive Side Scaling (RSS) nos adaptadores..." -Level "INFO" -ConsoleOutput
+      $adapters = Get-ChildItem "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e972-e325-11ce-bfc1-08002be10318}" -ErrorAction SilentlyContinue
+      foreach ($adapter in $adapters) {
+        $desc = (Get-ItemProperty -Path $adapter.PSPath -ErrorAction SilentlyContinue).DriverDesc
+        if ($desc -and $desc -notmatch "Virtual|WAN") {
+          Set-RegistryValue -Path $adapter.PSPath -Name "*RSS" -Value 1 -Type "DWord"
+          Set-RegistryValue -Path $adapter.PSPath -Name "*NumRssQueues" -Value 4 -Type "DWord"
+          Set-RegistryValue -Path $adapter.PSPath -Name "*ReceiveBuffers" -Value 2048 -Type "DWord"
+          Set-RegistryValue -Path $adapter.PSPath -Name "*TransmitBuffers" -Value 2048 -Type "DWord"
+        }
+      }
+    }
+
+    # Desativar LSO
+    if ($DisableLSO) {
+      Log-Action -Message "Desativando Large Send Offload (LSO)..." -Level "INFO" -ConsoleOutput
       try {
-        Set-ItemProperty -Path $interface.PSPath -Name "TcpAckFrequency" -Value 1 -Type DWord -Force -ErrorAction Stop
-        Set-ItemProperty -Path $interface.PSPath -Name "TCPNoDelay" -Value 1 -Type DWord -Force -ErrorAction Stop
+        Disable-NetAdapterLso -Name "*" -IPv4 -IPv6 -ErrorAction Stop
       }
       catch {
-        Log-Action -Message "Erro ao ajustar interface ${interface.PSChildName}: $_" -Level "WARNING" -ConsoleOutput
+        Log-Action -Message "Erro ao desativar LSO: $_" -Level "WARNING" -ConsoleOutput
       }
     }
-  }
 
-  # Configurar RSS por adaptador
-  if ($EnableRSS) {
-    Log-Action -Message "Configurando Receive Side Scaling (RSS) nos adaptadores..." -Level "INFO" -ConsoleOutput
-    $adapters = Get-ChildItem "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e972-e325-11ce-bfc1-08002be10318}" -ErrorAction SilentlyContinue
-    foreach ($adapter in $adapters) {
-      $desc = (Get-ItemProperty -Path $adapter.PSPath -ErrorAction SilentlyContinue).DriverDesc
-      if ($desc -and $desc -notmatch "Virtual|WAN") {
-        try {
-          Set-ItemProperty -Path $adapter.PSPath -Name "*RSS" -Value 1 -Type DWord -Force -ErrorAction Stop
-          Set-ItemProperty -Path $adapter.PSPath -Name "*NumRssQueues" -Value 4 -Type DWord -Force -ErrorAction Stop
-          Set-ItemProperty -Path $adapter.PSPath -Name "*ReceiveBuffers" -Value 2048 -Type DWord -Force -ErrorAction Stop
-          Set-ItemProperty -Path $adapter.PSPath -Name "*TransmitBuffers" -Value 2048 -Type DWord -Force -ErrorAction Stop
-        }
-        catch {
-          Log-Action -Message "Erro ao ajustar adaptador ${desc}: $_" -Level "WARNING" -ConsoleOutput
-        }
+    # Propriedades avançadas dos adaptadores
+    Log-Action -Message "Ajustando propriedades avançadas dos adaptadores..." -Level "INFO" -ConsoleOutput
+    $properties = @("FlowControl", "Energy-Efficient Ethernet", "Green Ethernet", "Interrupt Moderation")
+    foreach ($prop in $properties) {
+      try {
+        Set-NetAdapterAdvancedProperty -Name "*" -DisplayName $prop -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+      }
+      catch {
+        Log-Action -Message "Erro ao ajustar propriedade ${prop}: $_" -Level "WARNING" -ConsoleOutput
       }
     }
-  }
 
-  # Desativar LSO
-  if ($DisableLSO) {
-    Log-Action -Message "Desativando Large Send Offload (LSO)..." -Level "INFO" -ConsoleOutput
-    try {
-      Disable-NetAdapterLso -Name "*" -IPv4 -IPv6 -ErrorAction Stop
-    }
-    catch {
-      Log-Action -Message "Erro ao desativar LSO: $_" -Level "WARNING" -ConsoleOutput
-    }
+    Log-Action -Message "Otimização de rede concluída com sucesso." -Level "INFO" -ConsoleOutput
   }
-
-  # Propriedades avançadas dos adaptadores (sem LSO v2, coberto por Disable-NetAdapterLso)
-  Log-Action -Message "Ajustando propriedades avançadas dos adaptadores..." -Level "INFO" -ConsoleOutput
-  $properties = @("FlowControl", "Energy-Efficient Ethernet", "Green Ethernet", "Interrupt Moderation")
-  foreach ($prop in $properties) {
-    try {
-      Set-NetAdapterAdvancedProperty -Name "*" -DisplayName $prop -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-    }
-    catch {
-      Log-Action -Message "Erro ao ajustar propriedade ${prop}: $_" -Level "WARNING" -ConsoleOutput
-    }
+  catch {
+    $errorMessage = "Erro na função OptimizeNetwork: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw  # Repropaga o erro
   }
-
-  Log-Action -Message "Otimização de rede concluída com sucesso." -Level "INFO" -ConsoleOutput
 }
 
-
 function Finished {
-  Log-Action "Iniciando função Finished para finalizar o processo de otimização." -Level "INFO" -ConsoleOutput
+  Log-Action -Message "Iniciando função Finished para finalizar o processo de otimização." -Level "INFO" -ConsoleOutput
 
   try {
-    Log-Action "Iniciando configurações finais de OEM e personalização do sistema." -ConsoleOutput
+    Log-Action -Message "Iniciando configurações finais de OEM e personalização do sistema." -Level "INFO" -ConsoleOutput
 
     # Baixar a imagem do logo
     $url_logo = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/logo.bmp"
     $destino_logo = "C:\Windows\oemlogo.bmp"
-    Log-Action "Baixando logo de $url_logo para $destino_logo..." -Level "INFO" -ConsoleOutput
+    Log-Action -Message "Baixando logo de $url_logo para $destino_logo..." -Level "INFO" -ConsoleOutput
     Invoke-WebRequest -Uri $url_logo -OutFile $destino_logo -ErrorAction Stop
 
-    # Configurar permissões para pacotes MSI e outras configurações (mantido como estava)
-    Log-Action "Configurando permissões para pacotes MSI no registro..." -Level "INFO" -ConsoleOutput
-    New-Item -Path "HKCR:\Msi.Package\shell\runas\command" -Force -ErrorAction Stop | Out-Null
-    Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas" -Name "HasLUAShield" -Type String -Value "" -ErrorAction Stop | Out-Null
-    Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas\command" -Name "(Default)" -Type ExpandString -Value '"%SystemRoot%\System32\msiexec.exe" /i "%1" %*' -ErrorAction Stop | Out-Null
+    # Configurar permissões para pacotes MSI
+    $msiPath = "HKCR:\Msi.Package\shell\runas"
+    Set-RegistryValue -Path $msiPath -Name "HasLUAShield" -Value "" -Type "String" -Force
+    Set-RegistryValue -Path "$msiPath\command" -Name "(Default)" -Value '"%SystemRoot%\System32\msiexec.exe" /i "%1" %*' -Type "ExpandString" -Force
 
-    Log-Action "Habilitando histórico da área de transferência..." -Level "INFO" -ConsoleOutput
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "AllowClipboardHistory" -Type DWord -Value 1 -ErrorAction Stop
+    # Habilitar histórico da área de transferência
+    Set-RegistryValue -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "AllowClipboardHistory" -Value 1 -Type "DWord" -Force
 
-    Log-Action "Configurando informações OEM no registro..." -Level "INFO" -ConsoleOutput
-    cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "Manufacturer" /t REG_SZ /d "PC Otimizado por Cesar Marques (Barao)" /f 2>nul' >$null
-    cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "Model" /t REG_SZ /d "Otimizacao, Hardware, Infra & Redes" /f 2>nul' >$null
-    cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportURL" /t REG_SZ /d "http://techremote.com.br" /f 2>nul' >$null
-    cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportHours" /t REG_SZ /d "Seg-Sex: 08h-18h" /f 2>nul' >$null
-    cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportPhone" /t REG_SZ /d "+55 16 99263-6487" /f 2>nul' >$null
-    cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "Logo" /t REG_SZ /d "C:\Windows\oemlogo.bmp" /f 2>nul' >$null
+    # Configurar informações OEM
+    $oemPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
+    Set-RegistryValue -Path $oemPath -Name "Manufacturer" -Value "PC Otimizado por Cesar Marques (Barao)" -Type "String" -Force
+    Set-RegistryValue -Path $oemPath -Name "Model" -Value "Otimizacao, Hardware, Infra & Redes" -Type "String" -Force
+    Set-RegistryValue -Path $oemPath -Name "SupportURL" -Value "http://techremote.com.br" -Type "String" -Force
+    Set-RegistryValue -Path $oemPath -Name "SupportHours" -Value "Seg-Sex: 08h-18h" -Type "String" -Force
+    Set-RegistryValue -Path $oemPath -Name "SupportPhone" -Value "+55 16 99263-6487" -Type "String" -Force
+    Set-RegistryValue -Path $oemPath -Name "Logo" -Value "C:\Windows\oemlogo.bmp" -Type "String" -Force
 
     # Pequena pausa
     Start-Sleep -Seconds 5
-    Log-Action "Pausa de 5 segundos concluída." -Level "INFO" -ConsoleOutput
+    Log-Action -Message "Pausa de 5 segundos concluída." -Level "INFO" -ConsoleOutput
 
-    # Exibir mensagem final e menu de reinício
+    # Exibir mensagem final
     $banner = @(
       "",
       "",
@@ -4949,19 +4919,15 @@ function Finished {
       "Pressione qualquer tecla para continuar..."
     )
 
-    # Opções para o menu de reinício
-    $options = @("S", "N")
-
-    # Exibir banner (sem menu interativo aqui, apenas informativo)
     for ($i = 0; $i -lt $banner.Length; $i++) {
       $color = if ($i -lt 5) { "Amarelo" } elseif ($i -ge 6 -and $i -lt 16) { "AmareloClaro" } else { "Verde" }
+      Log-Action -Message $banner[$i] -Level "INFO" -ConsoleOutput
       Write-Colored -Text $banner[$i] -Color $color
     }
-
     [Console]::ReadKey($true) | Out-Null
 
     # Abrir URL no navegador
-    Log-Action "Abrindo URL de suporte http://techremote.com.br no navegador..." -Level "INFO" -ConsoleOutput
+    Log-Action -Message "Abrindo URL de suporte http://techremote.com.br no navegador..." -Level "INFO" -ConsoleOutput
     Start-Process "http://techremote.com.br" -ErrorAction Stop
 
     # Perguntar se deseja reiniciar
@@ -4975,27 +4941,28 @@ function Finished {
       "≫ Deseja reiniciar o computador agora?",
       ""
     )
-
+    $options = @("S", "N")
     $reinicioSelection = Show-Menu -BannerLines $reinicioBanner -Options $options -Prompt "Deseja reiniciar agora? (S/N)" -ColorScheme "AmareloClaro"
 
     if ($reinicioSelection -eq "S") {
-      Write-Colored "Reiniciando o computador..." "VermelhoClaro"
-      Log-Action "Usuário escolheu reiniciar. Reiniciando o computador..." -Level "INFO" -ConsoleOutput
+          
+      Log-Action -Message "Usuário escolheu reiniciar. Reiniciando o computador..." -Level "INFO" -ConsoleOutput
       Restart-Computer -Force -ErrorAction Stop
     }
     else {
-      Write-Colored "Pressione qualquer tecla para sair..." "Verde"
-      Log-Action "Usuário escolheu não reiniciar. Aguardando pressionamento de tecla para sair..." -Level "INFO" -ConsoleOutput
+          
+      Log-Action -Message "Usuário escolheu não reiniciar. Aguardando pressionamento de tecla para sair..." -Level "INFO" -ConsoleOutput
       [Console]::ReadKey($true) | Out-Null
     }
   }
   catch {
     $errorMessage = "Erro na função Finished: $_"
-    Log-Action $errorMessage -Level "ERROR" -Color "VermelhoClaro" -ConsoleOutput
-    throw  # Repropaga o erro
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+      
+    throw
   }
   finally {
-    Log-Action "Finalizando função Finished." -Level "INFO" -ConsoleOutput
+    Log-Action -Message "Finalizando função Finished." -Level "INFO" -ConsoleOutput
   }
 }
 
