@@ -443,7 +443,7 @@ function Set-RegistryValue {
     Log-Action -Message "Propriedade $Name configurada com sucesso em $Path com valor $Value." -Level "INFO" -ConsoleOutput
   }
   catch {
-    $errorMessage = "Erro ao configurar o registro em $Path\$Name: $_"
+    $errorMessage = "Erro ao configurar o registro em $Path\$Name $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
     Write-Colored $errorMessage -Color "VermelhoClaro"
     throw  # Repropaga o erro para a função chamadora
