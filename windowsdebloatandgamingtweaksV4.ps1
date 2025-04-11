@@ -5,7 +5,7 @@
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.5.9 (GROK / GPT)"
+$versao = "V0.7.2.6.0 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -349,6 +349,66 @@ function Show-Intro {
 # Configurar drives de registro
 New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT -ErrorAction SilentlyContinue | Out-Null
 New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS -ErrorAction SilentlyContinue | Out-Null
+
+function Get-GPUType {
+  [CmdletBinding()]
+  param (
+    [switch]$IncludePNPIds = $false  # Opção para retornar IDs PNP, útil para MSIMode
+  )
+
+  Log-Action -Message "Iniciando detecção de GPU com Get-GPUType." -Level "INFO" -ConsoleOutput
+
+  try {
+    # Obter informações das GPUs instaladas
+    $gpuInfo = Get-CimInstance -ClassName Win32_VideoController -ErrorAction Stop | 
+    Where-Object { $_.CurrentBitsPerPixel -and $_.AdapterDACType } |
+    Select-Object Name, PNPDeviceID
+
+    if (-not $gpuInfo) {
+      Log-Action -Message "Nenhuma GPU detectada no sistema." -Level "WARNING" -ConsoleOutput
+      return [PSCustomObject]@{
+        Type   = "Nenhum"
+        Name   = "Nenhuma GPU detectada"
+        PNPIds = $null
+      }
+    }
+
+    # Processar cada GPU encontrada (suporte a múltiplas GPUs)
+    $gpuResults = foreach ($gpu in $gpuInfo) {
+      $gpuName = $gpu.Name
+      Log-Action -Message "GPU detectada: $gpuName" -Level "INFO" -ConsoleOutput
+
+      # Determinar o tipo de GPU
+      $isNvidia = $gpuName -like "*NVIDIA*" -or $gpuName -like "*GTX*" -or $gpuName -like "*RTX*"
+      $isAMD = $gpuName -like "*AMD*" -or $gpuName -like "*Radeon*" -or $gpuName -like "*RX*"
+
+      $gpuType = if ($isNvidia) { "NVIDIA" }
+      elseif ($isAMD) { "AMD" }
+      else { "Outro" }
+
+      # Criar objeto de resultado
+      $result = [PSCustomObject]@{
+        Type   = $gpuType
+        Name   = $gpuName
+        PNPIds = if ($IncludePNPIds) { $gpu.PNPDeviceID } else { $null }
+      }
+      $result
+    }
+
+    # Retornar todos os resultados (array se houver múltiplas GPUs)
+    return $gpuResults
+  }
+  catch {
+    $errorMessage = "Erro ao detectar GPU: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    return [PSCustomObject]@{
+      Type   = "Erro"
+      Name   = "Erro ao detectar GPU"
+      PNPIds = $null
+    }
+  }
+}
 
 # Verificar privilégios administrativos
 function RequireAdmin {
@@ -888,11 +948,13 @@ function DownloadFiles {
   $gpuPath = "$env:TEMP\GPU"
   if (-not (Test-Path $gpuPath)) { New-Item -Path $gpuPath -ItemType Directory -Force | Out-Null }
 
-  # Detectar GPU
-  $gpuName = (Get-CimInstance Win32_VideoController).Name
-  Log-Action -Message "GPU detectada: $gpuName" -Level "INFO" -ConsoleOutput
-  $isNvidia = $gpuName -like "*NVIDIA*" -or $gpuName -like "*GTX*" -or $gpuName -like "*RTX*"
-  $isAMD = $gpuName -like "*AMD*" -or $gpuName -like "*Radeon*" -or $gpuName -like "*RX*"
+  # Detectar GPU com Get-GPUType
+  Log-Action -Message "Detectando tipo de GPU..." -Level "INFO" -ConsoleOutput
+
+  $gpu = Get-GPUType
+  $isNvidia = $gpu.Type -eq "NVIDIA"
+  $isAMD = $gpu.Type -eq "AMD"
+  # O log já é feito dentro de Get-GPUType, então não precisa repetir
 
   # Definir downloads base
   $downloads = @{}
@@ -4274,7 +4336,10 @@ function MSIMode {
     Log-Action -Message "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
 
     # Usar Get-CimInstance para obter os IDs PNP das placas de vídeo
-    $GPUIDS = Get-CimInstance -ClassName Win32_VideoController | Select-Object -ExpandProperty PNPDeviceID
+    $gpu = Get-GPUType -IncludePNPIds
+    $GPUIDS = $gpu.PNPIds
+    # A verificação de tipo pode ser feita diretamente com $gpu.Type
+
     if ($null -eq $GPUIDS -or $GPUIDS.Count -eq 0) {
       Log-Action -Message "Nenhuma placa de vídeo detectada. Pulando configuração do modo MSI." -Level "WARNING" -ConsoleOutput
       'No Video Controllers Found! Skipping...'
@@ -4343,10 +4408,9 @@ function OptimizeGPUTweaks {
   Log-Action -Message "Iniciando otimizações de GPU..." -Level "INFO" -ConsoleOutput
 
   # Detectar GPU
-  $gpuName = (Get-CimInstance Win32_VideoController).Name
-  Log-Action -Message "GPU detectada: $gpuName" -Level "INFO" -ConsoleOutput
-  $isNvidia = $gpuName -like "*NVIDIA*" -or $gpuName -like "*GTX*" -or $gpuName -like "*RTX*"
-  $isAMD = $gpuName -like "*AMD*" -or $gpuName -like "*Radeon*" -or $gpuName -like "*RX*"
+  $gpu = Get-GPUType
+  $isNvidia = $gpu.Type -eq "NVIDIA"
+  $isAMD = $gpu.Type -eq "AMD"
 
   if (-not $isNvidia -and -not $isAMD) {
     Log-Action -Message "Nenhuma GPU NVIDIA ou AMD detectada. Pulando otimizações." -Level "WARNING" -ConsoleOutput
