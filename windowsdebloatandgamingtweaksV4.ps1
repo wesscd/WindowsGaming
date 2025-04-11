@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.6.1 (GROK / GPT)
+# Versão: V0.7.2.6.3 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.6.2 (GROK / GPT)"
+$versao = "V0.7.2.6.3 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -741,8 +741,7 @@ function Execute-BatchScript {
     $expectedHash = "319048D53494BFAD71260B6415A2FFC90F0A83565A52856DFAE70810B40E593A"  # hash real
 
     Log-Action -Message "Baixando script em batch de $remoteUrl para $localPath..." -ConsoleOutput
-    Write-Output "Baixando e executando o script em batch..."
-
+    
     # Download do script
     Invoke-WebRequest -Uri $remoteUrl -OutFile $localPath -ErrorAction Stop
 
@@ -751,8 +750,7 @@ function Execute-BatchScript {
 
     if (Test-Path $localPath) {
       Log-Action -Message "Download concluído com sucesso. Executando o script..." -Level "INFO" -ConsoleOutput
-      Write-Output "Download concluído. Executando o script..."
-
+      
       # Executar o script
       Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$localPath`"" -Wait -NoNewWindow -ErrorAction Stop
       Log-Action -Message "Script em batch executado com sucesso." -Level "INFO" -ConsoleOutput
@@ -775,7 +773,7 @@ function Execute-BatchScript {
       try {
         Remove-Item $localPath -Force -ErrorAction Stop
         Log-Action -Message "Arquivo temporário removido com sucesso." -Level "INFO" -ConsoleOutput
-        Write-Output "Arquivo temporário removido."
+        
       }
       catch {
         $errorMessage = "Erro ao remover arquivo temporário $localPath $_"
@@ -846,7 +844,7 @@ function Check-Windows {
             else {
               $errorMessage = "Falha ao ativar o Windows com a chave fornecida. Resultado: $activationResult"
               Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
-              Write-Output $activationResult
+              
             }
           }
           catch {
@@ -889,8 +887,9 @@ function Check-Windows {
   catch {
     $errorMessage = "Erro ao verificar o status de ativação do Windows: $_"
     Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
-    Write-Output "Certifique-se de ter permissões administrativas."
+    
+    Log-Action "Certifique-se de ter permissões administrativas." -Level "INFO" -ConsoleOutput
+    
   }
   finally {
     Log-Action "Finalizando verificação de ativação do Windows." -Level "INFO" -ConsoleOutput
@@ -1059,7 +1058,7 @@ function DownloadFiles {
         Log-Action -Message "Removendo arquivos temporários do O&O ShutUp10..." -ConsoleOutput
         Remove-Item -Path $item.ConfigDestination, $item.Destination -Force -ErrorAction Stop
         Log-Action -Message "O&O ShutUp10 executado e arquivos temporários removidos com sucesso." -Level "INFO" -ConsoleOutput
-        Write-Output "O&O ShutUp10 executado e arquivos temporários removidos."
+        
       }
       catch {
         Log-Action -Message "Erro ao executar ou limpar O&O ShutUp10: $_" -Level "ERROR" -ConsoleOutput
@@ -1092,9 +1091,9 @@ function InstallChocoUpdates {
     }
 
     # Limpar a tela e atualizar os pacotes
-    Log-Action -Message "Limpando a tela e iniciando atualização de todos os pacotes..." -ConsoleOutput
+    Log-Action -Message "Limpando a tela e iniciando atualização de todos os pacotes Chocollatey..." -ConsoleOutput
     Clear-Host
-    Write-Output "Atualizando todos os pacotes instalados via Chocolatey..."
+    
 
     $updateResult = choco upgrade all -y -r --limitoutput --no-progress | Out-String -ErrorAction Stop
 
@@ -1430,7 +1429,7 @@ function EnableF8BootMenu {
   Log-Action -Message "Iniciando função EnableF8BootMenu para habilitar as opções do menu de inicialização F8." -ConsoleOutput
 
   try {
-    Write-Output "Enabling F8 boot menu options..."
+    
     Log-Action -Message "Habilitando as opções do menu de inicialização F8..." -ConsoleOutput
 
     Log-Action -Message "Executando bcdedit para definir bootmenupolicy como Legacy..." -ConsoleOutput
@@ -1508,7 +1507,7 @@ function DisableMeltdownCompatFlag {
   Log-Action -Message "Iniciando função DisableMeltdownCompatFlag para desativar o flag de compatibilidade do Meltdown (CVE-2017-5754)." -ConsoleOutput
 
   try {
-    Write-Output "Disabling Meltdown (CVE-2017-5754) compatibility flag..."
+    
     Log-Action -Message "Desativando o flag de compatibilidade do Meltdown (CVE-2017-5754)..." -ConsoleOutput
 
     # Definir o caminho do registro
@@ -1545,7 +1544,7 @@ function DisableGaming {
   Log-Action -Message "Iniciando função DisableGaming para parar e desativar serviços desnecessários para jogos." -ConsoleOutput
 
   try {
-    Write-Output "Stopping and disabling unnecessary services for gaming..."
+    
     Log-Action -Message "Parando e desativando serviços desnecessários para jogos..." -ConsoleOutput
 
     $errpref = $ErrorActionPreference
@@ -1606,7 +1605,7 @@ function DisableHomeGroups {
   Log-Action -Message "Iniciando função DisableHomeGroups para parar e desativar serviços de Grupos Domésticos." -ConsoleOutput
 
   try {
-    Write-Output "Stopping and disabling Home Groups services..."
+    
     Log-Action -Message "Parando e desativando serviços de Grupos Domésticos..." -ConsoleOutput
 
     $errpref = $ErrorActionPreference
@@ -1668,7 +1667,7 @@ function EnableSharedExperiences {
   Log-Action -Message "Iniciando função EnableSharedExperiences para habilitar Experiências Compartilhadas." -ConsoleOutput
 
   try {
-    Write-Output "Enabling Shared Experiences..."
+    
     Log-Action -Message "Habilitando Experiências Compartilhadas..." -ConsoleOutput
 
     # Definir o caminho do registro
@@ -1718,8 +1717,8 @@ function EnableRemoteDesktop {
   Log-Action -Message "Iniciando função EnableRemoteDesktop para habilitar a Área de Trabalho Remota sem autenticação de nível de rede." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Enabling Remote Desktop w/o Network Level Authentication..."
-
+    Log-Action -Message "Habilitando a Área de Trabalho Remota sem autenticação de nível de rede..." -ConsoleOutput
+    
     $errpref = $ErrorActionPreference
     $ErrorActionPreference = "SilentlyContinue"
     Log-Action -Message "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -Level "INFO" -ConsoleOutput
@@ -1917,7 +1916,7 @@ function DisableHibernation {
   Log-Action -Message "Iniciando função DisableHibernation para desativar a hibernação." -ConsoleOutput
 
   try {
-    Write-Output "Disabling Hibernation..."
+    
     Log-Action -Message "Desativando a hibernação..." -ConsoleOutput
 
     Log-Action -Message "Executando powercfg /hibernate off..." -ConsoleOutput
@@ -1963,7 +1962,7 @@ function DisableSleepTimeout {
   Log-Action -Message "Iniciando função DisableSleepTimeout para desativar o tempo limite de suspensão." -ConsoleOutput
 
   try {
-    Write-Output "Disabling Sleep Timeout..."
+    
     Log-Action -Message "Desativando o tempo limite de suspensão..." -ConsoleOutput
 
     Log-Action -Message "Executando powercfg -change -standby-timeout-ac 0 para desativar timeout em AC..." -ConsoleOutput
@@ -2055,7 +2054,7 @@ function Win32PrioritySeparation {
   Log-Action -Message "Iniciando função Win32PrioritySeparation para otimizar a separação de prioridade Win32 para jogos." -ConsoleOutput
 
   try {
-    Write-Output "Optimizing Win32 Priority Separation for gaming..."
+    
     Log-Action -Message "Otimizando a separação de prioridade Win32 para jogos..." -ConsoleOutput
 
     Log-Action -Message "Configurando Win32PrioritySeparation para 38 em HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl..." -ConsoleOutput
@@ -2127,7 +2126,8 @@ function BSODdetails {
 }
 
 function DisableliveTiles {
-  Write-Output "Disabling Live Tiles..."
+  Log-Action -Message "Iniciando função DisableliveTiles para desativar os Live Tiles." -ConsoleOutput
+  
   If (!(Test-Path "HKCU:\Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications")) {
     New-Item -Path "HKCU:\Software\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" -Force | Out-Null
   }
@@ -2136,13 +2136,15 @@ function DisableliveTiles {
 }
 
 function WallpaperQuality {
-  Write-Output "Setting wallpaper quality to maximum..."
+  Log-Action -Message "Iniciando função WallpaperQuality para definir a qualidade do papel de parede." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Control Panel\Desktop" -Name "JPEGImportQuality" -Value 100 -Type "DWord" -Force
   
 }
 
 function DisableShistory {
-  Write-Output "Disabling Shell history..."
+  Log-Action -Message "Iniciando função DisableShistory para desativar o histórico do Shell." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "Shell Folders" -Value 0 -Type "DWord" -Force
   
 }
@@ -2154,43 +2156,50 @@ function DisableShortcutWord {
 }
 
 function DisableMouseKKS {
-  Write-Output "Disabling mouse keys..."
+  Log-Action -Message "Iniciando função DisableMouseKKS para desativar as teclas do mouse." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Control Panel\Accessibility\MouseKeys" -Name "Flags" -Value 0 -Type "DWord" -Force
   
 }
 
 function DisableTransparency {
-  Write-Output "Disabling transparency effects..."
+  Log-Action -Message "Iniciando função DisableTransparency para desativar os efeitos de transparência." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "EnableTransparency" -Value 0 -Type "DWord" -Force
   
 }
 
 function TurnOffSafeSearch {
-  Write-Output "Turning off Safe Search..."
+  Log-Action -Message "Iniciando função TurnOffSafeSearch para desativar a pesquisa segura." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SafeSearch" -Value 0 -Type "DWord" -Force
   
 }
 
 function DisableCloudSearch {
-  Write-Output "Disabling cloud search..."
+  Log-Action -Message "Iniciando função DisableCloudSearch para desativar a pesquisa na nuvem." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "CortanaConsent" -Value 0 -Type "DWord" -Force
   
 }
 
 function DisableDeviceHistory {
-  Write-Output "Disabling device history..."
+  Log-Action -Message "Iniciando função DisableDeviceHistory para desativar o histórico de dispositivos." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\DeviceAccess" -Name "DeviceHistory" -Value 0 -Type "DWord" -Force
   
 }
 
 function DisableSearchHistory {
-  Write-Output "Disabling search history..."
+  Log-Action -Message "Iniciando função DisableSearchHistory para desativar o histórico de pesquisa." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "HistoryEnabled" -Value 0 -Type "DWord" -Force
   
 }
 
 function RemoveMeet {
-  Write-Output "Removing Meet Now from taskbar..."
+  Log-Action -Message "Iniciando função RemoveMeet para remover o Meet Now da barra de tarefas." -ConsoleOutput
+  
   If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer")) {
     New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Force | Out-Null
   }
@@ -2199,36 +2208,40 @@ function RemoveMeet {
 }
 
 function EnableActionCenter {
-  Write-Output "Enabling Action Center..."
+  Log-Action -Message "Iniciando função EnableActionCenter para habilitar o Action Center." -ConsoleOutput
+  
   Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Name "DisableNotificationCenter" -ErrorAction SilentlyContinue
 }
 
 function EnableLockScreen {
-  Write-Output "Enabling Lock Screen..."
+  Log-Action -Message "Iniciando função EnableLockScreen para habilitar a tela de bloqueio." -ConsoleOutput
+  
   Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -ErrorAction SilentlyContinue
 }
 
 function EnableLockScreenRS1 {
-  Write-Output "Enabling Lock Screen (RS1 compatibility)..."
+  Log-Action -Message "Iniciando função EnableLockScreenRS1 para habilitar a tela de bloqueio (compatibilidade com RS1)." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI" -Name "LockScreenEnabled" -Value 1 -Type "DWord" -Force
   
 }
 
 function DisableStickyKeys {
-  Write-Output "Disabling Sticky Keys..."
-  Set-RegistryValue -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Value 506 -Type "DWord" -Force
+  Log-Action -Message "Iniciando função DisableStickyKeys para desativar as teclas de aderência." -ConsoleOutput
   
+  Set-RegistryValue -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Value 506 -Type "DWord" -Force
 }
 
 function ShowTaskManagerDetails {
-  Write-Output "Exibindo detalhes do Gerenciador de Tarefas..."
-
+  Log-Action -Message "Iniciando função ShowTaskManagerDetails para exibir detalhes do Gerenciador de Tarefas." -ConsoleOutput
+  
   # Define o caminho do registro
   $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager"
 
   # Verifica se a chave existe, senão cria
   if (!(Test-Path $regPath)) {
-    Write-Output "A chave do registro não existe. Criando agora..."
+    Log-Action -Message "A chave do registro $regPath não existe. Criando..." -ConsoleOutput
+    
     New-Item -Path $regPath -Force | Out-Null
   }
 
@@ -2237,7 +2250,8 @@ function ShowTaskManagerDetails {
 
   #Set-ItemProperty -Path $regPath -Name "Preferences" -Type Binary -Value ([byte[]](0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00))
   
-  Write-Output "Configuração do Gerenciador de Tarefas aplicada com sucesso."
+  Log-Action -Message "Configuração do Gerenciador de Tarefas aplicada com sucesso." -Level "INFO" -ConsoleOutput
+  
 }
 
 function ShowFileOperationsDetails {
@@ -2261,7 +2275,7 @@ function ShowFileOperationsDetails {
     Set-RegistryValue -Path $regPath -Name "EnthusiastMode" -Value 1 -Type "DWord" -Force
     #Set-ItemProperty -Path $regPath -Name "EnthusiastMode" -Type DWord -Value 1 -ErrorAction Stop
     Log-Action -Message "EnthusiastMode configurado com sucesso para exibir detalhes de operações de arquivo." -Level "INFO" -ConsoleOutput
-    Write-Output "Detalhes de operações de arquivo configurados para serem exibidos."
+    
   }
   catch {
     $errorMessage = "Erro na função ShowFileOperationsDetails: $_"
@@ -2275,25 +2289,29 @@ function ShowFileOperationsDetails {
 }
 
 function DisableFileDeleteConfirm {
-  Write-Output "Disabling file delete confirmation..."
+  Log-Action -Message "Iniciando função DisableFileDeleteConfirm para desativar a confirmação de exclusão de arquivos." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "ConfirmFileDelete" -Value 0 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "ConfirmFileDelete" -Type DWord -Value 0
 }
 
 function HideTaskbarSearch {
-  Write-Output "Hiding taskbar search..."
+  Log-Action -Message "Iniciando função HideTaskbarSearch para ocultar a pesquisa na barra de tarefas." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 0 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 0
 }
 
 function HideTaskView {
-  Write-Output "Hiding Task View button..."
+  Log-Action -Message "Iniciando função HideTaskView para ocultar o botão de visualização de tarefas." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0
 }
 
 function HideTaskbarPeopleIcon {
-  Write-Output "Hiding People icon from taskbar..."
+  Log-Action -Message "Iniciando função HideTaskbarPeopleIcon para ocultar o ícone de pessoas na barra de tarefas." -ConsoleOutput
+  
   If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People")) {
     New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Force | Out-Null
   }
@@ -2302,7 +2320,8 @@ function HideTaskbarPeopleIcon {
 }
 
 function DisableSearchAppInStore {
-  Write-Output "Disabling search for apps in Store..."
+  Log-Action -Message "Iniciando função DisableSearchAppInStore para desativar a pesquisa de aplicativos na Microsoft Store." -ConsoleOutput
+  
   If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer")) {
     New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Force | Out-Null
   }
@@ -2310,55 +2329,64 @@ function DisableSearchAppInStore {
 }
 
 function DisableNewAppPrompt {
-  Write-Output "Disabling new app installed prompt..."
+  Log-Action -Message "Iniciando função DisableNewAppPrompt para desativar o prompt de novos aplicativos instalados." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_NotifyNewApps" -Value 0 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_NotifyNewApps" -Type DWord -Value 0
 }
 
 function SetVisualFXPerformance {
-  Write-Output "Setting visual effects for performance..."
+  Log-Action -Message "Iniciando função SetVisualFXPerformance para definir os efeitos visuais para desempenho." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Value 2 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Type DWord -Value 2
 }
 
 function EnableNumlock {
-  Write-Output "Enabling Num Lock on startup..."
+  Log-Action -Message "Iniciando função EnableNumlock para habilitar o Num Lock na inicialização." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Control Panel\Keyboard" -Name "InitialKeyboardIndicators" -Value 2 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Control Panel\Keyboard" -Name "InitialKeyboardIndicators" -Type DWord -Value 2
 }
 
 function EnableDarkMode {
-  Write-Output "Enabling Dark Mode..."
+  Log-Action -Message "Iniciando função EnableDarkMode para habilitar o modo escuro." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0
 }
 
 function ShowKnownExtensions {
-  Write-Output "Showing known file extensions..."
+  Log-Action -Message "Iniciando função ShowKnownExtensions para mostrar extensões de arquivos conhecidas." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 1 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
 }
 
 function HideHiddenFiles {
-  Write-Output "Hiding hidden files..."
+  Log-Action -Message "Iniciando função HideHiddenFiles para ocultar arquivos ocultos." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value 2 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 2
 }
 
 function HideSyncNotifications {
-  Write-Output "Hiding sync provider notifications..."
+  Log-Action -Message "Iniciando função HideSyncNotifications para ocultar notificações de sincronização." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSyncProviderNotifications" -Value 0 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSyncProviderNotifications" -Type DWord -Value 0
 }
 
 function HideRecentShortcuts {
-  Write-Output "Hiding recent shortcuts..."
+  Log-Output "Iniciando função HideRecentShortcuts para ocultar atalhos recentes." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Value 0 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackDocs" -Type DWord -Value 0
 }
 
 function SetExplorerThisPC {
-  Write-Output "Setting Explorer to open This PC..."
+  Log-Output "Iniciando função SetExplorerThisPC para definir o Explorer para abrir This PC." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 1 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
 }
@@ -3045,8 +3073,8 @@ function ManagePowerProfiles {
   Log-Action -Message "Iniciando função ManagePowerProfiles para gerenciar perfis de energia." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Gerenciando Perfis de Energia..."
-
+    Log-Action -Message "Gerenciando Perfis de Energia..." -Level "INFO" -ConsoleOutput
+    
     # Definir o banner e opções para o menu
     $banner = @(
       "",
@@ -3084,7 +3112,8 @@ function ManagePowerProfiles {
         }
 
         if ($schemes -notcontains $fullPowerGamingGUID) {
-          Write-Output "O perfil Full Power Gaming (GUID: $fullPowerGamingGUID) não existe. Criando um novo..."
+          Log-Action -Message "O perfil Full Power Gaming (GUID: $fullPowerGamingGUID) não existe." -Level "WARNING" -ConsoleOutput
+          
           # Criar novo plano baseado em Alto Desempenho
           $newSchemeOutput = & powercfg /duplicatescheme 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
           if ($newSchemeOutput) {
@@ -3176,12 +3205,13 @@ $PSDefaultParameterValues['*:Encoding'] = 'utf8'
 [System.Threading.Thread]::CurrentThread.CurrentUICulture = "pt-BR"
 
 function DisableDMA {
-  Write-Output "Disabling Direct Memory Access remapping..."
+  Log-Action -Message "Desativando o acesso direto à memória (DMA)..." -Level "INFO" -ConsoleOutput
   bcdedit /set configaccesspolicy DisallowMmConfig | Out-Null
 }
 
 Function DisablePKM {
-  Write-Output "Disabling Process and Kernel Mitigations..."
+  Log-Action -Message "Desativando o Kernel Memory Protection..." -Level "INFO" -ConsoleOutput
+  
   $errpref = $ErrorActionPreference #save actual preference
   $ErrorActionPreference = "silentlycontinue"
   ForEach ($v in (Get-Command -Name "Set-ProcessMitigation").Parameters["Disable"].Attributes.ValidValues) { Set-ProcessMitigation -System -Disable $v.ToString() -ErrorAction SilentlyContinue }
@@ -3195,14 +3225,15 @@ Function DisablePKM {
 }
 
 function DisallowDIP {
-  Write-Output "Desativando prompts de instalação de drivers..."
-
+  Log-Action -Message "Desativando prompts de instalação de drivers..." -Level "INFO" -ConsoleOutput
+  
   # Define o caminho do registro
   $regPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverInstall"
 
   # Verifica se a chave existe, senão cria
   if (!(Test-Path $regPath)) {
-    Write-Output "A chave do registro não existe. Criando agora..."
+    Log-Action -Message "A chave do registro não existe. Criando agora..." -Level "INFO" -ConsoleOutput
+    
     New-Item -Path $regPath -Force | Out-Null
   }
 
@@ -3210,21 +3241,25 @@ function DisallowDIP {
   Set-RegistryValue -Path $regPath -Name "PromptOnNewDevice" -Value 0 -Type "DWord" -Force
   #Set-ItemProperty -Path $regPath -Name "PromptOnNewDevice" -Type DWord -Value 0
 
-  Write-Output "Configuração aplicada com sucesso."
+  Log-Action -Message "Configuração aplicada com sucesso." -Level "INFO" -ConsoleOutput
+
 }
 
 function UseBigM {
-  Write-Output "Enabling big memory allocation..."
+  Log-Action -Message "Habilitando alocação de memória grande..." -Level "INFO" -ConsoleOutput
+  
   bcdedit /set increaseuserva 4096 | Out-Null
 }
 
 function ForceContiguousM {
-  Write-Output "Forcing contiguous memory allocation..."
+  Log-Action -Message "Forçando alocação de memória contígua..." -Level "INFO" -ConsoleOutput
+  
   bcdedit /set removememory 1024 | Out-Null
 }
 
 function DecreaseMKBuffer {
-  Write-Output "Decreasing mouse/keyboard buffer size..."
+  Log-Action -Message "Reduzindo o tamanho do buffer do mouse/teclado..." -Level "INFO" -ConsoleOutput
+  
   Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" -Name "MouseDataQueueSize" -Value 50 -Type "DWord" -Force
   Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" -Name "KeyboardDataQueueSize" -Value 50 -Type "DWord" -Force
    
@@ -3233,7 +3268,8 @@ function DecreaseMKBuffer {
 }
 
 function StophighDPC {
-  Write-Output "Reducing high DPC latency..."
+  Log-Action -Message "Reduzindo alta latência DPC..." -Level "INFO" -ConsoleOutput
+  
   Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "ExitLatency" -Value 0 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "ExitLatency" -Type DWord -Value 0
   Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "ExitLatencyCheckEnabled" -Value 0 -Type "DWord" -Force
@@ -3337,14 +3373,16 @@ function Ativar-Servicos {
 }
 
 function RemoveEdit3D {
-  Write-Output "Removing 'Edit with 3D Paint' from context menu..."
+  Log-Action -Message "Removendo 'Editar com 3D Paint' do menu de contexto." -Level "INFO" -ConsoleOutput
+  
   Remove-Item -Path "HKCR:\SystemFileAssociations\.bmp\Shell\3D Edit" -Recurse -ErrorAction SilentlyContinue
   Remove-Item -Path "HKCR:\SystemFileAssociations\.jpg\Shell\3D Edit" -Recurse -ErrorAction SilentlyContinue
   Remove-Item -Path "HKCR:\SystemFileAssociations\.png\Shell\3D Edit" -Recurse -ErrorAction SilentlyContinue
 }
 
 function FixURLext {
-  Write-Output "Fixing URL file associations..."
+  Log-Action -Message "Corrigindo associações de arquivos .url." -Level "INFO" -ConsoleOutput
+  
   If (!(Test-Path "HKCR:\.url")) {
     New-Item -Path "HKCR:\.url" -Force | Out-Null
   }
@@ -3353,7 +3391,8 @@ function FixURLext {
 }
 
 function UltimateCleaner {
-  Write-Output "Running ultimate system cleanup..."
+  Log-Action -Message "Iniciando função UltimateCleaner para limpeza do sistema." -Level "INFO" -ConsoleOutput
+  
   Remove-Item -Path "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
   Remove-Item -Path "$env:windir\Temp\*" -Recurse -Force -ErrorAction SilentlyContinue
   Remove-Item -Path "$env:windir\Prefetch\*" -Recurse -Force -ErrorAction SilentlyContinue
@@ -3361,7 +3400,8 @@ function UltimateCleaner {
 }
 
 function Clear-PSHistory {
-  Write-Output "Clearing PowerShell command history..."
+  Log-Action -Message "Iniciando função Clear-PSHistory para limpar o histórico do PowerShell." -Level "INFO" -ConsoleOutput
+  
   Remove-Item -Path (Get-PSReadlineOption).HistorySavePath -Force -ErrorAction SilentlyContinue
 }
 
@@ -3396,8 +3436,9 @@ function Remove-OneDrive {
     switch ($selection) {
       "R" {
         Log-Action "Opção escolhida: Remover o OneDrive." -Level "INFO" -ConsoleOutput
-        Write-Output "Removendo o OneDrive..."
 
+        Log-Action "Removendo o OneDrive..." -Level "INFO" -ConsoleOutput
+        
         try {
           # Parar o processo do OneDrive
           Stop-Process -Name "OneDrive" -Force -ErrorAction SilentlyContinue
@@ -3418,25 +3459,25 @@ function Remove-OneDrive {
         catch {
           $errorMessage = "Erro ao remover o OneDrive: $_"
           Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
-          Write-Colored $errorMessage -Color "VermelhoClaro"
+          
         }
       }
       "M" {
         Log-Action "Opção escolhida: Manter o OneDrive." -Level "INFO" -ConsoleOutput
-        Write-Output "Mantendo o OneDrive..."
+        
         Log-Action "OneDrive mantido no sistema." -Level "INFO" -ConsoleOutput
-        Write-Colored "OneDrive mantido no sistema." -Color "VerdeClaro"
+        
       }
       "P" {
         Log-Action "Remoção do OneDrive ignorada." -Level "WARNING" -ConsoleOutput
-        Write-Colored "Remoção do OneDrive ignorada." -Color "AmareloClaro"
+        
       }
     }
   }
   catch {
     $errorMessage = "Erro na função Remove-OneDrive: $_"
     Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
   }
   finally {
     Log-Action "Finalizando função Remove-OneDrive." -Level "INFO" -ConsoleOutput
@@ -3451,7 +3492,8 @@ function Windows11Extras {
     Log-Action -Message "Versão do sistema operacional detectada: Build $osBuild" -ConsoleOutput
 
     if ($osBuild -ge 22000) {
-      Write-Output "Applying Windows 11 specific tweaks..."
+      Log-Action -Message "Sistema operacional é Windows 11 (Build >= 22000). Aplicando ajustes..." -ConsoleOutput
+      
       Log-Action -Message "Aplicando ajustes específicos do Windows 11..." -ConsoleOutput
 
       Log-Action -Message "Configurando TaskbarAl para 0 em HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced..." -ConsoleOutput
@@ -3485,7 +3527,7 @@ function DebloatAll {
   Log-Action -Message "Iniciando função DebloatAll para executar o processo completo de debloat." -ConsoleOutput
 
   try {
-    Write-Output "Running full debloat process..."
+    # Exibir banner informativo inicial usando Show-Menu (sem opções ainda, apenas informativo)
     Log-Action -Message "Executando o processo completo de debloat..." -ConsoleOutput
 
     $bloatware = @(
@@ -3933,7 +3975,7 @@ function RemoveBloatRegistry {
   Log-Action -Message "Iniciando função RemoveBloatRegistry para remover entradas de registro de bloatware." -ConsoleOutput
 
   try {
-    Write-Output "Removing bloatware registry entries..."
+    
     Log-Action -Message "Removendo entradas de registro de bloatware..." -ConsoleOutput
 
     $keys = @(
@@ -3972,7 +4014,7 @@ function UninstallMsftBloat {
   Log-Action -Message "Iniciando função UninstallMsftBloat para desinstalar bloatware adicional da Microsoft." -ConsoleOutput
 
   try {
-    Write-Output "Uninstalling additional Microsoft bloatware..."
+    
     Log-Action -Message "Desinstalando bloatware adicional da Microsoft..." -ConsoleOutput
 
     $bloatware = @(
@@ -4007,13 +4049,15 @@ function UninstallMsftBloat {
 
 
 function EnableUltimatePower {
-  Write-Output "Enabling Ultimate Performance power plan..."
+  Log-Action -Message "Iniciando função EnableUltimatePower para habilitar o plano de energia Ultimate Performance." -ConsoleOutput
+  
   powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
   powercfg -setactive e9a42b02-d5df-448d-aa00-03f14749eb61
 }
 
 function CreateRestorePoint {
-  Write-Output "Creating system restore point..."
+  Log-Action -Message "Iniciando função CreateRestorePoint para criar um ponto de restauração do sistema." -ConsoleOutput
+  
   Checkpoint-Computer -Description "Before Windows Debloater Gaming Tweaks" -RestorePointType "MODIFY_SETTINGS" -ErrorAction SilentlyContinue
 }
 
@@ -4245,7 +4289,7 @@ function DownloadAndExtractISLC {
     $atalho.TargetPath = $origem
     $atalho.Save()
     Log-Action -Message "Atalho criado com sucesso em $destino." -Level "INFO" -ConsoleOutput
-    Write-Output "Atalho criado em: $destino"
+    
   }
   catch {
     $errorMessage = "Erro na função DownloadAndExtractISLC: $_"
@@ -4326,8 +4370,8 @@ function ApplyPCOptimizations {
   Log-Action -Message "Iniciando função ApplyPCOptimizations para aplicar otimizações no PC." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Aplicando otimizações..."
-
+    Log-Action -Message "Aplicando otimizações..." -Level "INFO" -ConsoleOutput
+    
     $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
 
     # Configurar otimizações usando Set-RegistryValue
@@ -4363,7 +4407,7 @@ function MSIMode {
     $gpus = Get-GPUType -IncludePNPIds
     if ($gpus.Type -eq "Nenhum" -or $gpus.Type -eq "Erro") {
       Log-Action -Message "Nenhuma placa de vídeo detectada ou erro na detecção. Pulando configuração do modo MSI." -Level "WARNING" -ConsoleOutput
-      Write-Output "No Video Controllers Found! Skipping..."
+      
       return
     }
 
@@ -4390,8 +4434,7 @@ function MSIMode {
       # Verificar se a GPU é compatível (NVIDIA GTX/RTX ou AMD)
       if ($gpu.Type -eq "NVIDIA" -or $gpu.Type -eq "AMD") {
         Log-Action -Message "Placa compatível ($($gpu.Type)) encontrada! Habilitando modo MSI para $($gpu.Name)..." -Level "INFO" -ConsoleOutput
-        Write-Output "$($gpu.Type) Compatible Card Found! Enabling MSI Mode..."
-
+        
         $msiRegistryPath = "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties"
 
         # Usar Set-RegistryValue para configurar MSISupported
@@ -4458,7 +4501,7 @@ function OptimizeGPUTweaks {
       $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
       if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
         Log-Action -Message "Este script requer privilégios administrativos para acessar o registro e arquivos do sistema. Por favor, execute como administrador." -Level "ERROR" -ConsoleOutput
-        Write-Output "Erro: Privilégios administrativos necessários. Execute o script como administrador."
+        
         return
       }
       Log-Action -Message "Script em execução com privilégios administrativos confirmados." -Level "INFO" -ConsoleOutput
@@ -4474,7 +4517,7 @@ function OptimizeGPUTweaks {
       $nvidiaGPUs = $gpuInfo | Where-Object { $_.Name -match "nvidia|gtx|rtx" -and $_.Status -eq "OK" }
 
       if (-not $nvidiaGPUs) {
-        Write-Output "No NVIDIA GPU detected via CIM/WMI! Checking registry as fallback..."
+        
         Log-Action -Message "Nenhuma GPU NVIDIA detectada via CIM/WMI. Verificando registro como fallback..." -Level "INFO" -ConsoleOutput
       }
       else {
@@ -4483,7 +4526,7 @@ function OptimizeGPUTweaks {
 
       # Aplicar otimizações de energia se NVIDIA for detectada via CIM/WMI
       if ($nvidiaGPUs) {
-        Write-Output "NVIDIA GTX/RTX Card Detected! Applying Nvidia Power Tweaks..."
+        
         Log-Action -Message "Placa NVIDIA GTX/RTX detectada! Aplicando otimizações de energia..." -ConsoleOutput
 
         $url_base = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/BaseProfile.nip"
@@ -4531,7 +4574,8 @@ function OptimizeGPUTweaks {
       }
       catch {
         Log-Action -Message "Falha ao listar subchaves ou ajustar permissões em $baseRegPath $_" -Level "WARNING" -ConsoleOutput
-        Write-Output "Aviso: Não foi possível acessar o registro de dispositivos de vídeo. Continuando com base em CIM/WMI..."
+        Log-Action -Message "Aviso: Não foi possível acessar o registro de dispositivos de vídeo. Continuando com base em CIM/WMI..." -Level "WARNING" -ConsoleOutput
+        
       }
 
       $foundNvidia = $false
@@ -4542,7 +4586,7 @@ function OptimizeGPUTweaks {
 
           if ($driverDesc -and ($driverDesc -match "nvidia|gtx|rtx" -or ($nvidiaGPUs -and $nvidiaGPUs.Name -contains $driverDesc))) {
             $subKeyName = $key.PSChildName
-            Write-Output "NVIDIA GTX/RTX Card Registry Path $subKeyName Detected! Applying Nvidia Latency Tweaks..."
+            
             Log-Action -Message "Placa NVIDIA GTX/RTX detectada no caminho de registro $subKeyName (DriverDesc: $driverDesc)! Aplicando otimizações de latência..." -ConsoleOutput
             $foundNvidia = $true
 
@@ -4583,8 +4627,9 @@ function OptimizeGPUTweaks {
         Log-Action -Message "Nenhum registro acessível encontrado, mas GPU NVIDIA detectada via CIM/WMI. Tentando chave padrão..." -Level "INFO" -ConsoleOutput
         $defaultRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000"
         if (Test-Path $defaultRegPath) {
-          Write-Output "Tentando aplicar otimizações na chave padrão 0000 para GPU NVIDIA..."
+          
           Log-Action -Message "Aplicando ajustes de latência no caminho padrão $defaultRegPath..." -ConsoleOutput
+
           $properties = @{
             "D3PCLatency"                        = 1
             "F1TransitionLatency"                = 1
@@ -4617,7 +4662,7 @@ function OptimizeGPUTweaks {
       }
 
       if (-not $foundNvidia -and -not $nvidiaGPUs) {
-        Write-Output "No NVIDIA GTX/RTX Card Registry entry Found or Accessible! Skipping..."
+        
         Log-Action -Message "Nenhuma entrada de registro NVIDIA GTX/RTX encontrada ou acessível! Pulando otimizações..." -Level "INFO" -ConsoleOutput
       }
     }
@@ -4644,7 +4689,7 @@ function OptimizeGPUTweaks {
       $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
       if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
         Log-Action -Message "Este script requer privilégios administrativos para acessar o registro. Por favor, execute como administrador." -Level "ERROR" -ConsoleOutput
-        Write-Output "Erro: Privilégios administrativos necessários. Execute o script como administrador."
+        
         return
       }
       Log-Action -Message "Script em execução com privilégios administrativos confirmados." -Level "INFO" -ConsoleOutput
@@ -4660,7 +4705,7 @@ function OptimizeGPUTweaks {
       $amdGPUs = $gpuInfo | Where-Object { $_.Name -match "amd|radeon|rx|vega" -and $_.Status -eq "OK" }
 
       if (-not $amdGPUs) {
-        Write-Output "No AMD GPU detected via CIM/WMI! Checking registry as fallback..."
+        
         Log-Action -Message "Nenhuma GPU AMD detectada via CIM/WMI. Verificando registro como fallback..." -Level "INFO" -ConsoleOutput
       }
       else {
@@ -4690,7 +4735,8 @@ function OptimizeGPUTweaks {
       }
       catch {
         Log-Action -Message "Falha ao listar subchaves ou ajustar permissões em $baseRegPath $_" -Level "WARNING" -ConsoleOutput
-        Write-Output "Aviso: Não foi possível acessar o registro de dispositivos de vídeo. Continuando com base em CIM/WMI..."
+        Log-Action -Message "Aviso: Não foi possível acessar o registro de dispositivos de vídeo. Continuando com base em CIM/WMI..." -Level "WARNING" -ConsoleOutput
+        
       }
 
       $foundAMD = $false
@@ -4701,7 +4747,7 @@ function OptimizeGPUTweaks {
 
           if ($driverDesc -and ($driverDesc -match "amd|radeon|rx|vega" -or ($amdGPUs -and $amdGPUs.Name -contains $driverDesc))) {
             $subKeyName = $key.PSChildName
-            Write-Output "AMD GPU Registry Path $subKeyName Detected! Applying AMD Latency Tweaks..."
+            
             Log-Action -Message "GPU AMD detectada no caminho de registro $subKeyName (DriverDesc: $driverDesc)! Aplicando otimizações de latência..." -ConsoleOutput
             $foundAMD = $true
 
@@ -4741,7 +4787,7 @@ function OptimizeGPUTweaks {
         Log-Action -Message "Nenhum registro acessível encontrado, mas GPU AMD detectada via CIM/WMI. Tentando chave padrão..." -Level "INFO" -ConsoleOutput
         $defaultRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000"
         if (Test-Path $defaultRegPath) {
-          Write-Output "Tentando aplicar otimizações na chave padrão 0000 para GPU AMD..."
+          
           Log-Action -Message "Aplicando ajustes de latência no caminho padrão $defaultRegPath..." -ConsoleOutput
           $properties = @{
             "LTRSnoopL1Latency"               = 1
@@ -4774,7 +4820,7 @@ function OptimizeGPUTweaks {
       }
 
       if (-not $foundAMD) {
-        Write-Output "No AMD GPU Registry entry Found or Accessible! Skipping..."
+        
         Log-Action -Message "Nenhuma entrada de registro AMD GPU encontrada ou acessível! Pulando otimizações de latência..." -Level "INFO" -ConsoleOutput
       }
     }
