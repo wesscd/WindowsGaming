@@ -356,7 +356,7 @@ function Get-GPUType {
     [switch]$IncludePNPIds = $false  # Opção para retornar IDs PNP, útil para MSIMode
   )
 
-  Log-Action -Message "Iniciando detecção de GPU com Get-GPUType." -Level "INFO" -ConsoleOutput
+  Log-Action -Message "Iniciando detecção de GPU com Get-GPUType..." -Level "INFO" -ConsoleOutput
 
   try {
     # Obter informações das GPUs instaladas
