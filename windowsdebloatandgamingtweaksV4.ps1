@@ -5,7 +5,7 @@
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.6.1 (GROK / GPT)"
+$versao = "V0.7.2.6.2 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -190,6 +190,7 @@ function Log-Action {
   )
 
   # Chamar Write-Log (sem MaxLogSizeMB e MaxLogFiles, pois foram removidos)
+  # e não é necessário para o log de ações
   Write-Log -Message $Message -Level $Level -ConsoleOutput:$false
 
   # Se ConsoleOutput for verdadeiro, formatar e exibir no console com cor
@@ -759,15 +760,13 @@ function Execute-BatchScript {
     }
     else {
       $errorMessage = "O arquivo não foi baixado corretamente."
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      Write-Colored $errorMessage -Color "VermelhoClaro"
+      Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
       throw $errorMessage  # Lança o erro
     }
   }
   catch {
     $errorMessage = "Erro ao baixar ou executar o script em batch: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
     throw  # Repropaga o erro
   }
   finally {
@@ -780,8 +779,8 @@ function Execute-BatchScript {
       }
       catch {
         $errorMessage = "Erro ao remover arquivo temporário $localPath $_"
-        Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-        Write-Colored $errorMessage -Color "VermelhoClaro"
+        Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+        
       }
     }
     else {
@@ -1079,8 +1078,7 @@ function InstallChocoUpdates {
     Log-Action -Message "Verificando se o Chocolatey está instalado..." -ConsoleOutput
     if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
       $errorMessage = "Chocolatey não está instalado. Instale-o primeiro usando InstallTitusProgs."
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      Write-Colored $errorMessage -Color "Vermelho"
+      Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
       throw $errorMessage
     }
 
@@ -1088,8 +1086,8 @@ function InstallChocoUpdates {
     $currentUser = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
     if (-not $currentUser.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
       $errorMessage = "Esta função requer privilégios administrativos. Execute como administrador."
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      Write-Colored $errorMessage -Color "Vermelho"
+      Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+      
       throw $errorMessage
     }
 
@@ -1106,15 +1104,15 @@ function InstallChocoUpdates {
     }
     else {
       $errorMessage = "Falha ao atualizar os pacotes do Chocolatey. Saída: $updateResult"
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-      
+      Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+            
       throw $errorMessage
     }
   }
   catch {
     $errorMessage = "Erro durante a atualização dos pacotes do Chocolatey: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "Vermelho"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -1441,7 +1439,8 @@ function EnableF8BootMenu {
   }
   catch {
     $errorMessage = "Erro na função EnableF8BootMenu: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -1533,7 +1532,8 @@ function DisableMeltdownCompatFlag {
   }
   catch {
     $errorMessage = "Erro na função DisableMeltdownCompatFlag: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -1591,7 +1591,8 @@ function DisableGaming {
   }
   catch {
     $errorMessage = "Erro na função DisableGaming: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -1652,7 +1653,8 @@ function DisableHomeGroups {
   }
   catch {
     $errorMessage = "Erro na função DisableHomeGroups: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -1703,7 +1705,8 @@ function EnableSharedExperiences {
   }
   catch {
     $errorMessage = "Erro na função EnableSharedExperiences: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -1923,7 +1926,8 @@ function DisableHibernation {
   }
   catch {
     $errorMessage = "Erro na função DisableHibernation: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -1974,7 +1978,8 @@ function DisableSleepTimeout {
   }
   catch {
     $errorMessage = "Erro na função DisableSleepTimeout: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -2260,8 +2265,8 @@ function ShowFileOperationsDetails {
   }
   catch {
     $errorMessage = "Erro na função ShowFileOperationsDetails: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+        
     throw  # Repropaga o erro para ser tratado externamente, se necessário
   }
   finally {
@@ -2533,7 +2538,8 @@ Function QOL {
   }
   catch {
     $errorMessage = "Erro na função QOL: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -2616,7 +2622,8 @@ Function FullscreenOptimizationFIX {
   }
   catch {
     $errorMessage = "Erro na função FullscreenOptimizationFIX: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -2699,7 +2706,8 @@ Function GameOptimizationFIX {
   }
   catch {
     $errorMessage = "Erro na função GameOptimizationFIX: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -3464,7 +3472,8 @@ function Windows11Extras {
   }
   catch {
     $errorMessage = "Erro na função Windows11Extras: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -3563,7 +3572,8 @@ function DebloatAll {
   }
   catch {
     $errorMessage = "Erro na função DebloatAll: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -3949,7 +3959,8 @@ function RemoveBloatRegistry {
   }
   catch {
     $errorMessage = "Erro na função RemoveBloatRegistry: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -3985,7 +3996,8 @@ function UninstallMsftBloat {
   }
   catch {
     $errorMessage = "Erro na função UninstallMsftBloat: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -4032,7 +4044,8 @@ function Set-RamThreshold {
       128 { 134217728 }
       default {
         $errorMessage = "Memória RAM ($ramGB GB) não suportada para esta configuração."
-        Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+        Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+        
         return
       }
     }
@@ -4047,8 +4060,8 @@ function Set-RamThreshold {
   }
   catch {
     $errorMessage = "Erro ao atualizar registro: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "Red"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -4236,8 +4249,8 @@ function DownloadAndExtractISLC {
   }
   catch {
     $errorMessage = "Erro na função DownloadAndExtractISLC: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage "Vermelho"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -4300,8 +4313,8 @@ function UpdateISLCConfig {
   }
   catch {
     $errorMessage = "Erro ao atualizar o arquivo de configuração: $_"
-    Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage "Vermelho"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -4610,7 +4623,8 @@ function OptimizeGPUTweaks {
     }
     catch {
       $errorMessage = "Erro na função NvidiaTweaks: $_"
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+      Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+      
       throw  # Repropaga o erro
     }
     finally {
@@ -4766,7 +4780,8 @@ function OptimizeGPUTweaks {
     }
     catch {
       $errorMessage = "Erro na função AMDGPUTweaks: $_"
-      Write-Log $errorMessage -Level "ERROR" -ConsoleOutput
+      Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+      
       throw  # Repropaga o erro
     }
     finally {
@@ -4921,13 +4936,14 @@ function Finished {
 
     for ($i = 0; $i -lt $banner.Length; $i++) {
       $color = if ($i -lt 5) { "Amarelo" } elseif ($i -ge 6 -and $i -lt 16) { "AmareloClaro" } else { "Verde" }
-      Log-Action -Message $banner[$i] -Level "INFO" -ConsoleOutput
+      #Log-Action -Message $banner[$i] -Level "INFO" -ConsoleOutput
       Write-Colored -Text $banner[$i] -Color $color
     }
     [Console]::ReadKey($true) | Out-Null
 
     # Abrir URL no navegador
-    Log-Action -Message "Abrindo URL de suporte http://techremote.com.br no navegador..." -Level "INFO" -ConsoleOutput
+    Write-Colored -Text "Abrindo URL de suporte http://techremote.com.br no navegador..." -Color "AmareloClaro"
+    #Log-Action -Message "Abrindo URL de suporte http://techremote.com.br no navegador..." -Level "INFO" -ConsoleOutput
     Start-Process "http://techremote.com.br" -ErrorAction Stop
 
     # Perguntar se deseja reiniciar
