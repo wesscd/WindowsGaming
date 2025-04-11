@@ -129,7 +129,7 @@ function Write-Log {
 
   # Definir caminho do log único
   $logBasePath = "$env:TEMP"
-  $logFileName = "optimization_log.txt"
+  $logFileName = "techremote_otimizacao_log.txt"
   $logPath = Join-Path -Path $logBasePath -ChildPath $logFileName
 
   # Verificar se o diretório de logs existe
