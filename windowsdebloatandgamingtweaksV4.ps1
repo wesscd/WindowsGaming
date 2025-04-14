@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.6.3 (GROK / GPT)
+# Versão: V0.7.2.6.4 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.6.3 (GROK / GPT)"
+$versao = "V0.7.2.6.4 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -446,7 +446,7 @@ function Set-RegistryValue {
   catch {
     $errorMessage = "Erro ao configurar o registro em $Path\$Name $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
     throw  # Repropaga o erro para a função chamadora
   }
 }
@@ -1217,12 +1217,12 @@ function DisableNewsFeed {
     Set-RegistryValue -Path $regPath -Name "ShellFeedsTaskbarViewMode" -Value 2 -Type "DWord" -Force
 
     Log-Action -Message "Feed de notícias desativado com sucesso." -Level "INFO" -ConsoleOutput
-    Write-Colored "Feed de notícias desativado com sucesso." -Color "VerdeClaro"
+    
   }
   catch {
     $errorMessage = "Erro ao desativar o feed de notícias: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
     throw
   }
   finally {
@@ -1241,12 +1241,12 @@ function SetUACLow {
     Set-RegistryValue -Path $regPath -Name "PromptOnSecureDesktop" -Value 0 -Type "DWord"
 
     Log-Action -Message "UAC configurado para nível baixo com sucesso." -Level "INFO" -ConsoleOutput
-    Write-Colored "UAC configurado para nível baixo com sucesso." -Color "VerdeClaro"
+    
   }
   catch {
     $errorMessage = "Erro ao configurar UAC em nível baixo: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
     throw
   }
   finally {
@@ -1266,12 +1266,12 @@ function DisableSMB1 {
     Disable-WindowsOptionalFeature -Online -FeatureName "SMB1Protocol" -NoRestart -ErrorAction Stop
 
     Log-Action -Message "Protocolo SMB1 desativado com sucesso." -Level "INFO" -ConsoleOutput
-    Write-Colored "Protocolo SMB1 desativado com sucesso." -Color "VerdeClaro"
+    
   }
   catch {
     $errorMessage = "Erro ao desativar o protocolo SMB1: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
     throw
   }
   finally {
@@ -1295,12 +1295,12 @@ function SetCurrentNetworkPrivate {
     }
 
     Log-Action -Message "Redes atuais definidas como privadas com sucesso." -Level "INFO" -ConsoleOutput
-    Write-Colored "Redes atuais definidas como privadas com sucesso." -Color "VerdeClaro"
+    
   }
   catch {
     $errorMessage = "Erro ao definir a rede atual como privada: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
     throw
   }
   finally {
@@ -1317,12 +1317,12 @@ function SetUnknownNetworksPrivate {
     Set-RegistryValue -Path $regPath -Name "Category" -Value 1 -Type "DWord" -Force
 
     Log-Action -Message "Redes desconhecidas definidas como privadas com sucesso." -Level "INFO" -ConsoleOutput
-    Write-Colored "Redes desconhecidas definidas como privadas com sucesso." -Color "VerdeClaro"
+    
   }
   catch {
     $errorMessage = "Erro ao definir redes desconhecidas como privadas: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
     throw
   }
   finally {
@@ -1339,12 +1339,12 @@ function DisableNetDevicesAutoInst {
     Set-RegistryValue -Path $regPath -Name "Value" -Value "Deny" -Type "String" -Force
 
     Log-Action -Message "Instalação automática de dispositivos de rede desativada com sucesso." -Level "INFO" -ConsoleOutput
-    Write-Colored "Instalação automática de dispositivos de rede desativada com sucesso." -Color "VerdeClaro"
+    
   }
   catch {
     $errorMessage = "Erro ao desativar a instalação automática de dispositivos de rede: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
     throw
   }
   finally {
@@ -1493,12 +1493,12 @@ function ConfigureWindowsUpdate {
     }
 
     Log-Action -Message "Configuração do Windows Update concluída com sucesso." -Level "INFO" -ConsoleOutput
-    Write-Colored "Configuração do Windows Update concluída com sucesso." -Color "VerdeClaro"
+    
   }
   catch {
     $errorMessage = "Erro na função ConfigureWindowsUpdate: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
     throw
   }
 }
@@ -1730,12 +1730,12 @@ function EnableRemoteDesktop {
     Enable-NetFirewallRule -Name "RemoteDesktop*" -ErrorAction Stop | Out-Null
 
     Log-Action -Message "Área de Trabalho Remota habilitada com sucesso sem autenticação de nível de rede." -Level "INFO" -ConsoleOutput
-    Write-Colored "Área de Trabalho Remota habilitada com sucesso." -Color "VerdeClaro"
+    
   }
   catch {
     $errorMessage = "Erro na função EnableRemoteDesktop: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
     throw
   }
   finally {
@@ -2758,12 +2758,12 @@ function RawMouseInput {
     Set-RegistryValue -Path $registryPath -Name "MouseTrails" -Value "0" -Type "String"
 
     Log-Action -Message "Entrada bruta do mouse forçada e precisão aprimorada do ponteiro desativada com sucesso." -Level "INFO" -ConsoleOutput
-    Write-Colored "Entrada bruta do mouse forçada e precisão aprimorada do ponteiro desativada com sucesso." -Color "VerdeClaro"
+    
   }
   catch {
     $errorMessage = "Erro na função RawMouseInput: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
     throw
   }
   finally {
@@ -2890,12 +2890,12 @@ function DetectnApplyMouseFIX {
     }
 
     Log-Action -Message "Correção de mouse aplicada com sucesso para escala $checkscreenscale%." -Level "INFO" -ConsoleOutput
-    Write-Colored "Correção de mouse aplicada com sucesso." -Color "VerdeClaro"
+    
   }
   catch {
     $errorMessage = "Erro na função DetectnApplyMouseFIX: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
     throw
   }
   finally {
@@ -3454,7 +3454,7 @@ function Remove-OneDrive {
           Remove-Item -Path "$env:USERPROFILE\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
 
           Log-Action "OneDrive removido com sucesso." -Level "INFO" -ConsoleOutput
-          Write-Colored "OneDrive removido com sucesso." -Color "VerdeClaro"
+          
         }
         catch {
           $errorMessage = "Erro ao remover o OneDrive: $_"
@@ -3951,7 +3951,8 @@ function Invoke-WPFTweaksServices {
       if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
         # Ajustar o tipo de inicialização
         Set-Service -Name $serviceName -StartupType $targetStartupType -ErrorAction Stop
-        Write-Host "Serviço '$serviceName' ajustado para '$targetStartupType'"
+        Log-Action -Message "Serviço '$serviceName' ajustado para '$targetStartupType'." -Level "INFO" -ConsoleOutput
+        
       }
       else {
         Write-Warning "Serviço '$serviceName' não encontrado. Pulando..."
@@ -3959,10 +3960,12 @@ function Invoke-WPFTweaksServices {
     }
 
     if ($Action -eq 'Set') {
-      Write-Host "Serviços ajustados para os tipos de inicialização especificados com sucesso."
+      Log-Action -Message "Serviços ajustados para os tipos de inicialização especificados com sucesso." -Level "INFO" -ConsoleOutput
+      
     }
     else {
-      Write-Host "Serviços revertidos para seus tipos de inicialização originais com sucesso."
+      Log-Action -Message "Serviços revertidos para seus tipos de inicialização originais com sucesso." -Level "INFO" -ConsoleOutput
+      
     }
   }
   catch {
@@ -4228,8 +4231,7 @@ function DownloadAndExtractISLC {
     # Verificar se o 7z está instalado
     if (Test-Path -Path $sevenZipPath) {
       Log-Action -Message "7-Zip encontrado em $sevenZipPath. Extraindo o conteúdo..." -ConsoleOutput
-      Write-Colored "Extraindo o conteúdo do arquivo usando 7-Zip..." "Verde"
-
+      
       # Executar o 7-Zip e capturar saída e erro separadamente
       $process = Start-Process -FilePath $sevenZipPath -ArgumentList "x", "$downloadPath", "-o$extractPath", "-y" -NoNewWindow -Wait -PassThru
       $exitCode = $process.ExitCode
@@ -4382,12 +4384,12 @@ function ApplyPCOptimizations {
     Set-RegistryValue -Path $registryPath -Name "LazyModeTimeout" -Value 25000 -Type "DWord"
 
     Log-Action -Message "Otimizações aplicadas com sucesso." -Level "INFO" -ConsoleOutput
-    Write-Colored "Otimizações aplicadas com sucesso." -Color "VerdeClaro"
+    
   }
   catch {
     $errorMessage = "Erro ao aplicar otimizações: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -4450,7 +4452,7 @@ function MSIMode {
   catch {
     $errorMessage = "Erro na função MSIMode: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
     throw  # Repropaga o erro
   }
   finally {
@@ -4922,7 +4924,7 @@ function OptimizeNetwork {
   catch {
     $errorMessage = "Erro na função OptimizeNetwork: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    Write-Colored $errorMessage -Color "VermelhoClaro"
+    
     throw  # Repropaga o erro
   }
 }
