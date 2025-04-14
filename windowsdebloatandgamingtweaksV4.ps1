@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.6.8 (GROK / GPT)
+# Versão: V0.7.2.7.0 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.6.8 (GROK / GPT)"
+$versao = "V0.7.2.7.0 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -486,9 +486,6 @@ $tweakFunctions = @{
   "DisableNewsFeed"             = { DisableNewsFeed }
   "SetUACLow"                   = { SetUACLow }
   "DisableSMB1"                 = { DisableSMB1 }
-  "SetCurrentNetworkPrivate"    = { SetCurrentNetworkPrivate }
-  "SetUnknownNetworksPrivate"   = { SetUnknownNetworksPrivate }
-  "DisableNetDevicesAutoInst"   = { DisableNetDevicesAutoInst }
   "EnableF8BootMenu"            = { EnableF8BootMenu }
   "ConfigureWindowsUpdate"      = { ConfigureWindowsUpdate }
   "DisableMeltdownCompatFlag"   = { DisableMeltdownCompatFlag }
@@ -587,8 +584,6 @@ $tweakFunctions = @{
   "ApplyPCOptimizations"        = { ApplyPCOptimizations }
   "MSIMode"                     = { MSIMode }
   "OptimizeGPUTweaks"           = { OptimizeGPUTweaks }
-  "OptimizeNetwork"             = { OptimizeNetwork }
-
   # Funções de Privacidade (assumidas em PrivacyTweaks.ps1)
   "DisableTelemetry"            = { DisableTelemetry }
   "DisableWiFiSense"            = { DisableWiFiSense }
@@ -630,9 +625,7 @@ $tweaks = @(
   "DisableNewsFeed",
   "SetUACLow",
   "DisableSMB1",
-  "SetCurrentNetworkPrivate",
-  "SetUnknownNetworksPrivate",
-  "DisableNetDevicesAutoInst",
+  "ConfigureNetworkSettings", # Substitui SetCurrentNetworkPrivate, SetUnknownNetworksPrivate, DisableNetDevicesAutoInst, OptimizeNetwork
   # Adicionando funções de desempenho aqui
   "Set-RamThreshold",
   "Set-MemoriaVirtual-Registry",
@@ -641,7 +634,6 @@ $tweaks = @(
   "ApplyPCOptimizations",
   "MSIMode",
   "OptimizeGPUTweaks",
-  "OptimizeNetwork",
   #Continuação dos tweaks existentes
   "EnableF8BootMenu",
   "ConfigureWindowsUpdate",
@@ -1277,79 +1269,6 @@ function DisableSMB1 {
   }
   finally {
     Log-Action -Message "Finalizando função DisableSMB1." -Level "INFO" -ConsoleOutput
-  }
-}
-
-function SetCurrentNetworkPrivate {
-  Log-Action -Message "Iniciando função SetCurrentNetworkPrivate para definir a rede atual como privada." -Level "INFO" -ConsoleOutput
-
-  try {
-    $networkProfiles = Get-NetConnectionProfile -ErrorAction Stop
-    foreach ($profile in $networkProfiles) {
-      if ($profile.NetworkCategory -ne "Private") {
-        Set-NetConnectionProfile -InterfaceIndex $profile.InterfaceIndex -NetworkCategory Private -ErrorAction Stop
-        Log-Action -Message "Rede '$($profile.Name)' definida como privada com sucesso." -Level "INFO" -ConsoleOutput
-      }
-      else {
-        Log-Action -Message "Rede '$($profile.Name)' já está definida como privada." -Level "INFO" -ConsoleOutput
-      }
-    }
-
-    Log-Action -Message "Redes atuais definidas como privadas com sucesso." -Level "INFO" -ConsoleOutput
-    
-  }
-  catch {
-    $errorMessage = "Erro ao definir a rede atual como privada: $_"
-    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    
-    throw
-  }
-  finally {
-    Log-Action -Message "Finalizando função SetCurrentNetworkPrivate." -Level "INFO" -ConsoleOutput
-  }
-}
-
-function SetUnknownNetworksPrivate {
-  Log-Action -Message "Iniciando função SetUnknownNetworksPrivate para definir redes desconhecidas como privadas." -Level "INFO" -ConsoleOutput
-
-  try {
-    $regPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\CurrentVersion\NetworkList\Signatures\010103"
-    #$registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\CurrentVersion\NetworkList\Signatures\010103000F0000F0010000000F0000F0C967A3643C3AD745950DA7859209176EF5B87C875FA20DF21951640E807D7C24"
-    Set-RegistryValue -Path $regPath -Name "Category" -Value 1 -Type "DWord" -Force
-
-    Log-Action -Message "Redes desconhecidas definidas como privadas com sucesso." -Level "INFO" -ConsoleOutput
-    
-  }
-  catch {
-    $errorMessage = "Erro ao definir redes desconhecidas como privadas: $_"
-    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    
-    throw
-  }
-  finally {
-    Log-Action -Message "Finalizando função SetUnknownNetworksPrivate." -Level "INFO" -ConsoleOutput
-  }
-}
-
-function DisableNetDevicesAutoInst {
-  Log-Action -Message "Iniciando função DisableNetDevicesAutoInst para desativar a instalação automática de dispositivos de rede." -Level "INFO" -ConsoleOutput
-
-  try {
-    $regPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{A5A2C63F-3909-4C83-BADB-1E93F38BE6DD}"
-    #$registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\NcdAutoSetup\Private"
-    Set-RegistryValue -Path $regPath -Name "Value" -Value "Deny" -Type "String" -Force
-
-    Log-Action -Message "Instalação automática de dispositivos de rede desativada com sucesso." -Level "INFO" -ConsoleOutput
-    
-  }
-  catch {
-    $errorMessage = "Erro ao desativar a instalação automática de dispositivos de rede: $_"
-    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    
-    throw
-  }
-  finally {
-    Log-Action -Message "Finalizando função DisableNetDevicesAutoInst." -Level "INFO" -ConsoleOutput
   }
 }
 
@@ -4151,7 +4070,7 @@ function Set-RamThreshold {
     $regName = "SvcHostSplitThresholdInKB"
     Log-Action -Message "Configurando $regName para $value em $regPath..." -ConsoleOutput
     Set-RegistryValue -Path $regPath -Name $regName -Value $value -Type DWord -ErrorAction Stop
-    #Set-ItemProperty -Path $regPath -Name $regName -Value $value -Type DWord -ErrorAction Stop
+    
     Log-Action -Message "Registro $regName atualizado com sucesso para $value KB." -Level "INFO" -ConsoleOutput
   }
   catch {
@@ -4178,10 +4097,10 @@ function Set-MemoriaVirtual-Registry {
       "╚═══════════════════════════════════════╝",
       "",
       "≫ Este menu permite configurar a memória virtual do sistema.",
-      "≫ A memória virtual será ajustada com base na RAM total detectada.",
+      "≫ Na opção manual, você pode escolher o drive para o arquivo de paginação.",
       "≫ Tamanho inicial: 9081 MB (fixo).",
       "≫ Tamanho máximo: 1,5x a RAM total.",
-      "≫ O sistema desativará a gestão automática da memória virtual.",
+      "≫ O sistema desativará a gestão automática na configuração manual.",
       "",
       "≫ Pressione 'M' para definir manualmente a memória virtual.",
       "≫ Pressione 'A' para configurar automaticamente pelo Windows.",
@@ -4199,7 +4118,8 @@ function Set-MemoriaVirtual-Registry {
     switch ($selection) {
       "M" {
         Log-Action -Message "Opção escolhida: Definir memória virtual manualmente." -Level "INFO" -ConsoleOutput
-              
+        Write-Output "Configurando memória virtual manualmente..."
+
         # Solicitar a letra do drive
         Write-Colored "" "Branco"
         Write-Colored -Text "Informe a letra do drive (ex: C) para configurar a memória virtual:" -Color "Cyan"
@@ -4211,7 +4131,7 @@ function Set-MemoriaVirtual-Registry {
         if (-not (Test-Path $DrivePath)) {
           $errorMessage = "Drive $DrivePath não encontrado."
           Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-                  
+          Write-Colored $errorMessage -Color "VermelhoClaro"
           return
         }
         Log-Action -Message "Drive $DrivePath validado com sucesso." -Level "INFO" -ConsoleOutput
@@ -4228,31 +4148,30 @@ function Set-MemoriaVirtual-Registry {
         Set-RegistryValue -Path $RegPath -Name "AutomaticManagedPagefile" -Value 0 -Type "DWord"
 
         Log-Action -Message "Memória virtual configurada com sucesso para $DrivePath com inicial $InitialSize MB e máximo $MaxSize MB." -Level "INFO" -ConsoleOutput
-              
-        Log-Action -Message "Reinicie o computador para aplicar as mudanças." -Level "INFO" -ConsoleOutput
-              
+        Write-Colored "Memória virtual configurada para $DrivePath com inicial $InitialSize MB e máximo $MaxSize MB." -Color "VerdeClaro"
+        Write-Colored "Reinicie o computador para aplicar as mudanças." -Color "VerdeClaro"
       }
       "A" {
         Log-Action -Message "Opção escolhida: Configurar memória virtual automaticamente." -Level "INFO" -ConsoleOutput
-              
+        Write-Output "Configurando memória virtual automaticamente..."
 
         $RegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
         Set-RegistryValue -Path $RegPath -Name "PagingFiles" -Value "" -Type "String"
         Set-RegistryValue -Path $RegPath -Name "AutomaticManagedPagefile" -Value 1 -Type "DWord"
 
         Log-Action -Message "Memória virtual configurada para gerenciamento automático pelo Windows." -Level "INFO" -ConsoleOutput
-              
+        Write-Colored "Memória virtual configurada automaticamente com sucesso." -Color "VerdeClaro"
       }
       "P" {
         Log-Action -Message "Configuração de memória virtual ignorada." -Level "WARNING" -ConsoleOutput
-              
+        Write-Colored "Configuração de memória virtual ignorada." -Color "AmareloClaro"
       }
     }
   }
   catch {
     $errorMessage = "Erro na função Set-MemoriaVirtual-Registry: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-      
+    Write-Colored $errorMessage -Color "VermelhoClaro"
     throw
   }
   finally {
@@ -4902,15 +4821,17 @@ function OptimizeGPUTweaks {
   Log-Action -Message "Otimização de GPU concluída." -Level "INFO" -ConsoleOutput
 }
 
-function OptimizeNetwork {
+function ConfigureNetworkSettings {
   [CmdletBinding()]
   Param (
     [switch]$DisableNagle = $true,
     [switch]$EnableRSS = $true,
-    [switch]$DisableLSO = $true
+    [switch]$DisableLSO = $true,
+    [switch]$SetPrivateNetworks = $true,
+    [switch]$DisableNetDevicesAutoInst = $true
   )
 
-  Log-Action -Message "Iniciando otimizações de rede..." -Level "INFO" -ConsoleOutput
+  Log-Action -Message "Iniciando configuração de rede..." -Level "INFO" -ConsoleOutput
 
   try {
     # Configurações globais de TCP/IP
@@ -4922,8 +4843,8 @@ function OptimizeNetwork {
     Set-RegistryValue -Path $tcpParams -Name "TcpMaxDataRetransmissions" -Value 5 -Type "DWord"
     Set-RegistryValue -Path $tcpParams -Name "EnableTCPA" -Value 1 -Type "DWord"
 
-    # Configurações globais via Netsh
-    Log-Action -Message "Aplicando configurações globais via Netsh..." -Level "INFO" -ConsoleOutput
+    # Configurações globais via netsh
+    Log-Action -Message "Aplicando configurações globais via netsh..." -Level "INFO" -ConsoleOutput
     netsh int tcp set global autotuninglevel=normal | Out-Null
     netsh int tcp set global congestionprovider=ctcp | Out-Null
     netsh int tcp set global rss=enabled | Out-Null
@@ -4967,7 +4888,7 @@ function OptimizeNetwork {
       }
     }
 
-    # Propriedades avançadas dos adaptadores
+    # Ajustar propriedades avançadas dos adaptadores
     Log-Action -Message "Ajustando propriedades avançadas dos adaptadores..." -Level "INFO" -ConsoleOutput
     $properties = @("FlowControl", "Energy-Efficient Ethernet", "Green Ethernet", "Interrupt Moderation")
     foreach ($prop in $properties) {
@@ -4979,13 +4900,38 @@ function OptimizeNetwork {
       }
     }
 
-    Log-Action -Message "Otimização de rede concluída com sucesso." -Level "INFO" -ConsoleOutput
+    # Configurar redes atuais e desconhecidas como privadas
+    if ($SetPrivateNetworks) {
+      Log-Action -Message "Configurando redes como privadas..." -Level "INFO" -ConsoleOutput
+      $networkProfiles = Get-NetConnectionProfile -ErrorAction SilentlyContinue
+      foreach ($profile in $networkProfiles) {
+        if ($profile.NetworkCategory -ne "Private") {
+          Set-NetConnectionProfile -InterfaceIndex $profile.InterfaceIndex -NetworkCategory Private -ErrorAction Stop
+          Log-Action -Message "Rede '$($profile.Name)' definida como privada." -Level "INFO" -ConsoleOutput
+        }
+      }
+
+      $unknownNetPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\CurrentVersion\NetworkList\Signatures\010103"
+      Set-RegistryValue -Path $unknownNetPath -Name "Category" -Value 1 -Type "DWord" -Force
+      Log-Action -Message "Redes desconhecidas configuradas como privadas." -Level "INFO" -ConsoleOutput
+    }
+
+    # Desativar instalação automática de dispositivos de rede
+    if ($DisableNetDevicesAutoInst) {
+      Log-Action -Message "Desativando instalação automática de dispositivos de rede..." -Level "INFO" -ConsoleOutput
+      $devicePath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess\Global\{A5A2C63F-3909-4C83-BADB-1E93F38BE6DD}"
+      Set-RegistryValue -Path $devicePath -Name "Value" -Value "Deny" -Type "String" -Force
+      Log-Action -Message "Instalação automática de dispositivos de rede desativada." -Level "INFO" -ConsoleOutput
+    }
+
+    Log-Action -Message "Configuração de rede concluída com sucesso." -Level "INFO" -ConsoleOutput
+    Write-Colored "Configuração de rede concluída com sucesso." -Color "VerdeClaro"
   }
   catch {
-    $errorMessage = "Erro na função OptimizeNetwork: $_"
+    $errorMessage = "Erro na função ConfigureNetworkSettings: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    
-    throw  # Repropaga o erro
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw
   }
 }
 
