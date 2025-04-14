@@ -486,6 +486,7 @@ $tweakFunctions = @{
   "DisableNewsFeed"             = { DisableNewsFeed }
   "SetUACLow"                   = { SetUACLow }
   "DisableSMB1"                 = { DisableSMB1 }
+  "ConfigureNetworkSettings"    = { ConfigureNetworkSettings }
   "EnableF8BootMenu"            = { EnableF8BootMenu }
   "ConfigureWindowsUpdate"      = { ConfigureWindowsUpdate }
   "DisableMeltdownCompatFlag"   = { DisableMeltdownCompatFlag }
