@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.6.7 (GROK / GPT)
+# Versão: V0.7.2.6.8 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.6.7 (GROK / GPT)"
+$versao = "V0.7.2.6.8 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -4262,109 +4262,105 @@ function Set-MemoriaVirtual-Registry {
 
 ## Download and extract ISLC
 function DownloadAndExtractISLC {
-  Log-Action -Message "Iniciando função DownloadAndExtractISLC para baixar e extrair o ISLC." -ConsoleOutput
+  Log-Action -Message "Iniciando função DownloadAndExtractISLC para baixar e extrair o ISLC." -Level "INFO" -ConsoleOutput
 
   try {
-    # Definir o link de download e o caminho do arquivo
+    # Definir configurações
     $downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
     $downloadPath = "C:\ISLC_v1.0.3.4.exe"
     $extractPath = "C:\"
     $newFolderName = "ISLC"
+    $extractedFolderPath = Join-Path -Path $extractPath -ChildPath $newFolderName
+    $targetExePath = Join-Path -Path $extractedFolderPath -ChildPath "Intelligent standby list cleaner ISLC.exe"
 
-    Log-Action -Message "Configurações definidas: URL=$downloadUrl, Caminho Download=$downloadPath, Caminho Extração=$extractPath, Nome Pasta=$newFolderName" -ConsoleOutput
+    Log-Action -Message "Configurações definidas: URL=$downloadUrl, Caminho Download=$downloadPath, Caminho Extração=$extractPath, Nome Pasta=$newFolderName" -Level "INFO" -ConsoleOutput
 
-    # Baixar o arquivo executável
-    Log-Action -Message "Iniciando o download do arquivo de $downloadUrl para $downloadPath..." -ConsoleOutput
-    Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath -ErrorAction Stop
-    Log-Action -Message "Arquivo baixado com sucesso para $downloadPath." -Level "INFO" -ConsoleOutput
-    
-    # Verificar se a pasta de extração existe, caso contrário, criar
-    if (-Not (Test-Path -Path $extractPath)) {
-      Log-Action -Message "Pasta de extração $extractPath não existe. Criando..." -ConsoleOutput
-      New-Item -ItemType Directory -Path $extractPath -ErrorAction Stop
-      Log-Action -Message "Pasta de extração $extractPath criada com sucesso." -Level "INFO" -ConsoleOutput
+    # Verificar se a pasta ISLC e o executável já existem
+    if (Test-Path -Path $targetExePath) {
+      Log-Action -Message "Arquivo $targetExePath já existe. Pulando download e extração." -Level "INFO" -ConsoleOutput
     }
     else {
-      Log-Action -Message "Pasta de extração $extractPath já existe." -ConsoleOutput
-    }
-
-    # Caminho do 7z.exe
-    $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"  # Altere conforme o local do seu 7z.exe
-    Log-Action -Message "Caminho do 7z.exe definido como: $sevenZipPath" -ConsoleOutput
-
-    # Verificar se o 7z está instalado
-    if (Test-Path -Path $sevenZipPath) {
-      Log-Action -Message "7-Zip encontrado em $sevenZipPath. Extraindo o conteúdo..." -ConsoleOutput
-      
-      # Executar o 7-Zip e capturar saída e erro separadamente
-      $process = Start-Process -FilePath $sevenZipPath -ArgumentList "x", "$downloadPath", "-o$extractPath", "-y" -NoNewWindow -Wait -PassThru
-      $exitCode = $process.ExitCode
-
-      if ($exitCode -ne 0) {
-        Log-Action -Message "Erro ao extrair o arquivo com 7-Zip. Código de saída: $exitCode" -Level "ERROR" -ConsoleOutput
-        throw "Erro ao extrair o arquivo com 7-Zip. Código de saída: $exitCode"
-      }
-
-      Log-Action -Message "Arquivo extraído com sucesso para $extractPath." -Level "INFO" -ConsoleOutput
-      
-      # Renomear a pasta extraída para ISLC
-      $extractedFolderPath = Join-Path -Path $extractPath -ChildPath "ISLC v1.0.3.4"
-      if (Test-Path -Path $extractedFolderPath) {
-        Log-Action -Message "Renomeando a pasta extraída de $extractedFolderPath para $newFolderName..." -ConsoleOutput
-        Rename-Item -Path $extractedFolderPath -NewName $newFolderName -ErrorAction Stop
-        Log-Action -Message "Pasta renomeada com sucesso para $newFolderName." -Level "INFO" -ConsoleOutput
+      # Baixar o arquivo executável, se necessário
+      if (-not (Test-Path -Path $downloadPath)) {
+        Log-Action -Message "Iniciando o download do arquivo de $downloadUrl para $downloadPath..." -Level "INFO" -ConsoleOutput
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath -ErrorAction Stop
+        Log-Action -Message "Arquivo baixado com sucesso para $downloadPath." -Level "INFO" -ConsoleOutput
       }
       else {
-        Log-Action -Message "Pasta extraída $extractedFolderPath não encontrada. Verificando subpastas..." -Level "WARNING" -ConsoleOutput
+        Log-Action -Message "Arquivo $downloadPath já existe. Pulando download." -Level "INFO" -ConsoleOutput
+      }
 
-        # Tentar encontrar a pasta extraída manualmente
-        $foundFolder = Get-ChildItem -Path $extractPath -Directory | Where-Object { $_.Name -like "ISLC*" } | Select-Object -First 1
-        if ($foundFolder) {
-          Log-Action -Message "Pasta encontrada: $($foundFolder.FullName). Renomeando para $newFolderName..." -Level "INFO" -ConsoleOutput
-          Rename-Item -Path $foundFolder.FullName -NewName $newFolderName -ErrorAction Stop
+      # Verificar se a pasta de extração existe, caso contrário, criar
+      if (-not (Test-Path -Path $extractPath)) {
+        Log-Action -Message "Pasta de extração $extractPath não existe. Criando..." -Level "INFO" -ConsoleOutput
+        New-Item -ItemType Directory -Path $extractPath -ErrorAction Stop | Out-Null
+        Log-Action -Message "Pasta de extração $extractPath criada com sucesso." -Level "INFO" -ConsoleOutput
+      }
+
+      # Caminho do 7z.exe
+      $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"
+      Log-Action -Message "Caminho do 7z.exe definido como: $sevenZipPath" -Level "INFO" -ConsoleOutput
+
+      # Verificar se o 7z está instalado
+      if (Test-Path -Path $sevenZipPath) {
+        Log-Action -Message "7-Zip encontrado em $sevenZipPath. Extraindo o conteúdo..." -Level "INFO" -ConsoleOutput
+        $process = Start-Process -FilePath $sevenZipPath -ArgumentList "x", "$downloadPath", "-o$extractPath", "-y" -NoNewWindow -Wait -PassThru
+        if ($process.ExitCode -ne 0) {
+          throw "Erro ao extrair o arquivo com 7-Zip. Código de saída: $($process.ExitCode)"
+        }
+        Log-Action -Message "Arquivo extraído com sucesso para $extractPath." -Level "INFO" -ConsoleOutput
+
+        # Renomear a pasta extraída para ISLC
+        $tempFolderPath = Join-Path -Path $extractPath -ChildPath "ISLC v1.0.3.4"
+        if (Test-Path -Path $tempFolderPath) {
+          Log-Action -Message "Renomeando a pasta extraída de $tempFolderPath para $newFolderName..." -Level "INFO" -ConsoleOutput
+          Rename-Item -Path $tempFolderPath -NewName $newFolderName -ErrorAction Stop
         }
         else {
-          Log-Action -Message "Nenhuma pasta extraída encontrada em $extractPath." -Level "ERROR" -ConsoleOutput
-          throw "Pasta extraída não encontrada após extração."
+          $foundFolder = Get-ChildItem -Path $extractPath -Directory | Where-Object { $_.Name -like "ISLC*" } | Select-Object -First 1
+          if ($foundFolder) {
+            Log-Action -Message "Pasta encontrada: $($foundFolder.FullName). Renomeando para $newFolderName..." -Level "INFO" -ConsoleOutput
+            Rename-Item -Path $foundFolder.FullName -NewName $newFolderName -ErrorAction Stop
+          }
+          else {
+            throw "Pasta extraída não encontrada após extração."
+          }
         }
       }
+      else {
+        throw "7-Zip não instalado ou não encontrado em $sevenZipPath."
+      }
+
+      # Remover o arquivo baixado
+      if (Test-Path -Path $downloadPath) {
+        Remove-Item -Path $downloadPath -Force -ErrorAction Stop
+        Log-Action -Message "Arquivo $downloadPath excluído com sucesso." -Level "INFO" -ConsoleOutput
+      }
+    }
+
+    # Criar atalho na inicialização
+    $atalhoNome = "Intelligent standby list cleaner ISLC.lnk"
+    $destino = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup", $atalhoNome)
+    if (-not (Test-Path -Path $destino)) {
+      Log-Action -Message "Criando atalho: Origem=$targetExePath, Destino=$destino" -Level "INFO" -ConsoleOutput
+      $shell = New-Object -ComObject WScript.Shell -ErrorAction Stop
+      $atalho = $shell.CreateShortcut($destino)
+      $atalho.TargetPath = $targetExePath
+      $atalho.Save()
+      Log-Action -Message "Atalho criado com sucesso em $destino." -Level "INFO" -ConsoleOutput
     }
     else {
-      Log-Action -Message "7-Zip não encontrado em $sevenZipPath." -Level "WARNING" -ConsoleOutput
-      throw "7-Zip não instalado ou não encontrado."
+      Log-Action -Message "Atalho $destino já existe. Pulando criação." -Level "INFO" -ConsoleOutput
     }
 
-    Log-Action -Message "Removendo o arquivo baixado $downloadPath..." -ConsoleOutput
-    Remove-Item -Path $downloadPath -Force -ErrorAction Stop
-    Log-Action -Message "Arquivo $downloadPath excluído com sucesso." -Level "INFO" -ConsoleOutput
-    
-    # Caminho completo do executável do programa
-    $origem = "C:\ISLC\Intelligent standby list cleaner ISLC.exe"
-    # Nome do atalho que será criado
-    $atalhoNome = "Intelligent standby list cleaner ISLC.lnk"
-    # Caminho para a pasta de Inicialização do usuário
-    $destino = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup", $atalhoNome)
-    Log-Action -Message "Configurando atalho: Origem=$origem, Destino=$destino" -ConsoleOutput
-
-    # Criação do objeto Shell
-    Log-Action -Message "Criando objeto Shell para criar o atalho..." -ConsoleOutput
-    $shell = New-Object -ComObject WScript.Shell -ErrorAction Stop
-    # Criação do atalho
-    Log-Action -Message "Criando o atalho em $destino..." -ConsoleOutput
-    $atalho = $shell.CreateShortcut($destino)
-    $atalho.TargetPath = $origem
-    $atalho.Save()
-    Log-Action -Message "Atalho criado com sucesso em $destino." -Level "INFO" -ConsoleOutput
-    
+    Log-Action -Message "ISLC configurado com sucesso." -Level "INFO" -ConsoleOutput
+      
   }
   catch {
     $errorMessage = "Erro na função DownloadAndExtractISLC: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    
-    throw  # Repropaga o erro
-  }
-  finally {
-    Log-Action -Message "Finalizando função DownloadAndExtractISLC." -Level "INFO" -ConsoleOutput
+      
+    throw
   }
 }
 
