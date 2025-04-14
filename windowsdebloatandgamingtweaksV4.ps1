@@ -4046,18 +4046,21 @@ function Set-RamThreshold {
     Log-Action -Message "Quantidade de RAM detectada: $ramGB GB" -ConsoleOutput
 
     $value = switch ($ramGB) {
-      4 { 4194304 }  # 4GB em KB
-      6 { 6291456 }  # 6GB em KB
-      8 { 8388608 }
-      12 { 12582912 }
-      16 { 16777216 }
-      19 { 19922944 }
-      20 { 20971520 }
-      24 { 25165824 }
-      32 { 33554432 }
-      63 { 47457163 }
-      64 { 67108864 }
-      128 { 134217728 }
+      4 { 0x400000 }
+      6 { 0x600000 }
+      8 { 0x800000 }
+      10 { 0xA00000 }
+      12 { 0xC00000 }
+      14 { 0xE00000 }
+      16 { 0x1000000 }
+      18 { 0x1200000 }
+      20 { 0x1400000 }
+      24 { 0x1800000 }
+      26 { 0x1A00000 }
+      32 { 0x2000000 }
+      63 { 0x3F00000 }
+      64 { 0x4000000 }
+      128 { 0x8000000 }
       default {
         $errorMessage = "Memória RAM ($ramGB GB) não suportada para esta configuração."
         Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
