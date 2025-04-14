@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.6.5 (GROK / GPT)
+# Versão: V0.7.2.6.6 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.6.5 (GROK / GPT)"
+$versao = "V0.7.2.6.6 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -624,7 +624,6 @@ $tweaks = @(
   "Windows11Extras",
   "DebloatAll",
   "DisableHibernation",
-  "SetServices",
   "RemoveBloatRegistry",
   "Remove-OneDrive -AskUser",
   "UninstallMsftBloat",
@@ -3438,10 +3437,11 @@ function FixURLext {
 function UltimateCleaner {
   Log-Action -Message "Iniciando função UltimateCleaner para limpeza do sistema." -Level "INFO" -ConsoleOutput
   
-  Remove-Item -Path "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
+  #Remove-Item -Path "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
   Remove-Item -Path "$env:windir\Temp\*" -Recurse -Force -ErrorAction SilentlyContinue
   Remove-Item -Path "$env:windir\Prefetch\*" -Recurse -Force -ErrorAction SilentlyContinue
   Clear-RecycleBin -Force -ErrorAction SilentlyContinue
+
 }
 
 function Clear-PSHistory {
@@ -4135,6 +4135,7 @@ function Set-RamThreshold {
       20 { 20971520 }
       24 { 25165824 }
       32 { 33554432 }
+      63 { 47457163 }
       64 { 67108864 }
       128 { 134217728 }
       default {
