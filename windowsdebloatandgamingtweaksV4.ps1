@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.6.4 (GROK / GPT)
+# Versão: V0.7.2.6.5 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.6.4 (GROK / GPT)"
+$versao = "V0.7.2.6.5 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -138,7 +138,8 @@ function Write-Log {
       New-Item -Path $logBasePath -ItemType Directory -Force -ErrorAction Stop | Out-Null
     }
     catch {
-      Write-Error "Não foi possível criar ou acessar o diretório de logs $logBasePath. Erro: $_"
+      Log-Action -Message "Erro ao criar o diretório de logs $logBasePath. $_" -Level "ERROR" -ConsoleOutput
+      
       return
     }
   }
@@ -168,15 +169,16 @@ function Write-Log {
   catch {
     # Se falhar ao escrever no log, exibir mensagem de erro
     $errorMsg = "Falha ao escrever no log $logPath. Erro: $_"
-    Write-Error $errorMsg
-
+    Log-Action -Message $errorMsg -Level "ERROR" -ConsoleOutput
+    
     # Tentar registrar o erro em um log de emergência (simplificado)
     $emergencyLog = Join-Path -Path $logBasePath -ChildPath "emergency_log.txt"
     try {
       Add-Content -Path $emergencyLog -Value $errorMsg -ErrorAction Stop
     }
     catch {
-      Write-Error "Não foi possível registrar no log de emergência. Erro: $_"
+      Log-Action -Message "Erro ao registrar no log de emergência $emergencyLog. $_" -Level "ERROR" -ConsoleOutput
+      
     }
   }
 }
@@ -2150,7 +2152,8 @@ function DisableShistory {
 }
 
 function DisableShortcutWord {
-  Write-Output "Removing 'Shortcut' word from new shortcuts..."
+  Log-Action -Message "Iniciando função DisableShortcutWord para remover a palavra 'Atalho' dos novos atalhos." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "link" -Value ([byte[]](0, 0, 0, 0)) -Type "Binary" -Force
   
 }
@@ -2378,58 +2381,65 @@ function HideSyncNotifications {
 }
 
 function HideRecentShortcuts {
-  Log-Output "Iniciando função HideRecentShortcuts para ocultar atalhos recentes." -ConsoleOutput
-  
+  Log-Action -Message "Iniciando função HideRecentShortcuts para ocultar atalhos recentes." -ConsoleOutput
+    
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Value 0 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackDocs" -Type DWord -Value 0
 }
 
 function SetExplorerThisPC {
-  Log-Output "Iniciando função SetExplorerThisPC para definir o Explorer para abrir This PC." -ConsoleOutput
-  
+  Log-Action -Message "Iniciando função SetExplorerThisPC para definir o Explorer para abrir This PC." -ConsoleOutput
+    
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 1 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
 }
 
 function ShowThisPCOnDesktop {
-  Write-Output "Showing This PC on Desktop..."
+  Log-Action -Message "Iniciando função ShowThisPCOnDesktop para mostrar This PC na área de trabalho." -ConsoleOutput
+  
   If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{20D04FE0-3AEA-1069-A2D8-08002B30309D}")) {
     New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Force | Out-Null
   }
 }
 
 function ShowUserFolderOnDesktop {
-  Write-Output "Showing User folder on Desktop..."
+  Log-Action -Message "Iniciando função ShowUserFolderOnDesktop para mostrar a pasta do usuário na área de trabalho." -ConsoleOutput
+  
   If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{59031a47-3f72-44a7-89c5-5595fe6b30ee}")) {
     New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{59031a47-3f72-44a7-89c5-5595fe6b30ee}" -Force | Out-Null
   }
 }
 
 function Hide3DObjectsFromThisPC {
-  Write-Output "Hiding 3D Objects from This PC..."
+  Log-Action -Message "Iniciando função Hide3DObjectsFromThisPC para ocultar 3D Objects de This PC." -ConsoleOutput
+  
   Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-0E5C-4FDD-9C0B-0A5A8D2A5F5E}" -Recurse -ErrorAction SilentlyContinue
 }
 
 function Hide3DObjectsFromExplorer {
-  Write-Output "Hiding 3D Objects from Explorer..."
+  Log-Action -Message "Iniciando função Hide3DObjectsFromExplorer para ocultar 3D Objects do Explorer." -ConsoleOutput
+  
   Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{31C0BDFD-8D7C-4F5E-9C0E-5E5C5D5A5F5E}" -Recurse -ErrorAction SilentlyContinue
 }
 
 function EnableThumbnails {
-  Write-Output "Enabling thumbnails..."
+  Log-Action -Message "Iniciando função EnableThumbnails para habilitar miniaturas." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "IconsOnly" -Value 0 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "IconsOnly" -Type DWord -Value 0
 }
 
 function EnableThumbsDB {
-  Write-Output "Enabling Thumbs.db on network folders..."
+  Log-Action -Message "Iniciando função EnableThumbsDB para habilitar Thumbs.db em pastas de rede." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisableThumbnailCache" -Value 0 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisableThumbnailCache" -Type DWord -Value 0
 }
 
 function UninstallInternetExplorer {
-  Write-Output "Verificando se o Internet Explorer está instalado..."
-  
+  Log-Action -Message "Iniciando função UninstallInternetExplorer para desinstalar o Internet Explorer." -ConsoleOutput
+  Log-Action -Message "Verificando se o Internet Explorer está instalado..." -ConsoleOutput
+    
   # Obtém a lista de recursos opcionais
   $features = Get-WindowsOptionalFeature -Online | Where-Object { $_.FeatureName -like "*Internet*" }
 
@@ -2437,27 +2447,35 @@ function UninstallInternetExplorer {
   $ieFeature = $features | Where-Object { $_.FeatureName -match "Internet-Explorer" }
 
   if ($ieFeature) {
-    Write-Output "Desinstalando Internet Explorer ($($ieFeature.FeatureName))..."
+    Log-Action -Message "Internet Explorer encontrado: $($ieFeature.FeatureName)" -ConsoleOutput
+    Log-Action -Message "Desinstalando Internet Explorer..." -ConsoleOutput
+    
     Disable-WindowsOptionalFeature -Online -FeatureName $ieFeature.FeatureName -NoRestart -ErrorAction Stop
-    Write-Output "Internet Explorer desativado com sucesso."
+
+    Log-Action -Message "Internet Explorer desinstalado com sucesso." -Level "INFO" -ConsoleOutput
+    
   }
   else {
-    Write-Output "Internet Explorer não encontrado ou já removido."
+    Log-Action -Message "Internet Explorer não encontrado ou já removido." -ConsoleOutput
+    
   }
 }
 
 function UninstallWorkFolders {
-  Write-Output "Uninstalling Work Folders..."
+  Log-Action -Message "Iniciando função UninstallWorkFolders para desinstalar o Work Folders." -ConsoleOutput
+  
   Disable-WindowsOptionalFeature -Online -FeatureName "WorkFolders-Client" -NoRestart -ErrorAction SilentlyContinue
 }
 
 function UninstallLinuxSubsystem {
-  Write-Output "Uninstalling Linux Subsystem..."
+  Log-Action -Message "Iniciando função UninstallLinuxSubsystem para desinstalar o Windows Subsystem for Linux." -ConsoleOutput
+  
   Disable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -NoRestart -ErrorAction SilentlyContinue
 }
 
 function SetPhotoViewerAssociation {
-  Write-Output "Setting Photo Viewer associations..."
+  Log-Action -Message "Iniciando função SetPhotoViewerAssociation para definir o Photo Viewer como o visualizador padrão." -ConsoleOutput
+  
   If (!(Test-Path "HKCR:\Applications\photoviewer.dll")) {
     New-Item -Path "HKCR:\Applications\photoviewer.dll" -Force | Out-Null
   }
@@ -2472,7 +2490,8 @@ function SetPhotoViewerAssociation {
 }
 
 function AddPhotoViewerOpenWith {
-  Write-Output "Adding Photo Viewer to 'Open with' menu..."
+  Log-Action -Message "Iniciando função AddPhotoViewerOpenWith para adicionar o Photo Viewer ao menu 'Abrir com'." -ConsoleOutput
+  
   If (!(Test-Path "HKCR:\Applications\photoviewer.dll\shell\open")) {
     New-Item -Path "HKCR:\Applications\photoviewer.dll\shell\open" -Force | Out-Null
   }
@@ -2486,18 +2505,21 @@ function AddPhotoViewerOpenWith {
 }
 
 function InstallPDFPrinter {
-  Write-Output "Installing Microsoft Print to PDF..."
+  Log-Action -Message "Iniciando função InstallPDFPrinter para instalar a impressora Microsoft Print to PDF." -ConsoleOutput
+  
   Enable-WindowsOptionalFeature -Online -FeatureName "Printing-PrintToPDFServices-Features" -NoRestart -ErrorAction SilentlyContinue
 }
 
 function SVCHostTweak {
-  Write-Output "Tweaking SVCHost process priority..."
+  Log-Action -Message "Iniciando função SVCHostTweak para ajustar o processo SVCHost." -ConsoleOutput
+  
   Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Value 4194304 -Type "DWord" -Force
   #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Type DWord -Value 4194304
 }
 
 function UnpinStartMenuTiles {
-  Write-Output "Unpinning all Start Menu tiles..."
+  Log-Action -Message "Iniciando função UnpinStartMenuTiles para desfixar todos os blocos do menu Iniciar." -ConsoleOutput
+  
   $key = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount" -Name "*"
   if ($key) {
     Remove-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\*" -Recurse -Force -ErrorAction SilentlyContinue
@@ -2508,7 +2530,7 @@ Function QOL {
   Log-Action -Message "Iniciando função QOL para aplicar ajustes de qualidade de vida do DaddyMadu." -ConsoleOutput
 
   try {
-    Write-Output "Habilitando ajustes de qualidade de vida do DaddyMadu..."
+    
     Log-Action -Message "Habilitando ajustes de qualidade de vida do DaddyMadu..." -ConsoleOutput
 
     $errpref = $ErrorActionPreference
@@ -2584,7 +2606,7 @@ Function FullscreenOptimizationFIX {
     $ErrorActionPreference = "SilentlyContinue"
     Log-Action -Message "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
 
-    Write-Output "Desativando otimizações de tela cheia..."
+    
     Log-Action -Message "Desativando otimizações de tela cheia..." -ConsoleOutput
 
     Log-Action -Message "Configurando GameDVR_FSEBehaviorMode para 2 em HKCU:\System\GameConfigStore..." -ConsoleOutput
@@ -2665,7 +2687,7 @@ Function GameOptimizationFIX {
   Log-Action -Message "Iniciando função GameOptimizationFIX para aplicar correções de otimização para jogos." -ConsoleOutput
 
   try {
-    Write-Output "Aplicando correções de otimização para jogos..."
+    
     Log-Action -Message "Aplicando correções de otimização para jogos..." -ConsoleOutput
 
     Log-Action -Message "Configurando GPU Priority para 8 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games..." -ConsoleOutput
@@ -2714,7 +2736,7 @@ Function GameOptimizationFIX {
     Log-Action -Message "Plataforma detectada: $PlatformCheck" -ConsoleOutput
 
     if ($PlatformCheck -eq "Desktop") {
-      Write-Output "A plataforma é $PlatformCheck. Desativando opções de economia de energia em todos os dispositivos conectados..."
+      
       Log-Action -Message "A plataforma é $PlatformCheck. Desativando opções de economia de energia em todos os dispositivos conectados..." -ConsoleOutput
 
       Get-WmiObject MSPower_DeviceEnable -Namespace root\wmi -ErrorAction Stop | ForEach-Object { 
@@ -2726,7 +2748,7 @@ Function GameOptimizationFIX {
       Log-Action -Message "Opções de economia de energia desativadas com sucesso em todos os dispositivos conectados." -Level "INFO" -ConsoleOutput
     }
     else {
-      Write-Output "A plataforma é $PlatformCheck. Nenhuma edição de economia de energia foi realizada."
+      
       Log-Action -Message "A plataforma é $PlatformCheck. Nenhuma edição de economia de energia foi realizada." -ConsoleOutput
     }
 
@@ -2747,8 +2769,8 @@ function RawMouseInput {
   Log-Action -Message "Iniciando função RawMouseInput para forçar entrada bruta do mouse e desativar precisão aprimorada do ponteiro." -Level "INFO" -ConsoleOutput
 
   try {
-    Write-Output "Forçando entrada bruta do mouse e desativando precisão aprimorada do ponteiro..."
-
+    Log-Action -Message "Forçando entrada bruta do mouse e desativando precisão aprimorada do ponteiro..." -ConsoleOutput
+    
     $registryPath = "HKCU:\Control Panel\Mouse"
     Set-RegistryValue -Path $registryPath -Name "MouseSpeed" -Value "0" -Type "String"
     Set-RegistryValue -Path $registryPath -Name "MouseThreshold1" -Value "0" -Type "String"
@@ -2804,7 +2826,8 @@ function DetectnApplyMouseFIX {
     $regPath = "HKCU:\Control Panel\Mouse"
 
     if ($checkscreenscale -eq "100") {
-      Write-Output "Windows screen scale is Detected as 100%, Applying Mouse Fix for it..."
+      Log-Action -Message "Windows screen scale is Detected as 100%, Applying Mouse Fix for it..." -ConsoleOutput
+      
       $YourInputX = "00,00,00,00,00,00,00,00,C0,CC,0C,00,00,00,00,00,80,99,19,00,00,00,00,00,40,66,26,00,00,00,00,00,00,33,33,00,00,00,00,00"
       $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
       $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
@@ -2813,7 +2836,8 @@ function DetectnApplyMouseFIX {
       Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
     }
     elseif ($checkscreenscale -eq "125") {
-      Write-Output "Windows screen scale is Detected as 125%, Applying Mouse Fix for it..."
+      Log-Action -Message "Windows screen scale is Detected as 125%, Applying Mouse Fix for it..." -ConsoleOutput
+      
       $YourInputX = "00,00,00,00,00,00,00,00,00,00,10,00,00,00,00,00,00,00,20,00,00,00,00,00,00,00,30,00,00,00,00,00,00,00,40,00,00,00,00,00"
       $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
       $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
@@ -2822,7 +2846,8 @@ function DetectnApplyMouseFIX {
       Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
     }
     elseif ($checkscreenscale -eq "150") {
-      Write-Output "Windows screen scale is Detected as 150%, Applying Mouse Fix for it..."
+      Log-Action -Message "Windows screen scale is Detected as 150%, Applying Mouse Fix for it..." -ConsoleOutput
+      
       $YourInputX = "00,00,00,00,00,00,00,00,30,33,13,00,00,00,00,00,60,66,26,00,00,00,00,00,90,99,39,00,00,00,00,00,C0,CC,4C,00,00,00,00,00"
       $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
       $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
@@ -2831,7 +2856,8 @@ function DetectnApplyMouseFIX {
       Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
     }
     elseif ($checkscreenscale -eq "175") {
-      Write-Output "Windows screen scale is Detected as 175%, Applying Mouse Fix for it..."
+      Log-Action -Message "Windows screen scale is Detected as 175%, Applying Mouse Fix for it..." -ConsoleOutput
+      
       $YourInputX = "00,00,00,00,00,00,00,00,60,66,16,00,00,00,00,00,C0,CC,2C,00,00,00,00,00,20,33,43,00,00,00,00,00,80,99,59,00,00,00,00,00"
       $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
       $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
@@ -2840,7 +2866,8 @@ function DetectnApplyMouseFIX {
       Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
     }
     elseif ($checkscreenscale -eq "200") {
-      Write-Output "Windows screen scale is Detected as 200%, Applying Mouse Fix for it..."
+      Log-Action -Message "Windows screen scale is Detected as 200%, Applying Mouse Fix for it..." -ConsoleOutput
+      
       $YourInputX = "00,00,00,00,00,00,00,00,90,99,19,00,00,00,00,00,20,33,33,00,00,00,00,00,B0,CC,4C,00,00,00,00,00,40,66,66,00,00,00,00,00"
       $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
       $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
@@ -2849,7 +2876,8 @@ function DetectnApplyMouseFIX {
       Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
     }
     elseif ($checkscreenscale -eq "225") {
-      Write-Output "Windows screen scale is Detected as 225%, Applying Mouse Fix for it..."
+      Log-Action -Message "Windows screen scale is Detected as 225%, Applying Mouse Fix for it..." -ConsoleOutput
+      
       $YourInputX = "00,00,00,00,00,00,00,00,C0,CC,1C,00,00,00,00,00,80,99,39,00,00,00,00,00,40,66,56,00,00,00,00,00,00,33,73,00,00,00,00,00"
       $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
       $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
@@ -2858,7 +2886,8 @@ function DetectnApplyMouseFIX {
       Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
     }
     elseif ($checkscreenscale -eq "250") {
-      Write-Output "Windows screen scale is Detected as 250%, Applying Mouse Fix for it..."
+      Log-Action -Message "Windows screen scale is Detected as 250%, Applying Mouse Fix for it..." -ConsoleOutput
+      
       $YourInputX = "00,00,00,00,00,00,00,00,00,00,20,00,00,00,00,00,00,00,40,00,00,00,00,00,00,00,60,00,00,00,00,00,00,00,80,00,00,00,00,00"
       $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
       $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
@@ -2867,7 +2896,8 @@ function DetectnApplyMouseFIX {
       Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
     }
     elseif ($checkscreenscale -eq "300") {
-      Write-Output "Windows screen scale is Detected as 300%, Applying Mouse Fix for it..."
+      Log-Action -Message "Windows screen scale is Detected as 300%, Applying Mouse Fix for it..." -ConsoleOutput
+      
       $YourInputX = "00,00,00,00,00,00,00,00,60,66,26,00,00,00,00,00,C0,CC,4C,00,00,00,00,00,20,33,73,00,00,00,00,00,80,99,99,00,00,00,00,00"
       $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
       $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
@@ -2876,7 +2906,8 @@ function DetectnApplyMouseFIX {
       Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
     }
     elseif ($checkscreenscale -eq "350") {
-      Write-Output "Windows screen scale is Detected as 350%, Applying Mouse Fix for it..."
+      Log-Action -Message "Windows screen scale is Detected as 350%, Applying Mouse Fix for it..." -ConsoleOutput
+      
       $YourInputX = "00,00,00,00,00,00,00,00,C0,CC,2C,00,00,00,00,00,80,99,59,00,00,00,00,00,40,66,86,00,00,00,00,00,00,33,B3,00,00,00,00,00"
       $YourInputY = "00,00,00,00,00,00,00,00,00,00,38,00,00,00,00,00,00,00,70,00,00,00,00,00,00,00,A8,00,00,00,00,00,00,00,E0,00,00,00,00,00"
       $hexifiedX = $YourInputX.Split(',') | ForEach-Object { "0x$_" }
@@ -2885,7 +2916,8 @@ function DetectnApplyMouseFIX {
       Set-RegistryValue -Path $regPath -Name "SmoothMouseYCurve" -Value ([byte[]]$hexifiedY) -Type "Binary"
     }
     else {
-      Write-Output "HOUSTON WE HAVE A PROBLEM! screen scale is not set to traditional value, nothing has been set!"
+      Log-Action -Message "HOUSTON WE HAVE A PROBLEM! screen scale is not set to traditional value, nothing has been set!" -ConsoleOutput
+      
       Log-Action -Message "Escala de tela não tradicional detectada ($checkscreenscale%). Nenhuma correção aplicada." -Level "WARNING" -ConsoleOutput
     }
 
@@ -2904,7 +2936,8 @@ function DetectnApplyMouseFIX {
 }
 
 Function DisableHPET {
-  Write-Output "Disabling High Precision Event Timer..."
+  Log-Action -Message "Iniciando função DisableHPET para desativar o High Precision Event Timer." -Level "INFO" -ConsoleOutput
+  
   $errpref = $ErrorActionPreference #save actual preference
   $ErrorActionPreference = "silentlycontinue"
   bcdedit /set x2apicpolicy Enable | Out-Null
@@ -2925,11 +2958,13 @@ Function DisableHPET {
   bcdedit /set { globalsettings } custom:16000068 true | Out-Null
   wmic path Win32_PnPEntity where "name='High precision event timer'" call enable | Out-Null
   if ($PlatformCheck -eq "Desktop") {
-    Write-Output "Platform is $PlatformCheck disabling dynamic tick..."
+    Log-Action -Message "A plataforma é $PlatformCheck. Desativando o High Precision Event Timer..." -ConsoleOutput
+    
     bcdedit /set disabledynamictick yes | Out-Null
   }
   else {
-    Write-Output "Platform is $PlatformCheck enabling dynamic tick..."
+    Log-Action -Message "A plataforma é $PlatformCheck. Habilitando o High Precision Event Timer..." -ConsoleOutput
+    
     bcdedit /set disabledynamictick no
   }
   $ErrorActionPreference = $errpref #restore previous preference
@@ -2993,7 +3028,8 @@ Function DisableCoreParking {
   Begin {
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-      Write-Error "Este script deve ser executado como administrador."
+      Log-Action -Message "Este script deve ser executado como administrador." -Level "ERROR" -ConsoleOutput
+      
       return
     }
 
@@ -3001,11 +3037,13 @@ Function DisableCoreParking {
       $null = Get-Command powercfg -ErrorAction Stop
     }
     catch {
-      Write-Error "Comando powercfg não encontrado."
+      Log-Action -Message "O comando powercfg não foi encontrado. Verifique se o Windows está instalado corretamente." -Level "ERROR" -ConsoleOutput
+      
       return
     }
 
-    Write-Output "Desativando Core Parking no plano com GUID: $PlanGUID..."
+    Log-Action -Message "Desativando Core Parking no plano com GUID: $PlanGUID..." -Level "INFO" -ConsoleOutput
+    
   }
 
   Process {
@@ -3014,19 +3052,22 @@ Function DisableCoreParking {
       # Ativar o plano
       & powercfg /setactive $PlanGUID 2>$null
       if ($LASTEXITCODE -ne 0) {
-        Write-Error "Falha ao ativar o plano $PlanGUID."
+        Log-Action -Message "Falha ao ativar o plano $PlanGUID." -Level "ERROR" -ConsoleOutput
+        
         return
       }
-      Write-Output "Plano ativado: $PlanGUID"
-
+      Log-Action -Message "Plano ativado: $PlanGUID" -Level "INFO" -ConsoleOutput
+      
       # Desativar Core Parking
       & powercfg -attributes SUB_PROCESSOR CPMINCORES -ATTRIB_HIDE 2>$null
       & powercfg -setacvalueindex $PlanGUID SUB_PROCESSOR CPMINCORES 100 2>$null
       if ($LASTEXITCODE -ne 0) {
-        Write-Warning "Falha ao ajustar CPMINCORES."
+        Log-Action -Message "Falha ao ajustar CPMINCORES." -Level "ERROR" -ConsoleOutput
+        
       }
       else {
-        Write-Verbose "Core Parking desativado (CPMINCORES = 100)."
+        Log-Action -Message "Core Parking desativado (CPMINCORES = 100)." -Level "INFO" -ConsoleOutput
+        
       }
 
       # Outras configurações
@@ -3047,23 +3088,27 @@ Function DisableCoreParking {
       # Reativar o plano
       & powercfg /setactive $PlanGUID 2>$null
       if ($LASTEXITCODE -eq 0) {
-        Write-Output "Core Parking desativado no plano $PlanGUID."
+        Log-Action -Message "Core Parking desativado com sucesso no plano $PlanGUID." -Level "INFO" -ConsoleOutput
+        
         $success = $true
       }
       else {
-        Write-Error "Falha ao reativar o plano $PlanGUID."
+        Log-Action -Message "Falha ao reativar o plano $PlanGUID." -Level "ERROR" -ConsoleOutput
+        
         return
       }
     }
     catch {
-      Write-Error "Erro ao desativar Core Parking: $_"
+      Log-Action -Message "Erro ao desativar Core Parking: $_" -Level "ERROR" -ConsoleOutput
+      
       return
     }
   }
 
   End {
     if ($success) {
-      Write-Output "Desativação do Core Parking concluída. Reinicie o sistema para garantir as alterações."
+      Log-Action -Message "Core Parking desativado com sucesso. Reinicie o sistema para garantir as alterações." -Level "INFO" -ConsoleOutput
+      
     }
   }
 }
@@ -3938,7 +3983,8 @@ function Invoke-WPFTweaksServices {
     # Verificar se o usuário tem permissões administrativas
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-      Write-Error "Esta função requer privilégios de administrador. Por favor, execute o PowerShell como administrador."
+      Log-Action -Message "Esta função requer privilégios de administrador. Por favor, execute o PowerShell como administrador." -Level "ERROR" -ConsoleOutput
+      
       return
     }
 
@@ -3955,7 +4001,8 @@ function Invoke-WPFTweaksServices {
         
       }
       else {
-        Write-Warning "Serviço '$serviceName' não encontrado. Pulando..."
+        Log-Action -Message "Serviço '$serviceName' não encontrado. Pulando..." -Level "WARNING" -ConsoleOutput
+        
       }
     }
 
@@ -3969,7 +4016,8 @@ function Invoke-WPFTweaksServices {
     }
   }
   catch {
-    Write-Error "Ocorreu um erro ao $($Action.ToLower()) os serviços: $_"
+    Log-Action -Message "Erro ao $($Action.ToLower()) os serviços: $_" -Level "ERROR" -ConsoleOutput
+    
   }
 }
 
