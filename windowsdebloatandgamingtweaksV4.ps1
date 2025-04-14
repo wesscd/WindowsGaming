@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.6.6 (GROK / GPT)
+# Versão: V0.7.2.6.7 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.6.6 (GROK / GPT)"
+$versao = "V0.7.2.6.7 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -4166,7 +4166,7 @@ function Set-RamThreshold {
 }
 
 function Set-MemoriaVirtual-Registry {
-  Log-Action "Iniciando função Set-MemoriaVirtual-Registry para configurar memória virtual." -Level "INFO" -ConsoleOutput
+  Log-Action -Message "Iniciando função Set-MemoriaVirtual-Registry para configurar memória virtual." -Level "INFO" -ConsoleOutput
 
   try {
     # Definir o banner e opções para o menu
@@ -4178,7 +4178,10 @@ function Set-MemoriaVirtual-Registry {
       "╚═══════════════════════════════════════╝",
       "",
       "≫ Este menu permite configurar a memória virtual do sistema.",
-      "≫ Ajustar manualmente pode otimizar o desempenho em jogos.",
+      "≫ A memória virtual será ajustada com base na RAM total detectada.",
+      "≫ Tamanho inicial: 9081 MB (fixo).",
+      "≫ Tamanho máximo: 1,5x a RAM total.",
+      "≫ O sistema desativará a gestão automática da memória virtual.",
       "",
       "≫ Pressione 'M' para definir manualmente a memória virtual.",
       "≫ Pressione 'A' para configurar automaticamente pelo Windows.",
@@ -4195,53 +4198,65 @@ function Set-MemoriaVirtual-Registry {
     # Processar a escolha
     switch ($selection) {
       "M" {
-        Log-Action "Opção escolhida: Definir memória virtual manualmente." -Level "INFO" -ConsoleOutput
-      
-        $ramGB = [math]::Round((Get-ComputerInfo).CsTotalPhysicalMemory / 1GB, 2)
-        $initialSize = [math]::Round($ramGB * 1024 * 1.5)  # 1.5x RAM em MB
-        $maxSize = [math]::Round($ramGB * 1024 * 3)        # 3x RAM em MB
+        Log-Action -Message "Opção escolhida: Definir memória virtual manualmente." -Level "INFO" -ConsoleOutput
+              
+        # Solicitar a letra do drive
+        Write-Colored "" "Branco"
+        Write-Colored -Text "Informe a letra do drive (ex: C) para configurar a memória virtual:" -Color "Cyan"
+        $Drive = Read-Host
+        $DrivePath = "${Drive}:"
+        Log-Action -Message "Usuário informou o drive: $DrivePath" -Level "INFO" -ConsoleOutput
 
-        try {
-          Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "PagingFiles" -Value "C:\pagefile.sys $initialSize $maxSize" -Type String -ErrorAction Stop
-          #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "PagingFiles" -Value "C:\pagefile.sys $initialSize $maxSize" -ErrorAction Stop
-          Log-Action "Memória virtual definida manualmente: Inicial=$initialSize MB, Máximo=$maxSize MB." -Level "INFO" -ConsoleOutput
-      
+        # Validação do drive
+        if (-not (Test-Path $DrivePath)) {
+          $errorMessage = "Drive $DrivePath não encontrado."
+          Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+                  
+          return
         }
-        catch {
-          $errorMessage = "Erro ao definir memória virtual manualmente: $_"
-          Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
-      
-        }
+        Log-Action -Message "Drive $DrivePath validado com sucesso." -Level "INFO" -ConsoleOutput
+
+        # Cálculo da memória RAM total em MB
+        $TotalRAM = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1MB)
+        $InitialSize = 9081  # Valor fixo inicial
+        $MaxSize = [math]::Round($TotalRAM * 1.5)  # Máximo como 1,5x a RAM
+        $RegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
+        Log-Action -Message "RAM total detectada: $TotalRAM MB. Configurando memória virtual com inicial: $InitialSize MB, máximo: $MaxSize MB." -Level "INFO" -ConsoleOutput
+
+        # Configurar memória virtual
+        Set-RegistryValue -Path $RegPath -Name "PagingFiles" -Value "$DrivePath\pagefile.sys $InitialSize $MaxSize" -Type "String"
+        Set-RegistryValue -Path $RegPath -Name "AutomaticManagedPagefile" -Value 0 -Type "DWord"
+
+        Log-Action -Message "Memória virtual configurada com sucesso para $DrivePath com inicial $InitialSize MB e máximo $MaxSize MB." -Level "INFO" -ConsoleOutput
+              
+        Log-Action -Message "Reinicie o computador para aplicar as mudanças." -Level "INFO" -ConsoleOutput
+              
       }
       "A" {
-        Log-Action "Opção escolhida: Configurar memória virtual automaticamente." -Level "INFO" -ConsoleOutput
-      
+        Log-Action -Message "Opção escolhida: Configurar memória virtual automaticamente." -Level "INFO" -ConsoleOutput
+              
 
-        try {
-          Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "PagingFiles" -Value "" -Type String -ErrorAction Stop
-          #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "PagingFiles" -Value "" -ErrorAction Stop
-          Log-Action "Memória virtual configurada para gerenciamento automático pelo Windows." -Level "INFO" -ConsoleOutput
-      
-        }
-        catch {
-          $errorMessage = "Erro ao configurar memória virtual automaticamente: $_"
-          Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
-      
-        }
+        $RegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
+        Set-RegistryValue -Path $RegPath -Name "PagingFiles" -Value "" -Type "String"
+        Set-RegistryValue -Path $RegPath -Name "AutomaticManagedPagefile" -Value 1 -Type "DWord"
+
+        Log-Action -Message "Memória virtual configurada para gerenciamento automático pelo Windows." -Level "INFO" -ConsoleOutput
+              
       }
       "P" {
-        Log-Action "Configuração de memória virtual ignorada." -Level "WARNING" -ConsoleOutput
-      
+        Log-Action -Message "Configuração de memória virtual ignorada." -Level "WARNING" -ConsoleOutput
+              
       }
     }
   }
   catch {
     $errorMessage = "Erro na função Set-MemoriaVirtual-Registry: $_"
-    Log-Action $errorMessage -Level "ERROR" -ConsoleOutput
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
       
+    throw
   }
   finally {
-    Log-Action "Finalizando função Set-MemoriaVirtual-Registry." -Level "INFO" -ConsoleOutput
+    Log-Action -Message "Finalizando função Set-MemoriaVirtual-Registry." -Level "INFO" -ConsoleOutput
   }
 }
 
