@@ -5,7 +5,7 @@
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.7.2 (GROK / GPT)"
+$versao = "V0.7.2.7.3 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -4069,6 +4069,7 @@ function Set-RamThreshold {
       }
     }
     Log-Action -Message "Valor calculado para SvcHostSplitThresholdInKB: $value KB" -ConsoleOutput
+    Log-Action -Message "Configurado o valor de SvcHostSplitThresholdInKB para $value KB com ${ramGB}GB" -ConsoleOutput
 
     $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control"
     $regName = "SvcHostSplitThresholdInKB"
