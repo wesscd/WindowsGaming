@@ -1,6 +1,6 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.7.1 (GROK / GPT)
+# Versão: V0.7.2.7.3 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
