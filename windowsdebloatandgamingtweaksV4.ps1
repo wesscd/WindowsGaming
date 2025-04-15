@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.7.3 (GROK / GPT)
+# Versão: V0.7.2.7.4 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.7.3 (GROK / GPT)"
+$versao = "V0.7.2.7.4 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -465,143 +465,144 @@ function RequireAdmin {
 # Definir hashtable de funções de tweaks
 $tweakFunctions = @{
   # Funções gerais
-  "RequireAdmin"                = { RequireAdmin }
-  "CreateRestorePoint"          = { CreateRestore }
-  "InstallChocolateyPackages"   = { InstallChocolateyPackages }
-  "DownloadFiles"               = { DownloadFiles }
-  "Check-Windows"               = { Check-Windows }
-  "Execute-BatchScript"         = { Execute-BatchScript }
-  "InstallChocoUpdates"         = { InstallChocoUpdates }
-  "Download-GPUFiles"           = { Download-GPUFiles }
-  "EnableUltimatePower"         = { EnableUltimatePower }
-  "ManagePowerProfiles"         = { ManagePowerProfiles }
-  "AskDefender"                 = { AskDefender }
-  "AskXBOX"                     = { AskXBOX }
-  "Windows11Extras"             = { Windows11Extras }
-  "DebloatAll"                  = { DebloatAll }
-  "ServicesSet"                 = { Invoke-WPFTweaksServices -Action Set }
-  "RemoveBloatRegistry"         = { RemoveBloatRegistry }
-  "Remove-OneDrive"             = { Remove-OneDrive }
-  "UninstallMsftBloat"          = { UninstallMsftBloat }
-  "DisableNewsFeed"             = { DisableNewsFeed }
-  "SetUACLow"                   = { SetUACLow }
-  "DisableSMB1"                 = { DisableSMB1 }
-  "ConfigureNetworkSettings"    = { ConfigureNetworkSettings }
-  "EnableF8BootMenu"            = { EnableF8BootMenu }
-  "ConfigureWindowsUpdate"      = { ConfigureWindowsUpdate }
-  "DisableMeltdownCompatFlag"   = { DisableMeltdownCompatFlag }
-  "DisableHomeGroups"           = { DisableHomeGroups }
-  "EnableSharedExperiences"     = { EnableSharedExperiences }
-  "DisableRemoteAssistance"     = { DisableRemoteAssistance }
-  "EnableRemoteDesktop"         = { EnableRemoteDesktop }
-  "DisableAutoplay"             = { DisableAutoplay }
-  "DisableAutorun"              = { DisableAutorun }
-  "DisableStorageSense"         = { DisableStorageSense }
-  "DisableDefragmentation"      = { DisableDefragmentation }
-  "EnableIndexing"              = { EnableIndexing }
-  "SetBIOSTimeUTC"              = { SetBIOSTimeUTC }
-  "DisableHibernation"          = { DisableHibernation }
-  "EnableSleepButton"           = { EnableSleepButton }
-  "DisableSleepTimeout"         = { DisableSleepTimeout }
-  "DisableFastStartup"          = { DisableFastStartup }
-  "DisableGaming"               = { DisableGaming }
-  "PowerThrottlingOff"          = { PowerThrottlingOff }
-  "Win32PrioritySeparation"     = { Win32PrioritySeparation }
-  "DisableAERO"                 = { DisableAERO }
-  "BSODdetails"                 = { BSODdetails }
-  "DisableliveTiles"            = { DisableliveTiles }
-  "WallpaperQuality"            = { WallpaperQuality }
-  "DisableShistory"             = { DisableShistory }
-  "DisableShortcutWord"         = { DisableShortcutWord }
-  "DisableMouseKKS"             = { DisableMouseKKS }
-  "DisableTransparency"         = { DisableTransparency }
-  "TurnOffSafeSearch"           = { TurnOffSafeSearch }
-  "DisableCloudSearch"          = { DisableCloudSearch }
-  "DisableDeviceHistory"        = { DisableDeviceHistory }
-  "DisableSearchHistory"        = { DisableSearchHistory }
-  "RemoveMeet"                  = { RemoveMeet }
-  "EnableActionCenter"          = { EnableActionCenter }
-  "EnableLockScreen"            = { EnableLockScreen }
-  "EnableLockScreenRS1"         = { EnableLockScreenRS1 }
-  "DisableStickyKeys"           = { DisableStickyKeys }
-  "ShowTaskManagerDetails"      = { ShowTaskManagerDetails }
-  "ShowFileOperationsDetails"   = { ShowFileOperationsDetails }
-  "DisableFileDeleteConfirm"    = { DisableFileDeleteConfirm }
-  "HideTaskbarSearch"           = { HideTaskbarSearch }
-  "HideTaskView"                = { HideTaskView }
-  "HideTaskbarPeopleIcon"       = { HideTaskbarPeopleIcon }
-  "DisableSearchAppInStore"     = { DisableSearchAppInStore }
-  "DisableNewAppPrompt"         = { DisableNewAppPrompt }
-  "SetVisualFXPerformance"      = { SetVisualFXPerformance }
-  "EnableNumlock"               = { EnableNumlock }
-  "EnableDarkMode"              = { EnableDarkMode }
-  "ShowKnownExtensions"         = { ShowKnownExtensions }
-  "HideHiddenFiles"             = { HideHiddenFiles }
-  "HideSyncNotifications"       = { HideSyncNotifications }
-  "HideRecentShortcuts"         = { HideRecentShortcuts }
-  "SetExplorerThisPC"           = { SetExplorerThisPC }
-  "ShowThisPCOnDesktop"         = { ShowThisPCOnDesktop }
-  "ShowUserFolderOnDesktop"     = { ShowUserFolderOnDesktop }
-  "Hide3DObjectsFromThisPC"     = { Hide3DObjectsFromThisPC }
-  "Hide3DObjectsFromExplorer"   = { Hide3DObjectsFromExplorer }
-  "EnableThumbnails"            = { EnableThumbnails }
-  "EnableThumbsDB"              = { EnableThumbsDB }
-  "UninstallInternetExplorer"   = { UninstallInternetExplorer }
-  "UninstallWorkFolders"        = { UninstallWorkFolders }
-  "UninstallLinuxSubsystem"     = { UninstallLinuxSubsystem }
-  "SetPhotoViewerAssociation"   = { SetPhotoViewerAssociation }
-  "AddPhotoViewerOpenWith"      = { AddPhotoViewerOpenWith }
-  "InstallPDFPrinter"           = { InstallPDFPrinter }
-  "SVCHostTweak"                = { SVCHostTweak }
-  "UnpinStartMenuTiles"         = { UnpinStartMenuTiles }
-  "QOL"                         = { QOL }
-  "FullscreenOptimizationFIX"   = { FullscreenOptimizationFIX }
-  "GameOptimizationFIX"         = { GameOptimizationFIX }
-  "RawMouseInput"               = { RawMouseInput }
-  "DetectnApplyMouseFIX"        = { DetectnApplyMouseFIX }
-  "DisableHPET"                 = { DisableHPET }
-  "EnableGameMode"              = { EnableGameMode }
-  "EnableHAGS"                  = { EnableHAGS }
-  "DisableDMA"                  = { DisableDMA }
-  "DisablePKM"                  = { DisablePKM }
-  "DisallowDIP"                 = { DisallowDIP }
-  "UseBigM"                     = { UseBigM }
-  "ForceContiguousM"            = { ForceContiguousM }
-  "DecreaseMKBuffer"            = { DecreaseMKBuffer }
-  "StophighDPC"                 = { StophighDPC }
-  "Ativar-Servicos"             = { Ativar-Servicos }
-  "RemoveEdit3D"                = { RemoveEdit3D }
-  "FixURLext"                   = { FixURLext }
-  "UltimateCleaner"             = { UltimateCleaner }
-  "Clear-PSHistory"             = { Clear-PSHistory }
-  "Finished"                    = { Finished }
+  "RequireAdmin"                  = { RequireAdmin }
+  "CreateRestorePoint"            = { CreateRestore }
+  "InstallChocolateyPackages"     = { InstallChocolateyPackages }
+  "DownloadFiles"                 = { DownloadFiles }
+  "Check-Windows"                 = { Check-Windows }
+  "Execute-BatchScript"           = { Execute-BatchScript }
+  "InstallChocoUpdates"           = { InstallChocoUpdates }
+  "Download-GPUFiles"             = { Download-GPUFiles }
+  "EnableUltimatePower"           = { EnableUltimatePower }
+  "ManagePowerProfiles"           = { ManagePowerProfiles }
+  "AskDefender"                   = { AskDefender }
+  "AskXBOX"                       = { AskXBOX }
+  "Windows11Extras"               = { Windows11Extras }
+  "DebloatAll"                    = { DebloatAll }
+  "ServicesSet"                   = { Invoke-WPFTweaksServices -Action Set }
+  "RemoveBloatRegistry"           = { RemoveBloatRegistry }
+  "Remove-OneDrive"               = { Remove-OneDrive }
+  "UninstallMsftBloat"            = { UninstallMsftBloat }
+  "DisableNewsFeed"               = { DisableNewsFeed }
+  "SetUACLow"                     = { SetUACLow }
+  "DisableSMB1"                   = { DisableSMB1 }
+  "ConfigureNetworkSettings"      = { ConfigureNetworkSettings }
+  "EnableF8BootMenu"              = { EnableF8BootMenu }
+  "ConfigureWindowsUpdate"        = { ConfigureWindowsUpdate }
+  "DisableMeltdownCompatFlag"     = { DisableMeltdownCompatFlag }
+  "DisableHomeGroups"             = { DisableHomeGroups }
+  "EnableSharedExperiences"       = { EnableSharedExperiences }
+  "DisableRemoteAssistance"       = { DisableRemoteAssistance }
+  "EnableRemoteDesktop"           = { EnableRemoteDesktop }
+  "DisableAutoplay"               = { DisableAutoplay }
+  "DisableAutorun"                = { DisableAutorun }
+  "DisableStorageSense"           = { DisableStorageSense }
+  "DisableDefragmentation"        = { DisableDefragmentation }
+  "EnableIndexing"                = { EnableIndexing }
+  "SetBIOSTimeUTC"                = { SetBIOSTimeUTC }
+  "DisableHibernation"            = { DisableHibernation }
+  "EnableSleepButton"             = { EnableSleepButton }
+  "DisableSleepTimeout"           = { DisableSleepTimeout }
+  "DisableFastStartup"            = { DisableFastStartup }
+  "DisableGaming"                 = { DisableGaming }
+  "PowerThrottlingOff"            = { PowerThrottlingOff }
+  "Win32PrioritySeparation"       = { Win32PrioritySeparation }
+  "DisableAERO"                   = { DisableAERO }
+  "BSODdetails"                   = { BSODdetails }
+  "DisableliveTiles"              = { DisableliveTiles }
+  "WallpaperQuality"              = { WallpaperQuality }
+  "DisableShistory"               = { DisableShistory }
+  "DisableShortcutWord"           = { DisableShortcutWord }
+  "DisableMouseKKS"               = { DisableMouseKKS }
+  "DisableTransparency"           = { DisableTransparency }
+  "TurnOffSafeSearch"             = { TurnOffSafeSearch }
+  "DisableCloudSearch"            = { DisableCloudSearch }
+  "DisableDeviceHistory"          = { DisableDeviceHistory }
+  "DisableSearchHistory"          = { DisableSearchHistory }
+  "RemoveMeet"                    = { RemoveMeet }
+  "EnableActionCenter"            = { EnableActionCenter }
+  "EnableLockScreen"              = { EnableLockScreen }
+  "EnableLockScreenRS1"           = { EnableLockScreenRS1 }
+  "DisableStickyKeys"             = { DisableStickyKeys }
+  "ShowTaskManagerDetails"        = { ShowTaskManagerDetails }
+  "ShowFileOperationsDetails"     = { ShowFileOperationsDetails }
+  "DisableFileDeleteConfirm"      = { DisableFileDeleteConfirm }
+  "HideTaskbarSearch"             = { HideTaskbarSearch }
+  "HideTaskView"                  = { HideTaskView }
+  "HideTaskbarPeopleIcon"         = { HideTaskbarPeopleIcon }
+  "DisableSearchAppInStore"       = { DisableSearchAppInStore }
+  "DisableNewAppPrompt"           = { DisableNewAppPrompt }
+  "SetVisualFXPerformance"        = { SetVisualFXPerformance }
+  "EnableNumlock"                 = { EnableNumlock }
+  "EnableDarkMode"                = { EnableDarkMode }
+  "ShowKnownExtensions"           = { ShowKnownExtensions }
+  "HideHiddenFiles"               = { HideHiddenFiles }
+  "HideSyncNotifications"         = { HideSyncNotifications }
+  "HideRecentShortcuts"           = { HideRecentShortcuts }
+  "SetExplorerThisPC"             = { SetExplorerThisPC }
+  "ShowThisPCOnDesktop"           = { ShowThisPCOnDesktop }
+  "ShowUserFolderOnDesktop"       = { ShowUserFolderOnDesktop }
+  "Hide3DObjectsFromThisPC"       = { Hide3DObjectsFromThisPC }
+  "Hide3DObjectsFromExplorer"     = { Hide3DObjectsFromExplorer }
+  "EnableThumbnails"              = { EnableThumbnails }
+  "EnableThumbsDB"                = { EnableThumbsDB }
+  "UninstallInternetExplorer"     = { UninstallInternetExplorer }
+  "UninstallWorkFolders"          = { UninstallWorkFolders }
+  "UninstallLinuxSubsystem"       = { UninstallLinuxSubsystem }
+  "SetPhotoViewerAssociation"     = { SetPhotoViewerAssociation }
+  "AddPhotoViewerOpenWith"        = { AddPhotoViewerOpenWith }
+  "InstallPDFPrinter"             = { InstallPDFPrinter }
+  "SVCHostTweak"                  = { SVCHostTweak }
+  "UnpinStartMenuTiles"           = { UnpinStartMenuTiles }
+  "QOL"                           = { QOL }
+  "FullscreenOptimizationFIX"     = { FullscreenOptimizationFIX }
+  "GameOptimizationFIX"           = { GameOptimizationFIX }
+  "RawMouseInput"                 = { RawMouseInput }
+  "DetectnApplyMouseFIX"          = { DetectnApplyMouseFIX }
+  "DisableHPET"                   = { DisableHPET }
+  "EnableGameMode"                = { EnableGameMode }
+  "EnableHAGS"                    = { EnableHAGS }
+  "DisableDMA"                    = { DisableDMA }
+  "DisablePKM"                    = { DisablePKM }
+  "DisallowDIP"                   = { DisallowDIP }
+  "UseBigM"                       = { UseBigM }
+  "ForceContiguousM"              = { ForceContiguousM }
+  "DecreaseMKBuffer"              = { DecreaseMKBuffer }
+  "StophighDPC"                   = { StophighDPC }
+  "Ativar-Servicos"               = { Ativar-Servicos }
+  "RemoveEdit3D"                  = { RemoveEdit3D }
+  "FixURLext"                     = { FixURLext }
+  "UltimateCleaner"               = { UltimateCleaner }
+  "Clear-PSHistory"               = { Clear-PSHistory }
+  "Finished"                      = { Finished }
 
   # Funções de Performance (assumidas em PerformanceTweaks.ps1)
   
-  "Set-RamThreshold"            = { Set-RamThreshold }
-  "Set-MemoriaVirtual-Registry" = { Set-MemoriaVirtual-Registry }
-  "DownloadAndExtractISLC"      = { DownloadAndExtractISLC }
-  "UpdateISLCConfig"            = { UpdateISLCConfig }
-  "ApplyPCOptimizations"        = { ApplyPCOptimizations }
-  "MSIMode"                     = { MSIMode }
-  "OptimizeGPUTweaks"           = { OptimizeGPUTweaks }
+  "Set-RamThreshold"              = { Set-RamThreshold }
+  "Set-RamThresholdControlSet001" = { Set-RamThresholdControlSet001 }
+  "Set-MemoriaVirtual-Registry"   = { Set-MemoriaVirtual-Registry }
+  "DownloadAndExtractISLC"        = { DownloadAndExtractISLC }
+  "UpdateISLCConfig"              = { UpdateISLCConfig }
+  "ApplyPCOptimizations"          = { ApplyPCOptimizations }
+  "MSIMode"                       = { MSIMode }
+  "OptimizeGPUTweaks"             = { OptimizeGPUTweaks }
   # Funções de Privacidade (assumidas em PrivacyTweaks.ps1)
-  "DisableTelemetry"            = { DisableTelemetry }
-  "DisableWiFiSense"            = { DisableWiFiSense }
-  "DisableSmartScreen"          = { DisableSmartScreen }
-  "DisableWebSearch"            = { DisableWebSearch }
-  "DisableAppSuggestions"       = { DisableAppSuggestions }
-  "DisableActivityHistory"      = { DisableActivityHistory }
-  "EnableBackgroundApps"        = { EnableBackgroundApps }
-  "DisableLocationTracking"     = { DisableLocationTracking }
-  "DisableMapUpdates"           = { DisableMapUpdates }
-  "DisableFeedback"             = { DisableFeedback }
-  "DisableTailoredExperiences"  = { DisableTailoredExperiences }
-  "DisableAdvertisingID"        = { DisableAdvertisingID }
-  "DisableCortana"              = { DisableCortana }
-  "DisableErrorReporting"       = { DisableErrorReporting }
-  "SetP2PUpdateLocal"           = { SetP2PUpdateLocal }
-  "DisableWAPPush"              = { DisableWAPPush }
+  "DisableTelemetry"              = { DisableTelemetry }
+  "DisableWiFiSense"              = { DisableWiFiSense }
+  "DisableSmartScreen"            = { DisableSmartScreen }
+  "DisableWebSearch"              = { DisableWebSearch }
+  "DisableAppSuggestions"         = { DisableAppSuggestions }
+  "DisableActivityHistory"        = { DisableActivityHistory }
+  "EnableBackgroundApps"          = { EnableBackgroundApps }
+  "DisableLocationTracking"       = { DisableLocationTracking }
+  "DisableMapUpdates"             = { DisableMapUpdates }
+  "DisableFeedback"               = { DisableFeedback }
+  "DisableTailoredExperiences"    = { DisableTailoredExperiences }
+  "DisableAdvertisingID"          = { DisableAdvertisingID }
+  "DisableCortana"                = { DisableCortana }
+  "DisableErrorReporting"         = { DisableErrorReporting }
+  "SetP2PUpdateLocal"             = { SetP2PUpdateLocal }
+  "DisableWAPPush"                = { DisableWAPPush }
 }
 
 # Lista de tweaks a serem executados
@@ -629,6 +630,7 @@ $tweaks = @(
   "ConfigureNetworkSettings", # Substitui SetCurrentNetworkPrivate, SetUnknownNetworksPrivate, DisableNetDevicesAutoInst, OptimizeNetwork
   # Adicionando funções de desempenho aqui
   "Set-RamThreshold",
+  "Set-RamThresholdControlSet001",
   "Set-MemoriaVirtual-Registry",
   "DownloadAndExtractISLC",
   "UpdateISLCConfig",
@@ -2841,11 +2843,24 @@ function DetectnApplyMouseFIX {
     }
 
     Log-Action -Message "Correção de mouse aplicada com sucesso para escala $checkscreenscale%." -Level "INFO" -ConsoleOutput
+
+    # Reduzir tamanhos das filas de teclado e mouse
+    $servicesPath = "HKLM:\SYSTEM\CurrentControlSet\Services"
+    Set-RegistryValue -Path $servicesPath -Name "KeyboardDataQueueSize" -Value 50 -Type "DWord" -Force
+    Set-RegistryValue -Path $servicesPath -Name "MouseDataQueueSize" -Value 50 -Type "DWord" -Force
+    Log-Action -Message "Tamanhos das filas de teclado e mouse ajustados para 50." -Level "INFO" -ConsoleOutput
+
+    # Desativar Selective Suspend para USB
+    $usbPath = "HKLM:\SYSTEM\CurrentControlSet\Services\USB"
+    Set-RegistryValue -Path $usbPath -Name "DisableSelectiveSuspend" -Value 1 -Type "DWord" -Force
+    Log-Action -Message "Selective Suspend para USB desativado." -Level "INFO" -ConsoleOutput
     
   }
   catch {
     $errorMessage = "Erro na função DetectnApplyMouseFIX: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+
+    Log-Action -Message "Erro ao aplicar ajustes de entrada: $_" -Level "ERROR" -ConsoleOutput
     
     throw
   }
@@ -4089,6 +4104,48 @@ function Set-RamThreshold {
   }
 }
 
+function Set-RamThresholdControlSet001 {
+  Log-Action -Message "Iniciando função Set-RamThresholdControlSet001 para configurar o limite de RAM no registro." -ConsoleOutput
+
+  try {
+    $ramGB = [math]::Round((Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
+    Log-Action -Message "Quantidade de RAM detectada: $ramGB GB" -ConsoleOutput
+
+    $value = switch ($ramGB) {
+      4 { 4194304 }
+      6 { 6291456 }
+      8 { 8388608 }
+      12 { 12582912 }
+      16 { 16777216 }
+      24 { 25165824 }
+      32 { 33554432 }
+      64 { 67108864 }
+      default {
+        $errorMessage = "Memória RAM ($ramGB GB) não suportada para esta configuração."
+        Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+        return
+      }
+    }
+    Log-Action -Message "Valor calculado para SvcHostSplitThresholdInKB: $value KB" -ConsoleOutput
+    Log-Action -Message "Configurado o valor de SvcHostSplitThresholdInKB para $value KB com ${ramGB}GB" -ConsoleOutput
+
+    $regPath = "HKLM:\SYSTEM\ControlSet001\Control"
+    $regName = "SvcHostSplitThresholdInKB"
+    Log-Action -Message "Configurando $regName para $value em $regPath..." -ConsoleOutput
+    Set-RegistryValue -Path $regPath -Name $regName -Value $value -Type DWord -ErrorAction Stop
+      
+    Log-Action -Message "Registro $regName atualizado com sucesso para $value KB." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    $errorMessage = "Erro ao atualizar registro: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    throw  # Repropaga o erro
+  }
+  finally {
+    Log-Action -Message "Finalizando função Set-RamThresholdControlSet001." -Level "INFO" -ConsoleOutput
+  }
+}
+
 function Set-MemoriaVirtual-Registry {
   Log-Action -Message "Iniciando função Set-MemoriaVirtual-Registry para configurar memória virtual." -Level "INFO" -ConsoleOutput
 
@@ -4354,30 +4411,27 @@ function UpdateISLCConfig {
 
 function ApplyPCOptimizations {
   Log-Action -Message "Iniciando função ApplyPCOptimizations para aplicar otimizações no PC." -Level "INFO" -ConsoleOutput
-
   try {
-    Log-Action -Message "Aplicando otimizações..." -Level "INFO" -ConsoleOutput
-    
     $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
-
-    # Configurar otimizações usando Set-RegistryValue
     Set-RegistryValue -Path $registryPath -Name "SystemResponsiveness" -Value 0 -Type "DWord"
-    Set-RegistryValue -Path $registryPath -Name "NetworkThrottlingIndex" -Value 10 -Type "DWord"
+    Set-RegistryValue -Path $registryPath -Name "NetworkThrottlingIndex" -Value 0xFFFFFFFF -Type "DWord"
     Set-RegistryValue -Path $registryPath -Name "AlwaysOn" -Value 1 -Type "DWord"
     Set-RegistryValue -Path $registryPath -Name "LazyMode" -Value 1 -Type "DWord"
     Set-RegistryValue -Path $registryPath -Name "LazyModeTimeout" -Value 25000 -Type "DWord"
 
+    # Otimizar MMCSS para jogos
+    $mmcssPath = "$registryPath\Tasks\Games"
+    Set-RegistryValue -Path $mmcssPath -Name "Priority" -Value 6 -Type "DWord" -Force
+    Set-RegistryValue -Path $mmcssPath -Name "Scheduling Category" -Value "High" -Type "String" -Force
+    Set-RegistryValue -Path $mmcssPath -Name "SFIO Priority" -Value "High" -Type "String" -Force
+    Set-RegistryValue -Path $mmcssPath -Name "Background Only" -Value "False" -Type "String" -Force
+    Log-Action -Message "MMCSS otimizado para jogos." -Level "INFO" -ConsoleOutput
+
     Log-Action -Message "Otimizações aplicadas com sucesso." -Level "INFO" -ConsoleOutput
-    
   }
   catch {
-    $errorMessage = "Erro ao aplicar otimizações: $_"
-    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    
-    throw  # Repropaga o erro
-  }
-  finally {
-    Log-Action -Message "Finalizando função ApplyPCOptimizations." -Level "INFO" -ConsoleOutput
+    Log-Action -Message "Erro ao aplicar otimizações: $_" -Level "ERROR" -ConsoleOutput
+    throw
   }
 }
 
@@ -4472,6 +4526,11 @@ function OptimizeGPUTweaks {
     # Priorizar desempenho no plano de energia
     powercfg -setactive SCHEME_MIN  # Máximo desempenho
     Log-Action -Message "Plano de energia ajustado para máximo desempenho." -Level "INFO" -ConsoleOutput
+
+    $schedulerPath = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Scheduler"
+    Set-RegistryValue -Path $schedulerPath -Name "DisablePreemption" -Value 1 -Type "DWord" -Force
+    Log-Action -Message "Preempção da GPU desativada." -Level "INFO" -ConsoleOutput
+
   }
   catch {
     Log-Action -Message "Erro ao aplicar tweaks comuns: $_" -Level "ERROR" -ConsoleOutput
@@ -4864,7 +4923,9 @@ function ConfigureNetworkSettings {
       foreach ($interface in $interfaces) {
         Set-RegistryValue -Path $interface.PSPath -Name "TcpAckFrequency" -Value 1 -Type "DWord"
         Set-RegistryValue -Path $interface.PSPath -Name "TCPNoDelay" -Value 1 -Type "DWord"
+        Set-RegistryValue -Path $interface.PSPath -Name "TcpDelAckTicks" -Value 0 -Type "DWord"
       }
+      Log-Action -Message "Algoritmo de Nagle desativado, incluindo TcpDelAckTicks." -Level "INFO" -ConsoleOutput
     }
 
     # Configurar RSS por adaptador
