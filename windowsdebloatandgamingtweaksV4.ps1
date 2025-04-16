@@ -489,7 +489,7 @@ function Adjust-RegistryPermissions {
     }
   }
   catch {
-    Log-Action -Message "Erro ao ajustar permissões para $RegistryPath: $_" -Level "WARNING" -ConsoleOutput
+    Log-Action -Message "Erro ao ajustar permissões para ${RegistryPath}: $_" -Level "WARNING" -ConsoleOutput
     return $false
   }
 }
