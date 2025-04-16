@@ -27,6 +27,7 @@ function Write-Colored {
   .EXAMPLE
     Write-Colored -Text "Olá, mundo!" -Color "VerdeClaro"
     Exibe "Olá, mundo!" em verde claro.
+    foda isso aqui
 
   .EXAMPLE
     Write-Colored -Text "Erro!" -Color "Vermelho" -BackgroundColor "Branco"
