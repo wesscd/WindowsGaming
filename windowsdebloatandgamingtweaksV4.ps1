@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.7.7 (GROK / GPT)
+# Versão: V0.7.2.7.8 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.7.7 (GROK / GPT)"
+$versao = "V0.7.2.7.8 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -4154,50 +4154,45 @@ function CreateRestorePoint {
 
 
 function Set-RamThreshold {
-  Log-Action -Message "Iniciando função Set-RamThreshold para configurar o limite de RAM no registro." -ConsoleOutput
+  [CmdletBinding()]
+  Param ()
+
+  Log-Action -Message "Iniciando função Set-RamThreshold para configurar o limite de RAM no registro." -Level "INFO" -ConsoleOutput
 
   try {
-    $ramGB = [math]::Round((Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
-    Log-Action -Message "Quantidade de RAM detectada: $ramGB GB" -ConsoleOutput
+    # Obter memória total em bytes
+    $totalMemoryBytes = (Get-CimInstance -ClassName Win32_ComputerSystem -ErrorAction Stop).TotalPhysicalMemory
+    $ramGB = [math]::Round($totalMemoryBytes / 1GB, 2)  # Para logging apenas
+    Log-Action -Message "Quantidade de RAM detectada: $ramGB GB ($totalMemoryBytes bytes)" -Level "INFO" -ConsoleOutput
 
-    $value = switch ($ramGB) {
-      4 { 0x400000 }
-      6 { 0x600000 }
-      8 { 0x800000 }
-      10 { 0xA00000 }
-      12 { 0xC00000 }
-      14 { 0xE00000 }
-      16 { 0x1000000 }
-      18 { 0x1200000 }
-      20 { 0x1400000 }
-      24 { 0x1800000 }
-      26 { 0x1A00000 }
-      32 { 0x2000000 }
-      63 { 0x3F00000 }
-      64 { 0x4000000 }
-      128 { 0x8000000 }
-      default {
-        $errorMessage = "Memória RAM ($ramGB GB) não suportada para esta configuração."
-        Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-        
-        return
-      }
+    # Calcular SvcHostSplitThresholdInKB (RAM em KB = bytes ÷ 1024)
+    $value = [math]::Round($totalMemoryBytes / 1KB)  # Converter bytes para KB
+    Log-Action -Message "Valor calculado para SvcHostSplitThresholdInKB: $value KB" -Level "INFO" -ConsoleOutput
+
+    # Validar valor para evitar configurações inválidas
+    $minThresholdKB = 4 * 1024 * 1024  # 4 GB em KB
+    $maxThresholdKB = 256 * 1024 * 1024  # 256 GB em KB
+    if ($value -lt $minThresholdKB) {
+      $value = $minThresholdKB
+      Log-Action -Message "Valor ajustado para o mínimo permitido: $value KB (equivalente a 4 GB)." -Level "WARNING" -ConsoleOutput
     }
-    Log-Action -Message "Valor calculado para SvcHostSplitThresholdInKB: $value KB" -ConsoleOutput
-    Log-Action -Message "Configurado o valor de SvcHostSplitThresholdInKB para $value KB com ${ramGB}GB" -ConsoleOutput
+    elseif ($value -gt $maxThresholdKB) {
+      $value = $maxThresholdKB
+      Log-Action -Message "Valor ajustado para o máximo permitido: $value KB (equivalente a 256 GB)." -Level "WARNING" -ConsoleOutput
+    }
 
+    # Configurar registro
     $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control"
     $regName = "SvcHostSplitThresholdInKB"
-    Log-Action -Message "Configurando $regName para $value em $regPath..." -ConsoleOutput
+    Log-Action -Message "Configurando $regName para $value em $regPath..." -Level "INFO" -ConsoleOutput
     Set-RegistryValue -Path $regPath -Name $regName -Value $value -Type DWord -ErrorAction Stop
-    
+
     Log-Action -Message "Registro $regName atualizado com sucesso para $value KB." -Level "INFO" -ConsoleOutput
   }
   catch {
     $errorMessage = "Erro ao atualizar registro: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    
-    throw  # Repropaga o erro
+    # Removido throw para não interromper outros tweaks
   }
   finally {
     Log-Action -Message "Finalizando função Set-RamThreshold." -Level "INFO" -ConsoleOutput
@@ -4205,41 +4200,45 @@ function Set-RamThreshold {
 }
 
 function Set-RamThresholdControlSet001 {
-  Log-Action -Message "Iniciando função Set-RamThresholdControlSet001 para configurar o limite de RAM no registro." -ConsoleOutput
+  [CmdletBinding()]
+  Param ()
+
+  Log-Action -Message "Iniciando função Set-RamThresholdControlSet001 para configurar o limite de RAM no registro." -Level "INFO" -ConsoleOutput
 
   try {
-    $ramGB = [math]::Round((Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
-    Log-Action -Message "Quantidade de RAM detectada: $ramGB GB" -ConsoleOutput
+    # Obter memória total em bytes
+    $totalMemoryBytes = (Get-CimInstance -ClassName Win32_ComputerSystem -ErrorAction Stop).TotalPhysicalMemory
+    $ramGB = [math]::Round($totalMemoryBytes / 1GB, 2)  # Para logging apenas
+    Log-Action -Message "Quantidade de RAM detectada: $ramGB GB ($totalMemoryBytes bytes)" -Level "INFO" -ConsoleOutput
 
-    $value = switch ($ramGB) {
-      4 { 4194304 }
-      6 { 6291456 }
-      8 { 8388608 }
-      12 { 12582912 }
-      16 { 16777216 }
-      24 { 25165824 }
-      32 { 33554432 }
-      64 { 67108864 }
-      default {
-        $errorMessage = "Memória RAM ($ramGB GB) não suportada para esta configuração."
-        Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-        return
-      }
+    # Calcular SvcHostSplitThresholdInKB (RAM em KB = bytes ÷ 1024)
+    $value = [math]::Round($totalMemoryBytes / 1KB)  # Converter bytes para KB
+    Log-Action -Message "Valor calculado para SvcHostSplitThresholdInKB: $value KB" -Level "INFO" -ConsoleOutput
+
+    # Validar valor para evitar configurações inválidas
+    $minThresholdKB = 4 * 1024 * 1024  # 4 GB em KB (4194304)
+    $maxThresholdKB = 256 * 1024 * 1024  # 256 GB em KB (268435456)
+    if ($value -lt $minThresholdKB) {
+      $value = $minThresholdKB
+      Log-Action -Message "Valor ajustado para o mínimo permitido: $value KB (equivalente a 4 GB)." -Level "WARNING" -ConsoleOutput
     }
-    Log-Action -Message "Valor calculado para SvcHostSplitThresholdInKB: $value KB" -ConsoleOutput
-    Log-Action -Message "Configurado o valor de SvcHostSplitThresholdInKB para $value KB com ${ramGB}GB" -ConsoleOutput
+    elseif ($value -gt $maxThresholdKB) {
+      $value = $maxThresholdKB
+      Log-Action -Message "Valor ajustado para o máximo permitido: $value KB (equivalente a 256 GB)." -Level "WARNING" -ConsoleOutput
+    }
 
+    # Configurar registro
     $regPath = "HKLM:\SYSTEM\ControlSet001\Control"
     $regName = "SvcHostSplitThresholdInKB"
-    Log-Action -Message "Configurando $regName para $value em $regPath..." -ConsoleOutput
+    Log-Action -Message "Configurando $regName para $value em $regPath..." -Level "INFO" -ConsoleOutput
     Set-RegistryValue -Path $regPath -Name $regName -Value $value -Type DWord -ErrorAction Stop
-      
+
     Log-Action -Message "Registro $regName atualizado com sucesso para $value KB." -Level "INFO" -ConsoleOutput
   }
   catch {
     $errorMessage = "Erro ao atualizar registro: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
+    # Removido throw para não interromper outros tweaks
   }
   finally {
     Log-Action -Message "Finalizando função Set-RamThresholdControlSet001." -Level "INFO" -ConsoleOutput
