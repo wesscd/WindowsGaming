@@ -446,7 +446,7 @@ function Set-RegistryValue {
     Log-Action -Message "Propriedade $Name configurada com sucesso em $Path com valor $Value." -Level "INFO" -ConsoleOutput
   }
   catch {
-    Log-Action -Message "Falha ao configurar $Path\$Name: $_" -Level "WARNING" -ConsoleOutput
+    Log-Action -Message "Falha ao configurar $Path\${Name}: $_" -Level "WARNING" -ConsoleOutput
 
     # Tentar ajustar permissões e repetir
     if (Adjust-RegistryPermissions -RegistryPath $Path) {
