@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.7.6 (GROK / GPT)
+# Versão: V0.7.2.7.7 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.7.6 (GROK / GPT)"
+$versao = "V0.7.2.7.7 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -450,6 +450,47 @@ function Set-RegistryValue {
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
     
     throw  # Repropaga o erro para a função chamadora
+  }
+}
+
+function Adjust-RegistryPermissions {
+  [CmdletBinding()]
+  Param (
+    [Parameter(Mandatory = $true)]
+    [string]$RegistryPath
+  )
+
+  Log-Action -Message "Tentando ajustar permissões para $RegistryPath..." -Level "INFO" -ConsoleOutput
+  try {
+    $regKey = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey(
+      $RegistryPath.Replace("HKLM:\", ""),
+      [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
+      [System.Security.AccessControl.RegistryRights]::ChangePermissions
+    )
+    if ($regKey) {
+      $acl = $regKey.GetAccessControl()
+      $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+      $rule = New-Object System.Security.AccessControl.RegistryAccessRule(
+        $currentUser,
+        "FullControl",
+        "ContainerInherit",
+        "None",
+        "Allow"
+      )
+      $acl.SetAccessRule($rule)
+      $regKey.SetAccessControl($acl)
+      $regKey.Close()
+      Log-Action -Message "Permissões ajustadas com sucesso para $RegistryPath." -Level "INFO" -ConsoleOutput
+      return $true
+    }
+    else {
+      Log-Action -Message "Não foi possível abrir a chave $RegistryPath para ajuste de permissões." -Level "WARNING" -ConsoleOutput
+      return $false
+    }
+  }
+  catch {
+    Log-Action -Message "Erro ao ajustar permissões para $RegistryPath: $_" -Level "WARNING" -ConsoleOutput
+    return $false
   }
 }
 
@@ -1204,24 +1245,40 @@ function AskXBOX {
 }
 
 function DisableNewsFeed {
-  Log-Action -Message "Iniciando função DisableNewsFeed para desativar o feed de notícias." -Level "INFO" -ConsoleOutput
+  [CmdletBinding()]
+  Param ()
+
+  Log-Action -Message "Desativando feed de notícias na barra de tarefas..." -Level "INFO" -ConsoleOutput
+  $registryPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds"
 
   try {
-    # Desativar o feed de notícias na barra de tarefas
-    $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds"
-    Set-RegistryValue -Path $regPath -Name "ShellFeedsTaskbarViewMode" -Value 2 -Type "DWord" -Force
+    # Verificar se o caminho existe
+    if (-not (Test-Path $registryPath)) {
+      Log-Action -Message "Caminho $registryPath não existe. Criando..." -Level "INFO" -ConsoleOutput
+      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
+    }
 
+    # Ajustar permissões para garantir acesso
+    Log-Action -Message "Ajustando permissões para $registryPath..." -Level "INFO" -ConsoleOutput
+    $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+    $regKey = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey("Software\Microsoft\Windows\CurrentVersion\Feeds", [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree, [System.Security.AccessControl.RegistryRights]::ChangePermissions)
+    if ($regKey) {
+      $acl = $regKey.GetAccessControl()
+      $rule = New-Object System.Security.AccessControl.RegistryAccessRule($currentUser, "FullControl", "Allow")
+      $acl.SetAccessRule($rule)
+      $regKey.SetAccessControl($acl)
+      $regKey.Close()
+      Log-Action -Message "Permissões ajustadas com sucesso." -Level "INFO" -ConsoleOutput
+    }
+
+    # Configurar o valor
+    Set-RegistryValue -Path $registryPath -Name "ShellFeedsTaskbarViewMode" -Value 2 -Type "DWord" -Force
     Log-Action -Message "Feed de notícias desativado com sucesso." -Level "INFO" -ConsoleOutput
-    
   }
   catch {
-    $errorMessage = "Erro ao desativar o feed de notícias: $_"
-    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    
-    throw
-  }
-  finally {
-    Log-Action -Message "Finalizando função DisableNewsFeed." -Level "INFO" -ConsoleOutput
+    Log-Action -Message "Erro ao desativar feed de notícias: $_" -Level "ERROR" -ConsoleOutput
+    # Não propagar o erro para não interromper outros tweaks
+    return
   }
 }
 
@@ -2331,9 +2388,28 @@ function ShowUserFolderOnDesktop {
 }
 
 function Hide3DObjectsFromThisPC {
-  Log-Action -Message "Iniciando função Hide3DObjectsFromThisPC para ocultar 3D Objects de This PC." -ConsoleOutput
-  
-  Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-0E5C-4FDD-9C0B-0A5A8D2A5F5E}" -Recurse -ErrorAction SilentlyContinue
+  [CmdletBinding()]
+  Param ()
+
+  Log-Action -Message "Ocultando pastas indesejadas do Este Computador..." -Level "INFO" -ConsoleOutput
+  $namespacePath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace"
+  $folders = @{
+    "Música"  = "{3dfdf296-dbec-4fb4-81d1-6a3438bcf4de}"
+    "Vídeos"  = "{f86fa3ab-70d2-4fc7-9c99-fcbf05467f3a}"
+    "Imagens" = "{24ad3ad4-a569-4530-98e1-ab02f94134d1}"
+    # Adicionar outras pastas, se necessário
+  }
+
+  foreach ($folder in $folders.GetEnumerator()) {
+    $path = Join-Path $namespacePath $folder.Value
+    if (Test-Path $path) {
+      Remove-Item -Path $path -Force -ErrorAction SilentlyContinue
+      Log-Action -Message "Pasta '$($folder.Key)' removida do Este Computador." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Log-Action -Message "Pasta '$($folder.Key)' ($path) não encontrada. Provavelmente já removida." -Level "INFO" -ConsoleOutput
+    }
+  }
 }
 
 function Hide3DObjectsFromExplorer {
@@ -2446,76 +2522,92 @@ function UnpinStartMenuTiles {
   }
 }
 
-Function QOL {
-  Log-Action -Message "Iniciando função QOL para aplicar ajustes de qualidade de vida do DaddyMadu." -ConsoleOutput
+function QOL {
+  [CmdletBinding()]
+  Param ()
 
+  Log-Action -Message "Aplicando ajustes de qualidade de vida..." -Level "INFO" -ConsoleOutput
   try {
-    
-    Log-Action -Message "Habilitando ajustes de qualidade de vida do DaddyMadu..." -ConsoleOutput
-
-    $errpref = $ErrorActionPreference
-    $ErrorActionPreference = "SilentlyContinue"
-    Log-Action -Message "Alterando ErrorActionPreference para SilentlyContinue temporariamente." -ConsoleOutput
-
-    Log-Action -Message "Criando chave HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement..." -ConsoleOutput
-    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -ErrorAction Stop | Out-Null
-    Log-Action -Message "Chave HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement criada ou verificada com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando ScoobeSystemSettingEnabled para 0 para desativar 'Aproveite ainda mais o Windows'..." -ConsoleOutput
-    Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Value 0 -Type "DWord" -Force
-    #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Type DWord -Value 0 -ErrorAction Stop | Out-Null
-    Log-Action -Message "ScoobeSystemSettingEnabled configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando DynamicScrollbars para 0 para desativar ocultar barras de rolagem..." -ConsoleOutput
-    Set-RegistryValue -Path "HKCU:\Control Panel\Accessibility" -Name "DynamicScrollbars" -Value 0 -Type "DWord" -Force
-    #Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility" -Name "DynamicScrollbars" -Type DWord -Value 0 -ErrorAction Stop
-    Log-Action -Message "DynamicScrollbars configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando SmoothScroll para 0 para desativar rolagem suave..." -ConsoleOutput
-    Set-RegistryValue -Path "HKCU:\Control Panel\Desktop" -Name "SmoothScroll" -Value 0 -Type "DWord" -Force
-    #Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "SmoothScroll" -Type DWord -Value 0 -ErrorAction Stop
-    Log-Action -Message "SmoothScroll configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    $osBuild = [System.Environment]::OSVersion.Version.Build
-    Log-Action -Message "Verificando versão do SO (Build: $osBuild) para aplicar NoInstrumentation..." -ConsoleOutput
-    If ($osBuild -ge 22000) {
-      Log-Action -Message "Configurando NoInstrumentation para 1 no Windows 11 ou superior para desativar rastreamento de usuário da Microsoft..." -ConsoleOutput
-      Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Value 1 -Type "DWord" -Force
-      #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Type DWord -Value 1 -ErrorAction Stop
-      Log-Action -Message "NoInstrumentation configurado com sucesso para Windows 11 ou superior." -Level "INFO" -ConsoleOutput
+    # 1. Desativar "Get even more out of Windows" (ScoobeSystemSettingEnabled)
+    $userProfilePath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement"
+    if (-not (Test-Path $userProfilePath)) {
+      Log-Action -Message "Criando chave $userProfilePath..." -Level "INFO" -ConsoleOutput
+      New-Item -Path $userProfilePath -Force -ErrorAction Stop | Out-Null
     }
-    Else {
-      Log-Action -Message "Configurando NoInstrumentation para 1 em versões anteriores ao Windows 11 para desativar rastreamento de usuário da Microsoft..." -ConsoleOutput
-      Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Value 1 -Type "DWord" -Force
-      #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -Type DWord -Value 1 -ErrorAction Stop
-      Log-Action -Message "NoInstrumentation configurado com sucesso para versões anteriores ao Windows 11." -Level "INFO" -ConsoleOutput
+    Set-RegistryValue -Path $userProfilePath -Name "ScoobeSystemSettingEnabled" -Value 0 -Type "DWord" -Force
+    Log-Action -Message "Desativado 'Get even more out of Windows'." -Level "INFO" -ConsoleOutput
+
+    # 2. Desativar barras de rolagem dinâmicas
+    $accessibilityPath = "HKCU:\Control Panel\Accessibility"
+    Set-RegistryValue -Path $accessibilityPath -Name "DynamicScrollbars" -Value 0 -Type "DWord" -Force
+    Log-Action -Message "Barras de rolagem dinâmicas desativadas." -Level "INFO" -ConsoleOutput
+
+    # 3. Desativar rolagem suave
+    $desktopPath = "HKCU:\Control Panel\Desktop"
+    Set-RegistryValue -Path $desktopPath -Name "SmoothScroll" -Value 0 -Type "DWord" -Force
+    Log-Action -Message "Rolagem suave desativada." -Level "INFO" -ConsoleOutput
+
+    # 4. Desativar rastreamento de usuário da Microsoft
+    $explorerPolicyPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"
+    if (-not (Test-Path $explorerPolicyPath)) {
+      Log-Action -Message "Criando chave $explorerPolicyPath..." -Level "INFO" -ConsoleOutput
+      New-Item -Path $explorerPolicyPath -Force -ErrorAction Stop | Out-Null
+    }
+    # Ajustar permissões para HKLM, se necessário
+    $permissionsAdjusted = Adjust-RegistryPermissions -RegistryPath $explorerPolicyPath
+    if ($permissionsAdjusted) {
+      Set-RegistryValue -Path $explorerPolicyPath -Name "NoInstrumentation" -Value 1 -Type "DWord" -Force
+      Log-Action -Message "Rastreamento de usuário da Microsoft desativado." -Level "INFO" -ConsoleOutput
+    }
+    else {
+      Log-Action -Message "Não foi possível ajustar permissões para $explorerPolicyPath. Pulando ajuste de rastreamento." -Level "WARNING" -ConsoleOutput
     }
 
-    Log-Action -Message "Removendo TaskbarNoMultimon de HKCU:\Software\Policies\Microsoft\Windows\Explorer..." -ConsoleOutput
-    Remove-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Name "TaskbarNoMultimon" -ErrorAction Stop
-    Log-Action -Message "TaskbarNoMultimon removido com sucesso de HKCU." -Level "INFO" -ConsoleOutput
+    # 5. Remover configurações de TaskbarNoMultimon (se existirem)
+    $userExplorerPolicy = "HKCU:\Software\Policies\Microsoft\Windows\Explorer"
+    if (Test-Path $userExplorerPolicy) {
+      try {
+        $key = Get-Item -Path $userExplorerPolicy -ErrorAction Stop
+        if ($key.GetValue("TaskbarNoMultimon") -ne $null) {
+          Set-RegistryValue -Path $userExplorerPolicy -Name "TaskbarNoMultimon" -Value $null -Type "None" -Force
+          Log-Action -Message "Removida configuração 'TaskbarNoMultimon' de HKCU." -Level "INFO" -ConsoleOutput
+        }
+      }
+      catch {
+        Log-Action -Message "Erro ao tentar remover 'TaskbarNoMultimon' de HKCU: $_" -Level "WARNING" -ConsoleOutput
+      }
+    }
 
-    Log-Action -Message "Removendo TaskbarNoMultimon de HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer..." -ConsoleOutput
-    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "TaskbarNoMultimon" -ErrorAction Stop
-    Log-Action -Message "TaskbarNoMultimon removido com sucesso de HKLM." -Level "INFO" -ConsoleOutput
+    $lmExplorerPolicy = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer"
+    if (Test-Path $lmExplorerPolicy) {
+      try {
+        $key = Get-Item -Path $lmExplorerPolicy -ErrorAction Stop
+        if ($key.GetValue("TaskbarNoMultimon") -ne $null) {
+          if (Adjust-RegistryPermissions -RegistryPath $lmExplorerPolicy) {
+            Set-RegistryValue -Path $lmExplorerPolicy -Name "TaskbarNoMultimon" -Value $null -Type "None" -Force
+            Log-Action -Message "Removida configuração 'TaskbarNoMultimon' de HKLM." -Level "INFO" -ConsoleOutput
+          }
+          else {
+            Log-Action -Message "Não foi possível ajustar permissões para $lmExplorerPolicy. Pulando remoção de TaskbarNoMultimon." -Level "WARNING" -ConsoleOutput
+          }
+        }
+      }
+      catch {
+        Log-Action -Message "Erro ao tentar remover 'TaskbarNoMultimon' de HKLM: $_" -Level "WARNING" -ConsoleOutput
+      }
+    }
 
-    Log-Action -Message "Configurando MMTaskbarMode para 2 para mostrar botões da barra de tarefas apenas onde a janela está aberta..." -ConsoleOutput
-    Set-RegistryValue -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "MMTaskbarMode" -Value 2 -Type "DWord" -Force
-    #Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "MMTaskbarMode" -Type DWord -Value 2 -ErrorAction Stop
-    Log-Action -Message "MMTaskbarMode configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Ajustes de qualidade de vida aplicados com sucesso." -Level "INFO" -ConsoleOutput
+    # 6. Mostrar botões da barra de tarefas apenas na barra onde a janela está aberta
+    $advancedExplorerPath = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+    Set-RegistryValue -Path $advancedExplorerPath -Name "MMTaskbarMode" -Value 2 -Type "DWord" -Force
+    Log-Action -Message "Configurado botões da barra de tarefas para exibição apenas na barra ativa." -Level "INFO" -ConsoleOutput
   }
   catch {
-    $errorMessage = "Erro na função QOL: $_"
-    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    
-    throw  # Repropaga o erro
+    Log-Action -Message "Erro na função QOL: $_" -Level "ERROR" -ConsoleOutput
+    # Não propagar erro para não interromper outros tweaks
   }
   finally {
-    $ErrorActionPreference = $errpref
-    Log-Action -Message "Restaurando ErrorActionPreference para $errpref." -ConsoleOutput
-    Log-Action -Message "Finalizando função QOL." -Level "INFO" -ConsoleOutput
+    Log-Action -Message "Finalizando ajustes de qualidade de vida." -Level "INFO" -ConsoleOutput
   }
 }
 Function FullscreenOptimizationFIX {
@@ -2894,7 +2986,8 @@ Function DisableHPET {
   $bcdResult = bcdedit /set useplatformclock false 2>&1
   if ($LASTEXITCODE -eq 0) {
     Log-Action -Message "bcdedit configurado com sucesso: useplatformclock desativado." -Level "INFO" -ConsoleOutput
-  } else {
+  }
+  else {
     Log-Action -Message "Erro ao configurar bcdedit: $bcdResult" -Level "WARNING" -ConsoleOutput
   }
 
@@ -4357,46 +4450,30 @@ function UpdateISLCConfig {
   Log-Action -Message "Iniciando função UpdateISLCConfig para atualizar o arquivo de configuração do ISLC." -ConsoleOutput
 
   try {
-    # Caminho para o arquivo de configuração (ajuste conforme necessário)
     $configFilePath = "C:\ISLC\Intelligent standby list cleaner ISLC.exe.Config"
     Log-Action -Message "Caminho do arquivo de configuração definido como: $configFilePath" -ConsoleOutput
 
-    # Verificar se o arquivo de configuração existe
     if (Test-Path -Path $configFilePath) {
       Log-Action -Message "Arquivo de configuração encontrado em $configFilePath. Iniciando atualização..." -ConsoleOutput
       
-      # Carregar o conteúdo do arquivo XML
-      Log-Action -Message "Carregando o conteúdo do arquivo XML de $configFilePath..." -ConsoleOutput
       [xml]$configXml = Get-Content -Path $configFilePath -Raw -ErrorAction Stop
       Log-Action -Message "Conteúdo XML carregado com sucesso." -Level "INFO" -ConsoleOutput
 
-      # Obter a quantidade total de memória RAM do sistema (em MB)
-      $totalMemory = (Get-WmiObject Win32_ComputerSystem).TotalPhysicalMemory / 1MB
-      $freeMemory = [math]::Round($totalMemory / 2)  # Calcular metade da memória
-      Log-Action -Message "Memória total detectada: $totalMemory MB. Memória livre configurada como: $freeMemory MB" -ConsoleOutput
+      # Calcular memória total em MB
+      $totalMemoryBytes = (Get-CimInstance Win32_ComputerSystem -ErrorAction Stop).TotalPhysicalMemory
+      $totalMemoryMB = [math]::Round($totalMemoryBytes / 1MB, 2)
+      $totalMemoryGB = [math]::Round($totalMemoryBytes / 1GB, 2)
+      $freeMemoryMB = [math]::Round($totalMemoryMB / 2)
+      
+      Log-Action -Message "Memória total detectada: $totalMemoryGB GB ($totalMemoryMB MB). Memória livre configurada como: $freeMemoryMB MB" -ConsoleOutput
 
-      # Alterar as configurações conforme solicitado
-      Log-Action -Message "Atualizando configuração 'Free memory' para $freeMemory..." -ConsoleOutput
-      $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Free memory" } | ForEach-Object { $_.value = "$freeMemory" }
-      Log-Action -Message "'Free memory' atualizado com sucesso." -Level "INFO" -ConsoleOutput
-
-      Log-Action -Message "Atualizando configuração 'Start minimized' para True..." -ConsoleOutput
+      # Atualizar configurações
+      $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Free memory" } | ForEach-Object { $_.value = "$freeMemoryMB" }
       $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Start minimized" } | ForEach-Object { $_.value = "True" }
-      Log-Action -Message "'Start minimized' atualizado com sucesso." -Level "INFO" -ConsoleOutput
-
-      Log-Action -Message "Atualizando configuração 'Wanted timer' para 0.50..." -ConsoleOutput
       $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Wanted timer" } | ForEach-Object { $_.value = "0.50" }
-      Log-Action -Message "'Wanted timer' atualizado com sucesso." -Level "INFO" -ConsoleOutput
-
-      Log-Action -Message "Atualizando configuração 'Custom timer' para True..." -ConsoleOutput
       $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "Custom timer" } | ForEach-Object { $_.value = "True" }
-      Log-Action -Message "'Custom timer' atualizado com sucesso." -Level "INFO" -ConsoleOutput
-
-      Log-Action -Message "Atualizando configuração 'TaskScheduler' para True..." -ConsoleOutput
       $configXml.configuration.appSettings.add | Where-Object { $_.key -eq "TaskScheduler" } | ForEach-Object { $_.value = "True" }
-      Log-Action -Message "'TaskScheduler' atualizado com sucesso." -Level "INFO" -ConsoleOutput
 
-      # Salvar as alterações de volta no arquivo XML
       Log-Action -Message "Salvando as alterações no arquivo $configFilePath..." -ConsoleOutput
       $configXml.Save($configFilePath)
       Log-Action -Message "Arquivo de configuração atualizado com sucesso." -Level "INFO" -ConsoleOutput
@@ -4406,10 +4483,8 @@ function UpdateISLCConfig {
     }
   }
   catch {
-    $errorMessage = "Erro ao atualizar o arquivo de configuração: $_"
-    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    
-    throw  # Repropaga o erro
+    Log-Action -Message "Erro ao atualizar o arquivo de configuração: $_" -Level "ERROR" -ConsoleOutput
+    throw
   }
   finally {
     Log-Action -Message "Finalizando função UpdateISLCConfig." -Level "INFO" -ConsoleOutput
@@ -4504,6 +4579,47 @@ function MSIMode {
     $ErrorActionPreference = $errpref
     Log-Action -Message "Restaurando ErrorActionPreference para $errpref." -Level "INFO" -ConsoleOutput
     Log-Action -Message "Finalizando função MSIMode." -Level "INFO" -ConsoleOutput
+  }
+}
+
+function Adjust-RegistryPermissions {
+  [CmdletBinding()]
+  Param (
+    [Parameter(Mandatory = $true)]
+    [string]$RegistryPath
+  )
+
+  Log-Action -Message "Tentando ajustar permissões para $RegistryPath..." -Level "INFO" -ConsoleOutput
+  try {
+    $regKey = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey(
+      $RegistryPath.Replace("HKLM:\", ""),
+      [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
+      [System.Security.AccessControl.RegistryRights]::ChangePermissions
+    )
+    if ($regKey) {
+      $acl = $regKey.GetAccessControl()
+      $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+      $rule = New-Object System.Security.AccessControl.RegistryAccessRule(
+        $currentUser,
+        "FullControl",
+        "ContainerInherit",
+        "None",
+        "Allow"
+      )
+      $acl.SetAccessRule($rule)
+      $regKey.SetAccessControl($acl)
+      $regKey.Close()
+      Log-Action -Message "Permissões ajustadas com sucesso para $RegistryPath." -Level "INFO" -ConsoleOutput
+      return $true
+    }
+    else {
+      Log-Action -Message "Não foi possível abrir a chave $RegistryPath para ajuste de permissões." -Level "WARNING" -ConsoleOutput
+      return $false
+    }
+  }
+  catch {
+    Log-Action -Message "Erro ao ajustar permissões para $RegistryPath: $_" -Level "WARNING" -ConsoleOutput
+    return $false
   }
 }
 
@@ -4606,28 +4722,19 @@ function OptimizeGPUTweaks {
       # Buscar dinamicamente todas as subchaves de dispositivos de vídeo no registro
       $baseRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}"
       Log-Action -Message "Verificando entradas de registro em $baseRegPath..." -ConsoleOutput
-      $subKeys = $null
-      try {
-        # Tentar ajustar permissões para o administrador atual
-        $regKey = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey("SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}", [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree, [System.Security.AccessControl.RegistryRights]::ChangePermissions)
-        if ($regKey) {
-          $acl = $regKey.GetAccessControl()
-          $rule = New-Object System.Security.AccessControl.RegistryAccessRule (
-            [System.Security.Principal.WindowsIdentity]::GetCurrent().Name,
-            "FullControl",
-            "Allow"
-          )
-          $acl.SetAccessRule($rule)
-          $regKey.SetAccessControl($acl)
-          Log-Action -Message "Permissões ajustadas para $baseRegPath." -Level "INFO" -ConsoleOutput
-          $regKey.Close()
+      
+      # Tentar ajustar permissões para acessar o registro
+      if (Adjust-RegistryPermissions -RegistryPath $baseRegPath) {
+        try {
+          $subKeys = Get-ChildItem -Path $baseRegPath -ErrorAction Stop | Where-Object { $_.PSChildName -match '^\d{4}$' }
+          Log-Action -Message "Subchaves encontradas em ${baseRegPath}: $($subKeys.PSChildName -join ', ')" -Level "INFO" -ConsoleOutput
         }
-        $subKeys = Get-ChildItem -Path $baseRegPath -ErrorAction Stop | Where-Object { $_.PSChildName -match '^\d{4}$' }
+        catch {
+          Log-Action -Message "Falha ao listar subchaves em ${baseRegPath}: $_" -Level "WARNING" -ConsoleOutput
+        }
       }
-      catch {
-        Log-Action -Message "Falha ao listar subchaves ou ajustar permissões em $baseRegPath $_" -Level "WARNING" -ConsoleOutput
-        Log-Action -Message "Aviso: Não foi possível acessar o registro de dispositivos de vídeo. Continuando com base em CIM/WMI..." -Level "WARNING" -ConsoleOutput
-        
+      else {
+        Log-Action -Message "Não foi possível ajustar permissões para $baseRegPath. Continuando com otimizações limitadas." -Level "WARNING" -ConsoleOutput
       }
 
       $foundNvidia = $false
@@ -4952,12 +5059,22 @@ function ConfigureNetworkSettings {
 
     # Desativar LSO
     if ($DisableLSO) {
-      Log-Action -Message "Desativando Large Send Offload (LSO)..." -Level "INFO" -ConsoleOutput
-      try {
-        Disable-NetAdapterLso -Name "*" -IPv4 -IPv6 -ErrorAction Stop
+      Log-Action -Message "Desativando Large Send Offload (LSO) para adaptadores de rede..." -Level "INFO" -ConsoleOutput
+      $adapters = Get-NetAdapter -Physical -ErrorAction SilentlyContinue | Where-Object { $_.Status -eq "Up" }
+      if ($adapters) {
+        foreach ($adapter in $adapters) {
+          Log-Action -Message "Tentando desativar LSO no adaptador '$($adapter.Name)'..." -Level "INFO" -ConsoleOutput
+          try {
+            Disable-NetAdapterLso -Name $adapter.Name -IPv4 -IPv6 -ErrorAction Stop
+            Log-Action -Message "LSO desativado com sucesso no adaptador '$($adapter.Name)'." -Level "INFO" -ConsoleOutput
+          }
+          catch {
+            Log-Action -Message "Falha ao desativar LSO no adaptador '$($adapter.Name)': $_" -Level "WARNING" -ConsoleOutput
+          }
+        }
       }
-      catch {
-        Log-Action -Message "Erro ao desativar LSO: $_" -Level "WARNING" -ConsoleOutput
+      else {
+        Log-Action -Message "Nenhum adaptador de rede físico ativo encontrado." -Level "WARNING" -ConsoleOutput
       }
     }
 
@@ -5118,24 +5235,24 @@ $currentStep = 0
 
 # Exemplo de uso no loop principal
 foreach ($tweak in $tweaks) {
-    $currentStep++
-    $tweakName = ($tweak -split ' ')[0]  # Extrai apenas o nome da função
-    Log-Action -Message "Iniciando execução do tweak: $tweakName (Passo $currentStep de $totalTweaks)" -Level "INFO" -ConsoleOutput
-    Show-ProgressBar -CurrentStep $currentStep -TotalSteps $totalTweaks -TaskName $tweakName
+  $currentStep++
+  $tweakName = ($tweak -split ' ')[0]  # Extrai apenas o nome da função
+  Log-Action -Message "Iniciando execução do tweak: $tweakName (Passo $currentStep de $totalTweaks)" -Level "INFO" -ConsoleOutput
+  Show-ProgressBar -CurrentStep $currentStep -TotalSteps $totalTweaks -TaskName $tweakName
 
-    if ($tweakFunctions.ContainsKey($tweakName)) {
-        try {
-            Invoke-Expression $tweak
-            Log-Action -Message "Tweak $tweakName concluído com sucesso." -Level "INFO" -ConsoleOutput
-        }
-        catch {
-            Log-Action -Message "Erro ao executar o tweak $tweakName $_" -Level "ERROR" -ConsoleOutput
-            continue
-        }
+  if ($tweakFunctions.ContainsKey($tweakName)) {
+    try {
+      Invoke-Expression $tweak
+      Log-Action -Message "Tweak $tweakName concluído com sucesso." -Level "INFO" -ConsoleOutput
     }
-    else {
-        Log-Action -Message "Tweak não encontrado: $tweakName" -Level "WARNING" -ConsoleOutput
+    catch {
+      Log-Action -Message "Erro ao executar o tweak $tweakName $_" -Level "ERROR" -ConsoleOutput
+      continue
     }
+  }
+  else {
+    Log-Action -Message "Tweak não encontrado: $tweakName" -Level "WARNING" -ConsoleOutput
+  }
 
-    Start-Sleep -Milliseconds 100
+  Start-Sleep -Milliseconds 100
 }
