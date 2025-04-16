@@ -2890,7 +2890,15 @@ Function DisableHPET {
   bcdedit /set { globalsettings } custom:16000067 true | Out-Null
   bcdedit /set { globalsettings } custom:16000069 true | Out-Null
   bcdedit /set { globalsettings } custom:16000068 true | Out-Null
-  wmic path Win32_PnPEntity where "name='High precision event timer'" call enable | Out-Null
+  # Desativar HPET via bcdedit
+  Log-Action -Message "Configurando bcdedit para desativar o uso do platform clock..." -Level "INFO" -ConsoleOutput
+  $bcdResult = bcdedit /set useplatformclock false 2>&1
+  if ($LASTEXITCODE -eq 0) {
+    Log-Action -Message "bcdedit configurado com sucesso: useplatformclock desativado." -Level "INFO" -ConsoleOutput
+  } else {
+    Log-Action -Message "Erro ao configurar bcdedit: $bcdResult" -Level "WARNING" -ConsoleOutput
+  }
+
   if ($PlatformCheck -eq "Desktop") {
     Log-Action -Message "A plataforma é $PlatformCheck. Desativando o High Precision Event Timer..." -ConsoleOutput
     
