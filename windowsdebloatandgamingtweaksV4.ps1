@@ -5129,7 +5129,7 @@ foreach ($tweak in $tweaks) {
             Log-Action -Message "Tweak $tweakName concluído com sucesso." -Level "INFO" -ConsoleOutput
         }
         catch {
-            Log-Action -Message "Erro ao executar o tweak $tweakName: $_" -Level "ERROR" -ConsoleOutput
+            Log-Action -Message "Erro ao executar o tweak $tweakName $_" -Level "ERROR" -ConsoleOutput
             continue
         }
     }
