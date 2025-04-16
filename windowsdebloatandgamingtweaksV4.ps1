@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.7.4 (GROK / GPT)
+# Versão: V0.7.2.7.5 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.7.4 (GROK / GPT)"
+$versao = "V0.7.2.7.5 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -651,7 +651,6 @@ $tweaks = @(
   "DisableDefragmentation",
   "EnableIndexing",
   "SetBIOSTimeUTC",
-  "DisableHibernation",
   "EnableSleepButton",
   "DisableSleepTimeout",
   "DisableFastStartup",
@@ -5119,26 +5118,24 @@ $currentStep = 0
 
 # Exemplo de uso no loop principal
 foreach ($tweak in $tweaks) {
-  $currentStep++
-  $tweakName = $tweak.Split()[0]
-  Log-Action -Message "Iniciando execução do tweak: $tweakName (Passo $currentStep de $totalTweaks)" -Level "INFO" -ConsoleOutput
-  Show-ProgressBar -CurrentStep $currentStep -TotalSteps $totalTweaks -TaskName $tweakName
+    $currentStep++
+    $tweakName = ($tweak -split ' ')[0]  # Extrai apenas o nome da função
+    Log-Action -Message "Iniciando execução do tweak: $tweakName (Passo $currentStep de $totalTweaks)" -Level "INFO" -ConsoleOutput
+    Show-ProgressBar -CurrentStep $currentStep -TotalSteps $totalTweaks -TaskName $tweakName
 
-  if ($tweakFunctions.ContainsKey($tweakName)) {
-    try {
-      Invoke-Expression $tweak
-      Log-Action -Message "Tweak $tweakName concluído com sucesso." -Level "INFO" -ConsoleOutput
+    if ($tweakFunctions.ContainsKey($tweakName)) {
+        try {
+            Invoke-Expression $tweak
+            Log-Action -Message "Tweak $tweakName concluído com sucesso." -Level "INFO" -ConsoleOutput
+        }
+        catch {
+            Log-Action -Message "Erro ao executar o tweak $tweakName: $_" -Level "ERROR" -ConsoleOutput
+            continue
+        }
     }
-    catch {
-      Log-Action -Message "Erro ao executar o tweak $tweakName $_" -Level "ERROR" -ConsoleOutput
-      
-      continue
+    else {
+        Log-Action -Message "Tweak não encontrado: $tweakName" -Level "WARNING" -ConsoleOutput
     }
-  }
-  else {
-    Log-Action -Message "Tweak não encontrado: $tweak" -Level "WARNING" -ConsoleOutput
-    
-  }
 
-  Start-Sleep -Milliseconds 100
+    Start-Sleep -Milliseconds 100
 }
