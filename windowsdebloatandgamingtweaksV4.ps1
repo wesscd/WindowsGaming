@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.7.8 (GROK / GPT)
+# Versão: V0.7.2.7.9 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.7.8 (GROK / GPT)"
+$versao = "V0.7.2.7.9 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -418,19 +418,19 @@ function Set-RegistryValue {
   [CmdletBinding()]
   param (
     [Parameter(Mandatory = $true)]
-    [string]$Path, # Caminho do registro (ex.: "HKLM:\SOFTWARE\...")
+    [string]$Path,
     [Parameter(Mandatory = $true)]
-    [string]$Name, # Nome da propriedade
+    [string]$Name,
     [Parameter(Mandatory = $true)]
-    $Value, # Valor a ser definido
-    [string]$Type = "DWord", # Tipo do valor (DWord, String, etc.)
-    [switch]$Force = $false     # Forçar a criação do caminho se não existir
+    $Value,
+    [string]$Type = "DWord",
+    [switch]$Force = $false
   )
 
   Log-Action -Message "Iniciando configuração do registro em $Path\$Name com valor $Value." -Level "INFO" -ConsoleOutput
 
   try {
-    # Verificar se o caminho existe; criar se necessário e $Force estiver ativado
+    # Criar caminho se não existir e $Force estiver ativado
     if (-not (Test-Path $Path)) {
       if ($Force) {
         New-Item -Path $Path -Force -ErrorAction Stop | Out-Null
@@ -441,15 +441,31 @@ function Set-RegistryValue {
       }
     }
 
-    # Definir o valor no registro
+    # Tentar definir o valor
     Set-ItemProperty -Path $Path -Name $Name -Value $Value -Type $Type -Force -ErrorAction Stop
     Log-Action -Message "Propriedade $Name configurada com sucesso em $Path com valor $Value." -Level "INFO" -ConsoleOutput
   }
   catch {
-    $errorMessage = "Erro ao configurar o registro em $Path\$Name $_"
-    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    
-    throw  # Repropaga o erro para a função chamadora
+    Log-Action -Message "Falha ao configurar $Path\$Name: $_" -Level "WARNING" -ConsoleOutput
+
+    # Tentar ajustar permissões e repetir
+    if (Adjust-RegistryPermissions -RegistryPath $Path) {
+      try {
+        Set-ItemProperty -Path $Path -Name $Name -Value $Value -Type $Type -Force -ErrorAction Stop
+        Log-Action -Message "Propriedade $Name configurada com sucesso após ajuste de permissões." -Level "INFO" -ConsoleOutput
+      }
+      catch {
+        $errorMessage = "Erro persistente ao configurar $Path\$Name após ajuste de permissões: $_"
+        Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+        # Não propagar erro para evitar interromper outros tweaks
+        return
+      }
+    }
+    else {
+      $errorMessage = "Não foi possível ajustar permissões para $Path. Configuração de $Name falhou."
+      Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+      return
+    }
   }
 }
 
@@ -462,31 +478,44 @@ function Adjust-RegistryPermissions {
 
   Log-Action -Message "Tentando ajustar permissões para $RegistryPath..." -Level "INFO" -ConsoleOutput
   try {
-    $regKey = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey(
-      $RegistryPath.Replace("HKLM:\", ""),
+    # Determinar o hive do registro
+    $hive = if ($RegistryPath -like "HKLM:*") { [Microsoft.Win32.Registry]::LocalMachine }
+    elseif ($RegistryPath -like "HKCU:*") { [Microsoft.Win32.Registry]::CurrentUser }
+    elseif ($RegistryPath -like "HKCR:*") { [Microsoft.Win32.Registry]::ClassesRoot }
+    elseif ($RegistryPath -like "HKU:*") { [Microsoft.Win32.Registry]::Users }
+    else { throw "Hive de registro não suportado: $RegistryPath" }
+
+    # Extrair o caminho relativo (remover prefixo como HKLM:\)
+    $subKey = $RegistryPath -replace "^(HKLM|HKCU|HKCR|HKU):\\", ""
+
+    # Abrir a chave com permissões para modificar ACL
+    $regKey = $hive.OpenSubKey(
+      $subKey,
       [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
       [System.Security.AccessControl.RegistryRights]::ChangePermissions
     )
-    if ($regKey) {
-      $acl = $regKey.GetAccessControl()
-      $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-      $rule = New-Object System.Security.AccessControl.RegistryAccessRule(
-        $currentUser,
-        "FullControl",
-        "ContainerInherit",
-        "None",
-        "Allow"
-      )
-      $acl.SetAccessRule($rule)
-      $regKey.SetAccessControl($acl)
-      $regKey.Close()
-      Log-Action -Message "Permissões ajustadas com sucesso para $RegistryPath." -Level "INFO" -ConsoleOutput
-      return $true
-    }
-    else {
+
+    if (-not $regKey) {
       Log-Action -Message "Não foi possível abrir a chave $RegistryPath para ajuste de permissões." -Level "WARNING" -ConsoleOutput
       return $false
     }
+
+    # Ajustar permissões
+    $acl = $regKey.GetAccessControl()
+    $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+    $rule = New-Object System.Security.AccessControl.RegistryAccessRule(
+      $currentUser,
+      "FullControl",
+      "ContainerInherit",
+      "None",
+      "Allow"
+    )
+    $acl.SetAccessRule($rule)
+    $regKey.SetAccessControl($acl)
+    $regKey.Close()
+
+    Log-Action -Message "Permissões ajustadas com sucesso para $RegistryPath." -Level "INFO" -ConsoleOutput
+    return $true
   }
   catch {
     Log-Action -Message "Erro ao ajustar permissões para ${RegistryPath}: $_" -Level "WARNING" -ConsoleOutput
@@ -1248,37 +1277,25 @@ function DisableNewsFeed {
   [CmdletBinding()]
   Param ()
 
-  Log-Action -Message "Desativando feed de notícias na barra de tarefas..." -Level "INFO" -ConsoleOutput
-  $registryPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds"
+  Log-Action -Message "Iniciando função DisableNewsFeed para desativar o feed de notícias na barra de tarefas." -Level "INFO" -ConsoleOutput
 
   try {
-    # Verificar se o caminho existe
-    if (-not (Test-Path $registryPath)) {
-      Log-Action -Message "Caminho $registryPath não existe. Criando..." -Level "INFO" -ConsoleOutput
-      New-Item -Path $registryPath -Force -ErrorAction Stop | Out-Null
-    }
+    $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds"
+    $regName = "ShellFeedsTaskbarViewMode"
+    $value = 2  # 2 = Desativar feed de notícias
 
-    # Ajustar permissões para garantir acesso
-    Log-Action -Message "Ajustando permissões para $registryPath..." -Level "INFO" -ConsoleOutput
-    $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-    $regKey = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey("Software\Microsoft\Windows\CurrentVersion\Feeds", [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree, [System.Security.AccessControl.RegistryRights]::ChangePermissions)
-    if ($regKey) {
-      $acl = $regKey.GetAccessControl()
-      $rule = New-Object System.Security.AccessControl.RegistryAccessRule($currentUser, "FullControl", "Allow")
-      $acl.SetAccessRule($rule)
-      $regKey.SetAccessControl($acl)
-      $regKey.Close()
-      Log-Action -Message "Permissões ajustadas com sucesso." -Level "INFO" -ConsoleOutput
-    }
+    # Configurar o valor usando Set-RegistryValue atualizado
+    Set-RegistryValue -Path $regPath -Name $regName -Value $value -Type DWord -Force
 
-    # Configurar o valor
-    Set-RegistryValue -Path $registryPath -Name "ShellFeedsTaskbarViewMode" -Value 2 -Type "DWord" -Force
     Log-Action -Message "Feed de notícias desativado com sucesso." -Level "INFO" -ConsoleOutput
   }
   catch {
-    Log-Action -Message "Erro ao desativar feed de notícias: $_" -Level "ERROR" -ConsoleOutput
-    # Não propagar o erro para não interromper outros tweaks
-    return
+    $errorMessage = "Erro ao desativar o feed de notícias: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+    # Não propagar erro, apenas registrar
+  }
+  finally {
+    Log-Action -Message "Finalizando função DisableNewsFeed." -Level "INFO" -ConsoleOutput
   }
 }
 
