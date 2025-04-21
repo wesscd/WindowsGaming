@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.8.0 (GROK / GPT)
+# Versão: V0.7.2.8.1 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.8.0 (GROK / GPT)"
+$versao = "V0.7.2.8.1 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -1448,6 +1448,7 @@ function EnableF8BootMenu {
   }
 }
 
+
 # Função para configurar opções do Windows Update
 function ConfigureWindowsUpdateOptions {
   [CmdletBinding()]
@@ -1456,9 +1457,29 @@ function ConfigureWindowsUpdateOptions {
   Log-Action -Message "Iniciando configuração das opções do Windows Update..." -Level "INFO" -ConsoleOutput
 
   try {
-    # Verificar se é Windows Pro (necessário para políticas de grupo)
-    $isWindowsPro = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType -eq 3
-    Log-Action -Message "Sistema detectado: $(if ($isWindowsPro) { 'Windows Pro' } else { 'Windows Home ou outro' })" -Level "INFO" -ConsoleOutput
+    # Verificar se é Windows Pro
+    $isWindowsPro = $false
+    try {
+      $osInfo = Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop
+      $productType = $osInfo.ProductType
+      $caption = $osInfo.Caption
+      # Verificar ProductType (3 para Pro/Enterprise) ou Caption para "Pro"
+      $isWindowsPro = ($productType -eq 3) -or ($caption -like "*Pro*")
+      Log-Action -Message "Sistema detectado: ProductType=$productType, Caption=$caption, IsPro=$isWindowsPro" -Level "INFO" -ConsoleOutput
+    }
+    catch {
+      Log-Action -Message "Erro ao consultar Win32_OperatingSystem: $_" -Level "WARNING" -ConsoleOutput
+      # Fallback: Verificar via Get-WindowsEdition
+      try {
+        $edition = (Get-WindowsEdition -Online -ErrorAction Stop).Edition
+        $isWindowsPro = $edition -like "*Pro*"
+        Log-Action -Message "Fallback: Edição detectada via Get-WindowsEdition: $edition, IsPro=$isWindowsPro" -Level "INFO" -ConsoleOutput
+      }
+      catch {
+        Log-Action -Message "Erro no fallback Get-WindowsEdition: $_. Assumindo não ser Pro." -Level "WARNING" -ConsoleOutput
+        $isWindowsPro = $false
+      }
+    }
 
     # Definir o banner do menu
     $banner = @(
@@ -2791,85 +2812,95 @@ Function FullscreenOptimizationFIX {
   }
 }
 
-Function GameOptimizationFIX {
-  Log-Action -Message "Iniciando função GameOptimizationFIX para aplicar correções de otimização para jogos." -ConsoleOutput
+# GameOptimizationFIX
+# Esta função aplica otimizações específicas para jogos no Windows, ajustando configurações de registro e desativando opções de economia de energia em desktops.
+function GameOptimizationFIX {
+  [CmdletBinding()]
+  Param ()
+
+  Log-Action -Message "Iniciando GameOptimizationFIX..." -Level "INFO" -ConsoleOutput
 
   try {
-    
-    Log-Action -Message "Aplicando correções de otimização para jogos..." -ConsoleOutput
+    # 1. Ajustes no Registro para Prioridade de Jogos
+    $gamesPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games"
+    if (-not (Test-Path $gamesPath)) {
+      New-Item -Path $gamesPath -Force | Out-Null
+    }
+    Set-RegistryValue -Path $gamesPath -Name "GPU Priority" -Value 8 -Type "DWord" -Force
+    Set-RegistryValue -Path $gamesPath -Name "Priority" -Value 6 -Type "DWord" -Force
+    Set-RegistryValue -Path $gamesPath -Name "Scheduling Category" -Value "High" -Type "String" -Force
+    Set-RegistryValue -Path $gamesPath -Name "SFIO Priority" -Value "High" -Type "String" -Force
+    Log-Action -Message "Prioridade de jogos ajustada em $gamesPath." -Level "INFO" -ConsoleOutput
 
-    Log-Action -Message "Configurando GPU Priority para 8 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games..." -ConsoleOutput
-    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "GPU Priority" -Type DWord -Value 8 -ErrorAction Stop
-    Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "GPU Priority" -Value 8 -Type "DWord" -Force
-    Log-Action -Message "GPU Priority configurado com sucesso." -Level "INFO" -ConsoleOutput
+    # 2. Configurar IRQ8Priority
+    $priorityPath = "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl"
+    Set-RegistryValue -Path $priorityPath -Name "IRQ8Priority" -Value 1 -Type "DWord" -Force
+    Log-Action -Message "IRQ8Priority configurado em $priorityPath." -Level "INFO" -ConsoleOutput
 
-    Log-Action -Message "Configurando Priority para 6 em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games..." -ConsoleOutput
-    Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Priority" -Value 6 -Type "DWord" -Force
-    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Priority" -Type DWord -Value 6 -ErrorAction Stop
-    Log-Action -Message "Priority configurado com sucesso." -Level "INFO" -ConsoleOutput
+    # 3. Configurações de csrss.exe
+    $csrssPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions"
+    if (-not (Test-Path $csrssPath)) {
+      New-Item -Path $csrssPath -Force | Out-Null
+    }
+    Set-RegistryValue -Path $csrssPath -Name "CpuPriorityClass" -Value 4 -Type "DWord" -Force
+    Set-RegistryValue -Path $csrssPath -Name "IoPriority" -Value 3 -Type "DWord" -Force
+    Log-Action -Message "Configurações de csrss.exe ajustadas em $csrssPath." -Level "INFO" -ConsoleOutput
 
-    Log-Action -Message "Configurando Scheduling Category para 'High' em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games..." -ConsoleOutput
-    Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Scheduling Category" -Value "High" -Type "String" -Force
-    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Scheduling Category" -Type String -Value "High" -ErrorAction Stop
-    Log-Action -Message "Scheduling Category configurado com sucesso." -Level "INFO" -ConsoleOutput
+    # 4. Configurações de Sistema de Arquivos
+    & fsutil behavior set disable8dot3 1 | Out-Null
+    Log-Action -Message "Suporte a nomes 8.3 desativado." -Level "INFO" -ConsoleOutput
+    & fsutil behavior set disablelastaccess 1 | Out-Null
+    Log-Action -Message "Registro de último acesso desativado." -Level "INFO" -ConsoleOutput
 
-    Log-Action -Message "Configurando SFIO Priority para 'High' em HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games..." -ConsoleOutput
-    Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "SFIO Priority" -Value "High" -Type "String" -Force
-    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "SFIO Priority" -Type String -Value "High" -ErrorAction Stop
-    Log-Action -Message "SFIO Priority configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Configurando IRQ8Priority para 1 em HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl..." -ConsoleOutput
-    Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "IRQ8Priority" -Value 1 -Type "DWord" -Force
-    #Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "IRQ8Priority" -Type DWord -Value 1 -ErrorAction Stop
-    Log-Action -Message "IRQ8Priority configurado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Adicionando CpuPriorityClass para 4 em HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions..." -ConsoleOutput
-    reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions" /v CpuPriorityClass /t REG_DWORD /d 4 /f -ErrorAction Stop | Out-Null
-    Log-Action -Message "CpuPriorityClass adicionado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Adicionando IoPriority para 3 em HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions..." -ConsoleOutput
-    reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions" /v IoPriority /t REG_DWORD /d 3 /f -ErrorAction Stop | Out-Null
-    Log-Action -Message "IoPriority adicionado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Desativando suporte a nomes 8.3 via fsutil..." -ConsoleOutput
-    fsutil behavior set disable8dot3 1 -ErrorAction Stop
-    Log-Action -Message "Suporte a nomes 8.3 desativado com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Desativando última atualização de acesso via fsutil..." -ConsoleOutput
-    fsutil behavior set disablelastaccess 1 -ErrorAction Stop
-    Log-Action -Message "Última atualização de acesso desativada com sucesso." -Level "INFO" -ConsoleOutput
-
-    Log-Action -Message "Verificando tipo de plataforma do sistema..." -ConsoleOutput
-    $PlatformCheck = (Get-ComputerInfo -ErrorAction Stop).CsPCSystemType
-    Log-Action -Message "Plataforma detectada: $PlatformCheck" -ConsoleOutput
-
-    if ($PlatformCheck -eq "Desktop") {
-      
-      Log-Action -Message "A plataforma é $PlatformCheck. Desativando opções de economia de energia em todos os dispositivos conectados..." -ConsoleOutput
-
-      Get-WmiObject MSPower_DeviceEnable -Namespace root\wmi -ErrorAction Stop | ForEach-Object { 
-        Log-Action -Message "Desativando economia de energia para dispositivo: $($_.InstanceName)..." -ConsoleOutput
-        $_.enable = $false
-        $_.psbase.put() | Out-Null
-        Log-Action -Message "Economia de energia desativada com sucesso para $($_.InstanceName)." -Level "INFO" -ConsoleOutput
+    # 5. Desativar Opções de Economia de Energia (Apenas em Desktops)
+    $platformCheck = (Get-ComputerInfo).CsPCSystemType
+    Log-Action -Message "Plataforma detectada: $platformCheck" -Level "INFO" -ConsoleOutput
+    if ($platformCheck -eq "Desktop") {
+      Log-Action -Message "Desativando opções de economia de energia em dispositivos..." -Level "INFO" -ConsoleOutput
+      try {
+        $powerDevices = Get-CimInstance -Namespace root\wmi -ClassName MSPower_DeviceEnable -ErrorAction Stop
+        foreach ($device in $powerDevices) {
+          if ($device.Enable -eq $true) {
+            Set-CimInstance -InputObject $device -Arguments @{Enable = $false } -ErrorAction Stop
+          }
+        }
+        Log-Action -Message "Opções de economia de energia desativadas com sucesso." -Level "INFO" -ConsoleOutput
       }
-      Log-Action -Message "Opções de economia de energia desativadas com sucesso em todos os dispositivos conectados." -Level "INFO" -ConsoleOutput
+      catch {
+        Log-Action -Message "Erro ao desativar opções de economia de energia: $_" -Level "WARNING" -ConsoleOutput
+      }
     }
     else {
-      
-      Log-Action -Message "A plataforma é $PlatformCheck. Nenhuma edição de economia de energia foi realizada." -ConsoleOutput
+      Log-Action -Message "Plataforma não é Desktop. Nenhuma alteração de economia de energia foi feita." -Level "INFO" -ConsoleOutput
     }
 
-    Log-Action -Message "Correções de otimização para jogos aplicadas com sucesso." -Level "INFO" -ConsoleOutput
+    # 6. Otimizações Adicionais (Opcionais, mantidas da versão anterior)
+    # Habilitar o Modo de Jogo do Windows
+    $gameModePath = "HKCU:\Software\Microsoft\GameBar"
+    Set-RegistryValue -Path $gameModePath -Name "AllowAutoGameMode" -Value 1 -Type "DWord" -Force
+    Set-RegistryValue -Path $gameModePath -Name "AutoGameModeEnabled" -Value 1 -Type "DWord" -Force
+    Log-Action -Message "Modo de Jogo do Windows habilitado." -Level "INFO" -ConsoleOutput
+
+    # Desativar otimizações de tela cheia
+    $fullScreenOptPath = "HKCU:\System\GameConfigStore"
+    Set-RegistryValue -Path $fullScreenOptPath -Name "GameDVR_FSEBehaviorMode" -Value 2 -Type "DWord" -Force
+    Set-RegistryValue -Path $fullScreenOptPath -Name "GameDVR_HonorUserFSEBehaviorMode" -Value 2 -Type "DWord" -Force
+    Log-Action -Message "Otimizações de tela cheia desativadas." -Level "INFO" -ConsoleOutput
+
+    # Desativar Xbox Game DVR
+    $xboxDVRPath = "HKCU:\System\GameConfigStore"
+    Set-RegistryValue -Path $xboxDVRPath -Name "GameDVR_Enabled" -Value 0 -Type "DWord" -Force
+    $xboxAppPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
+    Set-RegistryValue -Path $xboxAppPath -Name "AppCaptureEnabled" -Value 0 -Type "DWord" -Force
+    Log-Action -Message "Xbox Game DVR desativado." -Level "INFO" -ConsoleOutput
+
+    Write-Colored "Otimizações de jogos aplicadas com sucesso." -Color "VerdeClaro"
   }
   catch {
     $errorMessage = "Erro na função GameOptimizationFIX: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    
-    throw  # Repropaga o erro
-  }
-  finally {
-    Log-Action -Message "Finalizando função GameOptimizationFIX." -Level "INFO" -ConsoleOutput
+    Write-Colored $errorMessage -Color "VermelhoClaro"
+    throw
   }
 }
 
