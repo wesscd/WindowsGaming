@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.7.9 (GROK / GPT)
+# Versão: V0.7.2.8.0 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.7.9 (GROK / GPT)"
+$versao = "V0.7.2.8.0 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -559,7 +559,7 @@ $tweakFunctions = @{
   "DisableSMB1"                   = { DisableSMB1 }
   "ConfigureNetworkSettings"      = { ConfigureNetworkSettings }
   "EnableF8BootMenu"              = { EnableF8BootMenu }
-  "ConfigureWindowsUpdate"        = { ConfigureWindowsUpdate }
+  "ConfigureWindowsUpdateOptions" = { ConfigureWindowsUpdateOptions }
   "DisableMeltdownCompatFlag"     = { DisableMeltdownCompatFlag }
   "DisableHomeGroups"             = { DisableHomeGroups }
   "EnableSharedExperiences"       = { EnableSharedExperiences }
@@ -710,7 +710,7 @@ $tweaks = @(
   "OptimizeGPUTweaks",
   #Continuação dos tweaks existentes
   "EnableF8BootMenu",
-  "ConfigureWindowsUpdate",
+  "ConfigureWindowsUpdateOptions",
   "DisableMeltdownCompatFlag",
   "DisableHomeGroups",
   "EnableSharedExperiences",
@@ -806,6 +806,9 @@ function Execute-BatchScript {
     $localPath = "$env:TEMP\techremote.bat"
     $expectedHash = "319048D53494BFAD71260B6415A2FFC90F0A83565A52856DFAE70810B40E593A"  # hash real
 
+    #$url = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/script-ccleaner.bat"
+    #$localPath = "$env:temp\script-ccleaner.bat"
+
     Log-Action -Message "Baixando script em batch de $remoteUrl para $localPath..." -ConsoleOutput
     
     # Download do script
@@ -818,7 +821,8 @@ function Execute-BatchScript {
       Log-Action -Message "Download concluído com sucesso. Executando o script..." -Level "INFO" -ConsoleOutput
       
       # Executar o script
-      Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$localPath`"" -Wait -NoNewWindow -ErrorAction Stop
+      Start-Process -FilePath $localPath -ArgumentList "/c `"$localPath`"" -Wait -NoNewWindow -ErrorAction Stop
+      #Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$localPath`"" -Wait -NoNewWindow -ErrorAction Stop
       Log-Action -Message "Script em batch executado com sucesso." -Level "INFO" -ConsoleOutput
       
     }
@@ -1444,58 +1448,132 @@ function EnableF8BootMenu {
   }
 }
 
-function ConfigureWindowsUpdate {
+# Função para configurar opções do Windows Update
+function ConfigureWindowsUpdateOptions {
   [CmdletBinding()]
-  Param (
-    [int]$DelayFeatureUpdatesDays = 365,
-    [switch]$DisableAutoRestart = $true,
-    [switch]$EnableMSRT = $true,
-    [switch]$EnableDrivers = $true
-  )
+  Param ()
 
-  Log-Action -Message "Iniciando configuração do Windows Update..." -Level "INFO" -ConsoleOutput
+  Log-Action -Message "Iniciando configuração das opções do Windows Update..." -Level "INFO" -ConsoleOutput
 
   try {
-    # Caminhos do registro
-    $wuPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
-    $auPath = "$wuPath\AU"
+    # Verificar se é Windows Pro (necessário para políticas de grupo)
+    $isWindowsPro = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType -eq 3
+    Log-Action -Message "Sistema detectado: $(if ($isWindowsPro) { 'Windows Pro' } else { 'Windows Home ou outro' })" -Level "INFO" -ConsoleOutput
 
-    # Configurações de adiamento de atualizações (SlowUpdatesTweaks)
-    Log-Action -Message "Aplicando ajustes para adiar atualizações de recursos..." -Level "INFO" -ConsoleOutput
-    Set-RegistryValue -Path $wuPath -Name "BranchReadinessLevel" -Value 16 -Type "DWord" -Force
-    Set-RegistryValue -Path $wuPath -Name "DeferFeatureUpdates" -Value 1 -Type "DWord" -Force
-    Set-RegistryValue -Path $wuPath -Name "DeferFeatureUpdatesPeriodInDays" -Value $DelayFeatureUpdatesDays -Type "DWord" -Force
-    Set-RegistryValue -Path $wuPath -Name "ManagePreviewBuilds" -Value 1 -Type "DWord" -Force
-    Set-RegistryValue -Path $wuPath -Name "ManagePreviewBuildsPolicyValue" -Value 2 -Type "DWord" -Force
-    Set-RegistryValue -Path $wuPath -Name "PauseFeatureUpdatesStartTime" -Value "2025-04-03" -Type "String" -Force
-    Set-RegistryValue -Path $wuPath -Name "PauseFeatureUpdatesEndTime" -Value "2030-04-03" -Type "String" -Force
-    Set-RegistryValue -Path $auPath -Name "NoAutoUpdate" -Value 0 -Type "DWord" -Force
+    # Definir o banner do menu
+    $banner = @(
+      "",
+      "",
+      "╔══════════════════════════════════════════════╗",
+      "╠════ Configuração do Windows Update ══════════╣",
+      "╚══════════════════════════════════════════════╝",
+      "",
+      "≫ Escolha uma opção para configurar o Windows Update:",
+      "",
+      "1. Atualização Padrão do Windows",
+      "   - Restaura as configurações padrão do Windows.",
+      "   - Remove personalizações e políticas aplicadas.",
+      "",
+      "2. Configuração de Segurança Balanceada (Recomendado para Pro)",
+      "   - Adia atualizações de recursos por 2 anos.",
+      "   - Instala atualizações de segurança após 4 dias.",
+      "   - Disponível apenas em sistemas Windows Pro.",
+      "",
+      "3. Desativar TODAS as Atualizações (NÃO RECOMENDADO)",
+      "   - Desativa completamente o Windows Update.",
+      "   - Aumenta riscos de segurança. Use em sistemas isolados.",
+      "",
+      "Digite o número da opção desejada (1, 2 ou 3)."
+    )
 
-    # Desativar reinícios automáticos (DisableUpdateRestart)
-    if ($DisableAutoRestart) {
-      Log-Action -Message "Desativando reinícios automáticos após atualizações..." -Level "INFO" -ConsoleOutput
-      Set-RegistryValue -Path $auPath -Name "NoAutoRebootWithLoggedOnUsers" -Value 1 -Type "DWord" -Force
+    # Opções válidas
+    $options = @("1", "2", "3")
+
+    # Exibir menu e obter escolha
+    $selection = Show-Menu -BannerLines $banner -Options $options -Prompt "Digite sua escolha (1/2/3)" -ColorScheme "AmareloClaro"
+    Log-Action -Message "Opção selecionada: $selection" -Level "INFO" -ConsoleOutput
+
+    # Processar a escolha
+    switch ($selection) {
+      "1" {
+        Log-Action -Message "Aplicando Atualização Padrão do Windows..." -Level "INFO" -ConsoleOutput
+
+        # Restaurar configurações padrão do Windows Update
+        $auPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update"
+        if (Test-Path $auPath) {
+          Remove-Item -Path $auPath -Recurse -Force -ErrorAction SilentlyContinue
+          Log-Action -Message "Configurações personalizadas em $auPath removidas." -Level "INFO" -ConsoleOutput
+        }
+
+        # Remover políticas de grupo
+        $policyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+        if (Test-Path $policyPath) {
+          Remove-Item -Path $policyPath -Recurse -Force -ErrorAction SilentlyContinue
+          Log-Action -Message "Políticas de Windows Update em $policyPath removidas." -Level "INFO" -ConsoleOutput
+        }
+
+        # Restaurar serviço wuauserv
+        Set-Service -Name "wuauserv" -StartupType Automatic -ErrorAction Stop
+        Start-Service -Name "wuauserv" -ErrorAction Stop
+        Log-Action -Message "Serviço wuauserv restaurado para inicialização automática e iniciado." -Level "INFO" -ConsoleOutput
+
+        # Restaurar configurações padrão via netsh
+        netsh winhttp reset proxy | Out-Null
+        Log-Action -Message "Proxy do Windows Update restaurado para padrão." -Level "INFO" -ConsoleOutput
+
+        Write-Colored "Atualização Padrão do Windows aplicada com sucesso." -Color "VerdeClaro"
+      }
+      "2" {
+        if (-not $isWindowsPro) {
+          Log-Action -Message "Configuração de Segurança Balanceada requer Windows Pro. Pulando..." -Level "WARNING" -ConsoleOutput
+          Write-Colored "Esta opção requer Windows Pro. Nenhuma alteração foi feita." -Color "VermelhoClaro"
+          return
+        }
+
+        Log-Action -Message "Aplicando Configuração de Segurança Balanceada..." -Level "INFO" -ConsoleOutput
+
+        # Configurar adiamento de atualizações
+        $wuPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+        Set-RegistryValue -Path $wuPath -Name "DeferFeatureUpdates" -Value 1 -Type "DWord" -Force
+        Set-RegistryValue -Path $wuPath -Name "DeferFeatureUpdatesPeriodInDays" -Value 730 -Type "DWord" -Force  # 2 anos
+        Set-RegistryValue -Path $wuPath -Name "DeferQualityUpdates" -Value 1 -Type "DWord" -Force
+        Set-RegistryValue -Path $wuPath -Name "DeferQualityUpdatesPeriodInDays" -Value 4 -Type "DWord" -Force  # 4 dias
+
+        # Configurar notificação para atualizações
+        $auPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update"
+        Set-RegistryValue -Path $auPath -Name "AUOptions" -Value 2 -Type "DWord" -Force  # Notificar para baixar
+
+        # Garantir que o serviço wuauserv esteja ativo
+        Set-Service -Name "wuauserv" -StartupType Automatic -ErrorAction Stop
+        Start-Service -Name "wuauserv" -ErrorAction Stop
+        Log-Action -Message "Serviço wuauserv configurado para inicialização automática e iniciado." -Level "INFO" -ConsoleOutput
+
+        Write-Colored "Configuração de Segurança Balanceada aplicada com sucesso." -Color "VerdeClaro"
+      }
+      "3" {
+        Log-Action -Message "Desativando TODAS as atualizações do Windows (NÃO RECOMENDADO)..." -Level "WARNING" -ConsoleOutput
+        Write-Colored "AVISO: Desativar todas as atualizações pode deixar seu sistema vulnerável." -Color "VermelhoClaro"
+
+        # Desativar serviço wuauserv
+        Stop-Service -Name "wuauserv" -Force -ErrorAction Stop
+        Set-Service -Name "wuauserv" -StartupType Disabled -ErrorAction Stop
+        Log-Action -Message "Serviço wuauserv desativado e parado." -Level "INFO" -ConsoleOutput
+
+        # Aplicar política para desativar atualizações
+        $wuPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
+        Set-RegistryValue -Path $wuPath -Name "NoAutoUpdate" -Value 1 -Type "DWord" -Force
+        Set-RegistryValue -Path $wuPath -Name "AUOptions" -Value 1 -Type "DWord" -Force  # Desativar completamente
+
+        Write-Colored "TODAS as atualizações do Windows foram desativadas." -Color "VermelhoClaro"
+      }
     }
 
-    # Habilitar MSRT (EnableUpdateMSRT)
-    if ($EnableMSRT) {
-      Log-Action -Message "Garantindo atualizações do Microsoft Malicious Software Removal Tool..." -Level "INFO" -ConsoleOutput
-      # MSRT depende de atualizações de qualidade; NoAutoUpdate já está em 0
-    }
-
-    # Habilitar atualizações de drivers (EnableUpdateDriver)
-    if ($EnableDrivers) {
-      Log-Action -Message "Habilitando atualizações de drivers via Windows Update..." -Level "INFO" -ConsoleOutput
-      Set-RegistryValue -Path $wuPath -Name "ExcludeWUDriversInQualityUpdate" -Value 0 -Type "DWord" -Force
-    }
-
-    Log-Action -Message "Configuração do Windows Update concluída com sucesso." -Level "INFO" -ConsoleOutput
-    
+    Log-Action -Message "Configuração do Windows Update concluída." -Level "INFO" -ConsoleOutput
   }
   catch {
-    $errorMessage = "Erro na função ConfigureWindowsUpdate: $_"
+    $errorMessage = "Erro na função ConfigureWindowsUpdateOptions: $_"
     Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    
+    Write-Colored $errorMessage -Color "VermelhoClaro"
     throw
   }
 }
