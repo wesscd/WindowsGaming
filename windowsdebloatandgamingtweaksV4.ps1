@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.8.2 (GROK / GPT)
+# Versão: V0.7.2.8.3 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.8.2 (GROK / GPT)"
+$versao = "V0.7.2.8.3 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -908,20 +908,54 @@ function Clear-WindowsTemp {
 function Clear-BrowserCaches {
   Log-Action -Message "Limpando caches de navegadores..." -Level "INFO" -ConsoleOutput
   $browsers = @(
-    @{ Name = "Google Chrome"; Path = "AppData\Local\Google\Chrome\User Data\Default\Cache" },
-    @{ Name = "Microsoft Edge"; Path = "AppData\Local\Microsoft\Edge\User Data\Default\Cache" },
-    @{ Name = "Mozilla Firefox"; Path = "AppData\Local\Mozilla\Firefox\Profiles\*\cache*" }
+    @{ Name = "Google Chrome"; Path = "AppData\Local\Google\Chrome\User Data\Default\Cache"; Process = "chrome" },
+    @{ Name = "Microsoft Edge"; Path = "AppData\Local\Microsoft\Edge\User Data\Default\Cache"; Process = "msedge" },
+    @{ Name = "Mozilla Firefox"; Path = "AppData\Local\Mozilla\Firefox\Profiles\*\cache*"; Process = "firefox" },
+    @{ Name = "Brave"; Path = "AppData\Local\BraveSoftware\Brave-Browser\User Data\Default\Cache"; Process = "brave" },
+    @{ Name = "Opera"; Path = "AppData\Roaming\Opera Software\Opera Stable\Cache"; Process = "opera" },
+    @{ Name = "OperaGX"; Path = "AppData\Roaming\Opera Software\Opera GX Stable\Cache"; Process = "opera" },
+    @{ Name = "Tor"; Path = "AppData\Local\Tor Browser\Browser\TorBrowser\Data\Browser\profile.default\cache*"; Process = "tor" },
+    @{ Name = "Vivaldi"; Path = "AppData\Local\Vivaldi\User Data\Default\Cache"; Process = "vivaldi" },
+    @{ Name = "Torch"; Path = "AppData\Local\Torch\User Data\Default\Cache"; Process = "torch" }
   )
+
+  # Fechar processos de navegadores antes de limpar
+  foreach ($browser in $browsers) {
+    $processName = $browser.Process
+    Log-Action -Message "Verificando se o processo '$processName' está em execução..." -Level "INFO" -ConsoleOutput
+    $runningProcesses = Get-Process -Name $processName -ErrorAction SilentlyContinue
+    if ($runningProcesses) {
+      Log-Action -Message "Fechando o navegador $($browser.Name) (processo: $processName)..." -Level "INFO" -ConsoleOutput
+      try {
+        $runningProcesses | Stop-Process -Force -ErrorAction Stop
+        Start-Sleep -Milliseconds 500 # Pequena pausa para garantir que o processo seja encerrado
+        Log-Action -Message "Processo '$processName' encerrado com sucesso." -Level "INFO" -ConsoleOutput
+      }
+      catch {
+        Log-Action -Message "Erro ao encerrar o processo '$processName': $_" -Level "WARNING" -ConsoleOutput
+      }
+    }
+    else {
+      Log-Action -Message "Nenhum processo '$processName' em execução para $($browser.Name)." -Level "INFO" -ConsoleOutput
+    }
+  }
+
+  # Limpar caches dos navegadores
   Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue | ForEach-Object {
     $userPath = $_.FullName
     foreach ($browser in $browsers) {
       $cachePath = Join-Path $userPath $browser.Path
       try {
-        Remove-Item -Path $cachePath -Recurse -Force -ErrorAction SilentlyContinue
-        Log-Action -Message "Cache de $($browser.Name) limpo para $userPath" -Level "INFO" -ConsoleOutput
+        if (Test-Path -Path $cachePath) {
+          Remove-Item -Path $cachePath -Recurse -Force -ErrorAction Stop
+          Log-Action -Message "Cache de $($browser.Name) limpo em $cachePath" -Level "INFO" -ConsoleOutput
+        }
+        else {
+          Log-Action -Message "Caminho de cache não encontrado para $($browser.Name) em $cachePath" -Level "INFO" -ConsoleOutput
+        }
       }
       catch {
-        Log-Action -Message "Erro ao limpar cache de $($browser.Name) em $userPath $_" -Level "ERROR" -ConsoleOutput
+        Log-Action -Message "Erro ao limpar cache de $($browser.Name) em $cachePath $_" -Level "ERROR" -ConsoleOutput
       }
     }
   }
