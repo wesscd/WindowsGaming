@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.8.1 (GROK / GPT)
+# Versão: V0.7.2.8.2 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.8.1 (GROK / GPT)"
+$versao = "V0.7.2.8.2 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -643,7 +643,7 @@ $tweakFunctions = @{
   "Ativar-Servicos"               = { Ativar-Servicos }
   "RemoveEdit3D"                  = { RemoveEdit3D }
   "FixURLext"                     = { FixURLext }
-  "UltimateCleaner"               = { UltimateCleaner }
+  "UltimateCleanerPowerShell"     = { UltimateCleanerPowerShell }
   "Clear-PSHistory"               = { Clear-PSHistory }
   "Finished"                      = { Finished }
 
@@ -793,68 +793,240 @@ $tweaks = @(
   "Ativar-Servicos",
   "RemoveEdit3D",
   "FixURLext",
-  "UltimateCleaner",
+  "UltimateCleanerPowerShell",
   "Clear-PSHistory",
   "Finished"
 )
 
-function Execute-BatchScript {
-  Log-Action -Message "Iniciando download e execução do script em batch." -ConsoleOutput
+function UltimateCleanerPowerShell {
+  <#
+  .SYNOPSIS
+      Realiza uma limpeza profunda de arquivos temporários, caches e logs no Windows, otimizando espaço em disco.
+      Integra funcionalidades de limpeza do script-ccleaner.ps1 ao windowsdebloatandgamingtweaksV4.ps1.
+  #>
+  [CmdletBinding()]
+  Param ()
+
+  Log-Action -Message "Iniciando função UltimateCleanerPowerShell para limpeza do sistema." -Level "INFO" -ConsoleOutput
+  Log-Action -Message "Iniciando limpeza profunda de arquivos temporários, caches e logs." -Level "INFO" -ConsoleOutput
 
   try {
-    $remoteUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/refs/heads/main/script-ccleaner.bat"
-    $localPath = "$env:TEMP\techremote.bat"
-    $expectedHash = "319048D53494BFAD71260B6415A2FFC90F0A83565A52856DFAE70810B40E593A"  # hash real
+    # Definir etapas de limpeza
+    $cleaningSteps = @(
+      @{ Name = "Limpar Lixeira"; Function = { Clear-RecycleBinCustom } },
+      @{ Name = "Limpar Pastas Temporárias de Usuários"; Function = { Clear-UserTemp } },
+      @{ Name = "Limpar Pasta Temporária do Windows"; Function = { Clear-WindowsTemp } },
+      @{ Name = "Limpar Caches de Navegadores"; Function = { Clear-BrowserCaches } },
+      @{ Name = "Limpar Arquivos do Spotify"; Function = { Clear-SpotifyFiles } },
+      @{ Name = "Limpar Arquivos da Adobe"; Function = { Clear-AdobeFiles } },
+      @{ Name = "Limpar Arquivos do VMware"; Function = { Clear-VMwareFiles } },
+      @{ Name = "Limpar Arquivos do TeamViewer"; Function = { Clear-TeamViewerFiles } },
+      @{ Name = "Limpar Logs do Windows"; Function = { Clear-WindowsLogs } },
+      @{ Name = "Remover Pastas Vazias"; Function = { Remove-EmptyFolders } }
+    )
 
-    #$url = "https://raw.githubusercontent.com/wesscd/WindowsGaming/master/script-ccleaner.bat"
-    #$localPath = "$env:temp\script-ccleaner.bat"
+    $totalSteps = $cleaningSteps.Count
+    $currentStep = 0
 
-    Log-Action -Message "Baixando script em batch de $remoteUrl para $localPath..." -ConsoleOutput
-    
-    # Download do script
-    Invoke-WebRequest -Uri $remoteUrl -OutFile $localPath -ErrorAction Stop
+    foreach ($step in $cleaningSteps) {
+      $currentStep++
+      $taskName = $step.Name
+      Log-Action -Message "Executando: $taskName (Passo $currentStep de $totalSteps)" -Level "INFO" -ConsoleOutput
+      Show-ProgressBar -CurrentStep $currentStep -TotalSteps $totalSteps -TaskName $taskName -EstimatedTimeSeconds 10
 
-    # Verificar hash
-    Verify-FileHash -FilePath $localPath -ExpectedHash $expectedHash
-
-    if (Test-Path $localPath) {
-      Log-Action -Message "Download concluído com sucesso. Executando o script..." -Level "INFO" -ConsoleOutput
-      
-      # Executar o script
-      Start-Process -FilePath $localPath -ArgumentList "/c `"$localPath`"" -Wait -NoNewWindow -ErrorAction Stop
-      #Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$localPath`"" -Wait -NoNewWindow -ErrorAction Stop
-      Log-Action -Message "Script em batch executado com sucesso." -Level "INFO" -ConsoleOutput
-      
-    }
-    else {
-      $errorMessage = "O arquivo não foi baixado corretamente."
-      Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-      throw $errorMessage  # Lança o erro
-    }
-  }
-  catch {
-    $errorMessage = "Erro ao baixar ou executar o script em batch: $_"
-    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-    throw  # Repropaga o erro
-  }
-  finally {
-    if (Test-Path $localPath) {
-      Log-Action -Message "Removendo arquivo temporário $localPath..." -ConsoleOutput
       try {
-        Remove-Item $localPath -Force -ErrorAction Stop
-        Log-Action -Message "Arquivo temporário removido com sucesso." -Level "INFO" -ConsoleOutput
-        
+        & $step.Function
+        Log-Action -Message "$taskName concluído com sucesso." -Level "INFO" -ConsoleOutput
+              
       }
       catch {
-        $errorMessage = "Erro ao remover arquivo temporário $localPath $_"
-        Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
-        
+        Log-Action -Message "Erro ao executar $taskName $_" -Level "ERROR" -ConsoleOutput
+              
+      }
+      Start-Sleep -Milliseconds 100
+    }
+
+    Log-Action -Message "Limpeza profunda concluída com sucesso." -Level "INFO" -ConsoleOutput
+      
+  }
+  catch {
+    $errorMessage = "Erro na função UltimateCleanerPowerShell: $_"
+    Log-Action -Message $errorMessage -Level "ERROR" -ConsoleOutput
+      
+    throw
+  }
+  finally {
+    Log-Action -Message "Finalizando função UltimateCleanerPowerShell." -Level "INFO" -ConsoleOutput
+  }
+}
+
+# Funções de limpeza adaptadas do script-ccleaner.ps1
+function Clear-RecycleBinCustom {
+  Log-Action -Message "Limpando a Lixeira..." -Level "INFO" -ConsoleOutput
+  try {
+    Clear-RecycleBin -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path "C:\$Recycle.Bin\*" -Recurse -Force -ErrorAction SilentlyContinue
+    Log-Action -Message "Lixeira limpa com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    Log-Action -Message "Erro ao limpar a Lixeira: $_" -Level "ERROR" -ConsoleOutput
+  }
+}
+
+function Clear-UserTemp {
+  Log-Action -Message "Limpando pastas temporárias de usuários..." -Level "INFO" -ConsoleOutput
+  Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+    $tempPath = Join-Path $_.FullName "AppData\Local\Temp"
+    try {
+      Remove-Item -Path "$tempPath\*" -Recurse -Force -ErrorAction SilentlyContinue
+      New-Item -Path $tempPath -Name "vazio.txt" -ItemType File -Force -ErrorAction SilentlyContinue | Out-Null
+      Remove-EmptyFolders -Path $tempPath
+      Remove-Item -Path "$tempPath\vazio.txt" -Force -ErrorAction SilentlyContinue
+      Log-Action -Message "Pasta Temp limpa para $($_.FullName)" -Level "INFO" -ConsoleOutput
+    }
+    catch {
+      Log-Action -Message "Erro ao limpar Temp de $($_.FullName): $_" -Level "ERROR" -ConsoleOutput
+    }
+  }
+}
+
+function Clear-WindowsTemp {
+  Log-Action -Message "Limpando pasta temporária do Windows..." -Level "INFO" -ConsoleOutput
+  $tempPath = "C:\Windows\Temp"
+  try {
+    Remove-Item -Path "$tempPath\*" -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -Path $tempPath -Name "vazio.txt" -ItemType File -Force -ErrorAction SilentlyContinue | Out-Null
+    Remove-EmptyFolders -Path $tempPath
+    Remove-Item -Path "$tempPath\vazio.txt" -Force -ErrorAction SilentlyContinue
+    Log-Action -Message "Pasta Windows Temp limpa." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    Log-Action -Message "Erro ao limpar Windows Temp: $_" -Level "ERROR" -ConsoleOutput
+  }
+}
+
+function Clear-BrowserCaches {
+  Log-Action -Message "Limpando caches de navegadores..." -Level "INFO" -ConsoleOutput
+  $browsers = @(
+    @{ Name = "Google Chrome"; Path = "AppData\Local\Google\Chrome\User Data\Default\Cache" },
+    @{ Name = "Microsoft Edge"; Path = "AppData\Local\Microsoft\Edge\User Data\Default\Cache" },
+    @{ Name = "Mozilla Firefox"; Path = "AppData\Local\Mozilla\Firefox\Profiles\*\cache*" }
+  )
+  Get-ChildItem -Path "C:\Users" -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+    $userPath = $_.FullName
+    foreach ($browser in $browsers) {
+      $cachePath = Join-Path $userPath $browser.Path
+      try {
+        Remove-Item -Path $cachePath -Recurse -Force -ErrorAction SilentlyContinue
+        Log-Action -Message "Cache de $($browser.Name) limpo para $userPath" -Level "INFO" -ConsoleOutput
+      }
+      catch {
+        Log-Action -Message "Erro ao limpar cache de $($browser.Name) em $userPath $_" -Level "ERROR" -ConsoleOutput
       }
     }
-    else {
-      Log-Action -Message "Nenhum arquivo temporário para remover." -Level "INFO" -ConsoleOutput
+  }
+}
+
+function Clear-SpotifyFiles {
+  Log-Action -Message "Limpando arquivos do Spotify..." -Level "INFO" -ConsoleOutput
+  $spotifyPath = "$env:APPDATA\Spotify\Users\*\*"
+  try {
+    Remove-Item -Path $spotifyPath -Recurse -Force -ErrorAction SilentlyContinue
+    Log-Action -Message "Arquivos do Spotify limpos." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    Log-Action -Message "Erro ao limpar arquivos do Spotify: $_" -Level "ERROR" -ConsoleOutput
+  }
+}
+
+function Clear-AdobeFiles {
+  Log-Action -Message "Limpando arquivos da Adobe..." -Level "INFO" -ConsoleOutput
+  $adobePaths = @(
+    "$env:APPDATA\Adobe\*\Cache\*",
+    "$env:APPDATA\Adobe\*\*\Cache\*"
+  )
+  foreach ($path in $adobePaths) {
+    try {
+      Remove-Item -Path $path -Recurse -Force -ErrorAction SilentlyContinue
+      Log-Action -Message "Arquivos da Adobe limpos em $path" -Level "INFO" -ConsoleOutput
     }
-    Log-Action -Message "Função Execute-BatchScript concluída." -Level "INFO" -ConsoleOutput
+    catch {
+      Log-Action -Message "Erro ao limpar arquivos da Adobe em $path $_" -Level "ERROR" -ConsoleOutput
+    }
+  }
+}
+
+function Clear-VMwareFiles {
+  Log-Action -Message "Limpando arquivos do VMware..." -Level "INFO" -ConsoleOutput
+  $vmwarePath = "$env:APPDATA\VMware\*\*"
+  try {
+    Remove-Item -Path $vmwarePath -Recurse -Force -ErrorAction SilentlyContinue
+    Log-Action -Message "Arquivos do VMware limpos." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    Log-Action -Message "Erro ao limpar arquivos do VMware: $_" -Level "ERROR" -ConsoleOutput
+  }
+}
+
+function Clear-TeamViewerFiles {
+  Log-Action -Message "Limpando arquivos do TeamViewer..." -Level "INFO" -ConsoleOutput
+  $teamViewerPaths = @(
+    "$env:APPDATA\TeamViewer\Connections.txt",
+    "$env:APPDATA\TeamViewer\TeamViewer*.log"
+  )
+  foreach ($path in $teamViewerPaths) {
+    try {
+      Remove-Item -Path $path -Recurse -Force -ErrorAction SilentlyContinue
+      Log-Action -Message "Arquivos do TeamViewer limpos em $path" -Level "INFO" -ConsoleOutput
+    }
+    catch {
+      Log-Action -Message "Erro ao limpar arquivos do TeamViewer em $path $_" -Level "ERROR" -ConsoleOutput
+    }
+  }
+}
+
+function Clear-WindowsLogs {
+  Log-Action -Message "Limpando logs do Windows..." -Level "INFO" -ConsoleOutput
+  $logPaths = @(
+    "C:\Windows\Logs\DISM\*",
+    "C:\Windows\Logs\DPX\*",
+    "C:\Windows\Logs\MoSetup\*",
+    "C:\Windows\Logs\NetSetup\*",
+    "C:\Windows\Logs\WindowsUpdate\*.etl",
+    "C:\Windows\Logs\WindowsUpdate\*.log"
+  )
+  foreach ($path in $logPaths) {
+    try {
+      Remove-Item -Path $path -Recurse -Force -ErrorAction SilentlyContinue
+      Log-Action -Message "Logs do Windows limpos em $path" -Level "INFO" -ConsoleOutput
+    }
+    catch {
+      Log-Action -Message "Erro ao limpar logs do Windows em $path $_" -Level "ERROR" -ConsoleOutput
+    }
+  }
+}
+
+function Remove-EmptyFolders {
+  param ([string]$Path = "C:\")
+  Log-Action -Message "Removendo pastas vazias em $Path..." -Level "INFO" -ConsoleOutput
+  Get-ChildItem -Path $Path -Directory -Recurse -ErrorAction SilentlyContinue | 
+  Sort-Object -Property FullName -Descending | 
+  Where-Object { 
+    try {
+              ($_.GetFiles().Count -eq 0) -and ($_.GetDirectories().Count -eq 0)
+    }
+    catch {
+      $false
+    }
+  } | 
+  ForEach-Object { 
+    try {
+      Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue
+      Log-Action -Message "Pasta vazia removida: $($_.FullName)" -Level "INFO" -ConsoleOutput
+    }
+    catch {
+      Log-Action -Message "Erro ao remover pasta $($_.FullName): $_" -Level "ERROR" -ConsoleOutput
+    }
   }
 }
 
@@ -1014,13 +1186,13 @@ function DownloadFiles {
       "MSI_Util"            = @{
         Url         = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/MSI_util_v3.exe"
         Hash        = "695800AFAD96F858A3F291B7DF21C16649528F13D39B63FB7C233E5676C8DF6F"
-        Destination = "$env:TEMP\GPU\MSI_util_v3.exe"
+        Destination = "C:\GPU\MSI_util_v3.exe"
         Execute     = $false
       }
       "IObit_DriverBooster" = @{
         Url         = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
         Hash        = "E171C6298F8D01170668754C6625CA065AE76CCD79D6B472EE8CDC40A6942653"
-        Destination = "$env:TEMP\GPU\IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
+        Destination = "C:\GPU\IObit.Driver.Booster.Pro.8.1.0.276.Portable.rar"
         Execute     = $false
       }
     },
@@ -1038,13 +1210,13 @@ function DownloadFiles {
       "NVIDIA_Driver" = @{
         Url         = "https://us.download.nvidia.com/nvapp/client/11.0.3.218/NVIDIA_app_v11.0.3.218.exe"
         Hash        = "C19A150E53427175E5996100A25ED016F6730B627B1D6B85813811A8751C77B7"
-        Destination = "$env:TEMP\GPU\NVIDIA_app_v11.0.3.218.exe"
+        Destination = "C:\GPU\NVIDIA_app_v11.0.3.218.exe"
         Execute     = $false
       }
       "AMD_Driver"    = @{
         Url         = "https://github.com/wesscd/WindowsGaming/raw/refs/heads/main/AMD_ADRENALIN_WEB.exe"
         Hash        = "87888CE67AF3B7A1652FF134192420CA4CE644EFFB8368E570707A9E224F02F2"
-        Destination = "$env:TEMP\GPU\AMD_ADRENALIN_WEB.exe"
+        Destination = "C:\GPU\AMD_ADRENALIN_WEB.exe"
         Execute     = $false
       }
     }
@@ -1053,7 +1225,7 @@ function DownloadFiles {
   Log-Action -Message "Iniciando download de arquivos..." -Level "INFO" -ConsoleOutput
 
   # Criar pasta GPU
-  $gpuPath = "$env:TEMP\GPU"
+  $gpuPath = "C:\GPU"
   if (-not (Test-Path $gpuPath)) { New-Item -Path $gpuPath -ItemType Directory -Force | Out-Null }
 
   # Detectar GPU com Get-GPUType
@@ -3594,16 +3766,6 @@ function FixURLext {
   }
   Set-RegistryValue -Path "HKCR:\.url" -Name "(Default)" -Value "InternetShortcut" -Type "String" -Force
   #Set-ItemProperty -Path "HKCR:\.url" -Name "(Default)" -Value "InternetShortcut"
-}
-
-function UltimateCleaner {
-  Log-Action -Message "Iniciando função UltimateCleaner para limpeza do sistema." -Level "INFO" -ConsoleOutput
-  
-  #Remove-Item -Path "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
-  Remove-Item -Path "$env:windir\Temp\*" -Recurse -Force -ErrorAction SilentlyContinue
-  Remove-Item -Path "$env:windir\Prefetch\*" -Recurse -Force -ErrorAction SilentlyContinue
-  Clear-RecycleBin -Force -ErrorAction SilentlyContinue
-
 }
 
 function Clear-PSHistory {
