@@ -5,7 +5,7 @@
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.8.3 (GROK / GPT)"
+$versao = "V0.7.2.8.4 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -306,13 +306,13 @@ function Show-Intro {
   $intro = @(
     "",
     "",
-    "████████╗███████╗ ██████╗██╗  ██╗    ██████╗ ███████╗███╗   ███╗ ██████╗ ████████╗███████╗",
-    "╚══██╔══╝██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔════╝████╗ ████║██╔═══██╗╚══██╔══╝██╔════╝",
-    "   ██║   █████╗  ██║     ███████║    ██████╔╝████X╗  ██╔████╔██║██║   ██║   ██║   █████╗  ",
-    "   ██║   ██╔══╝  ██║     ██╔══██║    ██╔══██╗██╔══╝  ██║╚██╔╝██║██║   ██║   ██║   ██╔══╝  ",
-    "   ██║   ███████╗╚██████╗██║  ██║    ██║  ██║███████╗██║ ╚═╝ ██║╚██████╔╝   ██║   ███████╗",
-    "   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚══════╝",
-    "                                                                                  $versao",
+    "██████╗  █████╗ ██████╗  █████╗  ██████╗ ████████╗███████╗ ██████╗██╗  ██╗",
+    "██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝██╔════╝██╔════╝██║  ██║",    
+    "██████╔╝███████║██████╔╝███████║██║   ██║   ██║   █████╗  ██║     ███████║",    
+    "██╔══██╗██╔══██║██╔══██╗██╔══██║██║   ██║   ██║   ██╔══╝  ██║     ██╔══██║",
+    "██████╔╝██║  ██║██║  ██║██║  ██║╚██████╔╝██╗██║   ███████╗╚██████╗██║  ██║",
+    "╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝",                                                             
+    "                                                                   $versao",
     "",
     "Bem-vindo ao TechRemote Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
@@ -1047,7 +1047,7 @@ function Remove-EmptyFolders {
   Sort-Object -Property FullName -Descending | 
   Where-Object { 
     try {
-              ($_.GetFiles().Count -eq 0) -and ($_.GetDirectories().Count -eq 0)
+      ($_.GetFiles().Count -eq 0) -and ($_.GetDirectories().Count -eq 0)
     }
     catch {
       $false
@@ -5471,7 +5471,7 @@ function Finished {
     $oemPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
     Set-RegistryValue -Path $oemPath -Name "Manufacturer" -Value "PC Otimizado por Cesar Marques (Barao)" -Type "String" -Force
     Set-RegistryValue -Path $oemPath -Name "Model" -Value "Otimizacao, Hardware, Infra & Redes" -Type "String" -Force
-    Set-RegistryValue -Path $oemPath -Name "SupportURL" -Value "http://techremote.com.br" -Type "String" -Force
+    Set-RegistryValue -Path $oemPath -Name "SupportURL" -Value "https://baraotech.online/" -Type "String" -Force
     Set-RegistryValue -Path $oemPath -Name "SupportHours" -Value "Seg-Sex: 08h-18h" -Type "String" -Force
     Set-RegistryValue -Path $oemPath -Name "SupportPhone" -Value "+55 16 99263-6487" -Type "String" -Force
     Set-RegistryValue -Path $oemPath -Name "Logo" -Value "C:\Windows\oemlogo.bmp" -Type "String" -Force
@@ -5495,7 +5495,7 @@ function Finished {
       "≫ Para garantir que todas as alterações sejam aplicadas corretamente, é necessário reiniciar o computador.",
       "",
       "≫ Você pode reiniciar agora ou fazer isso manualmente mais tarde.",
-      "≫ Agradecemos por usar nosso script de otimização! Não se esqueça de nos seguir em http://techremote.com.br para mais dicas e suporte.",
+      "≫ Agradecemos por usar nosso script de otimização! Não se esqueça de nos seguir em https://baraotech.online/ para mais dicas e suporte.",
       "",
       "Pressione qualquer tecla para continuar..."
     )
@@ -5508,9 +5508,11 @@ function Finished {
     [Console]::ReadKey($true) | Out-Null
 
     # Abrir URL no navegador
-    Write-Colored -Text "Abrindo URL de suporte http://techremote.com.br no navegador..." -Color "AmareloClaro"
-    #Log-Action -Message "Abrindo URL de suporte http://techremote.com.br no navegador..." -Level "INFO" -ConsoleOutput
-    Start-Process "http://techremote.com.br" -ErrorAction Stop
+    Write-Colored -Text "Abrindo URL de suporte https://baraotech.online/ no navegador..." -Color "AmareloClaro"
+    #Log-Action -Message "Abrindo URL de suporte https://baraotech.online/ no navegador..." -Level "INFO" -ConsoleOutput
+    Start-Process "https://baraotech.online/" -ErrorAction Stop
+
+    w32tm /resync
 
     # Perguntar se deseja reiniciar
     $reinicioBanner = @(
