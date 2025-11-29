@@ -5013,34 +5013,7 @@ function OptimizeGPUTweaks {
       else {
         Log-Action -Message "GPUs NVIDIA detectadas via CIM/WMI: $($nvidiaGPUs.Name -join ', ')" -Level "INFO" -ConsoleOutput
       }
-
-      # Aplicar otimizações de energia se NVIDIA for detectada via CIM/WMI
-      if ($nvidiaGPUs) {
-        
-        Log-Action -Message "Placa NVIDIA GTX/RTX detectada! Aplicando otimizações de energia..." -ConsoleOutput
-
-        $url_base = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/BaseProfile.nip"
-        $url_nvidiaprofile = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/nvidiaProfileInspector.exe"
-        $system32Path = "$Env:windir\system32"
-
-        Log-Action -Message "Baixando BaseProfile.nip de $url_base para $system32Path\BaseProfile.nip..." -ConsoleOutput
-        Invoke-WebRequest -Uri $url_base -OutFile "$system32Path\BaseProfile.nip" -ErrorAction Stop
-        Log-Action -Message "BaseProfile.nip baixado com sucesso." -Level "INFO" -ConsoleOutput
-
-        Log-Action -Message "Baixando nvidiaProfileInspector.exe de $url_nvidiaprofile para $system32Path\nvidiaProfileInspector.exe..." -ConsoleOutput
-        Invoke-WebRequest -Uri $url_nvidiaprofile -OutFile "$system32Path\nvidiaProfileInspector.exe" -ErrorAction Stop
-        Log-Action -Message "nvidiaProfileInspector.exe baixado com sucesso." -Level "INFO" -ConsoleOutput
-
-        Log-Action -Message "Mudando diretório para $system32Path para executar o nvidiaProfileInspector..." -ConsoleOutput
-        Push-Location
-        Set-Location $system32Path
-        Log-Action -Message "Executando nvidiaProfileInspector.exe com o perfil BaseProfile.nip..." -ConsoleOutput
-        & "nvidiaProfileInspector.exe" /s -load "BaseProfile.nip" -ErrorAction Stop
-        Log-Action -Message "Perfil BaseProfile.nip aplicado com sucesso pelo nvidiaProfileInspector." -Level "INFO" -ConsoleOutput
-        Pop-Location
-        Log-Action -Message "Diretório restaurado." -ConsoleOutput
-      }
-
+      
       # Buscar dinamicamente todas as subchaves de dispositivos de vídeo no registro
       $baseRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}"
       Log-Action -Message "Verificando entradas de registro em $baseRegPath..." -ConsoleOutput
