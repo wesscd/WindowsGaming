@@ -1,11 +1,11 @@
 # windowsdebloatandgamingtweaks.ps1
 # Script principal para otimização de sistemas Windows focados em jogos
-# Versão: V0.7.2.8.3 (GROK / GPT)
+# Versão: V0.7.2.8.5 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
 # Definir página de código para suportar caracteres especiais
 
-$versao = "V0.7.2.8.4 (GROK / GPT)"
+$versao = "V0.7.2.8.5 (GROK / GPT)"
 
 chcp 1252 | Out-Null
 
@@ -27,7 +27,7 @@ function Write-Colored {
   .EXAMPLE
     Write-Colored -Text "Olá, mundo!" -Color "VerdeClaro"
     Exibe "Olá, mundo!" em verde claro.
-    foda isso aqui
+    Exemplo de uso para saída informativa.
 
   .EXAMPLE
     Write-Colored -Text "Erro!" -Color "Vermelho" -BackgroundColor "Branco"
@@ -36,7 +36,8 @@ function Write-Colored {
   param (
     [string]$Text,
     [string]$Color,
-    [string]$BackgroundColor = $null
+    [string]$BackgroundColor = $null,
+    [switch]$NoNewline
   )
 
   # Mapeamento de cores em português para inglês
@@ -93,10 +94,20 @@ function Write-Colored {
 
   # Exibir o texto com as cores selecionadas
   if ($selectedBgColor) {
-    Write-Host $Text -ForegroundColor $selectedColor -BackgroundColor $selectedBgColor
+    if ($NoNewline) {
+      Write-Host $Text -ForegroundColor $selectedColor -BackgroundColor $selectedBgColor -NoNewline
+    }
+    else {
+      Write-Host $Text -ForegroundColor $selectedColor -BackgroundColor $selectedBgColor
+    }
   }
   else {
-    Write-Host $Text -ForegroundColor $selectedColor
+    if ($NoNewline) {
+      Write-Host $Text -ForegroundColor $selectedColor -NoNewline
+    }
+    else {
+      Write-Host $Text -ForegroundColor $selectedColor
+    }
   }
 }
 
@@ -414,6 +425,26 @@ function Get-GPUType {
   }
 }
 
+# Comparação defensiva para evitar reescrever valores idênticos no registro.
+function Test-RegistryValueEquals {
+  param (
+    [Parameter(Mandatory = $true)]
+    $CurrentValue,
+    [Parameter(Mandatory = $true)]
+    $DesiredValue
+  )
+
+  if ($CurrentValue -is [byte[]] -and $DesiredValue -is [byte[]]) {
+    if ($CurrentValue.Length -ne $DesiredValue.Length) { return $false }
+    for ($i = 0; $i -lt $CurrentValue.Length; $i++) {
+      if ($CurrentValue[$i] -ne $DesiredValue[$i]) { return $false }
+    }
+    return $true
+  }
+
+  return [string]$CurrentValue -eq [string]$DesiredValue
+}
+
 # Função para definir valores no registro
 function Set-RegistryValue {
   [CmdletBinding()]
@@ -439,6 +470,16 @@ function Set-RegistryValue {
       }
       else {
         throw "Caminho $Path não existe e -Force não foi especificado."
+      }
+    }
+
+    # Evitar escrita desnecessária quando o valor já está correto.
+    $currentItem = Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue
+    if ($null -ne $currentItem) {
+      $currentValue = $currentItem.$Name
+      if (Test-RegistryValueEquals -CurrentValue $currentValue -DesiredValue $Value) {
+        Log-Action -Message "Valor já configurado em $Path\$Name. Nenhuma alteração necessária." -Level "INFO" -ConsoleOutput
+        return
       }
     }
 
@@ -1183,15 +1224,23 @@ function InstallChocolateyPackages {
   Log-Action -Message "Iniciando instalação de pacotes via Chocolatey..." -Level "INFO" -ConsoleOutput
 
   if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-    Log-Action -Message "Chocolatey não encontrado. Instalando..." -Level "INFO" -ConsoleOutput
+    Log-Action -Message "Chocolatey não encontrado. Tentando instalar via winget (sem Invoke-Expression)." -Level "INFO" -ConsoleOutput
     try {
-      Set-ExecutionPolicy Bypass -Scope Process -Force
-      [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
-      Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-      Log-Action -Message "Chocolatey instalado com sucesso." -Level "INFO" -ConsoleOutput
+      if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Log-Action -Message "Winget não encontrado. Instale o Chocolatey manualmente e execute novamente." -Level "ERROR" -ConsoleOutput
+        return
+      }
+
+      winget install --id Chocolatey.Chocolatey -e --accept-source-agreements --accept-package-agreements --silent | Out-Null
+      if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+        Log-Action -Message "Instalação do Chocolatey via winget não foi concluída no contexto atual. Abra um novo terminal e tente novamente." -Level "ERROR" -ConsoleOutput
+        return
+      }
+
+      Log-Action -Message "Chocolatey instalado com sucesso via winget." -Level "INFO" -ConsoleOutput
     }
     catch {
-      Log-Action -Message "Erro ao instalar Chocolatey: $_" -Level "ERROR" -ConsoleOutput
+      Log-Action -Message "Erro ao instalar Chocolatey via winget: $_" -Level "ERROR" -ConsoleOutput
       return
     }
   }
@@ -4904,47 +4953,6 @@ function MSIMode {
   }
 }
 
-function Adjust-RegistryPermissions {
-  [CmdletBinding()]
-  Param (
-    [Parameter(Mandatory = $true)]
-    [string]$RegistryPath
-  )
-
-  Log-Action -Message "Tentando ajustar permissões para $RegistryPath..." -Level "INFO" -ConsoleOutput
-  try {
-    $regKey = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey(
-      $RegistryPath.Replace("HKLM:\", ""),
-      [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
-      [System.Security.AccessControl.RegistryRights]::ChangePermissions
-    )
-    if ($regKey) {
-      $acl = $regKey.GetAccessControl()
-      $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-      $rule = New-Object System.Security.AccessControl.RegistryAccessRule(
-        $currentUser,
-        "FullControl",
-        "ContainerInherit",
-        "None",
-        "Allow"
-      )
-      $acl.SetAccessRule($rule)
-      $regKey.SetAccessControl($acl)
-      $regKey.Close()
-      Log-Action -Message "Permissões ajustadas com sucesso para $RegistryPath." -Level "INFO" -ConsoleOutput
-      return $true
-    }
-    else {
-      Log-Action -Message "Não foi possível abrir a chave $RegistryPath para ajuste de permissões." -Level "WARNING" -ConsoleOutput
-      return $false
-    }
-  }
-  catch {
-    Log-Action -Message "Erro ao ajustar permissões para ${RegistryPath}: $_" -Level "WARNING" -ConsoleOutput
-    return $false
-  }
-}
-
 function OptimizeGPUTweaks {
   [CmdletBinding()]
   Param ()
@@ -5050,7 +5058,7 @@ function OptimizeGPUTweaks {
               "F1TransitionLatency"                = 1
               "LOWLATENCY"                         = 1
               "Node3DLowLatency"                   = 1
-              "PciLatencyTimerControl"             = "0x00000020"
+              "PciLatencyTimerControl"             = 0x20
               "RMDeepL1EntryLatencyUsec"           = 1
               "RmGspcMaxFtuS"                      = 1
               "RmGspcMinFtuS"                      = 1
@@ -5068,7 +5076,7 @@ function OptimizeGPUTweaks {
             }
 
             foreach ($prop in $properties.GetEnumerator()) {
-              Set-RegistryValue -Path $defaultRegPath -Name $prop.Name -Value $prop.Value -Type "DWord"
+              Set-RegistryValue -Path $regPath -Name $prop.Name -Value $prop.Value -Type "DWord"
             }
 
             Log-Action -Message "Otimizações de latência NVIDIA aplicadas com sucesso no caminho $subKeyName." -Level "INFO" -ConsoleOutput
@@ -5089,7 +5097,7 @@ function OptimizeGPUTweaks {
             "F1TransitionLatency"                = 1
             "LOWLATENCY"                         = 1
             "Node3DLowLatency"                   = 1
-            "PciLatencyTimerControl"             = "0x00000020"
+            "PciLatencyTimerControl"             = 0x20
             "RMDeepL1EntryLatencyUsec"           = 1
             "RmGspcMaxFtuS"                      = 1
             "RmGspcMinFtuS"                      = 1
@@ -5533,13 +5541,33 @@ $currentStep = 0
 # Exemplo de uso no loop principal
 foreach ($tweak in $tweaks) {
   $currentStep++
-  $tweakName = ($tweak -split ' ')[0]  # Extrai apenas o nome da função
+  $tokens = [regex]::Matches($tweak, '"[^"]*"|\S+') | ForEach-Object { $_.Value }
+  if (-not $tokens -or $tokens.Count -eq 0) {
+    Log-Action -Message "Entrada de tweak inválida/ vazia. Pulando..." -Level "WARNING" -ConsoleOutput
+    continue
+  }
+
+  $tweakName = $tokens[0]
   Log-Action -Message "Iniciando execução do tweak: $tweakName (Passo $currentStep de $totalTweaks)" -Level "INFO" -ConsoleOutput
   Show-ProgressBar -CurrentStep $currentStep -TotalSteps $totalTweaks -TaskName $tweakName
 
   if ($tweakFunctions.ContainsKey($tweakName)) {
     try {
-      Invoke-Expression $tweak
+      $invokeArgs = @{}
+      for ($i = 1; $i -lt $tokens.Count; $i++) {
+        $token = $tokens[$i]
+        if ($token -match '^-([A-Za-z_][A-Za-z0-9_]*)$') {
+          $paramName = $matches[1]
+          $paramValue = $true
+          if ($i + 1 -lt $tokens.Count -and $tokens[$i + 1] -notmatch '^-') {
+            $i++
+            $paramValue = $tokens[$i].Trim('"')
+          }
+          $invokeArgs[$paramName] = $paramValue
+        }
+      }
+
+      & $tweakFunctions[$tweakName] @invokeArgs
       Log-Action -Message "Tweak $tweakName concluído com sucesso." -Level "INFO" -ConsoleOutput
     }
     catch {
