@@ -4554,8 +4554,9 @@ function DownloadAndExtractISLC {
 
   try {
     # Definir o link de download e o caminho do arquivo
-    $downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
-    $downloadPath = "C:\ISLC_v1.0.3.4.exe"
+    $downloadUrl = "https://www.wagnardsoft.com/ISLC/ISLC%20v1.0.4.5.exe"
+    #$downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
+    $downloadPath = "C:\ISLC_v1.0.4.5.exe"
     $extractPath = "C:\"
     $newFolderName = "ISLC"
 
@@ -4601,7 +4602,7 @@ function DownloadAndExtractISLC {
       Write-Colored "Arquivo extraído com sucesso para $extractPath" "Verde"
 
       # Renomear a pasta extraída para ISLC
-      $extractedFolderPath = Join-Path -Path $extractPath -ChildPath "ISLC v1.0.3.4"
+      $extractedFolderPath = Join-Path -Path $extractPath -ChildPath "ISLC v1.0.4.5"
       if (Test-Path -Path $extractedFolderPath) {
         Write-Log "Renomeando a pasta extraída de $extractedFolderPath para $newFolderName..." -ConsoleOutput
         Rename-Item -Path $extractedFolderPath -NewName $newFolderName -ErrorAction Stop
