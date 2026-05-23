@@ -17,14 +17,15 @@ param (
   [int]$ReferenceFPS = 120
 )
 
-$versao = "V0.7.2.8.6 FIX (GROK / CODEX )"
+$versao = "V0.7.2.8.7 FIX (GROK / CODEX )"
 
 # Definir página de código para suportar caracteres especiais
 
 chcp 1252 | Out-Null
 
 $script:RunId = Get-Date -Format "yyyyMMdd_HHmmss"
-$script:ReportRoot = Join-Path -Path $PSScriptRoot -ChildPath "Reports"
+$script:ScriptRoot = if ([string]::IsNullOrEmpty($PSScriptRoot)) { (Get-Location).Path } else { $PSScriptRoot }
+$script:ReportRoot = Join-Path -Path $script:ScriptRoot -ChildPath "Reports"
 $script:ReportPath = Join-Path -Path $script:ReportRoot -ChildPath "optimization_report_$script:RunId.txt"
 $script:BackupRoot = Join-Path -Path $script:ReportRoot -ChildPath "backup_$script:RunId"
 $script:LogPath = Join-Path -Path $env:TEMP -ChildPath "optimization_log_$script:RunId.txt"
@@ -471,6 +472,11 @@ function Write-OptimizationReport {
     [object]$After
   )
 
+  if ([string]::IsNullOrEmpty($script:ReportRoot)) {
+    Write-Log "Report root path is not defined. Cannot write report." -Level "ERROR" -ConsoleOutput
+    return
+  }
+
   if (-not (Test-Path $script:ReportRoot)) {
     New-Item -Path $script:ReportRoot -ItemType Directory -Force | Out-Null
   }
@@ -529,6 +535,11 @@ function Write-OptimizationReport {
 }
 
 function Initialize-OptimizationBackup {
+  if ([string]::IsNullOrEmpty($script:BackupRoot)) {
+    Write-Log "Backup root path is not defined. Cannot initialize backup." -Level "ERROR" -ConsoleOutput
+    return
+  }
+
   if (-not (Test-Path $script:BackupRoot)) {
     New-Item -Path $script:BackupRoot -ItemType Directory -Force | Out-Null
   }
