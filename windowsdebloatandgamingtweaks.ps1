@@ -17,7 +17,7 @@ param (
   [int]$ReferenceFPS = 120
 )
 
-$versao = "V0.7.2.8.7 FIX (GROK / CODEX )"
+$versao = "V0.7.2.8.6 (GROK / CODEX )"
 
 # Definir página de código para suportar caracteres especiais
 
@@ -268,6 +268,31 @@ function Write-Log {
 # Write-Log "Iniciando processo" -Level "INFO" -ConsoleOutput
 # Write-Log "Erro detectado" -Level "ERROR" -ConsoleOutput
 
+function Set-RegistryValueSafely {
+  param (
+    [string]$Path,
+    [string]$Name,
+    [object]$Value,
+    [string]$Type = "DWord"
+  )
+  try {
+    # Garante que o caminho utilize o PSProvider correto
+    $resolvedPath = $Path
+    if ($Path -like "HKLM:*") { $resolvedPath = $Path.Replace("HKLM:", "Registry::HKEY_LOCAL_MACHINE") }
+    elseif ($Path -like "HKCU:*") { $resolvedPath = $Path.Replace("HKCU:", "Registry::HKEY_CURRENT_USER") }
+    elseif ($Path -like "HKU:*") { $resolvedPath = $Path.Replace("HKU:", "Registry::HKEY_USERS") }
+    elseif ($Path -like "HKCR:*") { $resolvedPath = $Path.Replace("HKCR:", "Registry::HKEY_CLASSES_ROOT") }
+
+    if (-not (Test-Path $resolvedPath)) {
+      New-Item -Path $resolvedPath -Force -ErrorAction Stop | Out-Null
+    }
+    Set-ItemProperty -Path $resolvedPath -Name $Name -Value $Value -Type $Type -ErrorAction Stop | Out-Null
+  }
+  catch {
+    Write-Log "Falha ao gravar no registro: $Path\$Name. Erro: $_" -Level "WARNING"
+  }
+}
+
 function Get-SafeValue {
   param (
     [scriptblock]$Action,
@@ -357,12 +382,12 @@ function Get-TweakMetadata {
     Description = "Ajuste geral do sistema"
   }
 
-  $downloads = @("InstallTitusProgs", "Execute-BatchScript", "Download-GPUFiles", "DownloadAndExtractISLC", "InstallMVC", "Install7Zip", "InstallChocoUpdates")
-  $security = @("AskDefender", "SetUACLow", "DisableSMB1", "DisableSmartScreen", "DisableFirewall")
-  $boot = @("EnableF8BootMenu", "DisableHPET", "DisableDMA", "UseBigM", "ForceContiguousM", "SetBIOSTimeUTC", "DisableHibernation", "DisableFastStartup", "DisableMeltdownCompatFlag")
-  $debloat = @("DebloatAll", "RemoveBloatRegistry", "Remove-OneDrive", "UninstallMsftBloat", "DisableXboxFeatures", "AskXBOX", "UninstallInternetExplorer", "UninstallWorkFolders", "UninstallLinuxSubsystem")
+  $downloads = @("InstallTitusProgs", "Execute-BatchScript", "Download-GPUFiles", "DownloadAndExtractISLC", "InstallMVC", "Install7Zip", "InstallChocoUpdates", "InstallPDFPrinter")
+  $security = @("AskDefender", "SetUACLow", "DisableSMB1", "DisableSmartScreen", "DisableFirewall", "TurnOffSafeSearch", "DisableCloudSearch", "DisableDeviceHistory", "DisableSearchHistory", "DisableShistory", "DisableRemoteAssistance", "DisableAutoplay", "DisableAutorun")
+  $boot = @("EnableF8BootMenu", "DisableHPET", "DisableDMA", "UseBigM", "ForceContiguousM", "SetBIOSTimeUTC", "DisableHibernation", "DisableFastStartup", "DisableMeltdownCompatFlag", "DisableSleepTimeout", "EnableSleepButton", "DisableStorageSense", "EnableNumlock", "BSODdetails", "DisableUpdateRestart")
+  $debloat = @("DebloatAll", "RemoveBloatRegistry", "Remove-OneDrive", "UninstallMsftBloat", "DisableXboxFeatures", "AskXBOX", "UninstallInternetExplorer", "UninstallWorkFolders", "UninstallLinuxSubsystem", "DisableNewsFeed", "RemoveMeet", "RemoveEdit3D", "HideTaskbarPeopleIcon", "DisableliveTiles", "UltimateCleaner", "Hide3DObjectsFromThisPC", "Hide3DObjectsFromExplorer", "Windows11Extras", "UnpinStartMenuTiles", "DisableHomeGroups", "DisableSearchAppInStore", "DisableNewAppPrompt")
   $network = @("NetworkOptimizations", "DisableNagle", "NetworkAdapterRSS", "Disable-LSO", "SetCurrentNetworkPrivate", "SetUnknownNetworksPrivate", "DisableNetDevicesAutoInst")
-  $performance = @("EnableUltimatePower", "ManagePowerProfiles", "Set-RamThreshold", "Set-MemoriaVirtual-Registry", "UpdateISLCConfig", "ApplyPCOptimizations", "MSIMode", "NvidiaTweaks", "AMDGPUTweaks", "PowerThrottlingOff", "Win32PrioritySeparation", "GameOptimizationFIX", "FullscreenOptimizationFIX", "RawMouseInput", "DetectnApplyMouseFIX", "EnableGameMode", "EnableHAGS", "DecreaseMKBuffer", "StophighDPC")
+  $performance = @("EnableUltimatePower", "ManagePowerProfiles", "Set-RamThreshold", "Set-MemoriaVirtual-Registry", "UpdateISLCConfig", "ApplyPCOptimizations", "MSIMode", "NvidiaTweaks", "AMDGPUTweaks", "PowerThrottlingOff", "Win32PrioritySeparation", "GameOptimizationFIX", "FullscreenOptimizationFIX", "RawMouseInput", "DetectnApplyMouseFIX", "EnableGameMode", "EnableHAGS", "DecreaseMKBuffer", "StophighDPC", "SlowUpdatesTweaks", "DisableGaming", "DisableAERO", "DisableTransparency", "WallpaperQuality", "SetVisualFXPerformance", "EnableThumbnails", "EnableThumbsDB", "DisablePKM", "DisallowDIP", "SVCHostTweak", "DisableDefragmentation", "EnableIndexing", "QOL", "Ativar-Servicos", "AddPhotoViewerOpenWith", "SetPhotoViewerAssociation", "FixURLext", "Clear-PSHistory", "Check-Windows", "DisableFileDeleteConfirm", "DisableMouseKKS", "DisableShortcutWord", "DisableStickyKeys", "EnableActionCenter", "EnableDarkMode", "EnableLockScreen", "EnableLockScreenRS1", "EnableRemoteDesktop", "EnableSharedExperiences", "HideHiddenFiles", "HideRecentShortcuts", "HideSyncNotifications", "HideTaskbarSearch", "HideTaskView", "SetExplorerThisPC", "ShowFileOperationsDetails", "ShowKnownExtensions", "ShowTaskManagerDetails", "ShowThisPCOnDesktop", "ShowUserFolderOnDesktop")
 
   if ($downloads -contains $name) {
     $metadata.Category = "Download"
@@ -3554,10 +3579,9 @@ Function GameOptimizationFIX {
       Write-Output "A plataforma é $PlatformCheck. Desativando opções de economia de energia em todos os dispositivos conectados..."
       Write-Log "A plataforma é $PlatformCheck. Desativando opções de economia de energia em todos os dispositivos conectados..." -ConsoleOutput
 
-      Get-WmiObject MSPower_DeviceEnable -Namespace root\wmi -ErrorAction Stop | ForEach-Object { 
+      Get-CimInstance -Namespace root/wmi -ClassName MSPower_DeviceEnable -ErrorAction Stop | ForEach-Object { 
         Write-Log "Desativando economia de energia para dispositivo: $($_.InstanceName)..." -ConsoleOutput
-        $_.enable = $false
-        $_.psbase.put() | Out-Null
+        Set-CimInstance -InputObject $_ -Property @{ Enable = $false } -ErrorAction Stop
         Write-Log "Economia de energia desativada com sucesso para $($_.InstanceName)." -Level "INFO" -ConsoleOutput
       }
       Write-Log "Opções de economia de energia desativadas com sucesso em todos os dispositivos conectados." -Level "INFO" -ConsoleOutput
@@ -4437,7 +4461,38 @@ function EnableUltimatePower {
 
 function CreateRestorePoint {
   Write-Output "Creating system restore point..."
-  Checkpoint-Computer -Description "Before Windows Debloater Gaming Tweaks" -RestorePointType "MODIFY_SETTINGS" -ErrorAction SilentlyContinue
+  Write-Log "Iniciando criação do ponto de restauração..." -ConsoleOutput
+  
+  $srPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore"
+  $oldFrequency = $null
+  
+  try {
+    # Remover limite de frequência de 24 horas temporariamente
+    if (Test-Path $srPath) {
+      $oldFrequency = Get-ItemPropertyValue -Path $srPath -Name "SystemRestorePointCreationFrequency" -ErrorAction SilentlyContinue
+      Set-ItemProperty -Path $srPath -Name "SystemRestorePointCreationFrequency" -Value 0 -Type DWord -ErrorAction SilentlyContinue | Out-Null
+    }
+    
+    # Criar o ponto de restauração
+    Checkpoint-Computer -Description "Before Windows Debloater Gaming Tweaks" -RestorePointType "MODIFY_SETTINGS" -ErrorAction Stop
+    Write-Log "Ponto de restauração criado com sucesso." -Level "INFO" -ConsoleOutput
+  }
+  catch {
+    Write-Log "Não foi possível criar o ponto de restauração. Erro: $_" -Level "WARNING" -ConsoleOutput
+    Write-Colored "`n[AVISO] A criação do Ponto de Restauração falhou (Pode ser que a Restauração do Sistema esteja desativada)." -Color "AmareloClaro"
+    Write-Colored "Deseja continuar mesmo assim? (S/N): " -Color "Branco" -NoNewline
+    $choice = Read-Host
+    if ($choice -notmatch "^(?i)s$") {
+      Write-Log "Execução cancelada pelo usuário devido à falha no ponto de restauração." -Level "WARNING" -ConsoleOutput
+      Exit
+    }
+  }
+  finally {
+    # Restaurar configuração original de frequência se aplicável
+    if ($null -ne $oldFrequency -and (Test-Path $srPath)) {
+      Set-ItemProperty -Path $srPath -Name "SystemRestorePointCreationFrequency" -Value $oldFrequency -Type DWord -ErrorAction SilentlyContinue | Out-Null
+    }
+  }
 }
 
 
@@ -4450,7 +4505,7 @@ function Set-RamThreshold {
   Write-Log "Iniciando função Set-RamThreshold para configurar o limite de RAM no registro." -ConsoleOutput
 
   try {
-    $ramGB = [math]::Round((Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
+    $ramGB = [math]::Round((Get-CimInstance -ClassName Win32_ComputerSystem).TotalPhysicalMemory / 1GB)
     Write-Log "Quantidade de RAM detectada: $ramGB GB" -ConsoleOutput
 
     $value = switch ($ramGB) {
@@ -4554,9 +4609,8 @@ function DownloadAndExtractISLC {
 
   try {
     # Definir o link de download e o caminho do arquivo
-    $downloadUrl = "https://www.wagnardsoft.com/ISLC/ISLC%20v1.0.4.5.exe"
-    #$downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
-    $downloadPath = "C:\ISLC_v1.0.4.5.exe"
+    $downloadUrl = "https://raw.githubusercontent.com/wesscd/WindowsGaming/main/ISLC%20v1.0.3.4.exe"
+    $downloadPath = "C:\ISLC_v1.0.3.4.exe"
     $extractPath = "C:\"
     $newFolderName = "ISLC"
 
@@ -4602,7 +4656,7 @@ function DownloadAndExtractISLC {
       Write-Colored "Arquivo extraído com sucesso para $extractPath" "Verde"
 
       # Renomear a pasta extraída para ISLC
-      $extractedFolderPath = Join-Path -Path $extractPath -ChildPath "ISLC v1.0.4.5"
+      $extractedFolderPath = Join-Path -Path $extractPath -ChildPath "ISLC v1.0.3.4"
       if (Test-Path -Path $extractedFolderPath) {
         Write-Log "Renomeando a pasta extraída de $extractedFolderPath para $newFolderName..." -ConsoleOutput
         Rename-Item -Path $extractedFolderPath -NewName $newFolderName -ErrorAction Stop
@@ -4687,7 +4741,7 @@ function UpdateISLCConfig {
       Write-Log "Conteúdo XML carregado com sucesso." -Level "INFO" -ConsoleOutput
 
       # Obter a quantidade total de memória RAM do sistema (em MB)
-      $totalMemory = (Get-WmiObject Win32_ComputerSystem).TotalPhysicalMemory / 1MB
+      $totalMemory = (Get-CimInstance -ClassName Win32_ComputerSystem).TotalPhysicalMemory / 1MB
       $freeMemory = [math]::Round($totalMemory / 2)  # Calcular metade da memória
       Write-Log "Memória total detectada: $totalMemory MB. Memória livre configurada como: $freeMemory MB" -ConsoleOutput
 
@@ -5467,7 +5521,7 @@ Function NetworkAdapterRSS {
     Write-Log "Configurando RSS para adaptadores de rede..." -ConsoleOutput
 
     Write-Log "Obtendo adaptadores físicos de rede..." -ConsoleOutput
-    $PhysicalAdapters = Get-WmiObject -Class Win32_NetworkAdapter -ErrorAction Stop | Where-Object { 
+    $PhysicalAdapters = Get-CimInstance -ClassName Win32_NetworkAdapter -ErrorAction Stop | Where-Object { 
       $_.PNPDeviceID -notlike "ROOT\*" -and 
       $_.Manufacturer -ne "Microsoft" -and 
       $_.ConfigManagerErrorCode -eq 0 -and 
