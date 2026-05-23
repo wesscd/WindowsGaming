@@ -17,7 +17,7 @@ param (
   [int]$ReferenceFPS = 120
 )
 
-$versao = "V0.7.2.8.6 (GROK / CODEX )"
+$versao = "V0.7.2.8.6 FIX (GROK / CODEX )"
 
 # Definir página de código para suportar caracteres especiais
 
