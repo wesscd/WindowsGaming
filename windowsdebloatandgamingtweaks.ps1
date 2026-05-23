@@ -3,9 +3,6 @@
 # Versão: V0.7.2.4.5 (GROK / GPT)
 # Autores Originais: ChrisTitusTech, DaddyMadu
 # Modificado por: César Marques.
-
-$versao = "V0.7.2.8.6 (GROK / CODEX )"
-
 param (
   [ValidateSet("Interactive", "Essential", "Gaming", "Advanced", "Extreme")]
   [string]$ExecutionProfile = "Interactive",
@@ -19,6 +16,8 @@ param (
   [ValidateRange(1, 1000)]
   [int]$ReferenceFPS = 120
 )
+
+$versao = "V0.7.2.8.6 (GROK / CODEX )"
 
 # Definir página de código para suportar caracteres especiais
 
@@ -69,7 +68,8 @@ function Write-Colored {
   param (
     [string]$Text,
     [string]$Color,
-    [string]$BackgroundColor = $null
+    [string]$BackgroundColor = $null,
+    [switch]$NoNewline
   )
 
   # Mapeamento de cores em português para inglês
@@ -126,10 +126,10 @@ function Write-Colored {
 
   # Exibir o texto com as cores selecionadas
   if ($selectedBgColor) {
-    Write-Host $Text -ForegroundColor $selectedColor -BackgroundColor $selectedBgColor
+    Write-Host $Text -ForegroundColor $selectedColor -BackgroundColor $selectedBgColor -NoNewline:$NoNewline
   }
   else {
-    Write-Host $Text -ForegroundColor $selectedColor
+    Write-Host $Text -ForegroundColor $selectedColor -NoNewline:$NoNewline
   }
 }
 
@@ -707,17 +707,17 @@ function Get-HealthCheckIntroLines {
 
   $lines = New-Object System.Collections.Generic.List[string]
   $lines.Add("")
-  $lines.Add("╔═══════════════════════════════════════╗")
-  $lines.Add("╠════════ Health Check do Sistema ══════╣")
-  $lines.Add("╚═══════════════════════════════════════╝")
+  $lines.Add("+---------------------------------------+")
+  $lines.Add("|        Health Check do Sistema        |")
+  $lines.Add("+---------------------------------------+")
   $lines.Add("")
-  $lines.Add("≫ Status geral: $($Health.Status) - Nota $($Health.Score)/100")
-  $lines.Add("≫ Precisa de atenção em $($Health.IssueCount) item(ns) ($($Health.HighCount) alta, $($Health.MediumCount) média, $($Health.LowCount) baixa)")
-  $lines.Add("≫ Nota rápida: $($Health.Note)")
+  $lines.Add("> Status geral: $($Health.Status) - Nota $($Health.Score)/100")
+  $lines.Add("> Precisa de atencao em $($Health.IssueCount) item(ns) ($($Health.HighCount) alta, $($Health.MediumCount) media, $($Health.LowCount) baixa)")
+  $lines.Add("> Nota rapida: $($Health.Note)")
 
   if ($Health.Issues.Count -gt 0) {
     $lines.Add("")
-    $lines.Add("Itens que merecem atenção:")
+    $lines.Add("Itens que merecem atencao:")
     $Health.Issues |
       Sort-Object @{ Expression = { switch ($_.Severity) { "Alta" { 0 } "Media" { 1 } default { 2 } } } } |
       Select-Object -First 6 |
@@ -800,7 +800,7 @@ function Show-ProgressBar {
   $filledLength = [math]::Round(($percentComplete / 100) * $barLength)
   $emptyLength = $barLength - $filledLength
 
-  $filledBar = "█" * $filledLength
+  $filledBar = "#" * $filledLength
   $emptyBar = " " * $emptyLength
   $progressBar = "[$filledBar$emptyBar] $percentComplete%"
 
@@ -831,27 +831,24 @@ function Show-Intro {
   $intro = @(
     "",
     "",
-    "██████╗  █████╗ ██████╗  █████╗  ██████╗ ████████╗███████╗ ██████╗██╗  ██╗",
-    "██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝██╔════╝██╔════╝██║  ██║",    
-    "██████╔╝███████║██████╔╝███████║██║   ██║   ██║   █████╗  ██║     ███████║",    
-    "██╔══██╗██╔══██║██╔══██╗██╔══██║██║   ██║   ██║   ██╔══╝  ██║     ██╔══██║",
-    "██████╔╝██║  ██║██║  ██║██║  ██║╚██████╔╝██╗██║   ███████╗╚██████╗██║  ██║",
-    "╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝",                                                             
-    "                                                                   $versao",
+    "==============================================================",
+    " B A R A O . T E C H   W I N D O W S   G A M I N G   T W E A K S",
+    "==============================================================",
+    "Versao: $versao",
     "",
     "Bem-vindo ao Barao.Tech Ultimate Windows Debloater Gaming",
     "Este script otimizará o desempenho do seu sistema Windows.",
     "Um ponto de restauração será criado antes de prosseguir.",
     "",
-    "╔═══════════════════════════════════════╗",
-    "╠══════ Informações do Computador ══════╣",
-    "╚═══════════════════════════════════════╝",
+    "+---------------------------------------+",
+    "|       Informacoes do Computador       |",
+    "+---------------------------------------+",
     "",
-    "≫ Nome do Host: $hostName"# + (" " * $hostNamePadding),
-    "≫ Sistema Operacional: $osName"# + (" " * $osNamePadding),
-    "≫ Versão do Windows: $osVersion" #+ (" " * $osVersionPadding),
-    "≫ Processador: $processor",
-    "≫ Memória RAM: $ramGB GB"# + (" " * $ramPadding)
+    "> Nome do Host: $hostName"# + (" " * $hostNamePadding),
+    "> Sistema Operacional: $osName"# + (" " * $osNamePadding),
+    "> Versao do Windows: $osVersion" #+ (" " * $osVersionPadding),
+    "> Processador: $processor",
+    "> Memoria RAM: $ramGB GB"# + (" " * $ramPadding)
   ) + $healthLines + @(
     "",
     "Pressione qualquer tecla para continuar..."
